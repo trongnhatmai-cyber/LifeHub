@@ -351,20 +351,17 @@
     // =========================
     // DARK MODE
     // =========================
-
-    const themeButton = $('theme');
+    const themeButton = document.getElementById("themeToggle");
 
     if (themeButton) {
-        themeButton.addEventListener('click', () => {
-            const root = d.documentElement;
+        themeButton.addEventListener("click", function () {
 
-            const isDark = root.dataset.theme
-                ? root.dataset.theme === 'dark'
-                : window.matchMedia(
-                    '(prefers-color-scheme: dark)'
-                  ).matches;
+            const root = document.documentElement;
 
-            root.dataset.theme = isDark ? 'light' : 'dark';
+            const isDark = root.dataset.theme === "dark";
+
+            root.dataset.theme = isDark ? "light" : "dark";
+
         });
     }
 

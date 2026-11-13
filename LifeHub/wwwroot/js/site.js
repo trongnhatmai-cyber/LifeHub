@@ -1,4 +1,17 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿document.addEventListener("DOMContentLoaded", () => {
+    const html = document.documentElement;
+    const themeToggle = document.getElementById("themeToggle");
 
-// Write your JavaScript code.
+    // Light Mode là giao diện mặc định
+    const savedTheme = localStorage.getItem("lifehub-theme") || "light";
+
+    html.setAttribute("data-theme", savedTheme);
+
+    themeToggle?.addEventListener("click", () => {
+        const currentTheme = html.getAttribute("data-theme");
+        const newTheme = currentTheme === "light" ? "dark" : "light";
+
+        html.setAttribute("data-theme", newTheme);
+        localStorage.setItem("lifehub-theme", newTheme);
+    });
+});
