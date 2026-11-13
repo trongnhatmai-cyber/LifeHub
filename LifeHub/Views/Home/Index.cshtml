@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="~/css/login.css" asp-append-version="true">
 <script>document.documentElement.classList.add('lh-js')</script>
 </head>
 <body>
@@ -30,9 +30,14 @@
 <header class="lh-nav">
 <div class="lh-wrap">
 <a class="lh-logo" href="#"><b>L</b>LifeHub</a>
-<nav class="lh-links"><a href="#lh-tinh-nang">Tính năng</a><a href="#lh-phan-he">Phân hệ</a><a href="#lh-cach-hoat-dong">Cách hoạt động</a></nav>
-<a class="lh-btn" href="#">Đăng nhập</a>
-<a class="lh-btn lh-pri" href="#">Bắt đầu ngay</a>
+<nav class="lh-links">
+    <a href="#lh-tinh-nang">Tính năng</a>
+    <a href="#lh-phan-he">Phân hệ</a>
+    <a href="#lh-cach-hoat-dong">Cách hoạt động</a>
+</nav>
+<a class="lh-btn" href="/Account/Login">Đăng nhập</a>
+<a class="lh-btn lh-pri" href="/Account/Register">Bắt đầu ngay</a>
+</div>
 </div>
 </header>
 
@@ -42,7 +47,16 @@
 <div class="lh-pill"><i>Mới</i>Trợ lý AI giúp bạn lập kế hoạch mỗi ngày</div>
 <h1>Cả cuộc sống của bạn, gọn trong một nơi.</h1>
 <p class="lh-lead">Học tập, công việc, dự án, tiền bạc, thói quen và mục tiêu cùng nằm trên một lịch và một trang tổng quan. Ghi một lần, mọi thứ tự kết nối.</p>
-<div class="lh-cta"><a class="lh-btn lh-pri lh-lg" href="#">Bắt đầu ngay</a><a class="lh-btn lh-lg" href="#lh-tinh-nang">Xem tính năng</a></div>
+<div class="lh-cta">
+    <a class="lh-btn lh-pri lh-lg" href="/Account/Register">
+        Bắt đầu ngay
+    </a>
+
+    <a class="lh-btn lh-lg" href="#lh-tinh-nang">
+        Xem tính năng
+    </a>
+</div>
+</div>
 <p class="lh-note">Tạo tài khoản chỉ mất một phút. Dùng được trên máy tính, máy tính bảng và điện thoại.</p>
 
 <div class="lh-stage"><div class="lh-chip lh-c1"><i></i>Đã nhắc trước hạn nộp 1 giờ</div>
@@ -211,7 +225,16 @@
 <div class="lh-end">
 <h2>Bắt đầu sắp xếp cuộc sống hôm nay</h2>
 <p>Tạo tài khoản trong một phút. Bạn có thể xuất hoặc sao lưu dữ liệu bất cứ lúc nào.</p>
-<div class="lh-cta"><a class="lh-btn lh-pri lh-lg" href="#">Tạo tài khoản</a><a class="lh-btn lh-lg" href="#">Đăng nhập</a></div>
+<div class="lh-cta">
+    <div class="lh-cta">
+    <a class="lh-btn lh-pri lh-lg" href="/Account/Register">
+        Tạo tài khoản
+    </a>
+
+    <a class="lh-btn lh-lg" href="/Account/Login">
+        Đăng nhập
+    </a>
+</div>  
 </div>
 </div>
 </section>
