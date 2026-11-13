@@ -1,0 +1,132 @@
+@model IEnumerable<LifeHub.Models.ViewModels.FinanceManagement.CategoryViewModel>
+
+@{
+    ViewData["Title"] = "Danh mục tài chính";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/finance.css" asp-append-version="true" />
+}
+
+<div class="module-page finance-page">
+
+    <div class="page-header">
+        <div>
+            <p class="page-eyebrow">QUẢN LÝ TÀI CHÍNH</p>
+            <h1>Danh mục</h1>
+            <p class="page-description">
+                Quản lý các nhóm thu nhập và chi tiêu của bạn.
+            </p>
+        </div>
+
+        <a asp-controller="Category"
+           asp-action="Create"
+           class="primary-button">
+            Thêm danh mục
+        </a>
+    </div>
+
+    <div class="finance-summary-grid">
+        <div class="module-card">
+            <span>Tổng danh mục</span>
+            <strong>@Model.Count()</strong>
+        </div>
+
+        <div class="module-card">
+            <span>Danh mục thu nhập</span>
+            <strong>@Model.Count(x => x.Type.ToString() == "Income")</strong>
+        </div>
+
+        <div class="module-card">
+            <span>Danh mục chi tiêu</span>
+            <strong>@Model.Count(x => x.Type.ToString() == "Expense")</strong>
+        </div>
+    </div>
+
+    <div class="module-card category-section">
+        <div class="section-heading">
+            <div>
+                <h2>Danh sách danh mục</h2>
+                <p>Các danh mục hiện có trong tài khoản.</p>
+            </div>
+
+            <input type="search"
+                   id="categorySearch"
+                   class="module-input search-input"
+                   placeholder="Tìm danh mục..." />
+        </div>
+
+        <div class="filter-tabs">
+            <button type="button" class="filter-button active" data-filter="all">
+                Tất cả
+            </button>
+
+            <button type="button" class="filter-button" data-filter="Income">
+                Thu nhập
+            </button>
+
+            <button type="button" class="filter-button" data-filter="Expense">
+                Chi tiêu
+            </button>
+        </div>
+
+        <div class="category-list" id="categoryList">
+
+            @foreach (var item in Model)
+            {
+                <div class="category-row"
+                     data-type="@item.Type"
+                     data-name="@item.Name.ToLower()">
+
+                    <div class="category-color"
+                         style="background-color: @(string.IsNullOrWhiteSpace(item.Color) ? "#e98ba5" : item.Color)">
+                    </div>
+
+                    <div class="category-information">
+                        <strong>@item.Name</strong>
+
+                        <span>
+                            @(item.Type.ToString() == "Income" ? "Thu nhập" : "Chi tiêu")
+                        </span>
+                    </div>
+
+                    <div class="category-actions">
+                        <a asp-controller="Category"
+                           asp-action="Edit"
+                           asp-route-id="@item.Id"
+                           class="secondary-button">
+                            Chỉnh sửa
+                        </a>
+
+                        <form asp-controller="Category"
+                              asp-action="Delete"
+                              asp-route-id="@item.Id"
+                              method="post"
+                              onsubmit="return confirm('Bạn có chắc muốn xóa danh mục này?');">
+
+                            @Html.AntiForgeryToken()
+
+                            <button type="submit" class="delete-button">
+                                Xóa
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+
+            @if (!Model.Any())
+            {
+                <div class="empty-state">
+                    <h3>Chưa có danh mục nào</h3>
+                    <p>Hãy tạo danh mục đầu tiên để phân loại thu chi.</p>
+                </div>
+            }
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script src="~/js/finance.js" asp-append-version="true"></script>
+}

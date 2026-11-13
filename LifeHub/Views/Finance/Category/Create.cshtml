@@ -1,0 +1,117 @@
+@model LifeHub.Models.ViewModels.FinanceManagement.CategoryViewModel
+
+@{
+    ViewData["Title"] = "Thêm danh mục";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/finance.css" asp-append-version="true" />
+}
+
+<div class="module-page finance-page">
+
+    <div class="page-header">
+        <div>
+            <p class="page-eyebrow">QUẢN LÝ TÀI CHÍNH</p>
+            <h1>Thêm danh mục</h1>
+            <p class="page-description">
+                Tạo danh mục mới để phân loại các khoản thu và chi.
+            </p>
+        </div>
+
+        <a asp-controller="Category"
+           asp-action="Index"
+           class="secondary-button">
+            Quay lại
+        </a>
+    </div>
+
+    <div class="module-card form-card">
+
+        <form asp-controller="Category"
+              asp-action="Create"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly"
+                 class="validation-summary">
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Name">Tên danh mục</label>
+
+                <input asp-for="Name"
+                       class="module-input"
+                       placeholder="Ví dụ: Ăn uống" />
+
+                <span asp-validation-for="Name"
+                      class="validation-message">
+                </span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Type">Loại danh mục</label>
+
+                <select asp-for="Type" class="module-input">
+                    <option value="Expense">Chi tiêu</option>
+                    <option value="Income">Thu nhập</option>
+                </select>
+
+                <span asp-validation-for="Type"
+                      class="validation-message">
+                </span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Color">Màu danh mục</label>
+
+                <input asp-for="Color"
+                       type="color"
+                       class="color-input"
+                       value="#e98ba5" />
+
+                <span asp-validation-for="Color"
+                      class="validation-message">
+                </span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ParentId">
+                    Danh mục cha
+                    <span class="optional-label">Không bắt buộc</span>
+                </label>
+
+                <input asp-for="ParentId"
+                       type="number"
+                       min="1"
+                       class="module-input"
+                       placeholder="Nhập ID danh mục cha nếu có" />
+
+                <span asp-validation-for="ParentId"
+                      class="validation-message">
+                </span>
+            </div>
+
+            <div class="form-actions">
+                <a asp-controller="Category"
+                   asp-action="Index"
+                   class="secondary-button">
+                    Hủy
+                </a>
+
+                <button type="submit" class="primary-button">
+                    Lưu danh mục
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/finance.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,32 @@
+/* =========================
+   STUDY MANAGEMENT
+========================= */
+
+.study-page {
+    --module-color: #d0d7e1;
+    --module-accent: #7188a5;
+
+    padding: 24px;
+}
+
+html[data-theme="light"] .study-page .study-card {
+    background: #d0d7e1;
+    border: 1px solid #b9c5d4;
+    color: #263343;
+}
+
+html[data-theme="dark"] .study-page .study-card {
+    background: #101b14;
+    border: 1px solid #07d244;
+    color: #ffffff;
+}
+
+html[data-theme="dark"] .study-page .study-card .study-accent {
+    color: #07d244;
+}
+
+.study-page .study-card {
+    border-radius: 16px;
+    padding: 20px;
+    transition: background 0.2s ease, border 0.2s ease;
+}
