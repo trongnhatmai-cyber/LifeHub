@@ -1,13 +1,13 @@
 @model LifeHub.Models.ViewModels.FinanceManagement.FinanceViewModel
 
+@section Styles {
+    <link rel="stylesheet" href="~/css/finance.css" asp-append-version="true" />
+}
+
 @{
     Layout = "_Layout";
     ViewData["Title"] = "Quản lý tài chính";
     ViewData["ActivePage"] = "Finance";
-}
-
-@section Styles {
-    <link rel="stylesheet" href="~/css/finance.css" asp-append-version="true" />
 }
 
 <div class="finance-page">
@@ -79,7 +79,7 @@
             <div class="section-heading"><div><h3>Phân bổ chi tiêu</h3><p>Các khoản chi trong tháng</p></div></div>
             <div class="expense-total"><span>Tổng chi tiêu</span><h2 id="expenseBreakdown">@Model.TotalExpense.ToString("N0") ₫</h2></div>
             <div class="category-list" id="categoryList">
-                @foreach (var category in Model.Categories)
+                @foreach (var category in Model.Categories.Where(c => c.Type.ToLower() == "expense"))
                 {
                     var percent = category.Limit > 0 ? Math.Min(100, category.Spent / category.Limit * 100) : 0;
                     <div class="category-item" data-name="@category.Name" data-spent="@category.Spent" data-limit="@category.Limit">
@@ -88,10 +88,11 @@
                         <div class="category-footer"><span>Ngân sách: @category.Limit.ToString("N0") ₫</span><span>@percent.ToString("0")%</span></div>
                     </div>
                 }
-                @if (Model.Categories == null || !Model.Categories.Any())
-                {
-                    <div class="finance-empty">Chưa có dữ liệu phân bổ chi tiêu.</div>
-                }
+                @if (Model.Categories == null ||
+                        !Model.Categories.Any(c => c.Type.ToLower() == "expense"))
+                    {
+                        <div class="finance-empty">Chưa có dữ liệu chi tiêu.</div>
+                    }
             </div>
         </section>
     </div>
@@ -176,28 +177,68 @@
                 <div><h3 id="transactionModalTitle">Thêm giao dịch</h3><p>Ghi lại khoản thu hoặc chi mới</p></div>
                 <button type="button" class="close-modal" id="closeModal" aria-label="Đóng cửa sổ">×</button>
             </div>
-            <form id="transactionForm">
+            <form id="transactionForm"
+                asp-controller="Finance"
+                asp-action="CreateTransaction"
+                method="post">
+
+                @Html.AntiForgeryToken()
+
                 <label for="transactionName">Tên giao dịch</label>
-                <input type="text" id="transactionName" placeholder="Ví dụ: Mua thực phẩm..." maxlength="120" required />
+                <input type="text"
+                    id="transactionName"
+                    name="name"
+                    placeholder="Ví dụ: Mua thực phẩm..."
+                    maxlength="255"
+                    required />
+
                 <label for="transactionType">Loại giao dịch</label>
-                <select id="transactionType" required><option value="expense">Chi tiêu</option><option value="income">Thu nhập</option></select>
+                <select id="transactionType" name="type" required>
+                    <option value="expense">Chi tiêu</option>
+                    <option value="income">Thu nhập</option>
+                </select>
+
                 <label for="transactionCategory">Danh mục</label>
-                <select id="transactionCategory" required>
+                <select id="transactionCategory" name="categoryId" required>
+                    <option value="">-- Chọn danh mục --</option>
                     @if (Model.Categories != null)
                     {
                         @foreach (var category in Model.Categories)
                         {
-                            <option value="@category.Name">@category.Name</option>
+                            <option value="@category.Id" data-type="@category.Type">
+                                @category.Name
+                            </option>
                         }
                     }
-                    <option value="Ăn uống">Ăn uống</option><option value="Nhà ở">Nhà ở</option><option value="Di chuyển">Di chuyển</option><option value="Giải trí">Giải trí</option><option value="Mua sắm">Mua sắm</option><option value="Lương">Lương</option><option value="Freelance">Freelance</option><option value="Khác">Khác</option>
                 </select>
+
                 <label for="transactionAmount">Số tiền (VNĐ)</label>
-                <input type="number" id="transactionAmount" placeholder="Nhập số tiền" min="1" step="1" required />
+                <input type="number"
+                    id="transactionAmount"
+                    name="amount"
+                    placeholder="Nhập số tiền"
+                    min="1"
+                    step="1"
+                    required />
+
                 <label for="transactionDate">Ngày giao dịch</label>
-                <input type="date" id="transactionDate" required />
-                <div class="modal-actions"><button type="button" class="finance-btn" id="cancelTransaction">Hủy</button><button type="submit" class="finance-btn primary submit-transaction">Lưu giao dịch</button></div>
-                <p class="form-demo-note">Bản giao diện hiện cập nhật dữ liệu tạm thời trên trình duyệt, chưa lưu vào cơ sở dữ liệu.</p>
+                <input type="date"
+                    id="transactionDate"
+                    name="date"
+                    required />
+
+                <div class="modal-actions">
+                    <button type="button" class="finance-btn" id="cancelTransaction">
+                        Hủy
+                    </button>
+                    <button type="submit" class="finance-btn primary submit-transaction">
+                        Lưu giao dịch
+                    </button>
+                </div>
+
+                <p class="form-demo-note">
+                    Giao dịch sẽ được lưu vào tài khoản của bạn.
+                </p>
             </form>
         </div>
     </div>

@@ -6,6 +6,8 @@ namespace LifeHub.Controllers
     {
         public IActionResult Index()
         {
+            ViewData["Title"] = "Tổng quan";
+            ViewData["ActivePage"] = "Dashboard";
             return View();
         }
     }

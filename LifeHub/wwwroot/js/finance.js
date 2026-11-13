@@ -162,51 +162,86 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Thêm giao dịch mới vào bảng và cập nhật tổng thu/chi.
-    $("transactionForm").addEventListener("submit", event => {
+    // Chỉ hiển thị danh mục phù hợp với loại giao dịch.
+    function filterCategories() {
+        const selectedType = $("transactionType").value;
+        const categorySelect = $("transactionCategory");
+        if (!categorySelect) return;
+
+        let selectedOptionValid = false;
+
+        Array.from(categorySelect.options).forEach(option => {
+            if (!option.value) {
+                option.hidden = false;
+                return;
+            }
+
+            const matches = option.dataset.type === selectedType;
+            option.hidden = !matches;
+
+            if (matches && option.selected) {
+                selectedOptionValid = true;
+            }
+        });
+
+        if (!selectedOptionValid) {
+            categorySelect.value = "";
+        }
+    }
+
+    $("transactionType")?.addEventListener("change", filterCategories);
+
+    // Gửi giao dịch đến Controller để lưu vào database.
+    $("transactionForm").addEventListener("submit", async event => {
         event.preventDefault();
+
+        const form = event.currentTarget;
+        const submitButton = form.querySelector('[type="submit"]');
+
         const name = $("transactionName").value.trim();
-        const type = $("transactionType").value;
-        const category = $("transactionCategory").value;
+        const categoryId = $("transactionCategory").value;
         const amount = Number($("transactionAmount").value);
         const date = $("transactionDate").value;
-        if (!name || !date || !Number.isFinite(amount) || amount <= 0) {
+
+        if (!name || !categoryId || !date ||
+            !Number.isFinite(amount) || amount <= 0) {
             alert("Vui lòng nhập đầy đủ thông tin giao dịch hợp lệ.");
             return;
         }
+
         const parsedDate = new Date(`${date}T00:00:00`);
+
         if (Number.isNaN(parsedDate.getTime())) {
             alert("Ngày giao dịch không hợp lệ.");
             return;
         }
-        const row = document.createElement("tr");
-        row.dataset.type = type;
-        row.dataset.amount = String(amount);
-        row.dataset.date = date;
-        const nameStrong = document.createElement("strong");
-        nameStrong.textContent = name;
-        const categorySpan = document.createElement("span");
-        categorySpan.className = "transaction-category";
-        categorySpan.textContent = category;
-        const typeSpan = document.createElement("span");
-        typeSpan.className = `transaction-type ${type === "income" ? "type-income" : "type-expense"}`;
-        typeSpan.textContent = type === "income" ? "Thu nhập" : "Chi tiêu";
-        const amountStrong = document.createElement("strong");
-        amountStrong.className = type === "income" ? "text-income" : "text-expense";
-        amountStrong.textContent = `${type === "income" ? "+" : "-"}${money(amount)}`;
-        row.append(
-            createCell(nameStrong), createCell(categorySpan),
-            createCell(parsedDate.toLocaleDateString("vi-VN")), createCell(typeSpan),
-            createCell(amountStrong, "right")
-        );
-        $("transactionBody").prepend(row);
-        transactions.unshift(row);
-        if (type === "income") income += amount;
-        else expense += amount;
-        updateSummary();
-        filterTransactions();
-        closeModal();
-        event.target.reset();
-        $("transactionDate").value = localDateValue();
+
+        // Chặn gửi nhiều lần khi đang lưu.
+        submitButton.disabled = true;
+        submitButton.textContent = "Đang lưu...";
+
+        try {
+            const response = await fetch(form.action, {
+                method: "POST",
+                body: new FormData(form),
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || "Không thể lưu giao dịch.");
+            }
+
+            // Tải lại dữ liệu từ database để cập nhật tổng thu, chi và bảng.
+            window.location.reload();
+        } catch (error) {
+            alert(error.message || "Đã xảy ra lỗi khi lưu giao dịch.");
+            submitButton.disabled = false;
+            submitButton.textContent = "Lưu giao dịch";
+        }
     });
 
     // Khởi tạo toàn bộ thành phần khi trang tải xong.
@@ -214,4 +249,5 @@ document.addEventListener("DOMContentLoaded", () => {
     updateSaving();
     drawChart($("chartPeriod")?.value || "month");
     filterTransactions();
+    filterCategories();
 });

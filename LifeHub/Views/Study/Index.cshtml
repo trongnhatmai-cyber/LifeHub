@@ -1,288 +1,279 @@
+@section Styles {
+    <!-- CSS riêng cho trang Học tập -->
+    <link rel="stylesheet" href="~/css/study.css" asp-append-version="true" />
+}
+
 @{
+    // Cấu hình tiêu đề, layout và menu đang được chọn
+    Layout = "_Layout";
     ViewData["Title"] = "Học tập";
+    ViewData["ActivePage"] = "Study";
 }
 
 <section class="study-page">
-<!-- HỌC TẬP -->
-<section class="view" id="hoc-tap">
-    <div class="hd">
 
+    <!-- TIÊU ĐỀ TRANG -->
+    <section class="study-header">
         <div>
-            <span class="pill">
+            <span class="study-pill">
                 STUDY SPACE · HỌC KỲ 1 · 2026-2027
             </span>
 
             <h1>Biết ngay mình đang học tới đâu</h1>
 
-            <p class="mut">
+            <p class="study-muted">
                 Môn học, thời khóa biểu, bài tập, lịch thi và điểm số trong một nơi.
             </p>
         </div>
 
-        <button class="btn" type="button">+ Môn học</button>
-        <button class="btn p" type="button">+ Bài tập</button>
+        <div class="study-actions">
+            <button class="study-btn" type="button" id="addSubjectBtn">
+                + Môn học
+            </button>
 
-    </div>
+            <button class="study-btn study-btn-primary" type="button" id="addAssignmentBtn">
+                + Bài tập
+            </button>
+        </div>
+    </section>
 
+    <!-- THỐNG KÊ TỔNG QUAN -->
+    <section class="study-summary">
 
-    <div class="g4">
-
-        <div class="card st">
-            <div class="t">Điểm trung bình</div>
+        <div class="study-card study-stat">
+            <div class="study-card-label">Điểm trung bình</div>
             <b>3,42</b>
-            <small class="mut">Thang 4 · học kỳ này</small>
+            <small>Thang 4 · học kỳ này</small>
         </div>
 
-        <div class="card st">
-            <div class="t">Môn đang học</div>
+        <div class="study-card study-stat">
+            <div class="study-card-label">Môn đang học</div>
             <b>05</b>
-            <small class="mut">16 tín chỉ</small>
+            <small>16 tín chỉ</small>
         </div>
 
-        <div class="card st">
-            <div class="t">Bài tập chưa nộp</div>
+        <div class="study-card study-stat">
+            <div class="study-card-label">Bài tập chưa nộp</div>
             <b id="asgCnt">3</b>
-            <small class="mut">Cần hoàn thành sớm</small>
+            <small>Cần hoàn thành sớm</small>
         </div>
 
-        <div class="card st">
-            <div class="t">Kỳ thi gần nhất</div>
+        <div class="study-card study-stat">
+            <div class="study-card-label">Kỳ thi gần nhất</div>
             <b>3 ngày</b>
-            <small class="mut">Thi giữa kỳ Toán rời rạc</small>
+            <small>Thi giữa kỳ Toán rời rạc</small>
         </div>
 
-    </div>
+    </section>
 
+    <!-- THỜI KHÓA BIỂU VÀ LỊCH THI -->
+    <section class="study-grid">
 
-    <div class="g2b">
+        <div class="study-card">
 
-        <div class="card">
-
-            <div class="ch">
+            <div class="study-card-header">
                 <h3>Thời khóa biểu tuần</h3>
-                <span class="pill">LẶP LẠI HÀNG TUẦN</span>
+                <span class="study-pill">LẶP LẠI HÀNG TUẦN</span>
             </div>
 
-            <div class="tt">
+            <div class="study-timetable">
 
-                <div>
+                <div class="study-day">
                     <h5>T2</h5>
-                    <div class="e">
+                    <div class="study-event">
                         Mạng máy tính
                         <small>07:30 – 10:00</small>
                     </div>
-                    <div class="e b">
+                    <div class="study-event blue">
                         Tiếng Anh
                         <small>13:00 – 15:00</small>
                     </div>
                 </div>
 
-                <div>
+                <div class="study-day">
                     <h5>T3</h5>
-                    <div class="e">
+                    <div class="study-event">
                         Cơ sở dữ liệu
                         <small>09:00 – 11:30</small>
                     </div>
                 </div>
 
-                <div>
+                <div class="study-day">
                     <h5>T4</h5>
-                    <div class="e c">
+                    <div class="study-event purple">
                         Toán rời rạc
                         <small>13:00 – 15:30</small>
                     </div>
-                    <div class="e b">
+                    <div class="study-event blue">
                         Thực hành CSDL
                         <small>16:00 – 18:00</small>
                     </div>
                 </div>
 
-                <div>
+                <div class="study-day">
                     <h5>T5</h5>
-                    <div class="e">
+                    <div class="study-event">
                         Mạng máy tính
                         <small>07:30 – 10:00</small>
                     </div>
                 </div>
 
-                <div>
+                <div class="study-day">
                     <h5>T6</h5>
-                    <div class="e b">
+                    <div class="study-event blue">
                         Tiếng Anh
                         <small>09:00 – 11:00</small>
                     </div>
-                    <div class="e">
+                    <div class="study-event">
                         Lập trình Web
                         <small>13:00 – 16:00</small>
                     </div>
                 </div>
 
             </div>
-
         </div>
 
+        <div class="study-card">
 
-        <div class="card">
-
-            <div class="ch">
+            <div class="study-card-header">
                 <h3>Lịch thi sắp tới</h3>
-                <span class="pill">3 KỲ THI</span>
+                <span class="study-pill">3 KỲ THI</span>
             </div>
 
-            <div class="row">
-                <div class="cd">
+            <div class="study-exam">
+                <div class="study-date">
                     <b>16</b>
                     <small>T11</small>
                 </div>
 
-                <span class="n">
-                    Toán rời rạc
-                    <br>
-                    <small class="mut">
-                        Giữa kỳ · 14:00 · Phòng A1-201
-                    </small>
-                </span>
+                <div class="study-exam-info">
+                    <strong>Toán rời rạc</strong>
+                    <small>Giữa kỳ · 14:00 · Phòng A1-201</small>
+                </div>
 
-                <span class="tag r">3 ngày</span>
+                <span class="study-tag danger">3 ngày</span>
             </div>
 
-            <div class="row">
-                <div class="cd">
+            <div class="study-exam">
+                <div class="study-date">
                     <b>20</b>
                     <small>T11</small>
                 </div>
 
-                <span class="n">
-                    Cơ sở dữ liệu
-                    <br>
-                    <small class="mut">
-                        Giữa kỳ · 09:00 · Phòng B1-105
-                    </small>
-                </span>
+                <div class="study-exam-info">
+                    <strong>Cơ sở dữ liệu</strong>
+                    <small>Giữa kỳ · 09:00 · Phòng B1-105</small>
+                </div>
 
-                <span class="tag w">7 ngày</span>
+                <span class="study-tag warning">7 ngày</span>
             </div>
 
-            <div class="row">
-                <div class="cd">
+            <div class="study-exam">
+                <div class="study-date">
                     <b>27</b>
                     <small>T11</small>
                 </div>
 
-                <span class="n">
-                    Mạng máy tính
-                    <br>
-                    <small class="mut">
-                        Giữa kỳ · 07:30 · Phòng B2-304
-                    </small>
-                </span>
+                <div class="study-exam-info">
+                    <strong>Mạng máy tính</strong>
+                    <small>Giữa kỳ · 07:30 · Phòng B2-304</small>
+                </div>
 
-                <span class="tag">14 ngày</span>
+                <span class="study-tag">14 ngày</span>
             </div>
 
         </div>
 
-    </div>
+    </section>
 
+    <!-- TIẾN ĐỘ MÔN HỌC VÀ BÀI TẬP -->
+    <section class="study-grid">
 
-    <div class="g2b">
+        <div class="study-card">
 
-        <div class="card">
-
-            <div class="ch">
+            <div class="study-card-header">
                 <h3>Tiến độ từng môn</h3>
-                <span class="mut">Điểm tích lũy</span>
+                <span class="study-muted">Điểm tích lũy</span>
             </div>
 
-            <div class="row">
-                <span class="n">Cơ sở dữ liệu</span>
-                <div class="bar subject-bar">
-                    <i style="width:85%"></i>
-                </div>
+            <div class="study-progress-row">
+                <span class="study-subject-name">Cơ sở dữ liệu</span>
+                <div class="study-progress"><i style="width:85%"></i></div>
                 <em>8,5</em>
             </div>
 
-            <div class="row">
-                <span class="n">Mạng máy tính</span>
-                <div class="bar subject-bar">
-                    <i style="width:72%"></i>
-                </div>
+            <div class="study-progress-row">
+                <span class="study-subject-name">Mạng máy tính</span>
+                <div class="study-progress"><i style="width:72%"></i></div>
                 <em>7,2</em>
             </div>
 
-            <div class="row">
-                <span class="n">Toán rời rạc</span>
-                <div class="bar subject-bar">
-                    <i style="width:91%"></i>
-                </div>
+            <div class="study-progress-row">
+                <span class="study-subject-name">Toán rời rạc</span>
+                <div class="study-progress"><i style="width:91%"></i></div>
                 <em>9,1</em>
             </div>
 
-            <div class="row">
-                <span class="n">Lập trình Web</span>
-                <div class="bar subject-bar">
-                    <i style="width:78%"></i>
-                </div>
+            <div class="study-progress-row">
+                <span class="study-subject-name">Lập trình Web</span>
+                <div class="study-progress"><i style="width:78%"></i></div>
                 <em>7,8</em>
             </div>
 
-            <div class="row">
-                <span class="n">Tiếng Anh</span>
-                <div class="bar subject-bar">
-                    <i class="warn-bar" style="width:40%"></i>
-                </div>
+            <div class="study-progress-row">
+                <span class="study-subject-name">Tiếng Anh</span>
+                <div class="study-progress"><i class="study-warning-bar" style="width:40%"></i></div>
                 <em>Còn 3 bài</em>
             </div>
 
         </div>
 
+        <div class="study-card">
 
-        <div class="card">
-
-            <div class="ch">
+            <div class="study-card-header">
                 <h3>Bài tập &amp; deadline</h3>
-                <span class="pill">TỰ CẬP NHẬT</span>
+                <span class="study-pill">TỰ CẬP NHẬT</span>
             </div>
 
-            <div id="asg"></div>
+            <div id="asg" class="study-assignments">
+                <!-- JavaScript hiển thị danh sách bài tập tại đây -->
+            </div>
 
         </div>
 
-    </div>
+    </section>
 
+    <!-- BIỂU ĐỒ GPA -->
+    <section class="study-card study-gpa-card">
 
-    <div class="card">
-
-        <div class="ch">
+        <div class="study-card-header">
             <h3>GPA qua các học kỳ</h3>
-            <span class="pill">THANG 4</span>
+            <span class="study-pill">THANG 4</span>
         </div>
 
-        <div class="chart" style="padding-top:22px">
+        <div class="study-chart">
+            <div class="study-chart-column" style="height:62%">
+                <span>2,95</span>
+            </div>
 
-            <i style="height:62%">
-                <u>2,95</u>
-            </i>
+            <div class="study-chart-column" style="height:72%">
+                <span>3,15</span>
+            </div>
 
-            <i style="height:72%">
-                <u>3,15</u>
-            </i>
+            <div class="study-chart-column" style="height:80%">
+                <span>3,30</span>
+            </div>
 
-            <i style="height:80%">
-                <u>3,30</u>
-            </i>
+            <div class="study-chart-column" style="height:86%">
+                <span>3,38</span>
+            </div>
 
-            <i style="height:86%">
-                <u>3,38</u>
-            </i>
-
-            <i class="t" style="height:90%">
-                <u>3,42</u>
-            </i>
-
+            <div class="study-chart-column active" style="height:90%">
+                <span>3,42</span>
+            </div>
         </div>
 
-        <div class="lbl">
+        <div class="study-chart-labels">
             <span>HK1 · 24</span>
             <span>HK2 · 24</span>
             <span>HK1 · 25</span>
@@ -290,7 +281,11 @@
             <span>HK1 · 26</span>
         </div>
 
-    </div>
+    </section>
 
 </section>
 
+@section Scripts {
+    <!-- JavaScript riêng của trang Học tập -->
+    <script src="~/js/study.js" asp-append-version="true"></script>
+}

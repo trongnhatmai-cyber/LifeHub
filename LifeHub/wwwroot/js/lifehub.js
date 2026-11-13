@@ -348,21 +348,28 @@
 
     route();
 
-    // =========================
-    // DARK MODE
-    // =========================
-    const themeButton = document.getElementById("themeToggle");
+    // ===============================
+    // THEME SÁNG / TỐI TOÀN HỆ THỐNG
+    // ===============================
 
-    if (themeButton) {
-        themeButton.addEventListener("click", function () {
+    const root = document.documentElement;
+    const toggle = document.getElementById('themeToggle');
 
-            const root = document.documentElement;
+    if (toggle) {
+        function applyTheme(theme) {
+            root.setAttribute('data-theme', theme);
 
-            const isDark = root.dataset.theme === "dark";
+            toggle.textContent = theme === 'dark'
+                ? '☀ Chế độ sáng'
+                : '☾ Chế độ tối';
+        }
 
-            root.dataset.theme = isDark ? "light" : "dark";
+        applyTheme('light');
 
+        toggle.addEventListener('click', () => {
+            const current = root.getAttribute('data-theme');
+
+            applyTheme(current === 'dark' ? 'light' : 'dark');
         });
     }
-
 })();

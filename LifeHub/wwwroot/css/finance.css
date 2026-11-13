@@ -1,7 +1,9 @@
 /* =============================================
    LIFEHUB - FINANCE MANAGEMENT
-   Giao diện hồng pastel, hỗ trợ theme sáng/tối và responsive.
+   Giao diện hồng pastel, hỗ trợ Light/Dark.
 ============================================= */
+
+/* THEME LIGHT */
 .finance-page {
     --finance-bg: #fffafb;
     --finance-card: #fff0f3;
@@ -16,25 +18,29 @@
     --finance-income: #329b78;
     --finance-expense: #d96c8b;
     --finance-shadow: 0 8px 28px rgba(116, 58, 77, .06);
+
     color: var(--finance-text);
     width: 100%;
     min-width: 0;
 }
-html[data-theme="dark"] .finance-page {
-    --finance-bg: #100b0e;
-    --finance-card: #21141a;
-    --finance-card-strong: #321b25;
-    --finance-soft: #472632;
-    --finance-border: #563040;
-    --finance-text: #fff0f4;
-    --finance-muted: #c6a7b1;
-    --finance-accent: #ed86a4;
-    --finance-accent-dark: #f3a0b8;
-    --finance-danger: #ff7187;
-    --finance-income: #70d2ad;
-    --finance-expense: #f08aa6;
-    --finance-shadow: 0 8px 28px rgba(0, 0, 0, .18);
+
+/* THEME DARK */
+:root[data-theme="dark"] .finance-page {
+    --finance-bg: #1d2e28;
+    --finance-card: #293b34;
+    --finance-card-strong: #49313b;
+    --finance-soft: #49313b;
+    --finance-border: #51404a;
+    --finance-text: #f7edf1;
+    --finance-muted: #c2aeb7;
+    --finance-accent: #e58ba7;
+    --finance-accent-dark: #f0a3ba;
+    --finance-danger: #f07888;
+    --finance-income: #62c6a0;
+    --finance-expense: #e58ba7;
+    --finance-shadow: 0 8px 28px rgba(0, 0, 0, .15);
 }
+
 .finance-page *, .finance-page *::before, .finance-page *::after { box-sizing: border-box; }
 .finance-page h1, .finance-page h2, .finance-page h3, .finance-page p { margin-top: 0; }
 .finance-page button, .finance-page input, .finance-page select { font: inherit; }
@@ -56,7 +62,7 @@ html[data-theme="dark"] .finance-page {
 .finance-page .expense-card { background: color-mix(in srgb, var(--finance-card) 78%, #ffe0e8); }
 .finance-page .balance-card { background: color-mix(in srgb, var(--finance-card) 78%, #e6e3ff); }
 .finance-page .saving-card { background: color-mix(in srgb, var(--finance-card) 78%, #fff0cb); }
-html[data-theme="dark"] .finance-page .income-card, html[data-theme="dark"] .finance-page .expense-card, html[data-theme="dark"] .finance-page .balance-card, html[data-theme="dark"] .finance-page .saving-card { background: var(--finance-card); }
+
 .finance-page .summary-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--finance-muted); font-size: 12px; font-weight: 600; }
 .finance-page .summary-badge, .finance-page .status-badge { padding: 5px 8px; border-radius: 20px; background: var(--finance-card-strong); color: var(--finance-accent-dark); font-size: 9px; font-weight: 800; letter-spacing: .5px; white-space: nowrap; }
 .finance-page .summary-card h2 { position: relative; z-index: 1; overflow-wrap: anywhere; margin: 16px 0 5px; color: var(--finance-text); font-size: clamp(19px, 2vw, 25px); font-weight: 800; letter-spacing: -.5px; }
@@ -150,10 +156,23 @@ html[data-theme="dark"] .finance-page .income-card, html[data-theme="dark"] .fin
 body.modal-open { overflow: hidden; }
 @keyframes finance-modal-in { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
-/* Tablet */
+/* Tablet và màn hình có vùng nội dung hẹp */
 @media (max-width: 1050px) {
-    .finance-page .finance-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .finance-page .finance-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    .finance-page .finance-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .finance-page .finance-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .finance-page .finance-card {
+        min-width: 0;
+    }
+
+    .finance-page .money-chart {
+        min-width: 0;
+    }
 }
 /* Mobile */
 @media (max-width: 760px) {
