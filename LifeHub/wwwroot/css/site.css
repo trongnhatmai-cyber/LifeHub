@@ -173,8 +173,16 @@ body{background:linear-gradient(180deg,var(--lh-soft) 0,var(--lh-bg) 640px) no-r
 .lh-c1{left:590px;bottom:40px}.lh-c2{right:36px;bottom:96px;animation-duration:6.5s;animation-delay:-2s}.lh-c3{left:10px;bottom:26px;animation-duration:5.8s;animation-delay:-1s}
 
 body,
-h1, h2, h3, h4, h5, h6,
-p, span, a, label, li,
-button, input, textarea {
+h2, h1 {
     color: #14452f;
+}
+
+header,
+main,
+section,
+footer,
+.container,
+.hero,
+.content {
+    background-color: #f9ffff;
 }
