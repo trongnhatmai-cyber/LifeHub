@@ -10,7 +10,11 @@ obj/
 *.suo
 
 # Environment / secrets
+appsettings.json
 appsettings.Development.json
+
+#appsettings template
+!appsettings.json
 
 # SQL Server local files
 *.mdf
