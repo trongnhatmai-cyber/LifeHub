@@ -121,7 +121,7 @@ public class AuthController : Controller
         if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             return Redirect(returnUrl);
 
-        return RedirectToAction("Success", "Home");
+        return RedirectToAction("Index", "Dashboard");
     }
 
     // POST: /Auth/Logout
