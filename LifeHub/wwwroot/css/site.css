@@ -26,7 +26,7 @@ a{color:inherit;text-decoration:none}
 .lh-logo b{width:30px;height:30px;border-radius:9px;background:var(--lh-accent);color:var(--lh-on-accent);display:grid;place-items:center;font-size:15px}
 .lh-links{display:flex;gap:28px;font-size:14px;font-weight:500;color:var(--lh-muted);margin-right:auto}
 .lh-links a:hover{color:var(--lh-text)}
-.lh-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:42px;padding:0 20px;border-radius:999px;font:600 14px inherit;font-family:inherit;border:1px solid var(--lh-line);background:var(--lh-surface);color:var(--lh-text);cursor:pointer;transition:transform .15s,background .15s}
+.lh-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:42px;padding:0 20px;border-radius:999px;font:600 14px inherit;font-size:14px;border:1px solid var(--lh-line);background:var(--lh-surface);color:var(--lh-text);cursor:pointer;transition:transform .15s,background .15s}
 .lh-btn:hover{transform:translateY(-1px)}
 .lh-btn.lh-pri{background:var(--lh-accent);color:var(--lh-on-accent);border-color:var(--lh-accent)}
 .lh-btn.lh-lg{height:50px;padding:0 28px;font-size:15px}
@@ -172,8 +172,7 @@ body{background:linear-gradient(180deg,var(--lh-soft) 0,var(--lh-bg) 640px) no-r
 }
 .lh-c1{left:590px;bottom:40px}.lh-c2{right:36px;bottom:96px;animation-duration:6.5s;animation-delay:-2s}.lh-c3{left:10px;bottom:26px;animation-duration:5.8s;animation-delay:-1s}
 
-body,
-h2, h1 {
+h2,h1{
     color: #14452f;
 }
 

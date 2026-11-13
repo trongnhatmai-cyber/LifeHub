@@ -1,0 +1,503 @@
+@{
+    ViewData["Title"] = "Tổng quan & Học tập";
+    ViewData["PageTitle"] = "Tổng quan";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- TỔNG QUAN -->
+<section class="view" id="tong-quan">
+
+    <div class="hd">
+        <div>
+            <span class="pill">MY LIFE SPACE · PERSONAL HUB</span>
+            <h1>Chào ngày mới, bạn</h1>
+            <p class="mut">
+                Một ngày tốt bắt đầu từ những ưu tiên rõ ràng.
+                Đây là bức tranh cuộc sống của bạn hôm nay.
+            </p>
+        </div>
+
+        <button class="btn" type="button">Xem lịch</button>
+        <button class="btn p" type="button">+ Lên kế hoạch</button>
+    </div>
+
+    <div class="g2">
+
+        <div class="hero">
+            <small>YOUR DAILY MOMENTUM</small>
+
+            <h2>
+                Tiến từng bước nhỏ,<br>
+                tạo nên thay đổi lớn.
+            </h2>
+
+            <p>
+                Giữ nhịp học tập, công việc và chăm sóc bản thân.
+                Hôm nay bạn muốn hoàn thành điều gì quan trọng nhất?
+            </p>
+
+            <div class="hrow">
+                <button class="btn" type="button"
+                        onclick="document.getElementById('qi').focus()">
+                    Chọn ưu tiên hôm nay
+                </button>
+
+                <div class="bar">
+                    <i style="width:68%"></i>
+                </div>
+
+                <span>Mục tiêu tuần · 68%</span>
+            </div>
+        </div>
+
+        <div class="card">
+
+            <div class="ch">
+                <h3>Lịch của bạn</h3>
+                <span class="pill">HÔM NAY</span>
+            </div>
+
+            <div class="week" id="week"></div>
+
+            <div class="ev">
+                <div class="e">
+                    Lớp Mạng máy tính
+                    <small>07:30 · Phòng B2-304</small>
+                </div>
+
+                <div class="e b">
+                    Họp nhóm đồ án
+                    <small>15:00</small>
+                </div>
+
+                <div class="e c">
+                    Hạn nộp bài tập CSDL
+                    <small>23:59</small>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="g4">
+
+        <div class="card st">
+            <div class="t">
+                Việc cần hoàn thành
+            </div>
+            <b id="openCnt">4</b>
+            <small class="mut">Công việc đang mở</small>
+        </div>
+
+        <div class="card st">
+            <div class="t">
+                Dự án đang chạy
+            </div>
+            <b>03</b>
+            <small class="mut">Không gian đang theo dõi</small>
+        </div>
+
+        <div class="card st">
+            <div class="t">
+                Mục tiêu cá nhân
+            </div>
+            <b>03</b>
+            <small class="mut">Đang trên hành trình</small>
+        </div>
+
+        <div class="card st">
+            <div class="t">
+                Chuỗi thói quen
+            </div>
+            <b>07 ngày</b>
+            <small class="mut">Duy trì đều đặn</small>
+        </div>
+
+    </div>
+
+
+    <div class="g2b">
+
+        <div class="card">
+
+            <div class="ch">
+                <div>
+                    <h3>Việc ưu tiên hôm nay</h3>
+                    <p class="mut">Chọn việc quan trọng và bắt đầu ngay</p>
+                </div>
+
+                <a class="tag" href="#hoc-tap">Học tập</a>
+            </div>
+
+            <form class="add" id="addT">
+
+                <input id="qi"
+                       placeholder="Thêm nhanh một việc cần làm..."
+                       aria-label="Việc mới">
+
+                <button class="btn p" type="submit">
+                    + Thêm
+                </button>
+
+            </form>
+
+            <div id="tasks"></div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="ch">
+                <div>
+                    <h3>Nhịp độ phát triển</h3>
+                    <p class="mut">Tiến độ các mục tiêu nổi bật</p>
+                </div>
+
+                <span class="pill">TUẦN NÀY</span>
+            </div>
+
+            <div class="prog">
+
+                <div>
+                    <div>
+                        <span>Hoàn thành dự án LIFEHUB</span>
+                        <span class="accent-text">70%</span>
+                    </div>
+                    <div class="bar">
+                        <i style="width:70%"></i>
+                    </div>
+                </div>
+
+                <div>
+                    <div>
+                        <span>Ôn tập lập trình</span>
+                        <span class="accent-text">55%</span>
+                    </div>
+                    <div class="bar">
+                        <i style="width:55%"></i>
+                    </div>
+                </div>
+
+                <div>
+                    <div>
+                        <span>Đọc 2 cuốn sách</span>
+                        <span class="accent-text">40%</span>
+                    </div>
+                    <div class="bar">
+                        <i style="width:40%"></i>
+                    </div>
+                </div>
+
+                <div>
+                    <div>
+                        <span>Chạy bộ 20 km</span>
+                        <span class="warn-text">30%</span>
+                    </div>
+                    <div class="bar">
+                        <i class="warn-bar" style="width:30%"></i>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- HỌC TẬP -->
+<section class="view" id="hoc-tap">
+
+    <div class="hd">
+
+        <div>
+            <span class="pill">
+                STUDY SPACE · HỌC KỲ 1 · 2026-2027
+            </span>
+
+            <h1>Biết ngay mình đang học tới đâu</h1>
+
+            <p class="mut">
+                Môn học, thời khóa biểu, bài tập, lịch thi và điểm số trong một nơi.
+            </p>
+        </div>
+
+        <button class="btn" type="button">+ Môn học</button>
+        <button class="btn p" type="button">+ Bài tập</button>
+
+    </div>
+
+
+    <div class="g4">
+
+        <div class="card st">
+            <div class="t">Điểm trung bình</div>
+            <b>3,42</b>
+            <small class="mut">Thang 4 · học kỳ này</small>
+        </div>
+
+        <div class="card st">
+            <div class="t">Môn đang học</div>
+            <b>05</b>
+            <small class="mut">16 tín chỉ</small>
+        </div>
+
+        <div class="card st">
+            <div class="t">Bài tập chưa nộp</div>
+            <b id="asgCnt">3</b>
+            <small class="mut">Cần hoàn thành sớm</small>
+        </div>
+
+        <div class="card st">
+            <div class="t">Kỳ thi gần nhất</div>
+            <b>3 ngày</b>
+            <small class="mut">Thi giữa kỳ Toán rời rạc</small>
+        </div>
+
+    </div>
+
+
+    <div class="g2b">
+
+        <div class="card">
+
+            <div class="ch">
+                <h3>Thời khóa biểu tuần</h3>
+                <span class="pill">LẶP LẠI HÀNG TUẦN</span>
+            </div>
+
+            <div class="tt">
+
+                <div>
+                    <h5>T2</h5>
+                    <div class="e">
+                        Mạng máy tính
+                        <small>07:30 – 10:00</small>
+                    </div>
+                    <div class="e b">
+                        Tiếng Anh
+                        <small>13:00 – 15:00</small>
+                    </div>
+                </div>
+
+                <div>
+                    <h5>T3</h5>
+                    <div class="e">
+                        Cơ sở dữ liệu
+                        <small>09:00 – 11:30</small>
+                    </div>
+                </div>
+
+                <div>
+                    <h5>T4</h5>
+                    <div class="e c">
+                        Toán rời rạc
+                        <small>13:00 – 15:30</small>
+                    </div>
+                    <div class="e b">
+                        Thực hành CSDL
+                        <small>16:00 – 18:00</small>
+                    </div>
+                </div>
+
+                <div>
+                    <h5>T5</h5>
+                    <div class="e">
+                        Mạng máy tính
+                        <small>07:30 – 10:00</small>
+                    </div>
+                </div>
+
+                <div>
+                    <h5>T6</h5>
+                    <div class="e b">
+                        Tiếng Anh
+                        <small>09:00 – 11:00</small>
+                    </div>
+                    <div class="e">
+                        Lập trình Web
+                        <small>13:00 – 16:00</small>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="ch">
+                <h3>Lịch thi sắp tới</h3>
+                <span class="pill">3 KỲ THI</span>
+            </div>
+
+            <div class="row">
+                <div class="cd">
+                    <b>16</b>
+                    <small>T11</small>
+                </div>
+
+                <span class="n">
+                    Toán rời rạc
+                    <br>
+                    <small class="mut">
+                        Giữa kỳ · 14:00 · Phòng A1-201
+                    </small>
+                </span>
+
+                <span class="tag r">3 ngày</span>
+            </div>
+
+            <div class="row">
+                <div class="cd">
+                    <b>20</b>
+                    <small>T11</small>
+                </div>
+
+                <span class="n">
+                    Cơ sở dữ liệu
+                    <br>
+                    <small class="mut">
+                        Giữa kỳ · 09:00 · Phòng B1-105
+                    </small>
+                </span>
+
+                <span class="tag w">7 ngày</span>
+            </div>
+
+            <div class="row">
+                <div class="cd">
+                    <b>27</b>
+                    <small>T11</small>
+                </div>
+
+                <span class="n">
+                    Mạng máy tính
+                    <br>
+                    <small class="mut">
+                        Giữa kỳ · 07:30 · Phòng B2-304
+                    </small>
+                </span>
+
+                <span class="tag">14 ngày</span>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="g2b">
+
+        <div class="card">
+
+            <div class="ch">
+                <h3>Tiến độ từng môn</h3>
+                <span class="mut">Điểm tích lũy</span>
+            </div>
+
+            <div class="row">
+                <span class="n">Cơ sở dữ liệu</span>
+                <div class="bar subject-bar">
+                    <i style="width:85%"></i>
+                </div>
+                <em>8,5</em>
+            </div>
+
+            <div class="row">
+                <span class="n">Mạng máy tính</span>
+                <div class="bar subject-bar">
+                    <i style="width:72%"></i>
+                </div>
+                <em>7,2</em>
+            </div>
+
+            <div class="row">
+                <span class="n">Toán rời rạc</span>
+                <div class="bar subject-bar">
+                    <i style="width:91%"></i>
+                </div>
+                <em>9,1</em>
+            </div>
+
+            <div class="row">
+                <span class="n">Lập trình Web</span>
+                <div class="bar subject-bar">
+                    <i style="width:78%"></i>
+                </div>
+                <em>7,8</em>
+            </div>
+
+            <div class="row">
+                <span class="n">Tiếng Anh</span>
+                <div class="bar subject-bar">
+                    <i class="warn-bar" style="width:40%"></i>
+                </div>
+                <em>Còn 3 bài</em>
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="ch">
+                <h3>Bài tập &amp; deadline</h3>
+                <span class="pill">TỰ CẬP NHẬT</span>
+            </div>
+
+            <div id="asg"></div>
+
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="ch">
+            <h3>GPA qua các học kỳ</h3>
+            <span class="pill">THANG 4</span>
+        </div>
+
+        <div class="chart" style="padding-top:22px">
+
+            <i style="height:62%">
+                <u>2,95</u>
+            </i>
+
+            <i style="height:72%">
+                <u>3,15</u>
+            </i>
+
+            <i style="height:80%">
+                <u>3,30</u>
+            </i>
+
+            <i style="height:86%">
+                <u>3,38</u>
+            </i>
+
+            <i class="t" style="height:90%">
+                <u>3,42</u>
+            </i>
+
+        </div>
+
+        <div class="lbl">
+            <span>HK1 · 24</span>
+            <span>HK2 · 24</span>
+            <span>HK1 · 25</span>
+            <span>HK2 · 25</span>
+            <span>HK1 · 26</span>
+        </div>
+
+    </div>
+
+</section>
