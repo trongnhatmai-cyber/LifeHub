@@ -1,15 +1,16 @@
-
+@model LifeHub.Models.ViewModels.RegisterViewModel;
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng nhập | LifeHub</title>
+
+    <title>Tạo tài khoản | LifeHub</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
+
     <link rel="stylesheet" href="~/css/login.css" asp-append-version="true">
 </head>
 
@@ -22,43 +23,58 @@
     </div>
 
     <header class="auth-header">
-        <a href="/Home/Index" class="logo">
+        <a href="index.html" class="logo">
             <span class="logo-icon">L</span>
             LifeHub
         </a>
 
-        <a href="/Home/Index" class="back-home">
+        <a href="index.html" class="back-home">
             <span>←</span> Trang chủ
         </a>
     </header>
 
-    <main class="auth-container">
+    <main class="auth-container register-container">
 
-        <div class="auth-card">
+        <div class="auth-card register-card">
 
             <div class="auth-top">
                 <div class="auth-symbol">
                     <span>✦</span>
                 </div>
 
-                <span class="auth-label">CHÀO MỪNG TRỞ LẠI</span>
+                <span class="auth-label">BẮT ĐẦU HÀNH TRÌNH MỚI</span>
 
-                <h1>Rất vui được gặp lại bạn.</h1>
+                <h1>Tạo không gian của riêng bạn.</h1>
 
                 <p>
-                    Đăng nhập để tiếp tục quản lý công việc,
-                    học tập và cuộc sống của bạn.
+                    Một tài khoản duy nhất để sắp xếp
+                    mọi khía cạnh trong cuộc sống.
                 </p>
             </div>
 
-            <form class="auth-form">
+            <form class="auth-form" asp-controller="Auth" asp-action="Register" method="post">
+
+                <div class="form-group">
+                    <label for="fullname">Họ và tên</label>
+
+                    <div class="input-wrap">
+                        <span class="input-icon">♙</span>
+                        <input
+                            type="text"
+                            id="fullname"
+                            placeholder="Nguyễn Văn A"
+                            required
+                            asp-for="FullName"
+                        >
+                    </div>
+                </div>
 
                 <div class="form-group">
                     <label for="email">Địa chỉ email</label>
 
                     <div class="input-wrap">
                         <span class="input-icon">✉</span>
-                        <input
+                        <input asp-for="Email"
                             type="email"
                             id="email"
                             placeholder="name@example.com"
@@ -68,18 +84,15 @@
                 </div>
 
                 <div class="form-group">
-                    <div class="label-row">
-                        <label for="password">Mật khẩu</label>
-                        <a href="#" class="forgot-link">Quên mật khẩu?</a>
-                    </div>
+                    <label for="password">Mật khẩu</label>
 
                     <div class="input-wrap">
                         <span class="input-icon">♧</span>
 
-                        <input
+                        <input asp-for="Password"
                             type="password"
                             id="password"
-                            placeholder="Nhập mật khẩu"
+                            placeholder="Tối thiểu 8 ký tự"
                             required
                         >
 
@@ -87,20 +100,48 @@
                             type="button"
                             class="password-toggle"
                             onclick="togglePassword('password', this)"
-                            aria-label="Hiện hoặc ẩn mật khẩu"
+                        >Hiện</button>
+                    </div>
+
+                    <div class="password-hint">
+                        Sử dụng mật khẩu đủ mạnh để bảo vệ tài khoản.
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm-password">Xác nhận mật khẩu</label>
+
+                    <div class="input-wrap">
+                        <span class="input-icon">♧</span>
+
+                        <input asp-for="ConfirmPassword"
+                            type="password"
+                            id="confirm-password"
+                            placeholder="Nhập lại mật khẩu"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="password-toggle"
+                            onclick="togglePassword('confirm-password', this)"
                         >Hiện</button>
                     </div>
                 </div>
 
-                <div class="form-options">
-                    <label class="remember">
-                        <input type="checkbox">
-                        <span>Ghi nhớ đăng nhập</span>
-                    </label>
-                </div>
+                <label class="terms">
+                    <input type="checkbox" required>
+                    <span>
+                        Tôi đồng ý với
+                        <a href="#">Điều khoản sử dụng</a>
+                        và
+                        <a href="#">Chính sách bảo mật</a>
+                        của LifeHub.
+                    </span>
+                </label>
 
                 <button type="submit" class="auth-submit">
-                    Đăng nhập
+                    Tạo tài khoản
                     <span>→</span>
                 </button>
 
@@ -112,12 +153,12 @@
 
             <button type="button" class="google-btn">
                 <span class="google-icon">G</span>
-                Tiếp tục với Google
+                Đăng ký với Google
             </button>
 
             <div class="auth-switch">
-                Chưa có tài khoản?
-                <a href="/Account/Register">Tạo tài khoản mới</a>
+                Đã có tài khoản?
+                <a href="/Auth/Login">Đăng nhập ngay</a>
             </div>
 
         </div>
