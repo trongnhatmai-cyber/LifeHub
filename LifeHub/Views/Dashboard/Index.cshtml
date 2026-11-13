@@ -1,7 +1,17 @@
+@* Dashboard: trang tổng quan sau khi đăng nhập. CSS và JS được nạp riêng qua Sections. *@
 @{
     ViewData["Title"] = "Tổng quan & Học tập";
     ViewData["PageTitle"] = "Tổng quan";
+    ViewData["ActivePage"] = "Home";
     Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script src="~/js/dashboard.js" asp-append-version="true" defer></script>
 }
 
 <!-- TỔNG QUAN -->
@@ -133,9 +143,9 @@
 
             <form class="add" id="addT">
 
-                <input id="qi"
+                <input id="qi" type="text" maxlength="120" autocomplete="off"
                        placeholder="Thêm nhanh một việc cần làm..."
-                       aria-label="Việc mới">
+                       aria-label="Việc mới" required>
 
                 <button class="btn p" type="submit">
                     + Thêm
