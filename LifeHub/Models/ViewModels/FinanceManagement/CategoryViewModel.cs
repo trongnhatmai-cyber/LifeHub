@@ -18,4 +18,7 @@ public class CategoryViewModel
     public string? Color { get; set; }
 
     public int? ParentId { get; set; }
+
+     public decimal Spent { get; set; }
+    public decimal Limit { get; set; }
 }
