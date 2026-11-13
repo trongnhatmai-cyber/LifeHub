@@ -1,8 +1,247 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LifeHub – Quản lý cả cuộc sống trong một nơi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site.css">
+<script>document.documentElement.classList.add('lh-js')</script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+<symbol id="lh-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5zM4 19.5V21h16"/></symbol>
+<symbol id="lh-check" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></symbol>
+<symbol id="lh-folder" viewBox="0 0 24 24"><path d="M3 7h18v13H3zM8 7V4h8v3"/></symbol>
+<symbol id="lh-cal" viewBox="0 0 24 24"><path d="M3 5h18v16H3zM3 10h18M8 3v4M16 3v4"/></symbol>
+<symbol id="lh-wallet" viewBox="0 0 24 24"><path d="M3 6h16v4M3 6v13h18V10H3M16 15h2"/></symbol>
+<symbol id="lh-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></symbol>
+<symbol id="lh-flame" viewBox="0 0 24 24"><path d="M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3 0-6 1-9z"/></symbol>
+<symbol id="lh-note" viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h7"/></symbol>
+<symbol id="lh-moon" viewBox="0 0 24 24"><path d="M20 14A8 8 0 1 1 10 4a6 6 0 0 0 10 10z"/></symbol>
+<symbol id="lh-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+<symbol id="lh-grid" viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></symbol>
+</g>
+</svg>
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<header class="lh-nav">
+<div class="lh-wrap">
+<a class="lh-logo" href="#"><b>L</b>LifeHub</a>
+<nav class="lh-links"><a href="#lh-tinh-nang">Tính năng</a><a href="#lh-phan-he">Phân hệ</a><a href="#lh-cach-hoat-dong">Cách hoạt động</a></nav>
+<a class="lh-btn" href="#">Đăng nhập</a>
+<a class="lh-btn lh-pri" href="#">Bắt đầu ngay</a>
 </div>
+</header>
+
+<main>
+<div class="lh-wrap">
+<div class="lh-hero">
+<div class="lh-pill"><i>Mới</i>Trợ lý AI giúp bạn lập kế hoạch mỗi ngày</div>
+<h1>Cả cuộc sống của bạn, gọn trong một nơi.</h1>
+<p class="lh-lead">Học tập, công việc, dự án, tiền bạc, thói quen và mục tiêu cùng nằm trên một lịch và một trang tổng quan. Ghi một lần, mọi thứ tự kết nối.</p>
+<div class="lh-cta"><a class="lh-btn lh-pri lh-lg" href="#">Bắt đầu ngay</a><a class="lh-btn lh-lg" href="#lh-tinh-nang">Xem tính năng</a></div>
+<p class="lh-note">Tạo tài khoản chỉ mất một phút. Dùng được trên máy tính, máy tính bảng và điện thoại.</p>
+
+<div class="lh-stage"><div class="lh-chip lh-c1"><i></i>Đã nhắc trước hạn nộp 1 giờ</div>
+<div class="lh-chip lh-c2"><i style="background:var(--lh-warn)"></i>Chuỗi 12 ngày, giữ vững nhé!</div>
+<div class="lh-chip lh-c3"><i style="background:var(--lh-accent)"></i>AI gợi ý: ôn bài lúc 20:00</div>
+<div class="lh-app" role="img" aria-label="Giao diện trang tổng quan LifeHub">
+<div class="lh-bar"><span></span><span></span><span></span></div>
+<div class="lh-body">
+<div class="lh-side">
+<div class="lh-on"><svg class="lh-i"><use href="#lh-grid"/></svg>Tổng quan</div>
+<div><svg class="lh-i"><use href="#lh-book"/></svg>Học tập</div>
+<div><svg class="lh-i"><use href="#lh-check"/></svg>Công việc</div>
+<div><svg class="lh-i"><use href="#lh-folder"/></svg>Dự án</div>
+<div><svg class="lh-i"><use href="#lh-cal"/></svg>Lịch</div>
+<div><svg class="lh-i"><use href="#lh-wallet"/></svg>Tài chính</div>
+<div><svg class="lh-i"><use href="#lh-flame"/></svg>Thói quen</div>
+</div>
+<div class="lh-main">
+<div class="lh-hi"><h3>Chào buổi sáng, Minh</h3><small>Thứ Sáu, 13 tháng 11</small></div>
+<div class="lh-stats">
+<div class="lh-stat"><small>Việc hôm nay</small><b>6/9</b><div class="lh-meter"><i style="width:66%"></i></div></div>
+<div class="lh-stat"><small>Chuỗi thói quen</small><b>12 ngày</b><div class="lh-meter"><i style="width:80%"></i></div></div>
+<div class="lh-stat"><small>Thời gian tập trung</small><b>3g 25p</b><div class="lh-meter"><i style="width:57%"></i></div></div>
+<div class="lh-stat"><small>Ngân sách tháng</small><b>68%</b><div class="lh-meter"><i style="width:68%"></i></div></div>
+</div>
+<div class="lh-panels">
+<div class="lh-panel"><h4>Việc hôm nay</h4>
+<div class="lh-row lh-d"><i class="lh-cb lh-d"></i><span>Nộp bài tập Cơ sở dữ liệu</span></div>
+<div class="lh-row"><i class="lh-cb"></i><span>Họp nhóm đồ án</span><i class="lh-dot" style="background:var(--lh-bad)"></i></div>
+<div class="lh-row"><i class="lh-cb"></i><span>Viết báo cáo tuần</span><i class="lh-dot" style="background:var(--lh-warn)"></i></div>
+<div class="lh-row"><i class="lh-cb"></i><span>Ôn từ vựng IELTS</span><i class="lh-dot" style="background:var(--lh-ok)"></i></div>
+</div>
+<div class="lh-panel"><h4>Sắp tới</h4>
+<div class="lh-row"><time>09:00</time><span>Lớp Mạng máy tính</span></div>
+<div class="lh-row"><time>14:00</time><span>Thi giữa kỳ Toán</span></div>
+<div class="lh-row"><time>17:00</time><span>Hạn nộp báo cáo</span></div>
+</div>
+<div class="lh-panel"><h4>Năng suất tuần</h4>
+<div class="lh-chart"><i style="height:45%"></i><i style="height:70%"></i><i style="height:55%"></i><i style="height:85%"></i><i class="lh-t" style="height:100%"></i><i style="height:30%"></i><i style="height:20%"></i></div>
+<div class="lh-days"><span>T2</span><span>T3</span><span>T4</span><span>T5</span><span>T6</span><span>T7</span><span>CN</span></div>
+</div>
+</div>
+</div>
+</div>
+</div></div>
+</div>
+</div>
+
+<section style="padding-top:40px">
+<div class="lh-wrap">
+<div class="lh-head" style="margin-bottom:0"><h2>Dành cho mọi người cần sắp xếp cuộc sống</h2>
+<div class="lh-who"><span>Học sinh</span><span>Sinh viên</span><span>Người đi làm</span><span>Nhóm làm việc</span></div></div>
+</div>
+</section>
+
+<section id="lh-tinh-nang" style="padding-top:24px">
+<div class="lh-wrap">
+<div class="lh-split">
+<div class="lh-copy">
+<h2>Một lịch cho tất cả</h2>
+<p>Lịch học, hạn nộp bài, lịch dự án và sự kiện cá nhân tự động hiện chung một chỗ. Bạn không phải nhập lại.</p>
+<ul class="lh-ticks"><li>Xem theo ngày, tuần hoặc tháng</li><li>Nhắc trước hạn nộp và giờ thi theo thời gian bạn chọn</li><li>Đồng hồ Pomodoro gắn thẳng vào từng công việc</li></ul>
+</div>
+<div class="lh-vis"><div class="lh-cal">
+<div><h5>T2</h5><div class="lh-ev lh-a">Mạng máy tính<small>07:30</small></div><div class="lh-ev">Chạy bộ<small>18:00</small></div></div>
+<div><h5>T3</h5><div class="lh-ev lh-b lh-h">Họp nhóm<small>09:00</small></div></div>
+<div><h5>T4</h5><div class="lh-ev lh-a">Cơ sở dữ liệu<small>13:00</small></div><div class="lh-ev lh-c">Hạn nộp bài<small>23:59</small></div></div>
+<div><h5>T5</h5><div class="lh-ev lh-c lh-h">Thi giữa kỳ<small>14:00</small></div></div>
+<div><h5>T6</h5><div class="lh-ev lh-b">Demo dự án<small>10:00</small></div><div class="lh-ev">Xem phim<small>20:00</small></div></div>
+</div></div>
+</div>
+
+<div class="lh-split lh-rev">
+<div class="lh-vis"><div class="lh-kan">
+<div class="lh-col"><h5>Cần làm</h5><div class="lh-card">Thiết kế giao diện<small><i class="lh-av"></i>An</small></div><div class="lh-card">Viết tài liệu API<small><i class="lh-av"></i>Bình</small></div></div>
+<div class="lh-col"><h5>Đang làm</h5><div class="lh-card lh-mv">Xây dựng trang đăng nhập<small><i class="lh-av"></i>Minh</small></div></div>
+<div class="lh-col"><h5>Hoàn thành</h5><div class="lh-drop"></div><div class="lh-card">Thiết kế cơ sở dữ liệu<small><i class="lh-av"></i>Minh</small></div><div class="lh-card">Khảo sát người dùng<small><i class="lh-av"></i>Chi</small></div></div>
+</div></div>
+<div class="lh-copy">
+<h2>Làm việc nhóm không rối</h2>
+<p>Chia dự án thành việc nhỏ, giao đúng người và nhìn thấy tiến độ thật, không cần hỏi từng thành viên.</p>
+<ul class="lh-ticks"><li>Bảng Kanban kéo thả, có nhãn và mức ưu tiên</li><li>Mời thành viên bằng email, phân vai quản lý hoặc thành viên</li><li>Bình luận, tệp đính kèm và nhật ký hoạt động trong từng dự án</li></ul>
+</div>
+</div>
+</div>
+</section>
+
+<section style="padding-top:24px">
+<div class="lh-wrap">
+<div class="lh-head"><h2>LifeHub giúp bạn làm gì mỗi ngày</h2><p>Ba việc quen thuộc nhất, được gói gọn để bạn nhìn là hiểu.</p></div>
+
+<div class="lh-split">
+<div class="lh-copy">
+<h2>Biết ngay mình đang học tới đâu</h2>
+<p>Nhập môn học và bài tập một lần. LifeHub tự tính điểm, tiến độ từng môn và nhắc trước ngày thi.</p>
+<ul class="lh-ticks"><li>Thời khóa biểu lặp lại theo tuần</li><li>Điểm từng bài tự cộng thành điểm môn và GPA</li><li>Tài liệu lưu ngay trong từng môn học</li></ul>
+</div>
+<div class="lh-vis"><div class="lh-panel"><h4>Điểm trung bình học kỳ: 3,42</h4>
+<div class="lh-row"><span>Cơ sở dữ liệu</span><div class="lh-meter"><i style="width:85%"></i></div><em>8,5</em></div>
+<div class="lh-row"><span>Mạng máy tính</span><div class="lh-meter"><i style="width:72%"></i></div><em>7,2</em></div>
+<div class="lh-row"><span>Toán rời rạc</span><div class="lh-meter"><i style="width:91%"></i></div><em>9,1</em></div>
+<div class="lh-row"><span>Tiếng Anh</span><div class="lh-meter"><i style="width:40%;background:var(--lh-warn)"></i></div><em>Còn 3 bài</em></div>
+</div></div>
+</div>
+
+<div class="lh-split lh-rev">
+<div class="lh-vis"><div class="lh-panel"><h4>Ngân sách tháng 11</h4>
+<div class="lh-row"><span>Ăn uống</span><div class="lh-meter"><i style="width:80%;background:var(--lh-warn)"></i></div><em>2,4/3 tr</em></div>
+<div class="lh-row"><span>Đi lại</span><div class="lh-meter"><i style="width:60%"></i></div><em>0,6/1 tr</em></div>
+<div class="lh-row"><span>Mua sắm</span><div class="lh-meter"><i style="width:100%;background:var(--lh-bad)"></i></div><em>Vượt mức</em></div>
+<div class="lh-row"><span>Mua laptop</span><div class="lh-meter"><i style="width:45%;background:var(--lh-ok)"></i></div><em>9/20 tr</em></div>
+</div></div>
+<div class="lh-copy">
+<h2>Biết tiền đi đâu, còn bao nhiêu</h2>
+<p>Ghi mỗi khoản thu chi vào đúng ví và đúng danh mục. Chi gần hết ngân sách là có cảnh báo.</p>
+<ul class="lh-ticks"><li>Nhiều ví: tiền mặt, ngân hàng, ví điện tử</li><li>Ngân sách theo tháng, cảnh báo khi gần hết</li><li>Mục tiêu tiết kiệm có thanh tiến độ</li></ul>
+</div>
+</div>
+
+<div class="lh-split">
+<div class="lh-copy">
+<h2>Giữ thói quen, đạt mục tiêu</h2>
+<p>Chia mục tiêu lớn thành những chỉ số nhỏ. Mỗi ngày bấm một lần, chuỗi ngày liên tiếp tự tăng.</p>
+<ul class="lh-ticks"><li>Mục tiêu đo được, ví dụ làm 20 đề IELTS</li><li>Chuỗi ngày và tỷ lệ duy trì cho từng thói quen</li><li>Huy hiệu và điểm thưởng khi đạt cột mốc</li></ul>
+</div>
+<div class="lh-vis"><div class="lh-panel"><h4>Tuần này của bạn</h4>
+<div class="lh-row"><span>Chạy bộ</span><div class="lh-dots"><i class="lh-d"></i><i class="lh-d"></i><i></i><i class="lh-d"></i><i class="lh-d"></i><i class="lh-d"></i><i></i></div><em>5/7</em></div>
+<div class="lh-row"><span>Đọc sách</span><div class="lh-dots"><i class="lh-d"></i><i class="lh-d"></i><i class="lh-d"></i><i class="lh-d"></i><i class="lh-d"></i><i></i><i></i></div><em>5/7</em></div>
+<div class="lh-row"><span>IELTS 7.0: 8/20 đề</span><div class="lh-meter" style="width:190px"><i style="width:40%"></i></div><em>40%</em></div>
+</div></div>
+</div>
+</div>
+</section>
+
+<section id="lh-phan-he" style="padding-top:24px">
+<div class="lh-wrap">
+<div class="lh-head"><h2>Mười phân hệ, một tài khoản</h2><p>Dùng phân hệ nào bật phân hệ đó. Các phân hệ vẫn luôn kết nối với nhau.</p></div>
+<div class="lh-mods">
+<div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-book"/></svg></div><h3>Học tập</h3><p>Môn học, thời khóa biểu, bài tập, lịch thi và điểm số.</p></div>
+<div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-check"/></svg></div><h3>Công việc</h3><p>Danh sách việc, ưu tiên, deadline và việc con.</p></div>
+<div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-folder"/></svg></div><h3>Dự án</h3><p>Thành viên, phân công, cột mốc và tiến độ.</p></div>
+<div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-cal"/></svg></div><h3>Thời gian</h3><p>Lịch chung, nhắc nhở thông minh và Pomodoro.</p></div>
+<div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-wallet"/></svg></div><h3>Tài chính</h3><p>Thu chi, nhiều ví, ngân sách và mục tiêu tiết kiệm.</p></div>
+<div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-target"/></svg></div><h3>Mục tiêu</h3><p>Mục tiêu ngắn và dài hạn, chia thành chỉ số đo được.</p></div>
+<div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-flame"/></svg></div><h3>Thói quen</h3><p>Điểm danh mỗi ngày, chuỗi ngày liên tiếp và thống kê.</p></div>
+<div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-note"/></svg></div><h3>Kiến thức</h3><p>Ghi chú, tài liệu, thư mục và tìm kiếm toàn hệ thống.</p></div>
+<div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-moon"/></svg></div><h3>Sinh hoạt</h3><p>Giấc ngủ, nước uống, vận động và tâm trạng.</p></div>
+<div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-chart"/></svg></div><h3>Báo cáo</h3><p>Biểu đồ theo ngày, tuần, tháng. Xuất ra PDF hoặc Excel.</p></div>
+</div>
+</div>
+</section>
+
+<section id="lh-cach-hoat-dong" style="padding-top:24px">
+<div class="lh-wrap">
+<div class="lh-head"><h2>Ghi một lần, kết nối khắp nơi</h2><p>Khi bạn thêm một việc có hạn nộp, LifeHub làm phần còn lại.</p></div>
+<div class="lh-flow">
+<div class="lh-step"><b>1</b><h3>Bạn tạo việc</h3><p>Thêm một việc có deadline, gắn với môn học, dự án hoặc mục tiêu.</p></div>
+<div class="lh-step"><b>2</b><h3>Hệ thống tự nối</h3><p>Việc xuất hiện trên lịch chung, được đặt nhắc nhở và tính vào tiến độ.</p></div>
+<div class="lh-step"><b>3</b><h3>Bạn nhìn toàn cảnh</h3><p>Trang tổng quan cập nhật ngay, thống kê và điểm năng suất tự tính.</p></div>
+</div>
+</div>
+</section>
+
+<section style="padding-top:24px">
+<div class="lh-wrap">
+<div class="lh-end">
+<h2>Bắt đầu sắp xếp cuộc sống hôm nay</h2>
+<p>Tạo tài khoản trong một phút. Bạn có thể xuất hoặc sao lưu dữ liệu bất cứ lúc nào.</p>
+<div class="lh-cta"><a class="lh-btn lh-pri lh-lg" href="#">Tạo tài khoản</a><a class="lh-btn lh-lg" href="#">Đăng nhập</a></div>
+</div>
+</div>
+</section>
+</main>
+
+<footer>
+<div class="lh-wrap">
+<a class="lh-logo" href="#"><b>L</b>LifeHub</a>
+<nav><a href="#lh-tinh-nang">Tính năng</a><a href="#lh-phan-he">Phân hệ</a><a href="#">Trợ giúp</a><a href="#">Điều khoản</a></nav>
+<span>© 2026 LifeHub</span>
+</div>
+</footer>
+<script>
+(function(){
+var d=document;
+d.querySelectorAll('.lh-split').forEach(function(s){s.querySelectorAll('.lh-copy>*').forEach(function(e,i){e.classList.add('lh-rv');if(e.tagName!=='H2')e.classList.add('lh-r');e.style.setProperty('--lh-d',i*.1+'s')});s.querySelector('.lh-vis').classList.add('lh-rv','lh-l')});
+d.querySelectorAll('.lh-head,.lh-who span,.lh-mod,.lh-step,.lh-end').forEach(function(e,i){e.classList.add('lh-rv');e.style.setProperty('--lh-d',(i%5)*.08+'s')});
+var h=d.querySelector('.lh-hero h1');
+if(h){h.innerHTML=h.textContent.split(' ').map(function(w,i){return '<span class="lh-w" style="--lh-i:'+i+'">'+w+'</span>'}).join(' ')}
+var pg=d.createElement('div');pg.className='lh-prog';d.body.appendChild(pg);
+addEventListener('scroll',function(){var m=d.documentElement.scrollHeight-innerHeight;pg.style.transform='scaleX('+(m>0?scrollY/m:0)+')'},{passive:true});
+var app=d.querySelector('.lh-app'),hero=d.querySelector('.lh-hero');
+if(app&&hero&&!matchMedia('(prefers-reduced-motion:reduce)').matches){
+hero.addEventListener('mousemove',function(e){var r=app.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;app.style.transform='perspective(1400px) rotateY('+x*6+'deg) rotateX('+(-y*5)+'deg)'});
+hero.addEventListener('mouseleave',function(){app.style.transform=''})}
+var els=d.querySelectorAll('.lh-rv');
+if(!('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('lh-in')});return}
+var o=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting){x.target.classList.add('lh-in');o.unobserve(x.target)}})},{threshold:.15});
+els.forEach(function(e){o.observe(e)});
+})();
+</script>
+</body>
+</html>
