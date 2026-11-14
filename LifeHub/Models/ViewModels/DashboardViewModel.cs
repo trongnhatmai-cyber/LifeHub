@@ -1,19 +1,19 @@
-using System;
+
 using System.Collections.Generic;
 
 namespace LifeHub.Models.ViewModels
 {
     public class DashboardViewModel
     {
-        public string UserName { get; set; } = "Minh";
+        public string UserName { get; set; } = string.Empty;
         public string TodayDateFormatted { get; set; } = string.Empty;
-        public int WeeklyMomentumPercent { get; set; } = 68;
+        public int WeeklyMomentumPercent { get; set; }
 
-        // 4 Thẻ chỉ số tổng hợp
-        public int PendingTasksCount { get; set; } = 4;
-        public int ActiveProjectsCount { get; set; } = 3;
-        public decimal CurrentGpa { get; set; } = 3.42m;
-        public decimal TotalBalance { get; set; } = 12200000m;
+        // 4 thẻ chỉ số tổng hợp
+        public int PendingTasksCount { get; set; }
+        public int ActiveProjectsCount { get; set; }
+        public decimal? CurrentGpa { get; set; }
+        public decimal? TotalBalance { get; set; }
 
         // Danh sách công việc hôm nay
         public List<DashboardTaskItem> TodayTasks { get; set; } = new();
@@ -32,9 +32,9 @@ namespace LifeHub.Models.ViewModels
     {
         public int Id { get; set; }
         public string Title { get; set; } = string.Empty;
-        public string Priority { get; set; } = "Trung bình"; // Khẩn cấp, Cao, Trung bình, Thấp
-        public string Category { get; set; } = "Học tập";
-        public string DueTime { get; set; } = "Hôm nay";
+        public string Priority { get; set; } = string.Empty;
+        public string Category { get; set; } = string.Empty;
+        public string DueTime { get; set; } = string.Empty;
         public bool IsCompleted { get; set; }
     }
 
@@ -44,7 +44,7 @@ namespace LifeHub.Models.ViewModels
         public string Title { get; set; } = string.Empty;
         public string Time { get; set; } = string.Empty;
         public string Location { get; set; } = string.Empty;
-        public string Tag { get; set; } = "Lịch học";
+        public string Tag { get; set; } = string.Empty;
     }
 
     public class DashboardGoalItem

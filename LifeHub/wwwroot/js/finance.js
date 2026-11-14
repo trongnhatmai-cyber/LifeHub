@@ -67,18 +67,18 @@ document.addEventListener("DOMContentLoaded", () => {
         if (remaining) remaining.textContent = money(Math.max(0, savingGoal - savingProgress));
     }
 
-    // Dữ liệu biểu đồ minh họa; thay bằng dữ liệu thống kê từ server khi tích hợp backend.
-    const monthData = [
-        { label: "T6", income: 15, expense: 9 }, { label: "T7", income: 18, expense: 12 },
-        { label: "T8", income: 16, expense: 10 }, { label: "T9", income: 22, expense: 13 },
-        { label: "T10", income: 20, expense: 14 }, { label: "T11", income: 25, expense: 12.8 }
-    ];
-    const weekData = [
-        { label: "T2", income: 3, expense: 1.5 }, { label: "T3", income: 4, expense: 2 },
-        { label: "T4", income: 2, expense: 1 }, { label: "T5", income: 5, expense: 3 },
-        { label: "T6", income: 4, expense: 2 }, { label: "T7", income: 3, expense: 1.5 },
-        { label: "CN", income: 4, expense: 1.8 }
-    ];
+    // // Dữ liệu biểu đồ minh họa; thay bằng dữ liệu thống kê từ server khi tích hợp backend.
+    // const monthData = [
+    //     { label: "T6", income: 15, expense: 9 }, { label: "T7", income: 18, expense: 12 },
+    //     { label: "T8", income: 16, expense: 10 }, { label: "T9", income: 22, expense: 13 },
+    //     { label: "T10", income: 20, expense: 14 }, { label: "T11", income: 25, expense: 12.8 }
+    // ];
+    // const weekData = [
+    //     { label: "T2", income: 3, expense: 1.5 }, { label: "T3", income: 4, expense: 2 },
+    //     { label: "T4", income: 2, expense: 1 }, { label: "T5", income: 5, expense: 3 },
+    //     { label: "T6", income: 4, expense: 2 }, { label: "T7", income: 3, expense: 1.5 },
+    //     { label: "CN", income: 4, expense: 1.8 }
+    // ];
 
     // Vẽ biểu đồ cột theo tuần hoặc theo tháng.
     function drawChart(period = "month") {

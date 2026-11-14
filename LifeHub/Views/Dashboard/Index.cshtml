@@ -4,41 +4,6 @@
     Layout = "_Layout";
     ViewData["Title"] = "Tổng quan";
     ViewData["ActivePage"] = "Dashboard";
-
-    // Khởi tạo dữ liệu mẫu nếu Controller chưa truyền Model (chuẩn Front-End an toàn)
-    var m = Model ?? new LifeHub.Models.ViewModels.DashboardViewModel
-    {
-        UserName = "Bạn",
-        PendingTasksCount = 4,
-        ActiveProjectsCount = 3,
-        CurrentGpa = 3.42m,
-        TotalBalance = 12200000m,
-        TodayTasks = new List<LifeHub.Models.ViewModels.DashboardTaskItem>
-        {
-            new() { Id = 1, Title = "Nộp bài tập Cơ sở dữ liệu", Priority = "Khẩn cấp", Category = "Học tập", DueTime = "23:59", IsCompleted = false },
-            new() { Id = 2, Title = "Họp nhóm đồ án LIFEHUB", Priority = "Cao", Category = "Dự án", DueTime = "15:00", IsCompleted = false },
-            new() { Id = 3, Title = "Viết báo cáo tuần", Priority = "Trung bình", Category = "Công việc", DueTime = "18:00", IsCompleted = false },
-            new() { Id = 4, Title = "Ôn 20 từ vựng tiếng Anh", Priority = "Thấp", Category = "Học tập", DueTime = "21:00", IsCompleted = true }
-        },
-        UpcomingEvents = new List<LifeHub.Models.ViewModels.DashboardEventItem>
-        {
-            new() { Id = 1, Title = "Lớp Mạng máy tính", Time = "07:30 – 10:00", Location = "Phòng B2-304", Tag = "Lịch học" },
-            new() { Id = 2, Title = "Họp trực tuyến nhóm NET108", Time = "15:00 – 16:30", Location = "Google Meet", Tag = "Dự án" },
-            new() { Id = 3, Title = "Thi giữa kỳ Kiểm thử", Time = "18/11/2026", Location = "Phòng Lab 2", Tag = "Lịch thi" }
-        },
-        Goals = new List<LifeHub.Models.ViewModels.DashboardGoalItem>
-        {
-            new() { Id = 1, Title = "Hoàn thiện đồ án LIFEHUB", ProgressPercent = 75, Category = "Dự án" },
-            new() { Id = 2, Title = "Điểm GPA kỳ này >= 3.5", ProgressPercent = 85, Category = "Học tập" },
-            new() { Id = 3, Title = "Tiết kiệm mua Laptop mới", ProgressPercent = 25, Category = "Tài chính" }
-        },
-        Habits = new List<LifeHub.Models.ViewModels.DashboardHabitItem>
-        {
-            new() { Id = 1, Title = "Đọc sách 20 phút", StreakDays = 7, IsCompletedToday = true },
-            new() { Id = 2, Title = "Uống đủ 2 lít nước", StreakDays = 4, IsCompletedToday = false },
-            new() { Id = 3, Title = "Chạy bộ hoặc vận động 30p", StreakDays = 3, IsCompletedToday = false }
-        }
-    };
 }
 
 @section Styles {
@@ -50,7 +15,7 @@
     <header class="dashboard-heading">
         <div>
             <span class="dashboard-label">MY LIFE SPACE · PERSONAL HUB</span>
-            <h1>Chào ngày mới, @m.UserName 👋</h1>
+            <h1>Chào ngày mới, @Model.UserName 👋</h1>
             <p>Một ngày tốt bắt đầu từ những ưu tiên rõ ràng. Đây là bức tranh cuộc sống của bạn hôm nay.</p>
         </div>
 
@@ -72,7 +37,7 @@
                 <span>Việc cần hoàn thành</span>
                 <span class="summary-badge">CÔNG VIỆC</span>
             </div>
-            <h2>@m.PendingTasksCount</h2>
+            <h2>@Model.PendingTasksCount</h2>
             <p>Công việc đang mở hôm nay</p>
         </div>
 
@@ -82,7 +47,7 @@
                 <span>Dự án đang chạy</span>
                 <span class="summary-badge">DỰ ÁN</span>
             </div>
-            <h2>0@m.ActiveProjectsCount</h2>
+            <h2>0@Model.ActiveProjectsCount</h2>
             <p>Không gian đang theo dõi</p>
         </div>
 
@@ -92,7 +57,7 @@
                 <span>Điểm trung bình (GPA)</span>
                 <span class="summary-badge">HỌC TẬP</span>
             </div>
-            <h2>@m.CurrentGpa.ToString("F2")</h2>
+            <h2>@(Model.CurrentGpa?.ToString("F2") ?? "0.00")</h2>
             <p>Học kỳ 1 · 2026-2027</p>
         </div>
 
@@ -102,7 +67,7 @@
                 <span>Số dư khả dụng</span>
                 <span class="summary-badge">TÀI CHÍNH</span>
             </div>
-            <h2>@m.TotalBalance.ToString("N0") ₫</h2>
+            <h2>@(Model.TotalBalance?.ToString("N0") ?? "0.00") ₫</h2>
             <p>Tổng tài sản các ví</p>
         </div>
     </section>
@@ -124,7 +89,7 @@
                 </div>
 
                 <div class="task-list">
-                    @foreach (var task in m.TodayTasks)
+                    @foreach (var task in Model.TodayTasks)
                     {
                         <div class="task-item">
                             <input type="checkbox" class="task-checkbox" @(task.IsCompleted ? "checked" : "") />
@@ -151,7 +116,7 @@
                 </div>
 
                 <div>
-                    @foreach (var g in m.Goals)
+                    @foreach (var g in Model.Goals)
                     {
                         <div class="goal-item">
                             <div class="goal-top">
@@ -182,7 +147,7 @@
                 </div>
 
                 <div>
-                    @foreach (var ev in m.UpcomingEvents)
+                    @foreach (var ev in Model.UpcomingEvents)
                     {
                         <div class="event-item">
                             <span class="event-time-pill">@ev.Time</span>
@@ -208,7 +173,7 @@
                 </div>
 
                 <div>
-                    @foreach (var h in m.Habits)
+                    @foreach (var h in Model.Habits)
                     {
                         <div class="habit-row">
                             <label style="display:flex;align-items:center;gap:10px;cursor:pointer;flex:1;margin:0;">

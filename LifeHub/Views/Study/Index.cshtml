@@ -4,42 +4,6 @@
     Layout = "_Layout";
     ViewData["Title"] = "Quản lý học tập";
     ViewData["ActivePage"] = "Study";
-
-    // Khởi tạo dữ liệu mẫu nếu Controller chưa truyền Model (chuẩn Front-End)
-    var m = Model ?? new LifeHub.Models.ViewModels.StudyManagement.StudyViewModel
-    {
-        CurrentGpa = 3.42m,
-        ActiveCoursesCount = 5,
-        TotalCredits = 16,
-        PendingAssignmentsCount = 3,
-        NextExamDays = 3,
-        NextExamName = "Toán rời rạc",
-        Courses = new List<LifeHub.Models.ViewModels.StudyManagement.StudyCourseItem>
-        {
-            new() { Id = 1, Code = "NET108", Name = "Lập trình C# nâng cao", Credits = 3, Instructor = "ThS. Nguyễn Văn A", Room = "P.B2-304", AssignmentProgressPercent = 70, Status = "Đang học" },
-            new() { Id = 2, Code = "DBI202", Name = "Cơ sở dữ liệu", Credits = 3, Instructor = "TS. Trần Văn B", Room = "P.A1-201", AssignmentProgressPercent = 55, Status = "Đang học" },
-            new() { Id = 3, Code = "SWE301", Name = "Kiểm thử phần mềm", Credits = 3, Instructor = "ThS. Lê Thị C", Room = "Lab 2", AssignmentProgressPercent = 40, Status = "Đang học" },
-            new() { Id = 4, Code = "NW201", Name = "Mạng máy tính", Credits = 3, Instructor = "ThS. Hoàng Văn D", Room = "P.B1-105", AssignmentProgressPercent = 85, Status = "Đang học" },
-            new() { Id = 5, Code = "ENG202", Name = "Tiếng Anh chuyên ngành", Credits = 4, Instructor = "ThS. Phạm Thu E", Room = "P.C3-402", AssignmentProgressPercent = 60, Status = "Đang học" }
-        },
-        Schedule = new List<LifeHub.Models.ViewModels.StudyManagement.StudyScheduleDay>
-        {
-            new() { DayName = "T2", Events = new() { new() { Subject = "Mạng máy tính", Time = "07:30 - 10:00", Room = "B1-105" }, new() { Subject = "Tiếng Anh", Time = "13:00 - 15:00", Room = "C3-402" } } },
-            new() { DayName = "T3", Events = new() { new() { Subject = "Cơ sở dữ liệu", Time = "09:00 - 11:30", Room = "A1-201" } } },
-            new() { DayName = "T4", Events = new() { new() { Subject = "Lập trình C#", Time = "07:30 - 11:00", Room = "B2-304" } } },
-            new() { DayName = "T5", Events = new() { new() { Subject = "Kiểm thử phần mềm", Time = "13:30 - 16:00", Room = "Lab 2" } } },
-            new() { DayName = "T6", Events = new() { new() { Subject = "Tự học & Thư viện", Time = "08:00 - 11:00", Room = "Thư viện" } } },
-            new() { DayName = "T7", Events = new() { new() { Subject = "Họp nhóm đồ án", Time = "14:00 - 16:00", Room = "Online" } } },
-            new() { DayName = "CN", Events = new() }
-        },
-        Assignments = new List<LifeHub.Models.ViewModels.StudyManagement.StudyAssignmentItem>
-        {
-            new() { Id = 1, Title = "Lab 4 - Xây dựng View và ViewModel", CourseName = "Lập trình C#", DueDate = DateTime.Now.AddDays(2), WeightPercent = 10, IsSubmitted = false },
-            new() { Id = 2, Title = "Assignment 1 - Thiết kế Database", CourseName = "Cơ sở dữ liệu", DueDate = DateTime.Now.AddDays(4), WeightPercent = 20, IsSubmitted = false },
-            new() { Id = 3, Title = "Quiz 2 - Kiểm thử hộp đen", CourseName = "Kiểm thử", DueDate = DateTime.Now.AddDays(1), WeightPercent = 10, IsSubmitted = false },
-            new() { Id = 4, Title = "Bài tập Lab 3 - Thiết lập Routing", CourseName = "Mạng máy tính", DueDate = DateTime.Now.AddDays(-2), WeightPercent = 10, IsSubmitted = true, Score = 9.5m }
-        }
-    };
 }
 
 @section Styles {
@@ -72,7 +36,7 @@
                 <span>Điểm trung bình (GPA)</span>
                 <span class="summary-badge">HỌC KỲ NÀY</span>
             </div>
-            <h2>@m.CurrentGpa.ToString("F2")</h2>
+            <h2>@Model.CurrentGpa.ToString("F2")</h2>
             <p>Thang điểm 4 · Mục tiêu 3.6</p>
         </div>
 
@@ -81,8 +45,8 @@
                 <span>Môn đang học</span>
                 <span class="summary-badge">TÍN CHỈ</span>
             </div>
-            <h2>0@m.ActiveCoursesCount</h2>
-            <p>Tổng cộng @m.TotalCredits tín chỉ</p>
+            <h2>0@Model.ActiveCoursesCount</h2>
+            <p>Tổng cộng @Model.TotalCredits tín chỉ</p>
         </div>
 
         <div class="summary-card">
@@ -90,7 +54,7 @@
                 <span>Bài tập chưa nộp</span>
                 <span class="summary-badge">DEADLINE</span>
             </div>
-            <h2>@m.PendingAssignmentsCount</h2>
+            <h2>@Model.PendingAssignmentsCount</h2>
             <p>Cần hoàn thành trong tuần</p>
         </div>
 
@@ -99,8 +63,8 @@
                 <span>Kỳ thi gần nhất</span>
                 <span class="summary-badge">LỊCH THI</span>
             </div>
-            <h2>@m.NextExamDays ngày</h2>
-            <p>Môn @m.NextExamName</p>
+            <h2>@Model.NextExamDays ngày</h2>
+            <p>Môn @Model.NextExamName</p>
         </div>
     </section>
 
@@ -117,7 +81,7 @@
             </div>
 
             <div class="timetable-grid">
-                @foreach (var day in m.Schedule)
+                @foreach (var day in Model.Schedule)
                 {
                     <div class="timetable-day">
                         <div class="day-head">@day.DayName</div>
@@ -153,7 +117,7 @@
             </div>
 
             <div>
-                @foreach (var course in m.Courses)
+                @foreach (var course in Model.Courses)
                 {
                     <div class="course-item">
                         <div>
@@ -201,7 +165,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var asg in m.Assignments)
+                    @foreach (var asg in Model.Assignments)
                     {
                         <tr>
                             <td style="font-weight:600;">@asg.Title</td>

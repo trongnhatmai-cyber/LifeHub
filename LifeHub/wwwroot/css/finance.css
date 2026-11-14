@@ -28,7 +28,7 @@
 /* THEME DARK - Nền đen sâu, các mục màu pastel đậm */
 :root[data-theme="dark"] .finance-page,
 html[data-theme="dark"] .finance-page {
-    --finance-bg: #2f2f2f;
+    --finance-bg: #4b4b4b;
     --finance-card: #180c13;
     --finance-card-strong: #2a111e;
     --finance-soft: #381527;

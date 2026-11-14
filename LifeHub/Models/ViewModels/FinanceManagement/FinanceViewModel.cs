@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 
 namespace LifeHub.Models.ViewModels.FinanceManagement
 {

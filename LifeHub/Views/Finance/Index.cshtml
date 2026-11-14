@@ -243,19 +243,12 @@
                         <select id="transactionCategory" name="CategoryId" class="finance-select" style="width:100%;" required>
                             <option value="" disabled selected>Chọn danh mục</option>
                             @if (Model.Categories != null && Model.Categories.Any())
-                            {
-                                @foreach (var c in Model.Categories)
                                 {
-                                    <option value="@c.Id" data-type="@c.Type">@c.Name</option>
+                                    foreach (var c in Model.Categories)
+                                    {
+                                        <option value="@c.Id" data-type="@c.Type">@c.Name</option>
+                                    }
                                 }
-                            }
-                            else
-                            {
-                                <option value="1" data-type="expense">Ăn uống</option>
-                                <option value="2" data-type="expense">Đi lại</option>
-                                <option value="3" data-type="expense">Học tập</option>
-                                <option value="4" data-type="income">Tiền lương</option>
-                            }
                         </select>
                     </div>
                 </div>

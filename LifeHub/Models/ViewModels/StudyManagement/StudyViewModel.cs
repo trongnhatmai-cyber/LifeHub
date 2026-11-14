@@ -5,12 +5,12 @@ namespace LifeHub.Models.ViewModels.StudyManagement
 {
     public class StudyViewModel
     {
-        public decimal CurrentGpa { get; set; } = 3.42m;
-        public int ActiveCoursesCount { get; set; } = 5;
-        public int TotalCredits { get; set; } = 16;
-        public int PendingAssignmentsCount { get; set; } = 3;
-        public int NextExamDays { get; set; } = 3;
-        public string NextExamName { get; set; } = "Toán rời rạc";
+        public decimal CurrentGpa { get; set; } 
+        public int ActiveCoursesCount { get; set; } 
+        public int TotalCredits { get; set; } 
+        public int PendingAssignmentsCount { get; set; } 
+        public int NextExamDays { get; set; } 
+        public string NextExamName { get; set; } 
 
         // Danh sách môn học
         public List<StudyCourseItem> Courses { get; set; } = new();
