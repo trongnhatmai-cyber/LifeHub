@@ -21,7 +21,7 @@
 
     const now = new Date();
 
-    const today = $('today');
+    const today = $('today') || $('currentDate');
 
     if (today) {
         today.textContent =
@@ -355,20 +355,33 @@
     const root = document.documentElement;
     const toggle = document.getElementById('themeToggle');
 
-    if (toggle) {
-        function applyTheme(theme) {
-            root.setAttribute('data-theme', theme);
+    function applyTheme(theme) {
+        root.setAttribute('data-theme', theme);
+        document.body.setAttribute('data-theme', theme);
+        try {
+            localStorage.setItem('lifehub_theme', theme);
+        } catch (e) {}
 
-            toggle.textContent = theme === 'dark'
+        if (toggle) {
+            toggle.innerHTML = theme === 'dark'
                 ? '☀ Chế độ sáng'
                 : '☾ Chế độ tối';
         }
+    }
 
-        applyTheme('light');
+    const savedTheme = (function () {
+        try {
+            return localStorage.getItem('lifehub_theme') || 'light';
+        } catch (e) {
+            return 'light';
+        }
+    })();
 
+    applyTheme(savedTheme);
+
+    if (toggle) {
         toggle.addEventListener('click', () => {
-            const current = root.getAttribute('data-theme');
-
+            const current = root.getAttribute('data-theme') || 'light';
             applyTheme(current === 'dark' ? 'light' : 'dark');
         });
     }

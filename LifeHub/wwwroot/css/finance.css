@@ -3,42 +3,44 @@
    Giao diện hồng pastel, hỗ trợ Light/Dark.
 ============================================= */
 
-/* THEME LIGHT */
+/* THEME LIGHT - Nền trắng, thẻ hồng pastel nhạt */
 .finance-page {
-    --finance-bg: #fffafb;
+    --finance-bg: #ffffff;
     --finance-card: #fff0f3;
-    --finance-card-strong: #ffe0e8;
-    --finance-soft: #f8d5df;
-    --finance-border: #f0c5d0;
-    --finance-text: #35252b;
-    --finance-muted: #806b72;
-    --finance-accent: #d96c8b;
-    --finance-accent-dark: #bd5274;
-    --finance-danger: #c94d62;
-    --finance-income: #329b78;
-    --finance-expense: #d96c8b;
-    --finance-shadow: 0 8px 28px rgba(116, 58, 77, .06);
+    --finance-card-strong: #ffe2e8;
+    --finance-soft: #ffd4de;
+    --finance-border: #fed5df;
+    --finance-text: #2d161e;
+    --finance-muted: #8a6873;
+    --finance-accent: #e11d48;
+    --finance-accent-dark: #be123c;
+    --finance-danger: #e11d48;
+    --finance-income: #10b981;
+    --finance-expense: #f43f5e;
+    --finance-shadow: 0 6px 20px rgba(225, 29, 72, .05);
 
     color: var(--finance-text);
     width: 100%;
     min-width: 0;
+    transition: background 0.3s ease, color 0.3s ease;
 }
 
-/* THEME DARK */
-:root[data-theme="dark"] .finance-page {
-    --finance-bg: #1d2e28;
-    --finance-card: #293b34;
-    --finance-card-strong: #49313b;
-    --finance-soft: #49313b;
-    --finance-border: #51404a;
-    --finance-text: #f7edf1;
-    --finance-muted: #c2aeb7;
-    --finance-accent: #e58ba7;
-    --finance-accent-dark: #f0a3ba;
-    --finance-danger: #f07888;
-    --finance-income: #62c6a0;
-    --finance-expense: #e58ba7;
-    --finance-shadow: 0 8px 28px rgba(0, 0, 0, .15);
+/* THEME DARK - Nền đen sâu, các mục màu pastel đậm */
+:root[data-theme="dark"] .finance-page,
+html[data-theme="dark"] .finance-page {
+    --finance-bg: #2f2f2f;
+    --finance-card: #180c13;
+    --finance-card-strong: #2a111e;
+    --finance-soft: #381527;
+    --finance-border: #4e182e;
+    --finance-text: #fdf2f4;
+    --finance-muted: #c99eab;
+    --finance-accent: #fb7185;
+    --finance-accent-dark: #f43f5e;
+    --finance-danger: #fb7185;
+    --finance-income: #34d399;
+    --finance-expense: #fb7185;
+    --finance-shadow: 0 8px 28px rgba(0, 0, 0, .4);
 }
 
 .finance-page *, .finance-page *::before, .finance-page *::after { box-sizing: border-box; }

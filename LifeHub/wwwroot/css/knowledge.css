@@ -1,0 +1,228 @@
+/* =====================================================================
+   LIFEHUB - KNOWLEDGE MANAGEMENT (KIẾN THỨC & TÀI LIỆU)
+   Tone Tím Lavender pastel - Đồng bộ 100% Vibe chuẩn với Finance, Study & Task
+   ===================================================================== */
+
+/* THEME LIGHT - Nền trắng, thẻ tím lavender pastel nhạt */
+.knowledge-page {
+    --know-bg: #ffffff;
+    --know-card: #faf5ff;
+    --know-card-strong: #f3e8ff;
+    --know-soft: #e9d5ff;
+    --know-border: #f3e8ff;
+    --know-text: #581c87;
+    --know-muted: #64748b;
+    --know-accent: #7c3aed;
+    --know-accent-dark: #6d28d9;
+    --know-shadow: 0 6px 20px rgba(124, 58, 237, .05);
+
+    color: var(--know-text);
+    width: 100%;
+    min-width: 0;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* THEME DARK - Nền đen sâu, các thẻ mang màu pastel tím đậm */
+:root[data-theme="dark"] .knowledge-page,
+html[data-theme="dark"] .knowledge-page {
+    --know-bg: #080a0f;
+    --know-card: #1e0d33;
+    --know-card-strong: #2f134f;
+    --know-soft: #421869;
+    --know-border: #421869;
+    --know-text: #faf5ff;
+    --know-muted: #d8b4fe;
+    --know-accent: #c084fc;
+    --know-accent-dark: #a855f7;
+    --know-shadow: 0 8px 28px rgba(0, 0, 0, .4);
+}
+
+.knowledge-page * { box-sizing: border-box; }
+.knowledge-page h1, .knowledge-page h2, .knowledge-page h3, .knowledge-page p { margin-top: 0; }
+.knowledge-page button, .knowledge-page input, .knowledge-page select { font: inherit; }
+
+/* HEADER PHÂN HỆ */
+.knowledge-page .knowledge-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+.knowledge-page .knowledge-label {
+    display: inline-block;
+    margin-bottom: 8px;
+    color: var(--know-accent);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+.knowledge-page .knowledge-heading h1 {
+    margin-bottom: 6px;
+    font-size: clamp(24px, 3vw, 32px);
+    font-weight: 800;
+    letter-spacing: -.6px;
+    color: var(--know-text);
+}
+.knowledge-page .knowledge-heading p {
+    margin-bottom: 0;
+    color: var(--know-muted);
+    font-size: 13px;
+    line-height: 1.6;
+}
+.knowledge-page .heading-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.knowledge-page .know-btn {
+    display: inline-flex;
+    min-height: 40px;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 16px;
+    border: 1px solid var(--know-border);
+    border-radius: 12px;
+    background: var(--know-card);
+    color: var(--know-text);
+    font-size: 13px;
+    font-weight: 650;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.knowledge-page .know-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+.knowledge-page .know-btn.primary {
+    border-color: var(--know-accent);
+    background: var(--know-accent);
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(124, 58, 237, 0.25);
+}
+
+/* 4 THẺ CHỈ SỐ PASTEL TÍM */
+.knowledge-page .knowledge-summary {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 22px;
+}
+.knowledge-page .summary-card {
+    position: relative;
+    overflow: hidden;
+    padding: 20px;
+    border-radius: 18px;
+    border: 1px solid var(--know-border);
+    background: var(--know-card);
+    box-shadow: var(--know-shadow);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+}
+.knowledge-page .summary-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 26px -6px rgba(0, 0, 0, 0.08);
+}
+.knowledge-page .summary-card::after {
+    position: absolute;
+    right: -24px;
+    bottom: -36px;
+    width: 105px;
+    height: 105px;
+    border-radius: 50%;
+    background: var(--know-accent);
+    opacity: 0.12;
+    content: "";
+}
+
+.knowledge-page .summary-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--know-muted);
+}
+.knowledge-page .summary-badge {
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    background: var(--know-card-strong);
+    color: var(--know-accent);
+}
+
+.knowledge-page .summary-card h2 {
+    position: relative;
+    z-index: 1;
+    margin: 14px 0 4px;
+    font-size: clamp(21px, 2.2vw, 28px);
+    font-weight: 800;
+    letter-spacing: -.6px;
+    color: var(--know-text);
+}
+.knowledge-page .summary-card p {
+    margin: 0;
+    color: var(--know-muted);
+    font-size: 11px;
+}
+
+/* LƯỚI CARD GHI CHÚ */
+.knowledge-page .notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+    gap: 16px;
+    margin-bottom: 22px;
+}
+.knowledge-page .note-card-box {
+    background: var(--know-bg);
+    border: 1px solid var(--know-border);
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow: var(--know-shadow);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.knowledge-page .note-card-box:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px -4px rgba(0, 0, 0, 0.08);
+}
+.knowledge-page .note-card-box h3 {
+    margin: 0 0 6px;
+    font-size: 15px;
+    font-weight: 750;
+    color: var(--know-text);
+}
+.knowledge-page .note-card-box p {
+    margin: 0 0 14px;
+    font-size: 12px;
+    color: var(--know-muted);
+    line-height: 1.5;
+}
+
+/* BẢNG TÀI LIỆU */
+.knowledge-page .doc-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: var(--know-card);
+    border: 1px solid var(--know-border);
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+
+/* Responsive */
+@media(max-width: 1024px) {
+    .knowledge-page .knowledge-summary { grid-template-columns: repeat(2, 1fr); }
+}
+@media(max-width: 640px) {
+    .knowledge-page .knowledge-summary { grid-template-columns: 1fr; }
+    .knowledge-page .knowledge-heading { flex-direction: column; align-items: flex-start; }
+}

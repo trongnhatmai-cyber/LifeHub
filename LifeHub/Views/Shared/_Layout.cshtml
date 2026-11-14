@@ -1,4 +1,12 @@
-﻿
+@{
+    // Trả về "active" nếu đang ở đúng trang
+    string Cls(string page) => ViewData["ActivePage"]?.ToString() == page ? "active" : "";
+
+    var userName = User.Identity?.IsAuthenticated == true && !string.IsNullOrWhiteSpace(User.Identity?.Name)
+        ? User.Identity!.Name!
+        : "Người dùng Demo";
+    var initial = userName.Trim()[0].ToString().ToUpper();
+}
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -9,14 +17,12 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-          rel="stylesheet" />
-
-    <!-- Bootstrap nếu các trang trong dự án đang sử dụng -->
+    <!-- Bootstrap: xóa dòng này nếu không trang nào còn dùng -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 
-    <!-- CSS chung của Layout -->
+    <!-- CSS chung của Layout (nạp sau Bootstrap để ghi đè) -->
     <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true" />
 
     <!-- CSS riêng của từng trang -->
@@ -35,57 +41,22 @@
             <div class="menu-label">KHÔNG GIAN CỦA BẠN</div>
 
             <nav class="menu">
-                <a asp-controller="Dashboard" asp-action="Index"
-                   class="@(ViewData["ActivePage"]?.ToString() == "Dashboard" ? "active" : "")">
-                    Tổng quan
-                </a>
-
-                <a asp-controller="Study" asp-action="Index"
-                   class="@(ViewData["ActivePage"]?.ToString() == "Study" ? "active" : "")">
-                    Học tập
-                </a>
-
-                <a asp-controller="Project" asp-action="Index"
-                   class="@(ViewData["ActivePage"]?.ToString() == "Project" ? "active" : "")">
-                    Dự án
-                </a>
-
-                <a asp-controller="Work" asp-action="Index"
-                   class="@(ViewData["ActivePage"]?.ToString() == "Work" ? "active" : "")">
-                    Công việc
-                </a>
-
-                <a asp-controller="Time" asp-action="Index"
-                   class="@(ViewData["ActivePage"]?.ToString() == "Time" ? "active" : "")">
-                    Thời gian
-                </a>
-
-                <a asp-controller="Goals" asp-action="Index"
-                   class="@(ViewData["ActivePage"]?.ToString() == "Goals" ? "active" : "")">
-                    Mục tiêu & thói quen
-                </a>
-
-                <a asp-controller="Finance" asp-action="Index"
-                   class="@(ViewData["ActivePage"]?.ToString() == "Finance" ? "active" : "")">
-                    Tài chính
-                </a>
-
-                <a asp-controller="Knowledge" asp-action="Index"
-                   class="@(ViewData["ActivePage"]?.ToString() == "Knowledge" ? "active" : "")">
-                    Kiến thức & tài liệu
-                </a>
-
-                <a asp-controller="AI" asp-action="Index"
-                   class="@(ViewData["ActivePage"]?.ToString() == "AI" ? "active" : "")">
-                    AI Assistant
-                </a>
+                <a asp-controller="Dashboard" asp-action="Index" class="@(Cls("Dashboard") + (Cls("Home") != "" ? " active" : ""))"><span class="menu-sym">▦</span>Tổng quan</a>
+                <a asp-controller="Study" asp-action="Index" class="@Cls("Study")"><span class="menu-sym">▤</span>Học tập</a>
+                <a asp-controller="Project" asp-action="Index" class="@Cls("Project")"><span class="menu-sym">🗂</span>Dự án</a>
+                <a asp-controller="Task" asp-action="Index" class="@(Cls("Task") + (Cls("Work") != "" ? " active" : ""))"><span class="menu-sym">☑</span>Công việc</a>
+                <a asp-controller="Time" asp-action="Index" class="@Cls("Time")"><span class="menu-sym">◷</span>Thời gian</a>
+                <a asp-controller="Goal" asp-action="Index" class="@(Cls("Goal") + (Cls("Goals") != "" ? " active" : ""))"><span class="menu-sym">◎</span>Mục tiêu &amp; Thói quen</a>
+                <a asp-controller="Finance" asp-action="Index" class="@Cls("Finance")"><span class="menu-sym">＄</span>Tài chính</a>
+                <a asp-controller="Knowledge" asp-action="Index" class="@Cls("Knowledge")"><span class="menu-sym">✉</span>Kiến thức &amp; Tài liệu</a>
+                <a asp-controller="Lifestyle" asp-action="Index" class="@Cls("Lifestyle")"><span class="menu-sym">♡</span>Sinh hoạt &amp; Thành tích</a>
+                <a asp-controller="AI" asp-action="Index" class="@Cls("AI")"><span class="menu-sym">✧</span>Trợ lý AI</a>
             </nav>
 
             <div class="sidebar-spacer"></div>
 
-            <a asp-controller="Profile" asp-action="Index"
-               class="sidebar-bottom">
-                Hồ sơ & cài đặt
+            <a asp-controller="Profile" asp-action="Index" class="sidebar-bottom @Cls("Profile")">
+                <span class="menu-sym">♙</span>Hồ sơ &amp; cài đặt
             </a>
         </aside>
 
@@ -96,16 +67,12 @@
                 <div class="topbar-right">
                     <span class="topbar-date" id="currentDate"></span>
 
-                    <button class="theme-button"
-                            id="themeToggle"
-                            type="button"
-                            aria-label="Chuyển chế độ giao diện">
+                    <button class="theme-button" id="themeToggle" type="button" aria-label="Chuyển chế độ giao diện">
                         Sáng / Tối
                     </button>
 
-                    <span class="user-name">Người dùng Demo</span>
-
-                    <div class="avatar">N</div>
+                    <span class="user-name">@userName</span>
+                    <div class="avatar">@initial</div>
                 </div>
             </header>
 

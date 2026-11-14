@@ -1,0 +1,157 @@
+@model LifeHub.Models.ViewModels.ProjectManagement.ProjectViewModel
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Quản lý dự án";
+    ViewData["ActivePage"] = "Project";
+
+    var m = Model ?? new LifeHub.Models.ViewModels.ProjectManagement.ProjectViewModel
+    {
+        TotalProjects = 3,
+        ActiveProjects = 2,
+        CompletedProjects = 1,
+        TotalTeamMembers = 7,
+        Projects = new List<LifeHub.Models.ViewModels.ProjectManagement.ProjectCardItem>
+        {
+            new() { Id = 1, Name = "LIFEHUB Platform", Description = "Hệ thống quản lý cuộc sống toàn diện với kiến trúc Một User - Vạn Kết Nối.", Role = "Manager", MemberCount = 4, ProgressPercent = 75, Status = "Đang chạy", DueDate = DateTime.Now.AddDays(15), TotalTasks = 24, CompletedTasks = 18 },
+            new() { Id = 2, Name = "Website Nhóm NET108", Description = "Ứng dụng web ASP.NET Core MVC tích hợp Entity Framework Core và SQL Server.", Role = "Manager", MemberCount = 3, ProgressPercent = 50, Status = "Đang chạy", DueDate = DateTime.Now.AddDays(25), TotalTasks = 16, CompletedTasks = 8 },
+            new() { Id = 3, Name = "UI/UX Redesign Portfolio", Description = "Thiết kế lại giao diện portfolio cá nhân với phong cách tối giản và pastel.", Role = "Member", MemberCount = 1, ProgressPercent = 100, Status = "Hoàn thành", DueDate = DateTime.Now.AddDays(-5), TotalTasks = 10, CompletedTasks = 10 }
+        },
+        RecentMilestones = new List<LifeHub.Models.ViewModels.ProjectManagement.ProjectMilestoneItem>
+        {
+            new() { Id = 1, ProjectName = "LIFEHUB", Title = "Hoàn thành thiết kế ERD & Database", DueDate = DateTime.Now.AddDays(-2), IsCompleted = true },
+            new() { Id = 2, ProjectName = "LIFEHUB", Title = "Triển khai toàn bộ Front-End Views", DueDate = DateTime.Now.AddDays(3), IsCompleted = false },
+            new() { Id = 3, ProjectName = "Website NET108", Title = "Báo cáo tiến độ giai đoạn 1", DueDate = DateTime.Now.AddDays(7), IsCompleted = false }
+        }
+    };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/project.css" asp-append-version="true" />
+}
+
+<div class="project-page">
+    <!-- TIÊU ĐỀ PHÂN HỆ DỰ ÁN -->
+    <header class="project-heading">
+        <div>
+            <span class="project-label">PROJECT MANAGEMENT · TEAM & PERSONAL</span>
+            <h1>Dự án của bạn</h1>
+            <p>Tổ chức không gian làm việc, phân chia công việc nhóm và theo dõi cột mốc tiến độ.</p>
+        </div>
+
+        <div class="heading-actions">
+            <button type="button" class="proj-btn primary" id="createProjectBtn">
+                + Tạo dự án mới
+            </button>
+        </div>
+    </header>
+
+    <!-- 4 THẺ CHỈ SỐ PASTEL MINT TỔNG QUAN -->
+    <section class="project-summary">
+        <div class="summary-card">
+            <div class="summary-top">
+                <span>Tổng số dự án</span>
+                <span class="summary-badge">DỰ ÁN</span>
+            </div>
+            <h2>0@m.TotalProjects</h2>
+            <p>Không gian đang quản lý</p>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-top">
+                <span>Đang thực hiện</span>
+                <span class="summary-badge">TIẾN ĐỘ</span>
+            </div>
+            <h2>0@m.ActiveProjects</h2>
+            <p>Dự án đang chạy</p>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-top">
+                <span>Đã hoàn thành</span>
+                <span class="summary-badge">HOÀN TẤT</span>
+            </div>
+            <h2>0@m.CompletedProjects</h2>
+            <p>Dự án đã nghiệm thu</p>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-top">
+                <span>Thành viên cộng tác</span>
+                <span class="summary-badge">NHÓM</span>
+            </div>
+            <h2>0@m.TotalTeamMembers</h2>
+            <p>Thành viên tham gia</p>
+        </div>
+    </section>
+
+    <!-- DANH SÁCH THẺ DỰ ÁN (CARD GRID) -->
+    <div class="project-grid">
+        @foreach (var p in m.Projects)
+        {
+            <div class="project-item-card">
+                <div>
+                    <div class="proj-top">
+                        <div>
+                            <h3>@p.Name</h3>
+                            <span class="summary-badge">Vai trò: @p.Role</span>
+                        </div>
+                        <span class="summary-badge" style="background:@(p.Status == "Hoàn thành" ? "#dcfce7" : "var(--proj-card-strong)");color:@(p.Status == "Hoàn thành" ? "#15803d" : "var(--proj-accent)");">
+                            @p.Status
+                        </span>
+                    </div>
+
+                    <p class="proj-desc">@p.Description</p>
+                </div>
+
+                <div>
+                    <div class="proj-progress">
+                        <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;">
+                            <span>Tiến độ thực hiện</span>
+                            <span style="color:var(--proj-accent);">@p.ProgressPercent% (@p.CompletedTasks/@p.TotalTasks việc)</span>
+                        </div>
+                        <div class="bar">
+                            <i style="width:@p.ProgressPercent%;"></i>
+                        </div>
+                    </div>
+
+                    <div class="proj-meta">
+                        <span>👥 @p.MemberCount thành viên</span>
+                        <span>Hạn chót: @p.DueDate.ToString("dd/MM/yyyy")</span>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- CỘT MỐC GẦN ĐÂY -->
+    <section class="project-item-card" style="margin-top: 10px;">
+        <div class="proj-top" style="margin-bottom: 14px;">
+            <div>
+                <h3>Cột mốc dự án (Milestones)</h3>
+                <p style="font-size:12px;color:var(--proj-muted);margin:0;">Các mốc then chốt cần hoàn thành đúng hạn</p>
+            </div>
+            <button type="button" class="proj-btn" style="padding:4px 12px;font-size:12px;min-height:32px;">
+                + Cột mốc
+            </button>
+        </div>
+
+        <div>
+            @foreach (var ms in m.RecentMilestones)
+            {
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--proj-border);font-size:13px;">
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <span style="color:@(ms.IsCompleted ? "#10b981" : "var(--proj-accent)");font-weight:800;font-size:15px;">
+                            @(ms.IsCompleted ? "✓" : "○")
+                        </span>
+                        <div>
+                            <span style="font-weight:650;@(ms.IsCompleted ? "text-decoration:line-through;opacity:0.6;" : "")">@ms.Title</span>
+                            <span class="summary-badge" style="font-size:9px;margin-left:6px;">@ms.ProjectName</span>
+                        </div>
+                    </div>
+                    <span style="color:var(--proj-muted);font-size:12px;">@ms.DueDate.ToString("dd/MM/yyyy")</span>
+                </div>
+            }
+        </div>
+    </section>
+</div>

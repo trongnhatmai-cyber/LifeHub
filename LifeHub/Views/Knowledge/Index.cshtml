@@ -1,0 +1,168 @@
+@model LifeHub.Models.ViewModels.KnowledgeManagement.KnowledgeViewModel
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Kiến thức & Tài liệu";
+    ViewData["ActivePage"] = "Knowledge";
+
+    var m = Model ?? new LifeHub.Models.ViewModels.KnowledgeManagement.KnowledgeViewModel
+    {
+        TotalNotesCount = 15,
+        TotalDocumentsCount = 8,
+        PinnedNotesCount = 3,
+        StorageUsedText = "42.5 MB",
+        Folders = new List<LifeHub.Models.ViewModels.KnowledgeManagement.KnowledgeCategoryItem>
+        {
+            new() { Id = 1, Name = "Môn Lập trình C#", NoteCount = 6 },
+            new() { Id = 2, Name = "Môn Cơ sở dữ liệu", NoteCount = 4 },
+            new() { Id = 3, Name = "Đồ án LIFEHUB", NoteCount = 3 },
+            new() { Id = 4, Name = "Ý tưởng cá nhân", NoteCount = 2 }
+        },
+        Notes = new List<LifeHub.Models.ViewModels.KnowledgeManagement.KnowledgeNoteItem>
+        {
+            new() { Id = 1, Title = "Kiến trúc Entity Framework Core", Summary = "Tổng hợp DbContext, Fluent API, quan hệ 1-N, N-N và chiến lược Migration chống vòng lặp cascade.", CategoryName = "Lập trình C#", IsPinned = true, UpdatedAt = DateTime.Now.AddDays(-1), Tag = "Quan trọng" },
+            new() { Id = 2, Title = "Đặc tả yêu cầu phần mềm LIFEHUB", Summary = "10 phân hệ nghiệp vụ, kiến trúc Một User - Vạn Kết Nối và hệ thống ViewModels chuẩn.", CategoryName = "Đồ án LIFEHUB", IsPinned = true, UpdatedAt = DateTime.Now.AddDays(-2), Tag = "Đồ án" },
+            new() { Id = 3, Title = "Thiết kế CSDL SQL Server chuẩn 3NF", Summary = "Ghi chú về 34 thực thể, chỉ mục index, khóa ngoại và tối ưu hóa câu truy vấn phức tạp.", CategoryName = "Cơ sở dữ liệu", IsPinned = true, UpdatedAt = DateTime.Now.AddDays(-3), Tag = "CSDL" },
+            new() { Id = 4, Title = "Cú pháp Razor View Engine & Tag Helpers", Summary = "Cách sử dụng asp-for, asp-validation-for, asp-items và RenderSectionAsync trong ASP.NET Core.", CategoryName = "Lập trình C#", IsPinned = false, UpdatedAt = DateTime.Now.AddDays(-4), Tag = "Front-End" }
+        },
+        Documents = new List<LifeHub.Models.ViewModels.KnowledgeManagement.KnowledgeDocumentItem>
+        {
+            new() { Id = 1, FileName = "BaoCao_LIFEHUB_DuAn.pdf", FileType = "PDF", FileSize = "3.8 MB", ContextName = "Dự án LIFEHUB", UploadedAt = DateTime.Now.AddDays(-1) },
+            new() { Id = 2, FileName = "Lab4_HuongDanThucHanh.docx", FileType = "DOCX", FileSize = "1.2 MB", ContextName = "Môn C# (NET108)", UploadedAt = DateTime.Now.AddDays(-2) },
+            new() { Id = 3, FileName = "SoDo_ERD_Database.png", FileType = "PNG", FileSize = "850 KB", ContextName = "Cơ sở dữ liệu", UploadedAt = DateTime.Now.AddDays(-3) }
+        }
+    };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/knowledge.css" asp-append-version="true" />
+}
+
+<div class="knowledge-page">
+    <!-- TIÊU ĐỀ PHÂN HỆ KIẾN THỨC & TÀI LIỆU -->
+    <header class="knowledge-heading">
+        <div>
+            <span class="knowledge-label">KNOWLEDGE MANAGEMENT · NOTES & LIBRARY</span>
+            <h1>Kiến thức & Tài liệu</h1>
+            <p>Lưu trữ sổ tay ghi chép, quản lý thư viện tài liệu cá nhân và liên kết theo môn học.</p>
+        </div>
+
+        <div class="heading-actions">
+            <button type="button" class="know-btn" id="uploadDocBtn">
+                📁 Tải lên tài liệu
+            </button>
+            <button type="button" class="know-btn primary" id="createNoteBtn">
+                + Viết ghi chú
+            </button>
+        </div>
+    </header>
+
+    <!-- 4 THẺ CHỈ SỐ PASTEL TÍM TỔNG QUAN -->
+    <section class="knowledge-summary">
+        <div class="summary-card">
+            <div class="summary-top">
+                <span>Tổng số ghi chú</span>
+                <span class="summary-badge">GHI CHÚ</span>
+            </div>
+            <h2>@m.TotalNotesCount</h2>
+            <p>Sổ tay đang lưu trữ</p>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-top">
+                <span>Ghi chú đã ghim</span>
+                <span class="summary-badge">ĐÃ GHIM</span>
+            </div>
+            <h2>0@m.PinnedNotesCount</h2>
+            <p>Mục ưu tiên xem nhanh</p>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-top">
+                <span>Tài liệu đính kèm</span>
+                <span class="summary-badge">TÀI LIỆU</span>
+            </div>
+            <h2>0@m.TotalDocumentsCount</h2>
+            <p>Tệp PDF, DOCX, Hình ảnh</p>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-top">
+                <span>Dung lượng đã dùng</span>
+                <span class="summary-badge">BỘ NHỚ</span>
+            </div>
+            <h2>@m.StorageUsedText</h2>
+            <p>Trên tổng số 500 MB</p>
+        </div>
+    </section>
+
+    <!-- KHỐI GHI CHÚ NỔI BẬT (CARD GRID) -->
+    <div style="margin-bottom:18px;">
+        <div class="section-heading" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+            <div>
+                <h3 style="margin:0;font-size:16px;font-weight:800;">Ghi chú quan trọng</h3>
+                <p style="margin:0;font-size:11px;color:var(--know-muted);">Sắp xếp theo thời gian cập nhật gần nhất</p>
+            </div>
+            <span class="summary-badge">Thư viện sổ tay</span>
+        </div>
+
+        <div class="notes-grid">
+            @foreach (var note in m.Notes)
+            {
+                <div class="note-card-box">
+                    <div>
+                        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px;">
+                            <span class="summary-badge" style="font-size:9px;">@note.CategoryName</span>
+                            @if (note.IsPinned)
+                            {
+                                <span style="font-size:11px;color:var(--know-accent);" title="Đã ghim">📌</span>
+                            }
+                        </div>
+                        <h3>@note.Title</h3>
+                        <p>@note.Summary</p>
+                    </div>
+
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--know-border);font-size:11px;color:var(--know-muted);">
+                        <span class="summary-badge" style="font-size:9px;"># @note.Tag</span>
+                        <span>@note.UpdatedAt.ToString("dd/MM/yyyy")</span>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- TÀI LIỆU TẢI LÊN GẦN ĐÂY -->
+    <section class="note-card-box" style="margin-top: 10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+            <div>
+                <h3 style="margin:0;font-size:16px;font-weight:800;">Thư viện tài liệu</h3>
+                <p style="margin:0;font-size:11px;color:var(--know-muted);">Tài liệu đính kèm theo môn học và dự án</p>
+            </div>
+            <button type="button" class="know-btn" style="padding:4px 12px;font-size:12px;min-height:32px;">
+                + Tải tệp mới
+            </button>
+        </div>
+
+        <div>
+            @foreach (var doc in m.Documents)
+            {
+                <div class="doc-row">
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <span class="summary-badge" style="font-weight:800;font-size:10px;">@doc.FileType</span>
+                        <div>
+                            <div style="font-weight:650;font-size:13px;">@doc.FileName</div>
+                            <div style="font-size:11px;color:var(--know-muted);">Ngữ cảnh: @doc.ContextName · @doc.FileSize</div>
+                        </div>
+                    </div>
+
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span style="font-size:11px;color:var(--know-muted);">@doc.UploadedAt.ToString("dd/MM/yyyy")</span>
+                        <button type="button" class="know-btn" style="padding:3px 8px;font-size:11px;min-height:28px;">
+                            Tải về ↓
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+</div>

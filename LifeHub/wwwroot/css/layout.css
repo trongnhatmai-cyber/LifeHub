@@ -1,208 +1,309 @@
-/* =====================================================
-   LIFEHUB — GLOBAL LAYOUT
-   Phụ trách: Sidebar, menu, header, vùng nội dung và responsive.
-   dashboard.css tiếp tục phụ trách các thành phần riêng của Dashboard.
-===================================================== */
-
-/* 1. BIẾN GIAO DIỆN & RESET */
+/* =====================================================================
+   LIFEHUB - DESIGN SYSTEM: TỐI GIẢN, HIỆN ĐẠI, 1 QUẢN LÝ 1 MÀU PASTEL
+   - Menu sidebar: Nền trắng xám (#f8fafc)
+   - Chế độ Light: Nền trang trắng tinh khiết (#ffffff), các mục màu pastel nhạt
+   - Chế độ Dark: Nền trang đen sâu (#080a0f), các mục màu pastel đậm
+   ===================================================================== */
 
 :root {
-    --lh-bg: #f5f7f6;
-    --lh-surface: #ffffff;
-    --lh-text: #202923;
-    --lh-muted: #7b867e;
-    --lh-border: #e6ebe7;
-    --lh-primary: #269b68;
-    --lh-sidebar-1: #6a6a6a;
-    --lh-sidebar-2: #3a3f3d;
-    --lh-shadow: 0 18px 45px -28px rgba(0,0,0,.28);
-    color-scheme: light;
+  --lh-page: #ffffff;              /* Nền trang trắng cho Light mode */
+  --lh-sidebar-bg: #f8fafc;         /* Menu nền trắng xám chuẩn */
+  --lh-sidebar-soft: #f1f5f9;       /* Nền hover mục menu */
+  --lh-line: #e2e8f0;               /* Viền mỏng tinh tế */
+  --lh-text: #1e293b;
+  --lh-muted: #64748b;
+  --lh-accent: #0f172a;
+  --lh-on: #ffffff;
+  --lh-sidebar: 248px;
+
+  /* HỆ MÀU 10 PHÂN HỆ LIFEHUB - CHẾ ĐỘ LIGHT (PASTEL NHẠT) */
+  --pastel-study: #eff6ff;          --pastel-study-accent: #2563eb;
+  --pastel-project: #f0fdf4;        --pastel-project-accent: #16a34a;
+  --pastel-task: #fff7ed;           --pastel-task-accent: #ea580c;
+  --pastel-time: #f0fdfa;           --pastel-time-accent: #0d9488;
+  --pastel-goal: #fefce8;           --pastel-goal-accent: #ca8a04;
+  --pastel-finance: #fff0f3;        --pastel-finance-accent: #e11d48;
+  --pastel-knowledge: #faf5ff;      --pastel-knowledge-accent: #7c3aed;
+  --pastel-lifestyle: #ecfdf5;      --pastel-lifestyle-accent: #059669;
+  --pastel-ai: #f0f9ff;             --pastel-ai-accent: #0284c7;
 }
 
-:root[data-theme="dark"] {
-    --lh-bg: #101613;
-    --lh-surface: #1d2e28;
-    --lh-text: #f3f8f5;
-    --lh-muted: #a9c2b8;
-    --lh-border: #35524a;
-    --lh-sidebar-1: #2d3331;
-    --lh-sidebar-2: #222826;
-    color-scheme: dark;
+:root[data-theme="dark"], html[data-theme="dark"] {
+  --lh-page: #292929;              /* Nền trang đen sâu cho Dark mode */
+  --lh-sidebar-bg: #1e1e1e;         /* Menu nền than tối */
+  --lh-sidebar-soft: #181d27;       /* Hover menu tối */
+  --lh-line: #1e232e;               /* Viền tối */
+  --lh-text: #f8fafc;
+  --lh-muted: #94a3b8;
+  --lh-accent: #f8fafc;
+  --lh-on: #0f172a;
+
+  /* HỆ MÀU 10 PHÂN HỆ LIFEHUB - CHẾ ĐỘ DARK (NỀN ĐEN + PASTEL ĐẬM) */
+  --pastel-study: #101b2d;          --pastel-study-accent: #60a5fa;
+  --pastel-project: #03170b;        --pastel-project-accent: #4ade80;
+  --pastel-task: #190d04;           --pastel-task-accent: #fb923c;
+  --pastel-time: #011918;           --pastel-time-accent: #2dd4bf;
+  --pastel-goal: #292408;           --pastel-goal-accent: #facc15;
+  --pastel-finance: #260d16;        --pastel-finance-accent: #fb7185;
+  --pastel-knowledge: #1e0d33;      --pastel-knowledge-accent: #c084fc;
+  --pastel-lifestyle: #0a251e;      --pastel-lifestyle-accent: #34d399;
+  --pastel-ai: #091f33;             --pastel-ai-accent: #38bdf8;
 }
 
-*, *::before, *::after { box-sizing: border-box; }
-html { min-height: 100%; scroll-behavior: smooth; }
 body {
-    min-height: 100vh; margin: 0; padding: 0;
-    background: var(--lh-bg); color: var(--lh-text);
-    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
-    line-height: 1.5; -webkit-font-smoothing: antialiased;
+  margin: 0;
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--lh-page);
+  color: var(--lh-text);
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-button, input, select, textarea { font: inherit; }
-button { cursor: pointer; }
-a { color: inherit; }
-:focus-visible { outline: 2px solid var(--lh-primary); outline-offset: 3px; }
 
-/* 2. KHUNG ỨNG DỤNG — SIDEBAR + NỘI DUNG */
 .app {
-    display: grid; grid-template-columns: 268px minmax(0, 1fr);
-    gap: 20px; width: 100%; max-width: 1600px;
-    min-height: 100vh; margin: 0 auto; padding: 18px;
+  display: grid;
+  grid-template-columns: var(--lh-sidebar) minmax(0, 1fr);
+  min-height: 100vh;
 }
 
-/* 3. SIDEBAR — LOGO, MENU VÀ LIÊN KẾT */
-.sidebar {
-    position: sticky; top: 18px; align-self: start;
-    display: flex; flex-direction: column; gap: 8px;
-    width: 100%; height: calc(100vh - 36px); min-height: 520px;
-    padding: 22px 16px; overflow-y: auto;
-    color: #fff; background: linear-gradient(170deg, var(--lh-sidebar-1), var(--lh-sidebar-2));
-    border-radius: 26px; box-shadow: var(--lh-shadow);
-}
-.logo {
-    display: flex; align-items: center; gap: 12px;
-    padding: 3px 8px 22px; color: #fff;
-    font-size: 19px; font-weight: 800; letter-spacing: .04em;
-}
-.logo-mark {
-    display: grid; place-items: center; flex: 0 0 42px;
-    width: 42px; height: 42px; border-radius: 13px;
-    background: rgba(255,255,255,.16); color: #fff;
-    font-size: 21px; font-weight: 800;
-}
-.menu-label {
-    padding: 7px 10px 9px; color: rgba(255,255,255,.58);
-    font-size: 10px; font-weight: 800; letter-spacing: .13em;
-}
-.menu { display: grid; gap: 5px; }
-.menu a, .sidebar-bottom {
-    display: flex; align-items: center; min-height: 44px;
-    padding: 11px 13px; border-radius: 13px;
-    color: rgba(255,255,255,.88); text-decoration: none;
-    font-size: 13.5px; font-weight: 600;
-    transition: background .2s ease, color .2s ease, transform .2s ease;
-}
-.menu a:hover, .sidebar-bottom:hover {
-    color: #fff; background: rgba(255,255,255,.11); transform: translateX(2px);
-}
-.menu a.active, .sidebar-bottom.active {
-    color: #26342c; background: #fff; font-weight: 800;
-}
-.sidebar-spacer { flex: 1; min-height: 20px; }
-.sidebar-bottom {
-    margin-top: 8px; border-top: 1px solid rgba(255,255,255,.14);
-    border-radius: 0 0 12px 12px; padding-top: 16px;
+/* Sidebar Menu - Nền trắng xám */
+.app .sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 14px;
+  background: var(--lh-sidebar-bg);
+  border-right: 1px solid var(--lh-line);
+  overflow-y: auto;
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
-/* 4. KHU VỰC MAIN VÀ THANH HEADER */
-.main { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
-.topbar {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 16px; min-height: 72px; padding: 14px 22px;
-    background: var(--lh-surface); border: 1px solid var(--lh-border);
-    border-radius: 21px; box-shadow: 0 8px 25px -24px rgba(0,0,0,.25);
-}
-.topbar h2 {
-    min-width: 0; margin: 0; color: var(--lh-text);
-    font-size: 18px; font-weight: 800; letter-spacing: -.025em;
-}
-.topbar-right { display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
-.topbar-date { color: var(--lh-muted); font-size: 12px; font-weight: 600; white-space: nowrap; }
-.user-name { color: var(--lh-text); font-size: 13px; font-weight: 700; white-space: nowrap; }
-.avatar {
-    display: grid; place-items: center; flex: 0 0 40px;
-    width: 40px; height: 40px; border-radius: 50%;
-    color: #fff; background: var(--lh-primary); font-size: 14px; font-weight: 800;
-}
-.theme-button {
-    min-height: 38px; padding: 0 14px; border: 1px solid var(--lh-border);
-    border-radius: 999px; color: var(--lh-text); background: var(--lh-surface);
-    font-size: 12px; font-weight: 700; transition: .2s ease;
-}
-.theme-button:hover { color: var(--lh-primary); border-color: var(--lh-primary); background: color-mix(in srgb, var(--lh-primary) 7%, var(--lh-surface)); }
-
-/* 5. VÙNG RENDER NỘI DUNG TỪ CÁC VIEW */
-.page-content { min-width: 0; width: 100%; padding: 0; }
-.page-content > * { min-width: 0; }
-.page-content img, .page-content canvas, .page-content table { max-width: 100%; }
-
-/* 6. DARK MODE — ĐỒNG BỘ KHUNG LAYOUT */
-:root[data-theme="dark"] body { background: var(--lh-bg); color: var(--lh-text); }
-:root[data-theme="dark"] .topbar { background: var(--lh-surface); border-color: var(--lh-border); }
-:root[data-theme="dark"] .topbar h2,
-:root[data-theme="dark"] .user-name { color: var(--lh-text); }
-:root[data-theme="dark"] .theme-button { color: var(--lh-text); background: #263a32; border-color: var(--lh-border); }
-
-/* 7. RESPONSIVE — TABLET */
-@media (max-width: 1000px) {
-    .app { grid-template-columns: 220px minmax(0, 1fr); gap: 14px; padding: 14px; }
-    .sidebar { padding: 18px 12px; border-radius: 22px; }
-    .menu a, .sidebar-bottom { padding-right: 10px; padding-left: 10px; font-size: 12.5px; }
-    .topbar { padding: 13px 16px; }
+.app .logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 10px 24px;
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: .02em;
 }
 
-/* 8. RESPONSIVE — MOBILE: MENU CUỘN NGANG */
-@media (max-width: 760px) {
-    .app { display: flex; flex-direction: column; gap: 12px; min-height: 100vh; padding: 10px; }
-    .sidebar {
-        position: static; display: block; width: 100%; height: auto; min-height: 0;
-        padding: 10px; overflow: visible; border-radius: 18px;
-    }
-    .logo { padding: 2px 5px 10px; font-size: 16px; }
-    .logo-mark { flex-basis: 36px; width: 36px; height: 36px; border-radius: 11px; font-size: 18px; }
-    .menu-label, .sidebar-spacer { display: none; }
-    .menu { display: flex; gap: 6px; overflow-x: auto; padding: 2px 0 5px; scrollbar-width: thin; }
-    .menu a { flex: 0 0 auto; min-height: 38px; padding: 9px 12px; white-space: nowrap; font-size: 12px; }
-    .menu a:hover { transform: none; }
-    .sidebar-bottom { display: inline-flex; min-height: 34px; margin: 5px 0 0; padding: 7px 10px; border: 0; font-size: 12px; }
-    .main { gap: 12px; }
-    .topbar { min-height: 60px; gap: 10px; padding: 10px 13px; border-radius: 17px; }
-    .topbar h2 { font-size: 16px; }
-    .topbar-right { gap: 8px; }
+.app .logo-mark {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: var(--lh-accent);
+  color: var(--lh-on);
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease;
+}
+.app .logo:hover .logo-mark {
+  transform: rotate(5deg) scale(1.05);
 }
 
-/* 9. RESPONSIVE — ĐIỆN THOẠI NHỎ */
-@media (max-width: 480px) {
-    .app { padding: 8px; }
-    .topbar { align-items: flex-start; flex-direction: column; }
-    .topbar-right { justify-content: space-between; width: 100%; }
-    .topbar-date { font-size: 11px; }
-    .user-name { display: none; }
-    .avatar { flex-basis: 34px; width: 34px; height: 34px; }
-    .theme-button { min-height: 34px; padding: 0 11px; }
+.app .menu-label {
+  padding: 0 12px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: var(--lh-muted);
 }
 
-/* 10. HỖ TRỢ NGƯỜI DÙNG GIẢM CHUYỂN ĐỘNG */
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+.app .menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-
-/* =====================================================
-   11. CÁC STYLE MẶC ĐỊNH CŨ CỦA layout.css
-   Giữ lại các tiện ích Bootstrap/ASP.NET đang có để tránh
-   làm mất style ở những thành phần dùng chung trong dự án.
-===================================================== */
-a.navbar-brand { white-space: normal; text-align: center; word-break: break-all; }
-/* Không ghi đè màu chữ của menu và sidebar */
-a {
-    color: inherit;
+.app .menu a,
+.app .sidebar-bottom {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--lh-muted);
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.menu a,
-.sidebar-bottom {
-    color: rgba(255, 255, 255, .88);
+.app .menu a:hover,
+.app .sidebar-bottom:hover {
+  background: var(--lh-sidebar-soft);
+  color: var(--lh-text);
+  transform: translateX(3px);
 }
 
-.menu a.active,
-.sidebar-bottom.active {
-    color: #26342c;
-    background: #fff;
+.app .menu a.active {
+  background: #ffffff;
+  color: var(--lh-text);
+  font-weight: 700;
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.06);
 }
 
-.btn-primary { color: #fff; background-color: #1b6ec2; border-color: #1861ac; }
-.nav-pills .nav-link.active, .nav-pills .show > .nav-link { color: #fff; background-color: #1b6ec2; border-color: #1861ac; }
-.border-top { border-top: 1px solid #e5e5e5; }
-.border-bottom { border-bottom: 1px solid #e5e5e5; }
-.box-shadow { box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05); }
-button.accept-policy { font-size: 1rem; line-height: inherit; }
+:root[data-theme="dark"] .app .menu a.active {
+  background: #181d27;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.app .menu-sym {
+  font-size: 15px;
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  opacity: 0.85;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.app .menu a:hover .menu-sym {
+  transform: scale(1.15);
+  opacity: 1;
+}
+.app .menu a.active .menu-sym {
+  opacity: 1;
+}
+
+.app .menu-icon {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  transition: transform 0.2s ease;
+}
+.app .menu a:hover .menu-icon {
+  transform: scale(1.1);
+}
+
+.app .sidebar-spacer {
+  flex: 1;
+}
+
+.app .sidebar-bottom {
+  border-top: 1px solid var(--lh-line);
+  border-radius: 0 0 12px 12px;
+  margin-top: 12px;
+  padding-top: 16px;
+}
+
+/* Vùng nội dung chính */
+.app .main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.app .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: 64px;
+  padding: 0 28px;
+  background: color-mix(in srgb, var(--lh-page) 85%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--lh-line);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.app .topbar h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+
+.app .topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 13px;
+  color: var(--lh-muted);
+}
+
+/* Nút chuyển chế độ Sáng / Tối */
+.app .theme-button {
+  height: 36px;
+  padding: 0 15px;
+  border: 1px solid var(--lh-line);
+  border-radius: 999px;
+  background: var(--lh-sidebar-bg);
+  color: var(--lh-text);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.app .theme-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.app .theme-button:active {
+  transform: scale(0.96);
+}
+
+.app .user-name {
+  color: var(--lh-text);
+  font-weight: 600;
+}
+
+.app .avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--lh-accent);
+  color: var(--lh-on);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.app .page-content {
+  width: 100%;
+  max-width: 1280px;
+  padding: 28px;
+}
+
+/* Hiệu ứng nổi và card micro-interactions */
+.summary-card, .finance-card, .study-card, .card {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.summary-card:hover, .finance-card:hover, .study-card:hover, .card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.08);
+}
+
+button:active, .finance-btn:active, .btn:active {
+  transform: scale(0.97);
+}
+
+/* Responsive */
+@media(max-width:900px){
+  .app{grid-template-columns:1fr}
+  .app .sidebar{position:static;height:auto;flex-direction:row;padding:10px;border-right:0;border-bottom:1px solid var(--lh-line);overflow-x:auto;overflow-y:hidden}
+  .app .logo,.app .menu-label,.app .sidebar-spacer{display:none}
+  .app .menu{flex-direction:row}
+  .app .menu a,.app .sidebar-bottom{white-space:nowrap;margin:0;border:0;padding:10px 12px}
+  .app .topbar{padding:0 16px}
+  .app .topbar-date,.app .user-name{display:none}
+  .app .page-content{padding:16px}
+}

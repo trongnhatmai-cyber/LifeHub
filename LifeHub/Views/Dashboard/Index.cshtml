@@ -1,216 +1,225 @@
-@* Dashboard: trang tổng quan sau khi đăng nhập. CSS và JS được nạp riêng qua Sections. *@
+@model LifeHub.Models.ViewModels.DashboardViewModel
+
 @{
-    ViewData["Title"] = "Tổng quan & Học tập";
-    ViewData["PageTitle"] = "Tổng quan";
-    ViewData["ActivePage"] = "Home";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "_Layout";
+    ViewData["Title"] = "Tổng quan";
+    ViewData["ActivePage"] = "Dashboard";
+
+    // Khởi tạo dữ liệu mẫu nếu Controller chưa truyền Model (chuẩn Front-End an toàn)
+    var m = Model ?? new LifeHub.Models.ViewModels.DashboardViewModel
+    {
+        UserName = "Bạn",
+        PendingTasksCount = 4,
+        ActiveProjectsCount = 3,
+        CurrentGpa = 3.42m,
+        TotalBalance = 12200000m,
+        TodayTasks = new List<LifeHub.Models.ViewModels.DashboardTaskItem>
+        {
+            new() { Id = 1, Title = "Nộp bài tập Cơ sở dữ liệu", Priority = "Khẩn cấp", Category = "Học tập", DueTime = "23:59", IsCompleted = false },
+            new() { Id = 2, Title = "Họp nhóm đồ án LIFEHUB", Priority = "Cao", Category = "Dự án", DueTime = "15:00", IsCompleted = false },
+            new() { Id = 3, Title = "Viết báo cáo tuần", Priority = "Trung bình", Category = "Công việc", DueTime = "18:00", IsCompleted = false },
+            new() { Id = 4, Title = "Ôn 20 từ vựng tiếng Anh", Priority = "Thấp", Category = "Học tập", DueTime = "21:00", IsCompleted = true }
+        },
+        UpcomingEvents = new List<LifeHub.Models.ViewModels.DashboardEventItem>
+        {
+            new() { Id = 1, Title = "Lớp Mạng máy tính", Time = "07:30 – 10:00", Location = "Phòng B2-304", Tag = "Lịch học" },
+            new() { Id = 2, Title = "Họp trực tuyến nhóm NET108", Time = "15:00 – 16:30", Location = "Google Meet", Tag = "Dự án" },
+            new() { Id = 3, Title = "Thi giữa kỳ Kiểm thử", Time = "18/11/2026", Location = "Phòng Lab 2", Tag = "Lịch thi" }
+        },
+        Goals = new List<LifeHub.Models.ViewModels.DashboardGoalItem>
+        {
+            new() { Id = 1, Title = "Hoàn thiện đồ án LIFEHUB", ProgressPercent = 75, Category = "Dự án" },
+            new() { Id = 2, Title = "Điểm GPA kỳ này >= 3.5", ProgressPercent = 85, Category = "Học tập" },
+            new() { Id = 3, Title = "Tiết kiệm mua Laptop mới", ProgressPercent = 25, Category = "Tài chính" }
+        },
+        Habits = new List<LifeHub.Models.ViewModels.DashboardHabitItem>
+        {
+            new() { Id = 1, Title = "Đọc sách 20 phút", StreakDays = 7, IsCompletedToday = true },
+            new() { Id = 2, Title = "Uống đủ 2 lít nước", StreakDays = 4, IsCompletedToday = false },
+            new() { Id = 3, Title = "Chạy bộ hoặc vận động 30p", StreakDays = 3, IsCompletedToday = false }
+        }
+    };
 }
 
 @section Styles {
     <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
 }
 
-@section Scripts {
-    <script src="~/js/dashboard.js" asp-append-version="true" defer></script>
-}
-
-<!-- TỔNG QUAN -->
-<section class="view" id="tong-quan">
-
-    <div class="hd">
+<div class="dashboard-page">
+    <!-- TIÊU ĐỀ PHÂN HỆ TỔNG QUAN -->
+    <header class="dashboard-heading">
         <div>
-            <span class="pill">MY LIFE SPACE · PERSONAL HUB</span>
-            <h1>Chào ngày mới, bạn</h1>
-            <p class="mut">
-                Một ngày tốt bắt đầu từ những ưu tiên rõ ràng.
-                Đây là bức tranh cuộc sống của bạn hôm nay.
-            </p>
+            <span class="dashboard-label">MY LIFE SPACE · PERSONAL HUB</span>
+            <h1>Chào ngày mới, @m.UserName 👋</h1>
+            <p>Một ngày tốt bắt đầu từ những ưu tiên rõ ràng. Đây là bức tranh cuộc sống của bạn hôm nay.</p>
         </div>
 
-        <button class="btn" type="button">Xem lịch</button>
-        <button class="btn p" type="button">+ Lên kế hoạch</button>
-    </div>
+        <div class="heading-actions">
+            <a asp-controller="Time" asp-action="Index" class="dash-btn">
+                Xem lịch
+            </a>
+            <a asp-controller="Task" asp-action="Index" class="dash-btn primary">
+                + Lên kế hoạch
+            </a>
+        </div>
+    </header>
 
-    <div class="g2">
-
-        <div class="hero">
-            <small>YOUR DAILY MOMENTUM</small>
-
-            <h2>
-                Tiến từng bước nhỏ,<br>
-                tạo nên thay đổi lớn.
-            </h2>
-
-            <p>
-                Giữ nhịp học tập, công việc và chăm sóc bản thân.
-                Hôm nay bạn muốn hoàn thành điều gì quan trọng nhất?
-            </p>
-
-            <div class="hrow">
-                <button class="btn" type="button"
-                        onclick="document.getElementById('qi').focus()">
-                    Chọn ưu tiên hôm nay
-                </button>
-
-                <div class="bar">
-                    <i style="width:68%"></i>
-                </div>
-
-                <span>Mục tiêu tuần · 68%</span>
+    <!-- 4 THẺ CHỈ SỐ PASTEL ĐA SẮC ĐẠI DIỆN 4 PHÂN HỆ CHÍNH -->
+    <section class="dashboard-summary">
+        <!-- Thẻ 1: Công việc (Cam pastel) -->
+        <div class="dash-summary-card card-task">
+            <div class="summary-top">
+                <span>Việc cần hoàn thành</span>
+                <span class="summary-badge">CÔNG VIỆC</span>
             </div>
+            <h2>@m.PendingTasksCount</h2>
+            <p>Công việc đang mở hôm nay</p>
         </div>
 
-        <div class="card">
-
-            <div class="ch">
-                <h3>Lịch của bạn</h3>
-                <span class="pill">HÔM NAY</span>
+        <!-- Thẻ 2: Dự án (Xanh lá pastel) -->
+        <div class="dash-summary-card card-proj">
+            <div class="summary-top">
+                <span>Dự án đang chạy</span>
+                <span class="summary-badge">DỰ ÁN</span>
             </div>
-
-            <div class="week" id="week"></div>
-
-            <div class="ev">
-                <div class="e">
-                    Lớp Mạng máy tính
-                    <small>07:30 · Phòng B2-304</small>
-                </div>
-
-                <div class="e b">
-                    Họp nhóm đồ án
-                    <small>15:00</small>
-                </div>
-
-                <div class="e c">
-                    Hạn nộp bài tập CSDL
-                    <small>23:59</small>
-                </div>
-            </div>
-
+            <h2>0@m.ActiveProjectsCount</h2>
+            <p>Không gian đang theo dõi</p>
         </div>
 
-    </div>
-
-
-    <div class="g4">
-
-        <div class="card st">
-            <div class="t">
-                Việc cần hoàn thành
+        <!-- Thẻ 3: Học tập (Xanh dương pastel) -->
+        <div class="dash-summary-card card-study">
+            <div class="summary-top">
+                <span>Điểm trung bình (GPA)</span>
+                <span class="summary-badge">HỌC TẬP</span>
             </div>
-            <b id="openCnt">4</b>
-            <small class="mut">Công việc đang mở</small>
+            <h2>@m.CurrentGpa.ToString("F2")</h2>
+            <p>Học kỳ 1 · 2026-2027</p>
         </div>
 
-        <div class="card st">
-            <div class="t">
-                Dự án đang chạy
+        <!-- Thẻ 4: Tài chính (Hồng pastel) -->
+        <div class="dash-summary-card card-finance">
+            <div class="summary-top">
+                <span>Số dư khả dụng</span>
+                <span class="summary-badge">TÀI CHÍNH</span>
             </div>
-            <b>03</b>
-            <small class="mut">Không gian đang theo dõi</small>
+            <h2>@m.TotalBalance.ToString("N0") ₫</h2>
+            <p>Tổng tài sản các ví</p>
         </div>
+    </section>
 
-        <div class="card st">
-            <div class="t">
-                Mục tiêu cá nhân
-            </div>
-            <b>03</b>
-            <small class="mut">Đang trên hành trình</small>
-        </div>
-
-        <div class="card st">
-            <div class="t">
-                Chuỗi thói quen
-            </div>
-            <b>07 ngày</b>
-            <small class="mut">Duy trì đều đặn</small>
-        </div>
-
-    </div>
-
-
-    <div class="g2b">
-
-        <div class="card">
-
-            <div class="ch">
-                <div>
-                    <h3>Việc ưu tiên hôm nay</h3>
-                    <p class="mut">Chọn việc quan trọng và bắt đầu ngay</p>
-                </div>
-
-                <a class="tag" href="#hoc-tap">Học tập</a>
-            </div>
-
-            <form class="add" id="addT">
-
-                <input id="qi" type="text" maxlength="120" autocomplete="off"
-                       placeholder="Thêm nhanh một việc cần làm..."
-                       aria-label="Việc mới" required>
-
-                <button class="btn p" type="submit">
-                    + Thêm
-                </button>
-
-            </form>
-
-            <div id="tasks"></div>
-
-        </div>
-
-
-        <div class="card">
-
-            <div class="ch">
-                <div>
-                    <h3>Nhịp độ phát triển</h3>
-                    <p class="mut">Tiến độ các mục tiêu nổi bật</p>
-                </div>
-
-                <span class="pill">TUẦN NÀY</span>
-            </div>
-
-            <div class="prog">
-
-                <div>
+    <!-- KHỐI LƯỚI NỘI DUNG CHÍNH (2 CỘT CHUẨN TỶ LỆ) -->
+    <div class="dashboard-grid">
+        <!-- CỘT TRÁI: VIỆC ƯU TIÊN & TIẾN ĐỘ MỤC TIÊU -->
+        <div style="display:flex;flex-direction:column;gap:18px;">
+            <!-- Ưu tiên hôm nay -->
+            <div class="dash-card">
+                <div class="card-header">
                     <div>
-                        <span>Hoàn thành dự án LIFEHUB</span>
-                        <span class="accent-text">70%</span>
+                        <h3>Việc ưu tiên hôm nay</h3>
+                        <p>Chọn việc quan trọng và tập trung hoàn thành</p>
                     </div>
-                    <div class="bar">
-                        <i style="width:70%"></i>
+                    <a asp-controller="Task" asp-action="Index" class="dash-btn" style="padding:4px 10px;font-size:12px;min-height:30px;">
+                        Tất cả →
+                    </a>
+                </div>
+
+                <div class="task-list">
+                    @foreach (var task in m.TodayTasks)
+                    {
+                        <div class="task-item">
+                            <input type="checkbox" class="task-checkbox" @(task.IsCompleted ? "checked" : "") />
+                            <div class="task-name" style="@(task.IsCompleted ? "text-decoration:line-through;opacity:0.6;" : "")">
+                                @task.Title
+                                <div style="font-size:11px;font-weight:400;color:var(--dash-muted);">Hạn: @task.DueTime</div>
+                            </div>
+                            <span class="task-tag">@task.Priority</span>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Tiến độ mục tiêu -->
+            <div class="dash-card">
+                <div class="card-header">
+                    <div>
+                        <h3>Tiến độ mục tiêu</h3>
+                        <p>Hành trình phát triển cá nhân</p>
                     </div>
+                    <a asp-controller="Goal" asp-action="Index" class="dash-btn" style="padding:4px 10px;font-size:12px;min-height:30px;">
+                        Chi tiết ↗
+                    </a>
                 </div>
 
                 <div>
+                    @foreach (var g in m.Goals)
+                    {
+                        <div class="goal-item">
+                            <div class="goal-top">
+                                <span>@g.Title</span>
+                                <strong style="color:var(--card-study-accent);">@g.ProgressPercent%</strong>
+                            </div>
+                            <div class="goal-bar">
+                                <i style="width:@g.ProgressPercent%;"></i>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- CỘT PHẢI: LỊCH TRÌNH VÀ THÓI QUEN HÔM NAY -->
+        <div style="display:flex;flex-direction:column;gap:18px;">
+            <!-- Lịch sự kiện sắp tới -->
+            <div class="dash-card">
+                <div class="card-header">
                     <div>
-                        <span>Ôn tập lập trình</span>
-                        <span class="accent-text">55%</span>
+                        <h3>Lịch trình sắp tới</h3>
+                        <p>Thời khóa biểu và sự kiện cần lưu ý</p>
                     </div>
-                    <div class="bar">
-                        <i style="width:55%"></i>
-                    </div>
+                    <a asp-controller="Time" asp-action="Index" class="dash-btn" style="padding:4px 10px;font-size:12px;min-height:30px;">
+                        Lịch ↗
+                    </a>
                 </div>
 
                 <div>
+                    @foreach (var ev in m.UpcomingEvents)
+                    {
+                        <div class="event-item">
+                            <span class="event-time-pill">@ev.Time</span>
+                            <div style="flex:1;">
+                                <div style="font-weight:650;">@ev.Title</div>
+                                <div style="font-size:11px;color:var(--dash-muted);">@ev.Location</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Thói quen duy trì hàng ngày -->
+            <div class="dash-card">
+                <div class="card-header">
                     <div>
-                        <span>Đọc 2 cuốn sách</span>
-                        <span class="accent-text">40%</span>
+                        <h3>Thói quen rèn luyện</h3>
+                        <p>Giữ nhịp đều đặn mỗi ngày</p>
                     </div>
-                    <div class="bar">
-                        <i style="width:40%"></i>
-                    </div>
+                    <a asp-controller="Goal" asp-action="Index" class="dash-btn" style="padding:4px 10px;font-size:12px;min-height:30px;">
+                        Điểm danh
+                    </a>
                 </div>
 
                 <div>
-                    <div>
-                        <span>Chạy bộ 20 km</span>
-                        <span class="warn-text">30%</span>
-                    </div>
-                    <div class="bar">
-                        <i class="warn-bar" style="width:30%"></i>
-                    </div>
+                    @foreach (var h in m.Habits)
+                    {
+                        <div class="habit-row">
+                            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;flex:1;margin:0;">
+                                <input type="checkbox" class="task-checkbox" @(h.IsCompletedToday ? "checked" : "") />
+                                <span style="font-weight:600;@(h.IsCompletedToday ? "text-decoration:line-through;opacity:0.6;" : "")">@h.Title</span>
+                            </label>
+                            <span class="habit-streak">🔥 @h.StreakDays ngày</span>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
     </div>
-</section>
+</div>

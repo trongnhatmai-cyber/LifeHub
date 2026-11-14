@@ -3,15 +3,14 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LifeHub.Controllers
 {
-    public class StudyController : Controller
+    public class TImeController : Controller
     {
-        // Hiển thị trang quản lý học tập
         public IActionResult Index()
         {
-            ViewData["Title"] = "Học tập";
+            ViewData["Title"] = "Thời gian";
 
             // Giá trị này phải trùng với điều kiện active trong _Layout.cshtml
-            ViewData["ActivePage"] = "Study";
+            ViewData["ActivePage"] = "Time";
 
             return View();
         }
