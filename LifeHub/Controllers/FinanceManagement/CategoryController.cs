@@ -1,4 +1,4 @@
-
+using System.Linq;
 using LifeHub.BusinessLogicLayer.FinanceManagement;
 using LifeHub.Extensions;
 using LifeHub.Models.ViewModels.FinanceManagement;
@@ -18,20 +18,36 @@ public class CategoryController : Controller
     }
 
     // GET: /Category
-    public async Task<IActionResult> Index()
+   public async Task<IActionResult> Index()
     {
         int userId = User.GetUserId();
 
         var categories = await _categoryService.GetAllAsync(userId);
 
-        return View(categories);
+        var categoryViewModels = categories.Select(c => new CategoryViewModel
+        {
+            Id = c.Id,
+            Name = c.Name,
+            Type = c.Type,
+            Icon = c.Icon,
+            Color = c.Color,
+            ParentId = c.ParentId,
+
+            Spent = 0,
+            Limit = 0
+        }).ToList();
+
+        return View(
+            "~/Views/Finance/Category/Index.cshtml",
+            categoryViewModels
+        );
     }
 
     // GET: /Category/Create
     [HttpGet]
     public IActionResult Create()
     {
-        return View();
+        return View("~/Views/Finance/Category/Create.cshtml");
     }
 
     // POST: /Category/Create
@@ -91,7 +107,7 @@ public class CategoryController : Controller
             ParentId = category.ParentId
         };
 
-        return View(model);
+        return View("~/Views/Finance/Category/Create.cshtml",model);
     }
 
     // POST: /Category/Edit

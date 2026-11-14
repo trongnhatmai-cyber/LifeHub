@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authentication;
 using LifeHub.Models;
 
 namespace LifeHub.Controllers;
@@ -8,6 +9,13 @@ public class HomeController : Controller
 {
     public IActionResult Index()
     {
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            return RedirectToAction(
+                "Index",
+                "Dashboard"
+            );
+        }
         return View();
     }
 
