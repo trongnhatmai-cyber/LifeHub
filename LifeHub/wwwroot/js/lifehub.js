@@ -21,7 +21,7 @@
 
     const now = new Date();
 
-    const today = $('today');
+    const today = $('today') || $('currentDate');
 
     if (today) {
         today.textContent =
@@ -348,21 +348,41 @@
 
     route();
 
-    // =========================
-    // DARK MODE
-    // =========================
-    const themeButton = document.getElementById("themeToggle");
+    // ===============================
+    // THEME SÁNG / TỐI TOÀN HỆ THỐNG
+    // ===============================
 
-    if (themeButton) {
-        themeButton.addEventListener("click", function () {
+    const root = document.documentElement;
+    const toggle = document.getElementById('themeToggle');
 
-            const root = document.documentElement;
+    function applyTheme(theme) {
+        root.setAttribute('data-theme', theme);
+        document.body.setAttribute('data-theme', theme);
+        try {
+            localStorage.setItem('lifehub_theme', theme);
+        } catch (e) {}
 
-            const isDark = root.dataset.theme === "dark";
-
-            root.dataset.theme = isDark ? "light" : "dark";
-
-        });
+        if (toggle) {
+            toggle.innerHTML = theme === 'dark'
+                ? '☀ Chế độ sáng'
+                : '☾ Chế độ tối';
+        }
     }
 
+    const savedTheme = (function () {
+        try {
+            return localStorage.getItem('lifehub_theme') || 'light';
+        } catch (e) {
+            return 'light';
+        }
+    })();
+
+    applyTheme(savedTheme);
+
+    if (toggle) {
+        toggle.addEventListener('click', () => {
+            const current = root.getAttribute('data-theme') || 'light';
+            applyTheme(current === 'dark' ? 'light' : 'dark');
+        });
+    }
 })();

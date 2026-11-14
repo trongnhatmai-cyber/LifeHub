@@ -1,0 +1,249 @@
+/* =====================================================================
+   LIFEHUB - PROJECT MANAGEMENT (DỰ ÁN)
+   Tone Xanh lá / Mint pastel - Đồng bộ 100% Vibe chuẩn với Finance & Study
+   ===================================================================== */
+
+/* THEME LIGHT - Nền trắng tinh khôi, thẻ mint pastel nhạt */
+.project-page {
+    --proj-bg: #ffffff;
+    --proj-card: #f0fdf4;
+    --proj-card-strong: #dcfce7;
+    --proj-soft: #bbf7d0;
+    --proj-border: #dcfce7;
+    --proj-text: #14532d;
+    --proj-muted: #64748b;
+    --proj-accent: #16a34a;
+    --proj-accent-dark: #15803d;
+    --proj-shadow: 0 6px 20px rgba(22, 163, 74, .05);
+
+    color: var(--proj-text);
+    width: 100%;
+    min-width: 0;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* THEME DARK - Nền đen sâu, các thẻ mang màu pastel xanh lá đậm */
+:root[data-theme="dark"] .project-page,
+html[data-theme="dark"] .project-page {
+    --proj-bg: #080a0f;
+    --proj-card: #091f14;
+    --proj-card-strong: #123824;
+    --proj-soft: #14492e;
+    --proj-border: #14492e;
+    --proj-text: #f0fdf4;
+    --proj-muted: #86efac;
+    --proj-accent: #4ade80;
+    --proj-accent-dark: #22c55e;
+    --proj-shadow: 0 8px 28px rgba(0, 0, 0, .4);
+}
+
+.project-page * { box-sizing: border-box; }
+.project-page h1, .project-page h2, .project-page h3, .project-page p { margin-top: 0; }
+.project-page button, .project-page input, .project-page select { font: inherit; }
+
+/* HEADER PHÂN HỆ */
+.project-page .project-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+.project-page .project-label {
+    display: inline-block;
+    margin-bottom: 8px;
+    color: var(--proj-accent);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+.project-page .project-heading h1 {
+    margin-bottom: 6px;
+    font-size: clamp(24px, 3vw, 32px);
+    font-weight: 800;
+    letter-spacing: -.6px;
+    color: var(--proj-text);
+}
+.project-page .project-heading p {
+    margin-bottom: 0;
+    color: var(--proj-muted);
+    font-size: 13px;
+    line-height: 1.6;
+}
+.project-page .heading-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.project-page .proj-btn {
+    display: inline-flex;
+    min-height: 40px;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 16px;
+    border: 1px solid var(--proj-border);
+    border-radius: 12px;
+    background: var(--proj-card);
+    color: var(--proj-text);
+    font-size: 13px;
+    font-weight: 650;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.project-page .proj-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+.project-page .proj-btn.primary {
+    border-color: var(--proj-accent);
+    background: var(--proj-accent);
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(22, 163, 74, 0.25);
+}
+
+/* 4 THẺ CHỈ SỐ PASTEL MINT */
+.project-page .project-summary {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 22px;
+}
+.project-page .summary-card {
+    position: relative;
+    overflow: hidden;
+    padding: 20px;
+    border-radius: 18px;
+    border: 1px solid var(--proj-border);
+    background: var(--proj-card);
+    box-shadow: var(--proj-shadow);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+}
+.project-page .summary-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 26px -6px rgba(0, 0, 0, 0.08);
+}
+.project-page .summary-card::after {
+    position: absolute;
+    right: -24px;
+    bottom: -36px;
+    width: 105px;
+    height: 105px;
+    border-radius: 50%;
+    background: var(--proj-accent);
+    opacity: 0.12;
+    content: "";
+}
+
+.project-page .summary-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--proj-muted);
+}
+.project-page .summary-badge {
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    background: var(--proj-card-strong);
+    color: var(--proj-accent);
+}
+
+.project-page .summary-card h2 {
+    position: relative;
+    z-index: 1;
+    margin: 14px 0 4px;
+    font-size: clamp(21px, 2.2vw, 28px);
+    font-weight: 800;
+    letter-spacing: -.6px;
+    color: var(--proj-text);
+}
+.project-page .summary-card p {
+    margin: 0;
+    color: var(--proj-muted);
+    font-size: 11px;
+}
+
+/* LƯỚI CARD DỰ ÁN */
+.project-page .project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 18px;
+    margin-bottom: 22px;
+}
+.project-page .project-item-card {
+    background: var(--proj-bg);
+    border: 1px solid var(--proj-border);
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: var(--proj-shadow);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.project-page .project-item-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.08);
+}
+.project-page .proj-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+.project-page .proj-top h3 {
+    margin: 0 0 6px;
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--proj-text);
+}
+.project-page .proj-desc {
+    color: var(--proj-muted);
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 18px;
+}
+.project-page .proj-progress {
+    margin-bottom: 16px;
+}
+.project-page .proj-progress .bar {
+    height: 7px;
+    border-radius: 10px;
+    background: var(--proj-card);
+    border: 1px solid var(--proj-border);
+    overflow: hidden;
+    margin-top: 6px;
+}
+.project-page .proj-progress .bar i {
+    display: block;
+    height: 100%;
+    border-radius: 10px;
+    background: var(--proj-accent);
+}
+.project-page .proj-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--proj-muted);
+    padding-top: 14px;
+    border-top: 1px solid var(--proj-border);
+}
+
+/* Responsive */
+@media(max-width: 1024px) {
+    .project-page .project-summary { grid-template-columns: repeat(2, 1fr); }
+}
+@media(max-width: 640px) {
+    .project-page .project-summary { grid-template-columns: 1fr; }
+    .project-page .project-heading { flex-direction: column; align-items: flex-start; }
+    .project-page .project-grid { grid-template-columns: 1fr; }
+}

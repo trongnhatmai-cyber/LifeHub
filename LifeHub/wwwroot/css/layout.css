@@ -1,0 +1,309 @@
+/* =====================================================================
+   LIFEHUB - DESIGN SYSTEM: TỐI GIẢN, HIỆN ĐẠI, 1 QUẢN LÝ 1 MÀU PASTEL
+   - Menu sidebar: Nền trắng xám (#f8fafc)
+   - Chế độ Light: Nền trang trắng tinh khiết (#ffffff), các mục màu pastel nhạt
+   - Chế độ Dark: Nền trang đen sâu (#080a0f), các mục màu pastel đậm
+   ===================================================================== */
+
+:root {
+  --lh-page: #ffffff;              /* Nền trang trắng cho Light mode */
+  --lh-sidebar-bg: #f8fafc;         /* Menu nền trắng xám chuẩn */
+  --lh-sidebar-soft: #f1f5f9;       /* Nền hover mục menu */
+  --lh-line: #e2e8f0;               /* Viền mỏng tinh tế */
+  --lh-text: #1e293b;
+  --lh-muted: #64748b;
+  --lh-accent: #0f172a;
+  --lh-on: #ffffff;
+  --lh-sidebar: 248px;
+
+  /* HỆ MÀU 10 PHÂN HỆ LIFEHUB - CHẾ ĐỘ LIGHT (PASTEL NHẠT) */
+  --pastel-study: #eff6ff;          --pastel-study-accent: #2563eb;
+  --pastel-project: #f0fdf4;        --pastel-project-accent: #16a34a;
+  --pastel-task: #fff7ed;           --pastel-task-accent: #ea580c;
+  --pastel-time: #f0fdfa;           --pastel-time-accent: #0d9488;
+  --pastel-goal: #fefce8;           --pastel-goal-accent: #ca8a04;
+  --pastel-finance: #fff0f3;        --pastel-finance-accent: #e11d48;
+  --pastel-knowledge: #faf5ff;      --pastel-knowledge-accent: #7c3aed;
+  --pastel-lifestyle: #ecfdf5;      --pastel-lifestyle-accent: #059669;
+  --pastel-ai: #f0f9ff;             --pastel-ai-accent: #0284c7;
+}
+
+:root[data-theme="dark"], html[data-theme="dark"] {
+  --lh-page: #292929;              /* Nền trang đen sâu cho Dark mode */
+  --lh-sidebar-bg: #1e1e1e;         /* Menu nền than tối */
+  --lh-sidebar-soft: #181d27;       /* Hover menu tối */
+  --lh-line: #1e232e;               /* Viền tối */
+  --lh-text: #f8fafc;
+  --lh-muted: #94a3b8;
+  --lh-accent: #f8fafc;
+  --lh-on: #0f172a;
+
+  /* HỆ MÀU 10 PHÂN HỆ LIFEHUB - CHẾ ĐỘ DARK (NỀN ĐEN + PASTEL ĐẬM) */
+  --pastel-study: #101b2d;          --pastel-study-accent: #60a5fa;
+  --pastel-project: #03170b;        --pastel-project-accent: #4ade80;
+  --pastel-task: #190d04;           --pastel-task-accent: #fb923c;
+  --pastel-time: #011918;           --pastel-time-accent: #2dd4bf;
+  --pastel-goal: #292408;           --pastel-goal-accent: #facc15;
+  --pastel-finance: #260d16;        --pastel-finance-accent: #fb7185;
+  --pastel-knowledge: #1e0d33;      --pastel-knowledge-accent: #c084fc;
+  --pastel-lifestyle: #0a251e;      --pastel-lifestyle-accent: #34d399;
+  --pastel-ai: #091f33;             --pastel-ai-accent: #38bdf8;
+}
+
+body {
+  margin: 0;
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--lh-page);
+  color: var(--lh-text);
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.app {
+  display: grid;
+  grid-template-columns: var(--lh-sidebar) minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+/* Sidebar Menu - Nền trắng xám */
+.app .sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 14px;
+  background: var(--lh-sidebar-bg);
+  border-right: 1px solid var(--lh-line);
+  overflow-y: auto;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.app .logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 10px 24px;
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: .02em;
+}
+
+.app .logo-mark {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: var(--lh-accent);
+  color: var(--lh-on);
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease;
+}
+.app .logo:hover .logo-mark {
+  transform: rotate(5deg) scale(1.05);
+}
+
+.app .menu-label {
+  padding: 0 12px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: var(--lh-muted);
+}
+
+.app .menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.app .menu a,
+.app .sidebar-bottom {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--lh-muted);
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.app .menu a:hover,
+.app .sidebar-bottom:hover {
+  background: var(--lh-sidebar-soft);
+  color: var(--lh-text);
+  transform: translateX(3px);
+}
+
+.app .menu a.active {
+  background: #ffffff;
+  color: var(--lh-text);
+  font-weight: 700;
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.06);
+}
+
+:root[data-theme="dark"] .app .menu a.active {
+  background: #181d27;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.app .menu-sym {
+  font-size: 15px;
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  opacity: 0.85;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.app .menu a:hover .menu-sym {
+  transform: scale(1.15);
+  opacity: 1;
+}
+.app .menu a.active .menu-sym {
+  opacity: 1;
+}
+
+.app .menu-icon {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  transition: transform 0.2s ease;
+}
+.app .menu a:hover .menu-icon {
+  transform: scale(1.1);
+}
+
+.app .sidebar-spacer {
+  flex: 1;
+}
+
+.app .sidebar-bottom {
+  border-top: 1px solid var(--lh-line);
+  border-radius: 0 0 12px 12px;
+  margin-top: 12px;
+  padding-top: 16px;
+}
+
+/* Vùng nội dung chính */
+.app .main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.app .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: 64px;
+  padding: 0 28px;
+  background: color-mix(in srgb, var(--lh-page) 85%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--lh-line);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.app .topbar h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+
+.app .topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 13px;
+  color: var(--lh-muted);
+}
+
+/* Nút chuyển chế độ Sáng / Tối */
+.app .theme-button {
+  height: 36px;
+  padding: 0 15px;
+  border: 1px solid var(--lh-line);
+  border-radius: 999px;
+  background: var(--lh-sidebar-bg);
+  color: var(--lh-text);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.app .theme-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.app .theme-button:active {
+  transform: scale(0.96);
+}
+
+.app .user-name {
+  color: var(--lh-text);
+  font-weight: 600;
+}
+
+.app .avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--lh-accent);
+  color: var(--lh-on);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.app .page-content {
+  width: 100%;
+  max-width: 1280px;
+  padding: 28px;
+}
+
+/* Hiệu ứng nổi và card micro-interactions */
+.summary-card, .finance-card, .study-card, .card {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.summary-card:hover, .finance-card:hover, .study-card:hover, .card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.08);
+}
+
+button:active, .finance-btn:active, .btn:active {
+  transform: scale(0.97);
+}
+
+/* Responsive */
+@media(max-width:900px){
+  .app{grid-template-columns:1fr}
+  .app .sidebar{position:static;height:auto;flex-direction:row;padding:10px;border-right:0;border-bottom:1px solid var(--lh-line);overflow-x:auto;overflow-y:hidden}
+  .app .logo,.app .menu-label,.app .sidebar-spacer{display:none}
+  .app .menu{flex-direction:row}
+  .app .menu a,.app .sidebar-bottom{white-space:nowrap;margin:0;border:0;padding:10px 12px}
+  .app .topbar{padding:0 16px}
+  .app .topbar-date,.app .user-name{display:none}
+  .app .page-content{padding:16px}
+}

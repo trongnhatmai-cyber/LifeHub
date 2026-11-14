@@ -1,0 +1,162 @@
+@model LifeHub.Models.ViewModels.TimeManagement.TimeViewModel
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Quản lý thời gian";
+    ViewData["ActivePage"] = "Time";
+
+    var m = Model ?? new LifeHub.Models.ViewModels.TimeManagement.TimeViewModel
+    {
+        TodayEventsCount = 3,
+        PomodoroCompletedCount = 5,
+        TotalFocusMinutes = 125,
+        UpcomingDeadlinesCount = 4,
+        Events = new List<LifeHub.Models.ViewModels.TimeManagement.TimeCalendarEvent>
+        {
+            new() { Id = 1, Title = "Lớp Mạng máy tính", StartTime = DateTime.Today.AddHours(7).AddMinutes(30), EndTime = DateTime.Today.AddHours(10), Location = "Phòng B2-304", EventType = "Lịch học" },
+            new() { Id = 2, Title = "Họp trực tuyến nhóm NET108", StartTime = DateTime.Today.AddHours(15), EndTime = DateTime.Today.AddHours(16).AddMinutes(30), Location = "Google Meet", EventType = "Dự án" },
+            new() { Id = 3, Title = "Ôn tập và làm Quiz Kiểm thử", StartTime = DateTime.Today.AddHours(20), EndTime = DateTime.Today.AddHours(21).AddMinutes(30), Location = "Bàn học", EventType = "Cá nhân" },
+            new() { Id = 4, Title = "Hạn nộp Assignment Database", StartTime = DateTime.Today.AddDays(2).AddHours(23).AddMinutes(59), Location = "LMS", EventType = "Deadline" }
+        },
+        PomodoroHistory = new List<LifeHub.Models.ViewModels.TimeManagement.PomodoroSessionHistory>
+        {
+            new() { Id = 1, TaskOrCourseName = "Nghiên cứu Razor View & ViewModel", DurationMinutes = 25, CompletedAt = DateTime.Now.AddHours(-1) },
+            new() { Id = 2, TaskOrCourseName = "Thiết kế Layout & Sidebar CSS", DurationMinutes = 25, CompletedAt = DateTime.Now.AddHours(-2) },
+            new() { Id = 3, TaskOrCourseName = "Đọc tài liệu Entity Framework Core", DurationMinutes = 25, CompletedAt = DateTime.Now.AddHours(-3) }
+        }
+    };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/time.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script src="~/js/time.js" asp-append-version="true" defer></script>
+}
+
+<div class="time-page">
+    <!-- TIÊU ĐỀ PHÂN HỆ THỜI GIAN -->
+    <header class="time-heading">
+        <div>
+            <span class="time-label">TIME MANAGEMENT · FOCUS & CALENDAR</span>
+            <h1>Thời gian của bạn</h1>
+            <p>Lập lịch trình cá nhân, nhắc nhở công việc và tập trung cùng kỹ thuật Pomodoro.</p>
+        </div>
+
+        <div class="heading-actions">
+            <button type="button" class="time-btn primary" id="addEventBtn">
+                + Thêm sự kiện
+            </button>
+        </div>
+    </header>
+
+    <!-- 4 THẺ CHỈ SỐ PASTEL TEAL TỔNG QUAN -->
+    <section class="time-summary">
+        <div class="summary-card">
+            <div class="summary-top">
+                <span>Sự kiện hôm nay</span>
+                <span class="summary-badge">HÔM NAY</span>
+            </div>
+            <h2>0@m.TodayEventsCount</h2>
+            <p>Lịch học & buổi hẹn</p>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-top">
+                <span>Phiên tập trung</span>
+                <span class="summary-badge">POMODORO</span>
+            </div>
+            <h2>0@m.PomodoroCompletedCount</h2>
+            <p>Phiên đã hoàn thành</p>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-top">
+                <span>Thời gian tập trung</span>
+                <span class="summary-badge">NĂNG SUẤT</span>
+            </div>
+            <h2>@m.TotalFocusMinutes p</h2>
+            <p>Tương đương @(m.TotalFocusMinutes / 60)h @(m.TotalFocusMinutes % 60)p</p>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-top">
+                <span>Deadline tuần này</span>
+                <span class="summary-badge">SẮP ĐẾN HẠN</span>
+            </div>
+            <h2>0@m.UpcomingDeadlinesCount</h2>
+            <p>Cần hoàn thành đúng hạn</p>
+        </div>
+    </section>
+
+    <!-- KHỐI NỘI DUNG CHÍNH (2 CỘT CHUẨN) -->
+    <div class="time-grid">
+        <!-- CỘT TRÁI: ĐỒNG HỒ POMODORO -->
+        <div class="time-card">
+            <div class="section-heading">
+                <div>
+                    <h3>Đồng hồ Pomodoro</h3>
+                    <p>Chu kỳ 25 phút tập trung sâu · 5 phút nghỉ ngơi</p>
+                </div>
+                <span class="summary-badge" id="pomoModePill">TẬP TRUNG 25 PHÚT</span>
+            </div>
+
+            <div class="pomodoro-box">
+                <div style="font-size:12px;color:var(--time-muted);font-weight:700;">THỜI GIAN CÒN LẠI</div>
+                <div class="pomodoro-display" id="pomodoroDisplay">25:00</div>
+                <div class="pomodoro-controls">
+                    <button type="button" class="time-btn primary" id="pomoStartBtn" style="padding:0 24px;">
+                        ▶ Bắt đầu
+                    </button>
+                    <button type="button" class="time-btn" id="pomoResetBtn">
+                        Đặt lại
+                    </button>
+                </div>
+            </div>
+
+            <div style="margin-top:20px;">
+                <h4 style="font-size:13px;margin:0 0 10px;font-weight:750;">Lịch sử phiên gần nhất hôm nay</h4>
+                @foreach (var p in m.PomodoroHistory)
+                {
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:10px;background:var(--time-card);margin-bottom:6px;font-size:12px;">
+                        <span style="font-weight:600;">✓ @p.TaskOrCourseName</span>
+                        <span style="color:var(--time-muted);">@p.DurationMinutes phút · @p.CompletedAt.ToString("HH:mm")</span>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- CỘT PHẢI: SỰ KIỆN & LỊCH TRÌNH -->
+        <div class="time-card">
+            <div class="section-heading">
+                <div>
+                    <h3>Lịch trình chi tiết</h3>
+                    <p>Tổng hợp lịch học, lịch họp và deadline</p>
+                </div>
+                <button type="button" class="time-btn" style="padding:4px 10px;font-size:12px;min-height:30px;">
+                    Xem tháng
+                </button>
+            </div>
+
+            <div>
+                @foreach (var ev in m.Events)
+                {
+                    <div class="event-list-item">
+                        <div style="text-align:center;min-width:55px;">
+                            <div style="font-size:13px;font-weight:800;color:var(--time-accent);">@ev.StartTime.ToString("HH:mm")</div>
+                            <div style="font-size:10px;color:var(--time-muted);">@ev.StartTime.ToString("dd/MM")</div>
+                        </div>
+
+                        <div style="flex:1;">
+                            <div style="font-weight:700;font-size:13px;">@ev.Title</div>
+                            <div style="font-size:11px;color:var(--time-muted);">📍 @ev.Location</div>
+                        </div>
+
+                        <span class="summary-badge" style="font-size:9px;">@ev.EventType</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

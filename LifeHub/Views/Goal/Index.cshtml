@@ -1,0 +1,183 @@
+@model LifeHub.Models.ViewModels.GoalManagement.GoalViewModel
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Mục tiêu & Thói quen";
+    ViewData["ActivePage"] = "Goal";
+
+    var m = Model ?? new LifeHub.Models.ViewModels.GoalManagement.GoalViewModel
+    {
+        TotalGoals = 4,
+        ActiveHabitsCount = 6,
+        LongestStreakDays = 21,
+        OverallProgressPercent = 68,
+        Goals = new List<LifeHub.Models.ViewModels.GoalManagement.GoalItemViewModel>
+        {
+            new() {
+                Id = 1, Title = "Đạt GPA giỏi kỳ này (>= 3.6)", Category = "Học tập", GoalType = "Ngắn hạn", ProgressPercent = 85, TargetDate = DateTime.Now.AddDays(45),
+                KeyResults = new() {
+                    new() { Id = 1, Title = "Hoàn thành 100% bài tập các môn", CurrentValue = 12, TargetValue = 14, Unit = "bài" },
+                    new() { Id = 2, Title = "Điểm thi giữa kỳ đạt >= 8.5", CurrentValue = 9, TargetValue = 10, Unit = "điểm" }
+                }
+            },
+            new() {
+                Id = 2, Title = "Xây dựng nền tảng LIFEHUB hoàn chỉnh", Category = "Sự nghiệp", GoalType = "Ngắn hạn", ProgressPercent = 75, TargetDate = DateTime.Now.AddDays(20),
+                KeyResults = new() {
+                    new() { Id = 3, Title = "Xây dựng 10 phân hệ giao diện pastel", CurrentValue = 6, TargetValue = 10, Unit = "module" },
+                    new() { Id = 4, Title = "Hoàn thành tài liệu báo cáo đồ án", CurrentValue = 1, TargetValue = 1, Unit = "báo cáo" }
+                }
+            },
+            new() {
+                Id = 3, Title = "Tiết kiệm 20 triệu mua Laptop", Category = "Tài chính", GoalType = "Dài hạn", ProgressPercent = 25, TargetDate = DateTime.Now.AddMonths(6),
+                KeyResults = new() {
+                    new() { Id = 5, Title = "Quỹ tiết kiệm hiện tại", CurrentValue = 5, TargetValue = 20, Unit = "triệu" }
+                }
+            }
+        },
+        Habits = new List<LifeHub.Models.ViewModels.GoalManagement.HabitItemViewModel>
+        {
+            new() { Id = 1, Title = "Đọc sách 20 phút mỗi sáng", Frequency = "Hàng ngày", CurrentStreak = 7, LongestStreak = 21, IsCompletedToday = true },
+            new() { Id = 2, Title = "Uống đủ 2 lít nước", Frequency = "Hàng ngày", CurrentStreak = 4, LongestStreak = 14, IsCompletedToday = false },
+            new() { Id = 3, Title = "Tập thể dục / Chạy bộ 30 phút", Frequency = "Hàng ngày", CurrentStreak = 3, LongestStreak = 10, IsCompletedToday = false },
+            new() { Id = 4, Title = "Học 20 từ vựng tiếng Anh", Frequency = "Hàng ngày", CurrentStreak = 12, LongestStreak = 15, IsCompletedToday = true },
+            new() { Id = 5, Title = "Đi ngủ trước 23:30", Frequency = "Hàng ngày", CurrentStreak = 5, LongestStreak = 8, IsCompletedToday = false }
+        }
+    };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/goal.css" asp-append-version="true" />
+}
+
+<div class="goal-page">
+    <!-- TIÊU ĐỀ PHÂN HỆ MỤC TIÊU & THÓI QUEN -->
+    <header class="goal-heading">
+        <div>
+            <span class="goal-label">GOAL & HABIT MANAGEMENT · OKR & STREAK</span>
+            <h1>Mục tiêu & Thói quen</h1>
+            <p>Thiết lập mục tiêu đo lường theo phương pháp OKR và duy trì chuỗi kỷ luật mỗi ngày.</p>
+        </div>
+
+        <div class="heading-actions">
+            <button type="button" class="goal-btn" id="addHabitBtn">
+                + Thêm thói quen
+            </button>
+            <button type="button" class="goal-btn primary" id="addGoalBtn">
+                + Thiết lập mục tiêu
+            </button>
+        </div>
+    </header>
+
+    <!-- 4 THẺ CHỈ SỐ PASTEL VÀNG TỔNG QUAN -->
+    <section class="goal-summary">
+        <div class="summary-card">
+            <div class="summary-top">
+                <span>Mục tiêu đang theo dõi</span>
+                <span class="summary-badge">MỤC TIÊU</span>
+            </div>
+            <h2>0@m.TotalGoals</h2>
+            <p>Kế hoạch ngắn & dài hạn</p>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-top">
+                <span>Tiến độ tổng thể</span>
+                <span class="summary-badge">TIẾN ĐỘ</span>
+            </div>
+            <h2>@m.OverallProgressPercent%</h2>
+            <p>Mức hoàn thành trung bình</p>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-top">
+                <span>Thói quen duy trì</span>
+                <span class="summary-badge">THÓI QUEN</span>
+            </div>
+            <h2>0@m.ActiveHabitsCount</h2>
+            <p>Thói quen đang rèn luyện</p>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-top">
+                <span>Kỷ lục Streak</span>
+                <span class="summary-badge">KỶ LỤC</span>
+            </div>
+            <h2>@m.LongestStreakDays ngày</h2>
+            <p>Chuỗi ngày liên tục tối đa</p>
+        </div>
+    </section>
+
+    <!-- KHỐI NỘI DUNG CHÍNH (2 CỘT CHUẨN) -->
+    <div class="goal-grid">
+        <!-- CỘT TRÁI: MỤC TIÊU VÀ KẾT QUẢ THEN CHỐT (OKR) -->
+        <div class="goal-card">
+            <div class="section-heading">
+                <div>
+                    <h3>Mục tiêu trọng tâm (OKR)</h3>
+                    <p>Chia nhỏ mục tiêu thành chỉ số định lượng</p>
+                </div>
+                <span class="summary-badge">THEO DÕI</span>
+            </div>
+
+            <div>
+                @foreach (var g in m.Goals)
+                {
+                    <div class="goal-box">
+                        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+                            <div>
+                                <h4 style="margin:0 0 4px;font-size:14px;font-weight:750;">@g.Title</h4>
+                                <span class="summary-badge" style="font-size:9px;">@g.Category · Hạn: @g.TargetDate.ToString("dd/MM/yyyy")</span>
+                            </div>
+                            <span style="font-weight:800;font-size:13px;color:var(--goal-accent);">@g.ProgressPercent%</span>
+                        </div>
+
+                        <div class="goal-progress-bar">
+                            <i style="width:@g.ProgressPercent%;"></i>
+                        </div>
+
+                        @if (g.KeyResults.Any())
+                        {
+                            <div style="margin-top:10px;padding-top:8px;border-top:1px dashed var(--goal-border);font-size:12px;">
+                                @foreach (var kr in g.KeyResults)
+                                {
+                                    <div style="display:flex;justify-content:space-between;padding:3px 0;color:var(--goal-muted);">
+                                        <span>• @kr.Title</span>
+                                        <strong>@kr.CurrentValue / @kr.TargetValue @kr.Unit</strong>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- CỘT PHẢI: ĐIỂM DANH THÓI QUEN HÀNG NGÀY -->
+        <div class="goal-card">
+            <div class="section-heading">
+                <div>
+                    <h3>Điểm danh thói quen</h3>
+                    <p>Đánh dấu hôm nay để giữ chuỗi streak</p>
+                </div>
+                <span class="summary-badge">HÔM NAY</span>
+            </div>
+
+            <div>
+                @foreach (var h in m.Habits)
+                {
+                    <div class="habit-item-row">
+                        <label style="display:flex;align-items:center;gap:12px;cursor:pointer;flex:1;margin:0;">
+                            <input type="checkbox" style="width:18px;height:18px;accent-color:var(--goal-accent);" @(h.IsCompletedToday ? "checked" : "") />
+                            <span style="font-weight:650;font-size:13px;@(h.IsCompletedToday ? "text-decoration:line-through;opacity:0.6;" : "")">@h.Title</span>
+                        </label>
+
+                        <div style="text-align:right;">
+                            <div style="font-size:11px;font-weight:800;color:var(--goal-accent);">🔥 @h.CurrentStreak ngày</div>
+                            <small style="font-size:9px;color:var(--goal-muted);">Kỷ lục: @h.LongestStreak</small>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

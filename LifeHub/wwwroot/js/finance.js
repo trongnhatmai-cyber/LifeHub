@@ -1,339 +1,253 @@
+/* =============================================
+   LIFEHUB - FINANCE MANAGEMENT
+   Xử lý biểu đồ, ngân sách, tiết kiệm, lọc và modal giao dịch.
+   Lưu ý: thêm giao dịch hiện chỉ cập nhật giao diện, chưa lưu database.
+============================================= */
 document.addEventListener("DOMContentLoaded", () => {
-    // Lọc danh mục theo loại
-    const filterButtons = document.querySelectorAll(".filter-button");
-    const categoryRows = document.querySelectorAll(".category-row");
-    const categorySearch = document.getElementById("categorySearch");
+    "use strict";
 
-    let currentFilter = "all";
-
-    function filterCategories() {
-        const keyword = categorySearch?.value
-            .trim()
-            .toLowerCase() || "";
-
-        categoryRows.forEach(row => {
-            const type = row.dataset.type;
-            const name = row.dataset.name || "";
-
-            const matchesType =
-                currentFilter === "all" || type === currentFilter;
-
-            const matchesName = name.includes(keyword);
-
-            row.hidden = !(matchesType && matchesName);
-        });
-    }
-
-    filterButtons.forEach(button => {
-        button.addEventListener("click", () => {
-            filterButtons.forEach(item =>
-                item.classList.remove("active")
-            );
-
-            button.classList.add("active");
-            currentFilter = button.dataset.filter;
-
-            filterCategories();
-        });
-    });
-
-    categorySearch?.addEventListener("input", filterCategories);
-});
-
-document.addEventListener("DOMContentLoaded", function () {
-
+    // Lấy phần tử theo ID và định dạng tiền Việt Nam.
     const $ = id => document.getElementById(id);
+    const money = value => `${Math.round(Number(value) || 0).toLocaleString("vi-VN")} ₫`;
+    const readMoney = element => {
+        if (!element) return 0;
+        const parsed = Number(String(element.textContent).replace(/[^\d-]/g, ""));
+        return Number.isFinite(parsed) ? parsed : 0;
+    };
+    const requiredIds = ["totalIncome", "totalExpense", "totalBalance", "transactionBody", "transactionForm", "transactionModal"];
+    if (requiredIds.some(id => !$(id))) return;
 
-    const money = value =>
-        Math.round(value).toLocaleString("vi-VN") + " ₫";
+    // Đọc số liệu ban đầu từ Razor View.
+    let income = readMoney($("totalIncome"));
+    let expense = readMoney($("totalExpense"));
+    const budgetLabel = document.querySelector(".budget-details span");
+    const monthlyBudget = readMoney(budgetLabel);
+    const savingGoalHeading = document.querySelector(".saving-goal-content h2");
+    const savingGoal = readMoney(savingGoalHeading);
+    let savingProgress = readMoney($("savingProgress"));
+    let transactions = Array.from($("transactionBody").querySelectorAll("tr"));
 
-    const number = value =>
-        Number(String(value).replace(/[^\d-]/g, "")) || 0;
-
-    let income = number($("totalIncome").textContent);
-    let expense = number($("totalExpense").textContent);
-
-    const monthlyBudget = number(
-        document.querySelector(".budget-details span").textContent
-    );
-
-    const savingGoal = number(
-        document.querySelector(".saving-goal-content h2").textContent
-    );
-
-    const savingProgress = number(
-        $("savingProgress").textContent
-    );
-
-    let transactions = Array.from(
-        $("transactionBody").querySelectorAll("tr")
-    );
-
-    /* SUMMARY */
-
+    // Cập nhật tổng thu, tổng chi, số dư và trạng thái ngân sách.
     function updateSummary() {
         $("totalIncome").textContent = money(income);
         $("totalExpense").textContent = money(expense);
         $("totalBalance").textContent = money(income - expense);
-
+        if ($("expenseBreakdown")) $("expenseBreakdown").textContent = money(expense);
         updateBudget();
     }
 
-    /* BUDGET */
-
+    // Cập nhật thanh tiến độ và cảnh báo ngân sách.
     function updateBudget() {
-
-        const percent = monthlyBudget > 0
-            ? expense / monthlyBudget * 100
-            : 0;
-
-        $("budgetSpent").textContent = money(expense);
-        $("budgetPercent").textContent = Math.round(percent) + "%";
-        $("budgetRemaining").textContent =
-            money(monthlyBudget - expense);
-
-        $("budgetProgress").style.width =
-            Math.min(100, percent) + "%";
-
-        $("budgetProgress").classList.toggle(
-            "over",
-            percent > 100
-        );
-
-        $("budgetMessage").textContent =
-            percent > 100
+        const percent = monthlyBudget > 0 ? expense / monthlyBudget * 100 : 0;
+        if ($("budgetSpent")) $("budgetSpent").textContent = money(expense);
+        if ($("budgetPercent")) $("budgetPercent").textContent = `${Math.round(percent)}%`;
+        if ($("budgetRemaining")) $("budgetRemaining").textContent = money(monthlyBudget - expense);
+        if ($("budgetProgress")) {
+            $("budgetProgress").style.width = `${Math.min(100, Math.max(0, percent))}%`;
+            $("budgetProgress").classList.toggle("over", percent > 100);
+        }
+        if ($("budgetMessage")) {
+            $("budgetMessage").textContent = percent > 100
                 ? "Bạn đã vượt ngân sách tháng này. Hãy xem lại các khoản chi."
                 : percent >= 80
                     ? "Bạn đã sử dụng phần lớn ngân sách. Hãy cân nhắc chi tiêu."
                     : "Bạn đang kiểm soát ngân sách khá tốt!";
+        }
     }
 
-    /* SAVING */
-
+    // Cập nhật vòng tròn mục tiêu tiết kiệm.
     function updateSaving() {
-
-        const percent = savingGoal > 0
-            ? Math.min(100, savingProgress / savingGoal * 100)
-            : 0;
-
-        $("savingPercent").textContent =
-            Math.round(percent) + "%";
-
-        $("savingCircle").style.background =
-            `conic-gradient(var(--f-accent) ${percent * 3.6}deg, var(--f-soft) 0deg)`;
+        const percent = savingGoal > 0 ? Math.min(100, Math.max(0, savingProgress / savingGoal * 100)) : 0;
+        if ($("savingPercent")) $("savingPercent").textContent = `${Math.round(percent)}%`;
+        if ($("savingCircle")) {
+            $("savingCircle").style.background = `conic-gradient(var(--finance-accent) ${percent * 3.6}deg, var(--finance-soft) 0deg)`;
+            $("savingCircle").dataset.progress = String(percent);
+        }
+        const remaining = document.querySelector(".saving-footer strong");
+        if (remaining) remaining.textContent = money(Math.max(0, savingGoal - savingProgress));
     }
 
-    /* CHART */
-
+    // Dữ liệu biểu đồ minh họa; thay bằng dữ liệu thống kê từ server khi tích hợp backend.
     const monthData = [
-        { label: "T6", income: 15, expense: 9 },
-        { label: "T7", income: 18, expense: 12 },
-        { label: "T8", income: 16, expense: 10 },
-        { label: "T9", income: 22, expense: 13 },
-        { label: "T10", income: 20, expense: 14 },
-        { label: "T11", income: 25, expense: 12.8 }
+        { label: "T6", income: 15, expense: 9 }, { label: "T7", income: 18, expense: 12 },
+        { label: "T8", income: 16, expense: 10 }, { label: "T9", income: 22, expense: 13 },
+        { label: "T10", income: 20, expense: 14 }, { label: "T11", income: 25, expense: 12.8 }
     ];
-
     const weekData = [
-        { label: "T2", income: 3, expense: 1.5 },
-        { label: "T3", income: 4, expense: 2 },
-        { label: "T4", income: 2, expense: 1 },
-        { label: "T5", income: 5, expense: 3 },
-        { label: "T6", income: 4, expense: 2 },
-        { label: "T7", income: 3, expense: 1.5 },
+        { label: "T2", income: 3, expense: 1.5 }, { label: "T3", income: 4, expense: 2 },
+        { label: "T4", income: 2, expense: 1 }, { label: "T5", income: 5, expense: 3 },
+        { label: "T6", income: 4, expense: 2 }, { label: "T7", income: 3, expense: 1.5 },
         { label: "CN", income: 4, expense: 1.8 }
     ];
 
+    // Vẽ biểu đồ cột theo tuần hoặc theo tháng.
     function drawChart(period = "month") {
-
+        const chart = $("chartColumns");
+        if (!chart) return;
         const data = period === "week" ? weekData : monthData;
         const max = 30;
-
-        $("chartColumns").innerHTML = "";
-
+        chart.replaceChildren();
         data.forEach(item => {
-
             const group = document.createElement("div");
             group.className = "chart-group";
-
             const bars = document.createElement("div");
             bars.className = "chart-bars";
-
             ["income", "expense"].forEach(type => {
-
                 const bar = document.createElement("div");
-                bar.className = "chart-bar " + type;
-
-                bar.style.height =
-                    Math.max(2, Math.min(100, item[type] / max * 100)) + "%";
-
-                bar.title =
-                    (type === "income" ? "Thu nhập: " : "Chi tiêu: ")
-                    + item[type] + " triệu";
-
+                bar.className = `chart-bar ${type}`;
+                bar.style.height = `${Math.max(2, Math.min(100, item[type] / max * 100))}%`;
+                bar.title = `${type === "income" ? "Thu nhập" : "Chi tiêu"}: ${item[type]} triệu`;
                 bars.appendChild(bar);
             });
-
             const label = document.createElement("small");
             label.textContent = item.label;
-
             group.append(bars, label);
-            $("chartColumns").appendChild(group);
+            chart.appendChild(group);
         });
     }
+    $("chartPeriod")?.addEventListener("change", event => drawChart(event.target.value));
 
-    $("chartPeriod").addEventListener("change", function () {
-        drawChart(this.value);
-    });
-
-    /* TRANSACTION FILTER */
-
+    // Lọc giao dịch theo loại thu nhập hoặc chi tiêu.
     function filterTransactions() {
-
-        const filter = $("transactionFilter").value;
+        const filter = $("transactionFilter")?.value || "all";
         let visible = 0;
-
         transactions.forEach(row => {
-
-            const matches =
-                filter === "all" ||
-                row.dataset.type === filter;
-
+            const matches = filter === "all" || row.dataset.type === filter;
             row.hidden = !matches;
-
             if (matches) visible++;
         });
-
-        $("emptyTransactions").hidden = visible > 0;
+        if ($("emptyTransactions")) $("emptyTransactions").hidden = visible > 0;
     }
+    $("transactionFilter")?.addEventListener("change", filterTransactions);
 
-    $("transactionFilter").addEventListener(
-        "change",
-        filterTransactions
-    );
-
-    /* MODAL */
-
+    // Mở và đóng modal thêm giao dịch.
     function openModal() {
         $("transactionModal").classList.add("show");
+        document.body.classList.add("modal-open");
+        $("transactionModal").setAttribute("aria-hidden", "false");
+        setTimeout(() => $("transactionName")?.focus(), 80);
     }
-
     function closeModal() {
         $("transactionModal").classList.remove("show");
+        document.body.classList.remove("modal-open");
+        $("transactionModal").setAttribute("aria-hidden", "true");
     }
-
-    $("openTransaction").addEventListener("click", openModal);
-    $("openTransaction2").addEventListener("click", openModal);
-    $("closeModal").addEventListener("click", closeModal);
-
-    $("transactionModal").addEventListener("click", function (e) {
-        if (e.target === this) closeModal();
+    $("openTransaction")?.addEventListener("click", openModal);
+    $("openTransaction2")?.addEventListener("click", openModal);
+    $("closeModal")?.addEventListener("click", closeModal);
+    $("cancelTransaction")?.addEventListener("click", closeModal);
+    $("transactionModal").addEventListener("click", event => {
+        if (event.target === $("transactionModal")) closeModal();
+    });
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && $("transactionModal").classList.contains("show")) closeModal();
     });
 
-    /* ADD TRANSACTION */
+    // Đặt ngày mặc định theo múi giờ địa phương, tránh lệch ngày do UTC.
+    function localDateValue(date = new Date()) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    }
+    if ($("transactionDate")) $("transactionDate").value = localDateValue();
 
-    $("transactionDate").value =
-        new Date().toLocaleDateString("en-CA");
+    // Tạo ô bảng bằng textContent để tránh chèn HTML không an toàn từ dữ liệu nhập.
+    function createCell(content, className = "") {
+        const cell = document.createElement("td");
+        if (className) cell.className = className;
+        if (content instanceof Node) cell.appendChild(content);
+        else cell.textContent = content;
+        return cell;
+    }
 
-    $("transactionForm").addEventListener("submit", function (e) {
+    // Thêm giao dịch mới vào bảng và cập nhật tổng thu/chi.
+    // Chỉ hiển thị danh mục phù hợp với loại giao dịch.
+    function filterCategories() {
+        const selectedType = $("transactionType").value;
+        const categorySelect = $("transactionCategory");
+        if (!categorySelect) return;
 
-        e.preventDefault();
+        let selectedOptionValid = false;
+
+        Array.from(categorySelect.options).forEach(option => {
+            if (!option.value) {
+                option.hidden = false;
+                return;
+            }
+
+            const matches = option.dataset.type === selectedType;
+            option.hidden = !matches;
+
+            if (matches && option.selected) {
+                selectedOptionValid = true;
+            }
+        });
+
+        if (!selectedOptionValid) {
+            categorySelect.value = "";
+        }
+    }
+
+    $("transactionType")?.addEventListener("change", filterCategories);
+
+    // Gửi giao dịch đến Controller để lưu vào database.
+    $("transactionForm").addEventListener("submit", async event => {
+        event.preventDefault();
+
+        const form = event.currentTarget;
+        const submitButton = form.querySelector('[type="submit"]');
 
         const name = $("transactionName").value.trim();
-        const type = $("transactionType").value;
-        const category = $("transactionCategory").value;
+        const categoryId = $("transactionCategory").value;
         const amount = Number($("transactionAmount").value);
         const date = $("transactionDate").value;
 
-        if (!name || !date || !Number.isFinite(amount) || amount <= 0) {
-            alert("Vui lòng nhập thông tin giao dịch hợp lệ.");
+        if (!name || !categoryId || !date ||
+            !Number.isFinite(amount) || amount <= 0) {
+            alert("Vui lòng nhập đầy đủ thông tin giao dịch hợp lệ.");
             return;
         }
 
-        const transactionDate = new Date(date + "T00:00:00");
-        const today = new Date();
+        const parsedDate = new Date(`${date}T00:00:00`);
 
-        if (
-            transactionDate.getMonth() !== today.getMonth() ||
-            transactionDate.getFullYear() !== today.getFullYear()
-        ) {
-            alert("Bản demo chỉ thêm giao dịch trong tháng hiện tại.");
+        if (Number.isNaN(parsedDate.getTime())) {
+            alert("Ngày giao dịch không hợp lệ.");
             return;
         }
 
-        const row = document.createElement("tr");
-        row.dataset.type = type;
+        // Chặn gửi nhiều lần khi đang lưu.
+        submitButton.disabled = true;
+        submitButton.textContent = "Đang lưu...";
 
-        const nameCell = document.createElement("td");
-        const nameStrong = document.createElement("strong");
-        nameStrong.textContent = name;
-        nameCell.appendChild(nameStrong);
+        try {
+            const response = await fetch(form.action, {
+                method: "POST",
+                body: new FormData(form),
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            });
 
-        const categoryCell = document.createElement("td");
-        const categorySpan = document.createElement("span");
-        categorySpan.className = "transaction-category";
-        categorySpan.textContent = category;
-        categoryCell.appendChild(categorySpan);
+            const result = await response.json();
 
-        const dateCell = document.createElement("td");
-        dateCell.textContent = transactionDate.toLocaleDateString("vi-VN");
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || "Không thể lưu giao dịch.");
+            }
 
-        const typeCell = document.createElement("td");
-        const typeSpan = document.createElement("span");
-
-        typeSpan.className =
-            "transaction-type " +
-            (type === "income" ? "type-income" : "type-expense");
-
-        typeSpan.textContent =
-            type === "income" ? "Thu nhập" : "Chi tiêu";
-
-        typeCell.appendChild(typeSpan);
-
-        const amountCell = document.createElement("td");
-        amountCell.className = "right";
-
-        const amountStrong = document.createElement("strong");
-        amountStrong.className =
-            type === "income" ? "text-income" : "text-expense";
-
-        amountStrong.textContent =
-            (type === "income" ? "+" : "-") + money(amount);
-
-        amountCell.appendChild(amountStrong);
-
-        row.append(
-            nameCell,
-            categoryCell,
-            dateCell,
-            typeCell,
-            amountCell
-        );
-
-        $("transactionBody").prepend(row);
-        transactions.unshift(row);
-
-        if (type === "income") {
-            income += amount;
-        } else {
-            expense += amount;
+            // Tải lại dữ liệu từ database để cập nhật tổng thu, chi và bảng.
+            window.location.reload();
+        } catch (error) {
+            alert(error.message || "Đã xảy ra lỗi khi lưu giao dịch.");
+            submitButton.disabled = false;
+            submitButton.textContent = "Lưu giao dịch";
         }
-
-        updateSummary();
-        filterTransactions();
-
-        closeModal();
-        this.reset();
-
-        $("transactionDate").value =
-            new Date().toLocaleDateString("en-CA");
     });
 
-    /* INIT */
-
+    // Khởi tạo toàn bộ thành phần khi trang tải xong.
     updateSummary();
     updateSaving();
-    drawChart();
+    drawChart($("chartPeriod")?.value || "month");
     filterTransactions();
-
+    filterCategories();
 });
