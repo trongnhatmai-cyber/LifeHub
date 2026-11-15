@@ -5,28 +5,6 @@
 
 document.addEventListener("DOMContentLoaded", function () {
 
-    // Dữ liệu bài tập mẫu
-    let assignments = [
-        {
-            name: "Bài tập SQL - Truy vấn dữ liệu",
-            subject: "Cơ sở dữ liệu",
-            deadline: "16/11/2026",
-            status: "Chưa hoàn thành"
-        },
-        {
-            name: "Bài thực hành lập trình Web",
-            subject: "Lập trình Web",
-            deadline: "18/11/2026",
-            status: "Chưa hoàn thành"
-        },
-        {
-            name: "Bài tập chương 3",
-            subject: "Toán rời rạc",
-            deadline: "20/11/2026",
-            status: "Chưa hoàn thành"
-        }
-    ];
-
     // Lấy các phần tử HTML
     const assignmentContainer = document.getElementById("asg");
     const assignmentCount = document.getElementById("asgCnt");

@@ -5,7 +5,7 @@ namespace LifeHub.Models.ViewModels.StudyManagement
 {
     public class StudyViewModel
     {
-        public decimal CurrentGpa { get; set; } 
+        public decimal? CurrentGpa { get; set; } 
         public int ActiveCoursesCount { get; set; } 
         public int TotalCredits { get; set; } 
         public int PendingAssignmentsCount { get; set; } 

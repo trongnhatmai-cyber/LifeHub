@@ -36,7 +36,7 @@
                 <span>Điểm trung bình (GPA)</span>
                 <span class="summary-badge">HỌC KỲ NÀY</span>
             </div>
-            <h2>@Model.CurrentGpa.ToString("F2")</h2>
+            <h2>@(Model.CurrentGpa?.ToString("F2") ?? "0.00")</h2>
             <p>Thang điểm 4 · Mục tiêu 3.6</p>
         </div>
 

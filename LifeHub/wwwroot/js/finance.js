@@ -1,174 +1,431 @@
 /* =============================================
    LIFEHUB - FINANCE MANAGEMENT
-   Xử lý biểu đồ, ngân sách, tiết kiệm, lọc và modal giao dịch.
-   Lưu ý: thêm giao dịch hiện chỉ cập nhật giao diện, chưa lưu database.
+
+   Vai trò của JavaScript:
+   - Xử lý tương tác giao diện.
+   - Vẽ biểu đồ từ dữ liệu Razor render.
+   - Lọc giao dịch theo loại, tháng và khoảng ngày.
+   - Chọn tuần xem biểu đồ.
+   - Mở và đóng modal.
+   - Kiểm tra dữ liệu nhập trên form.
+
+   Quy ước kiến trúc:
+   - Không khai báo MOCK_DATA trong JavaScript.
+   - Không tự tạo nguồn dữ liệu tài chính.
+   - Không tự tính lại tổng thu nhập, chi tiêu, ngân sách.
+   - Không lưu hoặc giả lập lưu giao dịch.
+   - Dữ liệu được cung cấp từ C# ViewModel.
 ============================================= */
+
 document.addEventListener("DOMContentLoaded", () => {
     "use strict";
 
-    // Lấy phần tử theo ID và định dạng tiền Việt Nam.
+    // =============================================
+    // 1. HÀM TIỆN ÍCH
+    // =============================================
+
     const $ = id => document.getElementById(id);
-    const money = value => `${Math.round(Number(value) || 0).toLocaleString("vi-VN")} ₫`;
-    const readMoney = element => {
-        if (!element) return 0;
-        const parsed = Number(String(element.textContent).replace(/[^\d-]/g, ""));
-        return Number.isFinite(parsed) ? parsed : 0;
-    };
-    const requiredIds = ["totalIncome", "totalExpense", "totalBalance", "transactionBody", "transactionForm", "transactionModal"];
+
+    const requiredIds = [
+        "transactionBody",
+        "transactionForm",
+        "transactionModal",
+        "chartColumns"
+    ];
+
+    // Dừng nếu không phải trang Finance hoặc thiếu phần tử chính.
     if (requiredIds.some(id => !$(id))) return;
 
-    // Đọc số liệu ban đầu từ Razor View.
-    let income = readMoney($("totalIncome"));
-    let expense = readMoney($("totalExpense"));
-    const budgetLabel = document.querySelector(".budget-details span");
-    const monthlyBudget = readMoney(budgetLabel);
-    const savingGoalHeading = document.querySelector(".saving-goal-content h2");
-    const savingGoal = readMoney(savingGoalHeading);
-    let savingProgress = readMoney($("savingProgress"));
-    let transactions = Array.from($("transactionBody").querySelectorAll("tr"));
+    // Lấy các dòng giao dịch Razor đã render.
+    const transactionRows = Array.from(
+        $("transactionBody").querySelectorAll("tr")
+    );
 
-    // Cập nhật tổng thu, tổng chi, số dư và trạng thái ngân sách.
-    function updateSummary() {
-        $("totalIncome").textContent = money(income);
-        $("totalExpense").textContent = money(expense);
-        $("totalBalance").textContent = money(income - expense);
-        if ($("expenseBreakdown")) $("expenseBreakdown").textContent = money(expense);
-        updateBudget();
-    }
+    // Định dạng số tiền.
+    const money = value =>
+        `${Math.round(Number(value) || 0).toLocaleString("vi-VN")} ₫`;
 
-    // Cập nhật thanh tiến độ và cảnh báo ngân sách.
-    function updateBudget() {
-        const percent = monthlyBudget > 0 ? expense / monthlyBudget * 100 : 0;
-        if ($("budgetSpent")) $("budgetSpent").textContent = money(expense);
-        if ($("budgetPercent")) $("budgetPercent").textContent = `${Math.round(percent)}%`;
-        if ($("budgetRemaining")) $("budgetRemaining").textContent = money(monthlyBudget - expense);
-        if ($("budgetProgress")) {
-            $("budgetProgress").style.width = `${Math.min(100, Math.max(0, percent))}%`;
-            $("budgetProgress").classList.toggle("over", percent > 100);
-        }
-        if ($("budgetMessage")) {
-            $("budgetMessage").textContent = percent > 100
-                ? "Bạn đã vượt ngân sách tháng này. Hãy xem lại các khoản chi."
-                : percent >= 80
-                    ? "Bạn đã sử dụng phần lớn ngân sách. Hãy cân nhắc chi tiêu."
-                    : "Bạn đang kiểm soát ngân sách khá tốt!";
-        }
-    }
-
-    // Cập nhật vòng tròn mục tiêu tiết kiệm.
-    function updateSaving() {
-        const percent = savingGoal > 0 ? Math.min(100, Math.max(0, savingProgress / savingGoal * 100)) : 0;
-        if ($("savingPercent")) $("savingPercent").textContent = `${Math.round(percent)}%`;
-        if ($("savingCircle")) {
-            $("savingCircle").style.background = `conic-gradient(var(--finance-accent) ${percent * 3.6}deg, var(--finance-soft) 0deg)`;
-            $("savingCircle").dataset.progress = String(percent);
-        }
-        const remaining = document.querySelector(".saving-footer strong");
-        if (remaining) remaining.textContent = money(Math.max(0, savingGoal - savingProgress));
-    }
-
-    // // Dữ liệu biểu đồ minh họa; thay bằng dữ liệu thống kê từ server khi tích hợp backend.
-    // const monthData = [
-    //     { label: "T6", income: 15, expense: 9 }, { label: "T7", income: 18, expense: 12 },
-    //     { label: "T8", income: 16, expense: 10 }, { label: "T9", income: 22, expense: 13 },
-    //     { label: "T10", income: 20, expense: 14 }, { label: "T11", income: 25, expense: 12.8 }
-    // ];
-    // const weekData = [
-    //     { label: "T2", income: 3, expense: 1.5 }, { label: "T3", income: 4, expense: 2 },
-    //     { label: "T4", income: 2, expense: 1 }, { label: "T5", income: 5, expense: 3 },
-    //     { label: "T6", income: 4, expense: 2 }, { label: "T7", income: 3, expense: 1.5 },
-    //     { label: "CN", income: 4, expense: 1.8 }
-    // ];
-
-    // Vẽ biểu đồ cột theo tuần hoặc theo tháng.
-    function drawChart(period = "month") {
-        const chart = $("chartColumns");
-        if (!chart) return;
-        const data = period === "week" ? weekData : monthData;
-        const max = 30;
-        chart.replaceChildren();
-        data.forEach(item => {
-            const group = document.createElement("div");
-            group.className = "chart-group";
-            const bars = document.createElement("div");
-            bars.className = "chart-bars";
-            ["income", "expense"].forEach(type => {
-                const bar = document.createElement("div");
-                bar.className = `chart-bar ${type}`;
-                bar.style.height = `${Math.max(2, Math.min(100, item[type] / max * 100))}%`;
-                bar.title = `${type === "income" ? "Thu nhập" : "Chi tiêu"}: ${item[type]} triệu`;
-                bars.appendChild(bar);
-            });
-            const label = document.createElement("small");
-            label.textContent = item.label;
-            group.append(bars, label);
-            chart.appendChild(group);
-        });
-    }
-    $("chartPeriod")?.addEventListener("change", event => drawChart(event.target.value));
-
-    // Lọc giao dịch theo loại thu nhập hoặc chi tiêu.
-    function filterTransactions() {
-        const filter = $("transactionFilter")?.value || "all";
-        let visible = 0;
-        transactions.forEach(row => {
-            const matches = filter === "all" || row.dataset.type === filter;
-            row.hidden = !matches;
-            if (matches) visible++;
-        });
-        if ($("emptyTransactions")) $("emptyTransactions").hidden = visible > 0;
-    }
-    $("transactionFilter")?.addEventListener("change", filterTransactions);
-
-    // Mở và đóng modal thêm giao dịch.
-    function openModal() {
-        $("transactionModal").classList.add("show");
-        document.body.classList.add("modal-open");
-        $("transactionModal").setAttribute("aria-hidden", "false");
-        setTimeout(() => $("transactionName")?.focus(), 80);
-    }
-    function closeModal() {
-        $("transactionModal").classList.remove("show");
-        document.body.classList.remove("modal-open");
-        $("transactionModal").setAttribute("aria-hidden", "true");
-    }
-    $("openTransaction")?.addEventListener("click", openModal);
-    $("openTransaction2")?.addEventListener("click", openModal);
-    $("closeModal")?.addEventListener("click", closeModal);
-    $("cancelTransaction")?.addEventListener("click", closeModal);
-    $("transactionModal").addEventListener("click", event => {
-        if (event.target === $("transactionModal")) closeModal();
-    });
-    document.addEventListener("keydown", event => {
-        if (event.key === "Escape" && $("transactionModal").classList.contains("show")) closeModal();
-    });
-
-    // Đặt ngày mặc định theo múi giờ địa phương, tránh lệch ngày do UTC.
+    // Chuyển ngày về YYYY-MM-DD theo múi giờ địa phương.
     function localDateValue(date = new Date()) {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, "0");
         const day = String(date.getDate()).padStart(2, "0");
+
         return `${year}-${month}-${day}`;
     }
-    if ($("transactionDate")) $("transactionDate").value = localDateValue();
 
-    // Tạo ô bảng bằng textContent để tránh chèn HTML không an toàn từ dữ liệu nhập.
-    function createCell(content, className = "") {
-        const cell = document.createElement("td");
-        if (className) cell.className = className;
-        if (content instanceof Node) cell.appendChild(content);
-        else cell.textContent = content;
-        return cell;
+    // Chuyển YYYY-MM-DD thành DD/MM/YYYY.
+    function formatDate(dateValue) {
+        if (!dateValue) return "";
+
+        const [year, month, day] = dateValue.split("-");
+
+        if (!year || !month || !day) return dateValue;
+
+        return `${day}/${month}/${year}`;
     }
 
-    // Thêm giao dịch mới vào bảng và cập nhật tổng thu/chi.
-    // Chỉ hiển thị danh mục phù hợp với loại giao dịch.
-    function filterCategories() {
-        const selectedType = $("transactionType").value;
-        const categorySelect = $("transactionCategory");
-        if (!categorySelect) return;
+    // =============================================
+    // 2. ĐỌC DỮ LIỆU BIỂU ĐỒ TỪ RAZOR
+    // =============================================
 
-        let selectedOptionValid = false;
+    // Đọc các điểm dữ liệu trong một khu vực HTML.
+    function readChartPoints(container) {
+        if (!container) return [];
+
+        return Array.from(
+            container.querySelectorAll(".chart-point")
+        ).map(point => ({
+            label: point.dataset.label || "",
+            date: point.dataset.date || "",
+            income: Number(point.dataset.income) || 0,
+            expense: Number(point.dataset.expense) || 0
+        }));
+    }
+
+    // Dữ liệu tháng do FinanceMockData và Razor cung cấp.
+    const monthlyChartData = readChartPoints(
+        $("monthlyChartData")
+    );
+
+    // Dữ liệu tuần được chia theo từng nhóm tuần.
+    function readWeeklyChartData() {
+        const container = $("weeklyChartData");
+
+        if (!container) return [];
+
+        return Array.from(
+            container.querySelectorAll(".week-data")
+        ).map(weekElement => ({
+            index: Number(weekElement.dataset.weekIndex),
+            points: readChartPoints(weekElement)
+        }));
+    }
+
+    const weeklyChartData = readWeeklyChartData();
+
+    // =============================================
+    // 3. VẼ BIỂU ĐỒ
+    // =============================================
+
+    function drawChart(data) {
+        const chart = $("chartColumns");
+
+        if (!chart) return;
+
+        chart.replaceChildren();
+
+        if (!data || data.length === 0) {
+            const emptyMessage = document.createElement("p");
+
+            emptyMessage.textContent = "Chưa có dữ liệu biểu đồ.";
+            emptyMessage.style.textAlign = "center";
+            emptyMessage.style.color = "var(--finance-muted)";
+            emptyMessage.style.padding = "30px 10px";
+
+            chart.appendChild(emptyMessage);
+            return;
+        }
+
+        // Trục biểu đồ hiện thiết kế theo mức tối đa 30 triệu.
+        // Chỉ dùng giá trị để xác định chiều cao cột,
+        // không thay đổi dữ liệu tài chính gốc.
+        const maxValue = Math.max(
+            30000000,
+            ...data.flatMap(item => [
+                item.income,
+                item.expense
+            ])
+        );
+
+        data.forEach(item => {
+            const group = document.createElement("div");
+            group.className = "chart-group";
+
+            const bars = document.createElement("div");
+            bars.className = "chart-bars";
+
+            ["income", "expense"].forEach(type => {
+                const bar = document.createElement("div");
+
+                bar.className = `chart-bar ${type}`;
+
+                const value = item[type];
+
+                const height = Math.max(
+                    value > 0 ? 1 : 0,
+                    Math.min(100, value / maxValue * 100)
+                );
+
+                bar.style.height = `${height}%`;
+
+                bar.title =
+                    `${type === "income" ? "Thu nhập" : "Chi tiêu"}: ${money(value)}`;
+
+                bars.appendChild(bar);
+            });
+
+            const label = document.createElement("small");
+            label.textContent = item.label;
+
+            group.append(bars, label);
+            chart.appendChild(group);
+        });
+    }
+
+    // Vẽ biểu đồ theo lựa chọn hiện tại.
+    function updateChart() {
+        const period = $("chartPeriod")?.value || "month";
+
+        if (period === "week") {
+            const selectedWeekIndex = Number(
+                $("chartWeek")?.value || 0
+            );
+
+            const selectedWeek = weeklyChartData.find(
+                week => week.index === selectedWeekIndex
+            );
+
+            drawChart(selectedWeek?.points || []);
+        } else {
+            drawChart(monthlyChartData);
+        }
+    }
+
+    // Thay đổi chế độ biểu đồ tháng/tuần.
+    $("chartPeriod")?.addEventListener("change", () => {
+        const isWeekly = $("chartPeriod").value === "week";
+
+        if ($("chartWeek")) {
+            $("chartWeek").style.display =
+                isWeekly ? "" : "none";
+        }
+
+        updateChart();
+    });
+
+    // Chọn tuần cụ thể.
+    $("chartWeek")?.addEventListener("change", updateChart);
+
+    // =============================================
+    // 4. TẠO BỘ LỌC THÁNG TỪ GIAO DỊCH RAZOR
+    // =============================================
+
+    function generateMonthOptions() {
+        const monthFilter = $("monthFilter");
+
+        if (!monthFilter) return;
+
+        // Lấy các tháng thực tế xuất hiện trong danh sách giao dịch.
+        const months = [
+            ...new Set(
+                transactionRows
+                    .map(row => row.dataset.month || row.dataset.date?.slice(0, 7))
+                    .filter(Boolean)
+            )
+        ].sort((a, b) => b.localeCompare(a));
+
+        monthFilter.replaceChildren();
+
+        const allOption = document.createElement("option");
+        allOption.value = "all";
+        allOption.textContent = "Tất cả giao dịch";
+
+        monthFilter.appendChild(allOption);
+
+        months.forEach(monthValue => {
+            const [year, month] = monthValue.split("-");
+
+            const option = document.createElement("option");
+            option.value = monthValue;
+            option.textContent = `Tháng ${month}/${year}`;
+
+            monthFilter.appendChild(option);
+        });
+
+        // Mặc định xem tất cả giao dịch.
+        monthFilter.value = "all";
+    }
+
+    // =============================================
+    // 5. LỌC GIAO DỊCH
+    // =============================================
+
+    function filterTransactions() {
+        const typeFilter = $("transactionFilter")?.value || "all";
+        const monthFilter = $("monthFilter")?.value || "all";
+
+        const startDate = $("startDateFilter")?.value || "";
+        const endDate = $("endDateFilter")?.value || "";
+
+        // Kiểm tra khoảng ngày.
+        if (startDate && endDate && startDate > endDate) {
+            if ($("emptyTransactions")) {
+                $("emptyTransactions").textContent =
+                    "Ngày bắt đầu không được sau ngày kết thúc.";
+
+                $("emptyTransactions").style.display = "block";
+                $("emptyTransactions").hidden = false;
+            }
+
+            transactionRows.forEach(row => {
+                row.hidden = true;
+            });
+
+            return;
+        }
+
+        let visibleCount = 0;
+
+        transactionRows.forEach(row => {
+            const rowType = (
+                row.dataset.type || ""
+            ).toLowerCase();
+
+            const rowDate = row.dataset.date || "";
+
+            const rowMonth =
+                row.dataset.month || rowDate.slice(0, 7);
+
+            const matchesType =
+                typeFilter === "all" ||
+                rowType === typeFilter;
+
+            const matchesMonth =
+                monthFilter === "all" ||
+                rowMonth === monthFilter;
+
+            const matchesStartDate =
+                !startDate || (rowDate && rowDate >= startDate);
+
+            const matchesEndDate =
+                !endDate || (rowDate && rowDate <= endDate);
+
+            const isVisible =
+                matchesType &&
+                matchesMonth &&
+                matchesStartDate &&
+                matchesEndDate;
+
+            row.hidden = !isVisible;
+
+            if (isVisible) {
+                visibleCount++;
+            }
+        });
+
+        // Cập nhật trạng thái rỗng.
+        if ($("emptyTransactions")) {
+            const isEmpty = visibleCount === 0;
+
+            $("emptyTransactions").textContent =
+                "Không tìm thấy giao dịch phù hợp.";
+
+            $("emptyTransactions").hidden = !isEmpty;
+            $("emptyTransactions").style.display =
+                isEmpty ? "block" : "none";
+        }
+    }
+
+    $("transactionFilter")?.addEventListener(
+        "change",
+        filterTransactions
+    );
+
+    $("monthFilter")?.addEventListener(
+        "change",
+        filterTransactions
+    );
+
+    $("startDateFilter")?.addEventListener(
+        "change",
+        filterTransactions
+    );
+
+    $("endDateFilter")?.addEventListener(
+        "change",
+        filterTransactions
+    );
+
+    // Xóa bộ lọc ngày.
+    $("clearDateFilter")?.addEventListener("click", () => {
+        if ($("startDateFilter")) {
+            $("startDateFilter").value = "";
+        }
+
+        if ($("endDateFilter")) {
+            $("endDateFilter").value = "";
+        }
+
+        filterTransactions();
+    });
+
+    // =============================================
+    // 6. MỞ VÀ ĐÓNG MODAL
+    // =============================================
+
+    function openModal() {
+        const modal = $("transactionModal");
+
+        if (!modal) return;
+
+        modal.style.display = "flex";
+        modal.classList.add("show");
+        modal.setAttribute("aria-hidden", "false");
+
+        document.body.classList.add("modal-open");
+
+        $("transactionName")?.focus();
+    }
+
+    function closeModal() {
+        const modal = $("transactionModal");
+
+        if (!modal) return;
+
+        modal.style.display = "none";
+        modal.classList.remove("show");
+        modal.setAttribute("aria-hidden", "true");
+
+        document.body.classList.remove("modal-open");
+    }
+
+    $("openTransaction")?.addEventListener("click", openModal);
+    $("openTransaction2")?.addEventListener("click", openModal);
+
+    $("closeModal")?.addEventListener("click", closeModal);
+    $("cancelTransaction")?.addEventListener("click", closeModal);
+
+    // Đóng modal khi nhấn vào nền bên ngoài.
+    $("transactionModal")?.addEventListener("click", event => {
+        if (event.target === $("transactionModal")) {
+            closeModal();
+        }
+    });
+
+    // Đóng modal bằng phím Escape.
+    document.addEventListener("keydown", event => {
+        if (
+            event.key === "Escape" &&
+            $("transactionModal")?.classList.contains("show")
+        ) {
+            closeModal();
+        }
+    });
+
+    // =============================================
+    // 7. LỌC DANH MỤC THEO LOẠI GIAO DỊCH
+    // =============================================
+
+    function filterCategories() {
+        const typeSelect = $("transactionType");
+        const categorySelect = $("transactionCategory");
+
+        if (!typeSelect || !categorySelect) return;
+
+        const selectedType = typeSelect.value.toLowerCase();
+
+        let selectedOptionIsValid = false;
 
         Array.from(categorySelect.options).forEach(option => {
             if (!option.value) {
@@ -176,78 +433,121 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            const matches = option.dataset.type === selectedType;
+            const optionType = (
+                option.dataset.type || ""
+            ).toLowerCase();
+
+            const matches = optionType === selectedType;
+
             option.hidden = !matches;
 
             if (matches && option.selected) {
-                selectedOptionValid = true;
+                selectedOptionIsValid = true;
             }
         });
 
-        if (!selectedOptionValid) {
+        if (!selectedOptionIsValid) {
             categorySelect.value = "";
         }
     }
 
-    $("transactionType")?.addEventListener("change", filterCategories);
+    $("transactionType")?.addEventListener(
+        "change",
+        filterCategories
+    );
 
-    // Gửi giao dịch đến Controller để lưu vào database.
-    $("transactionForm").addEventListener("submit", async event => {
+    // =============================================
+    // 8. KIỂM TRA FORM GIAO DỊCH
+    // =============================================
+
+    // Tạo vùng thông báo trong modal.
+    function getFormMessage() {
+        let message = $("transactionFormMessage");
+
+        if (!message) {
+            message = document.createElement("p");
+            message.id = "transactionFormMessage";
+
+            message.style.fontSize = "12px";
+            message.style.marginTop = "12px";
+            message.style.color = "var(--finance-muted)";
+            message.setAttribute("role", "status");
+
+            $("transactionForm").appendChild(message);
+        }
+
+        return message;
+    }
+
+    $("transactionForm").addEventListener("submit", event => {
+        // Không gửi form lên Controller.
         event.preventDefault();
 
         const form = event.currentTarget;
-        const submitButton = form.querySelector('[type="submit"]');
 
-        const name = $("transactionName").value.trim();
-        const categoryId = $("transactionCategory").value;
-        const amount = Number($("transactionAmount").value);
-        const date = $("transactionDate").value;
-
-        if (!name || !categoryId || !date ||
-            !Number.isFinite(amount) || amount <= 0) {
-            alert("Vui lòng nhập đầy đủ thông tin giao dịch hợp lệ.");
+        if (!form.checkValidity()) {
+            form.reportValidity();
             return;
         }
 
-        const parsedDate = new Date(`${date}T00:00:00`);
+        const name = $("transactionName")?.value.trim() || "";
+        const type = $("transactionType")?.value || "";
+        const categorySelect = $("transactionCategory");
+        const amount = Number($("transactionAmount")?.value);
+        const date = $("transactionDate")?.value || "";
 
-        if (Number.isNaN(parsedDate.getTime())) {
-            alert("Ngày giao dịch không hợp lệ.");
+        if (
+            !name ||
+            !type ||
+            !categorySelect?.value ||
+            !Number.isFinite(amount) ||
+            amount < 1000 ||
+            !date
+        ) {
+            getFormMessage().textContent =
+                "Vui lòng kiểm tra lại các thông tin đã nhập.";
+
             return;
         }
 
-        // Chặn gửi nhiều lần khi đang lưu.
-        submitButton.disabled = true;
-        submitButton.textContent = "Đang lưu...";
+        const selectedCategory =
+            categorySelect.options[categorySelect.selectedIndex];
 
-        try {
-            const response = await fetch(form.action, {
-                method: "POST",
-                body: new FormData(form),
-                headers: {
-                    "X-Requested-With": "XMLHttpRequest"
-                }
-            });
+        if (
+            !selectedCategory ||
+            selectedCategory.dataset.type?.toLowerCase() !== type.toLowerCase()
+        ) {
+            getFormMessage().textContent =
+                "Danh mục không phù hợp với loại giao dịch.";
 
-            const result = await response.json();
-
-            if (!response.ok || !result.success) {
-                throw new Error(result.message || "Không thể lưu giao dịch.");
-            }
-
-            // Tải lại dữ liệu từ database để cập nhật tổng thu, chi và bảng.
-            window.location.reload();
-        } catch (error) {
-            alert(error.message || "Đã xảy ra lỗi khi lưu giao dịch.");
-            submitButton.disabled = false;
-            submitButton.textContent = "Lưu giao dịch";
+            return;
         }
+
+        // Chỉ kiểm tra dữ liệu. Không thêm vào danh sách,
+        // không cập nhật tổng thu/chi và không gửi lên server.
+        getFormMessage().textContent =
+            "Thông tin hợp lệ. Đây là giao diện mẫu nên giao dịch chưa được thêm hoặc lưu.";
+
     });
 
-    // Khởi tạo toàn bộ thành phần khi trang tải xong.
-    updateSummary();
-    updateSaving();
-    drawChart($("chartPeriod")?.value || "month");
-    filterTransactions();
+    // =============================================
+    // 9. KHỞI TẠO GIAO DIỆN
+    // =============================================
+
+    generateMonthOptions();
+
+    // Đặt ngày mặc định cho form.
+    if ($("transactionDate")) {
+        $("transactionDate").value = localDateValue();
+    }
+
+    // Vẽ biểu đồ tháng mặc định.
+    updateChart();
+
+    // Khởi tạo bộ lọc danh mục.
     filterCategories();
+
+    // Áp dụng bộ lọc giao dịch mặc định.
+    filterTransactions();
+
 });

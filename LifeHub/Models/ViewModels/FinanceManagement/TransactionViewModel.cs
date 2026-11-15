@@ -1,5 +1,6 @@
 namespace LifeHub.Models.ViewModels.FinanceManagement;
 
+//Thông tin giao dịch
 public class TransactionViewModel
 {
     public int Id { get; set; }

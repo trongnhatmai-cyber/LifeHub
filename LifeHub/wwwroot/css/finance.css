@@ -202,3 +202,216 @@ body.modal-open { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
     .finance-page *, .finance-page *::before, .finance-page *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+/* Bộ lọc biểu đồ tuần và bộ lọc giao dịch */
+.finance-page #chartWeek,
+.finance-page #startDateFilter,
+.finance-page #endDateFilter {
+    min-height: 42px;
+    padding: 0 12px;
+    border: 1px solid var(--finance-border);
+    border-radius: 10px;
+    outline: none;
+    background: var(--finance-bg);
+    color: var(--finance-text);
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.finance-page #startDateFilter,
+.finance-page #endDateFilter {
+    min-width: 145px;
+}
+
+.finance-page #chartWeek:focus,
+.finance-page #startDateFilter:focus,
+.finance-page #endDateFilter:focus {
+    border-color: var(--finance-accent);
+    box-shadow: 0 0 0 3px color-mix(
+        in srgb,
+        var(--finance-accent) 17%,
+        transparent
+    );
+}
+
+.finance-page .transaction-filters {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px;
+}
+
+.finance-page #clearDateFilter {
+    min-height: 42px;
+    padding: 0 13px;
+    border: 1px solid var(--finance-border);
+    border-radius: 10px;
+    background: var(--finance-card);
+    color: var(--finance-text);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.finance-page #clearDateFilter:hover {
+    border-color: var(--finance-accent);
+    color: var(--finance-accent-dark);
+}
+
+/* Modal theo class trong Index.cshtml mới */
+.finance-page .finance-modal {
+    position: fixed;
+    z-index: 1000;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+    padding: 20px;
+    background: rgba(22, 12, 17, .55);
+    backdrop-filter: blur(5px);
+}
+
+.finance-page .finance-modal.show {
+    display: flex;
+}
+
+.finance-page .finance-modal-content {
+    width: min(100%, 470px);
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    padding: 24px;
+    border: 1px solid var(--finance-border);
+    border-radius: 18px;
+    background: var(--finance-bg);
+    color: var(--finance-text);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, .22);
+    animation: finance-modal-in .2s ease both;
+}
+
+.finance-page .finance-modal-content label {
+    display: block;
+    margin: 12px 0 7px;
+    color: var(--finance-text);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.finance-page .finance-modal-content input,
+.finance-page .finance-modal-content select {
+    width: 100%;
+    min-height: 43px;
+    padding: 0 12px;
+    border: 1px solid var(--finance-border);
+    border-radius: 9px;
+    outline: none;
+    background: var(--finance-bg);
+    color: var(--finance-text);
+    font-size: 12px;
+}
+
+.finance-page .finance-modal-content input:focus,
+.finance-page .finance-modal-content select:focus {
+    border-color: var(--finance-accent);
+    box-shadow: 0 0 0 3px color-mix(
+        in srgb,
+        var(--finance-accent) 17%,
+        transparent
+    );
+}
+
+.finance-page .finance-modal-content button {
+    cursor: pointer;
+}
+
+/* Nội dung ngân sách và mục tiêu tiết kiệm */
+.finance-page .budget-category-list,
+.finance-page .saving-goals-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+}
+
+.finance-page .budget-category-list {
+    max-height: 260px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.finance-page .budget-category-item,
+.finance-page .saving-goal-item {
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid var(--finance-border);
+    border-radius: 12px;
+    background: var(--finance-card);
+}
+
+.finance-page .budget-category-item strong,
+.finance-page .saving-goal-item strong {
+    color: var(--finance-text);
+}
+
+.finance-page .budget-category-item small,
+.finance-page .saving-goal-item small {
+    color: var(--finance-muted);
+}
+
+/* Tránh nội dung tràn trên màn hình nhỏ */
+.finance-page .finance-card,
+.finance-page .finance-grid > *,
+.finance-page .finance-summary > * {
+    min-width: 0;
+}
+
+.finance-page .chart-columns {
+    overflow: hidden;
+}
+
+.finance-page .transaction-table {
+    min-width: 620px;
+}
+
+/* Responsive cho bộ lọc */
+@media (max-width: 760px) {
+    .finance-page .transaction-filters {
+        align-items: stretch;
+    }
+
+    .finance-page #startDateFilter,
+    .finance-page #endDateFilter {
+        flex: 1 1 140px;
+        min-width: 0;
+    }
+
+    .finance-page #clearDateFilter {
+        flex: 1 1 auto;
+    }
+
+    .finance-page #chartWeek {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .finance-page .finance-modal {
+        align-items: flex-start;
+        padding: 12px;
+    }
+
+    .finance-page .finance-modal-content {
+        margin: auto 0;
+        padding: 18px 15px;
+    }
+
+    .finance-page .transaction-filters {
+        flex-direction: column;
+    }
+
+    .finance-page #startDateFilter,
+    .finance-page #endDateFilter,
+    .finance-page #clearDateFilter {
+        width: 100%;
+    }
+}
