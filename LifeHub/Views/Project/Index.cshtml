@@ -5,25 +5,7 @@
     ViewData["Title"] = "Quản lý dự án";
     ViewData["ActivePage"] = "Project";
 
-    var m = Model ?? new LifeHub.Models.ViewModels.ProjectManagement.ProjectViewModel
-    {
-        TotalProjects = 3,
-        ActiveProjects = 2,
-        CompletedProjects = 1,
-        TotalTeamMembers = 7,
-        Projects = new List<LifeHub.Models.ViewModels.ProjectManagement.ProjectCardItem>
-        {
-            new() { Id = 1, Name = "LIFEHUB Platform", Description = "Hệ thống quản lý cuộc sống toàn diện với kiến trúc Một User - Vạn Kết Nối.", Role = "Manager", MemberCount = 4, ProgressPercent = 75, Status = "Đang chạy", DueDate = DateTime.Now.AddDays(15), TotalTasks = 24, CompletedTasks = 18 },
-            new() { Id = 2, Name = "Website Nhóm NET108", Description = "Ứng dụng web ASP.NET Core MVC tích hợp Entity Framework Core và SQL Server.", Role = "Manager", MemberCount = 3, ProgressPercent = 50, Status = "Đang chạy", DueDate = DateTime.Now.AddDays(25), TotalTasks = 16, CompletedTasks = 8 },
-            new() { Id = 3, Name = "UI/UX Redesign Portfolio", Description = "Thiết kế lại giao diện portfolio cá nhân với phong cách tối giản và pastel.", Role = "Member", MemberCount = 1, ProgressPercent = 100, Status = "Hoàn thành", DueDate = DateTime.Now.AddDays(-5), TotalTasks = 10, CompletedTasks = 10 }
-        },
-        RecentMilestones = new List<LifeHub.Models.ViewModels.ProjectManagement.ProjectMilestoneItem>
-        {
-            new() { Id = 1, ProjectName = "LIFEHUB", Title = "Hoàn thành thiết kế ERD & Database", DueDate = DateTime.Now.AddDays(-2), IsCompleted = true },
-            new() { Id = 2, ProjectName = "LIFEHUB", Title = "Triển khai toàn bộ Front-End Views", DueDate = DateTime.Now.AddDays(3), IsCompleted = false },
-            new() { Id = 3, ProjectName = "Website NET108", Title = "Báo cáo tiến độ giai đoạn 1", DueDate = DateTime.Now.AddDays(7), IsCompleted = false }
-        }
-    };
+    var m = Model;
 }
 
 @section Styles {
@@ -40,20 +22,20 @@
         </div>
 
         <div class="heading-actions">
-            <button type="button" class="proj-btn primary" id="createProjectBtn">
+            <button type="button" class="proj-btn primary" id="createProjectBtn" data-modal-open="createProjectModal">
                 + Tạo dự án mới
             </button>
         </div>
     </header>
 
-    <!-- 4 THẺ CHỈ SỐ PASTEL MINT TỔNG QUAN -->
+    <!-- 4 THẺ CHỈ SỐ TỔNG QUAN -->
     <section class="project-summary">
         <div class="summary-card">
             <div class="summary-top">
                 <span>Tổng số dự án</span>
                 <span class="summary-badge">DỰ ÁN</span>
             </div>
-            <h2>0@m.TotalProjects</h2>
+            <h2>@m.TotalProjects.ToString("00")</h2>
             <p>Không gian đang quản lý</p>
         </div>
 
@@ -62,7 +44,7 @@
                 <span>Đang thực hiện</span>
                 <span class="summary-badge">TIẾN ĐỘ</span>
             </div>
-            <h2>0@m.ActiveProjects</h2>
+            <h2>@m.ActiveProjects.ToString("00")</h2>
             <p>Dự án đang chạy</p>
         </div>
 
@@ -71,7 +53,7 @@
                 <span>Đã hoàn thành</span>
                 <span class="summary-badge">HOÀN TẤT</span>
             </div>
-            <h2>0@m.CompletedProjects</h2>
+            <h2>@m.CompletedProjects.ToString("00")</h2>
             <p>Dự án đã nghiệm thu</p>
         </div>
 
@@ -80,25 +62,60 @@
                 <span>Thành viên cộng tác</span>
                 <span class="summary-badge">NHÓM</span>
             </div>
-            <h2>0@m.TotalTeamMembers</h2>
+            <h2>@m.TotalTeamMembers.ToString("00")</h2>
             <p>Thành viên tham gia</p>
         </div>
     </section>
 
-    <!-- DANH SÁCH THẺ DỰ ÁN (CARD GRID) -->
-    <div class="project-grid">
-        @foreach (var p in m.Projects)
+    <!-- THANH CÔNG CỤ: TÌM KIẾM / LỌC / SẮP XẾP (xử lý phía trình duyệt) -->
+    <section class="project-toolbar" aria-label="Bộ lọc dự án">
+        <input type="search" id="projectSearch" class="proj-input proj-search"
+               placeholder="Tìm theo tên hoặc mô tả dự án..." autocomplete="off" aria-label="Tìm dự án" />
+
+        <div class="proj-tabs" role="group" aria-label="Lọc theo trạng thái">
+            @foreach (var f in m.StatusFilters)
+            {
+                var tabClass = f.Key == "all" ? "proj-tab is-active" : "proj-tab";
+                <button type="button" class="@tabClass" data-filter="@f.Key"
+                        aria-pressed="@(f.Key == "all" ? "true" : "false")">
+                    @f.Label <span class="proj-tab-count">@f.Count</span>
+                </button>
+            }
+        </div>
+
+        <select id="projectSort" class="proj-input proj-select" aria-label="Sắp xếp dự án">
+            <option value="default">Mặc định</option>
+            <option value="deadline">Hạn chót gần nhất</option>
+            <option value="progress">Tiến độ cao nhất</option>
+            <option value="name">Tên A → Z</option>
+        </select>
+    </section>
+
+    <p class="proj-result" id="projectResultCount" aria-live="polite"></p>
+
+    <!-- DANH SÁCH THẺ DỰ ÁN -->
+    <div class="project-grid" id="projectGrid">
+        @for (var i = 0; i < m.Projects.Count; i++)
         {
-            <div class="project-item-card">
+            var p = m.Projects[i];
+            var searchText = p.Name + " " + p.Description;
+            var dueClass = p.IsOverdue ? "proj-due is-overdue" : "proj-due";
+
+            <article class="project-item-card" data-project-card
+                     data-index="@i"
+                     data-status="@p.StatusKey"
+                     data-role="@p.RoleKey"
+                     data-progress="@p.ProgressPercent"
+                     data-due="@p.DueDate.ToString("yyyy-MM-dd")"
+                     data-name="@p.Name"
+                     data-search="@searchText">
                 <div>
                     <div class="proj-top">
                         <div>
                             <h3>@p.Name</h3>
                             <span class="summary-badge">Vai trò: @p.Role</span>
                         </div>
-                        <span class="summary-badge" style="background:@(p.Status == "Hoàn thành" ? "#dcfce7" : "var(--proj-card-strong)");color:@(p.Status == "Hoàn thành" ? "#15803d" : "var(--proj-accent)");">
-                            @p.Status
-                        </span>
+                        <span class="proj-status proj-status--@p.StatusKey">@p.Status</span>
                     </div>
 
                     <p class="proj-desc">@p.Description</p>
@@ -106,9 +123,9 @@
 
                 <div>
                     <div class="proj-progress">
-                        <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;">
+                        <div class="proj-progress-head">
                             <span>Tiến độ thực hiện</span>
-                            <span style="color:var(--proj-accent);">@p.ProgressPercent% (@p.CompletedTasks/@p.TotalTasks việc)</span>
+                            <span class="proj-progress-value">@p.ProgressPercent% (@p.CompletedTasks/@p.TotalTasks việc)</span>
                         </div>
                         <div class="bar">
                             <i style="width:@p.ProgressPercent%;"></i>
@@ -116,42 +133,159 @@
                     </div>
 
                     <div class="proj-meta">
-                        <span>👥 @p.MemberCount thành viên</span>
-                        <span>Hạn chót: @p.DueDate.ToString("dd/MM/yyyy")</span>
+                        <div class="proj-members">
+                            <div class="proj-avatars">
+                                @foreach (var name in p.MemberNames.Take(3))
+                                {
+                                    <span title="@name">@name.Substring(0, 1)</span>
+                                }
+                                @if (p.MemberNames.Count > 3)
+                                {
+                                    <span class="proj-avatars-more">+@(p.MemberNames.Count - 3)</span>
+                                }
+                            </div>
+                            <span>@p.MemberCount thành viên</span>
+                        </div>
+
+                        <div class="@dueClass">
+                            <span>Hạn chót: @p.DueDate.ToString("dd/MM/yyyy")</span>
+                            <small>@p.DueText</small>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </article>
         }
     </div>
 
+    <div class="proj-empty" id="projectEmpty" hidden>
+        Không tìm thấy dự án phù hợp. Hãy thử đổi từ khóa hoặc bộ lọc.
+    </div>
+
     <!-- CỘT MỐC GẦN ĐÂY -->
-    <section class="project-item-card" style="margin-top: 10px;">
-        <div class="proj-top" style="margin-bottom: 14px;">
+    <section class="project-item-card proj-milestones">
+        <div class="proj-top proj-milestones-head">
             <div>
                 <h3>Cột mốc dự án (Milestones)</h3>
-                <p style="font-size:12px;color:var(--proj-muted);margin:0;">Các mốc then chốt cần hoàn thành đúng hạn</p>
+                <p class="proj-sub">Các mốc then chốt cần hoàn thành đúng hạn</p>
             </div>
-            <button type="button" class="proj-btn" style="padding:4px 12px;font-size:12px;min-height:32px;">
+            <button type="button" class="proj-btn sm" data-modal-open="createMilestoneModal">
                 + Cột mốc
             </button>
         </div>
 
-        <div>
+        <div class="ms-list">
             @foreach (var ms in m.RecentMilestones)
             {
-                <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--proj-border);font-size:13px;">
-                    <div style="display:flex;align-items:center;gap:12px;">
-                        <span style="color:@(ms.IsCompleted ? "#10b981" : "var(--proj-accent)");font-weight:800;font-size:15px;">
-                            @(ms.IsCompleted ? "✓" : "○")
-                        </span>
+                var rowClass = "ms-row" + (ms.IsCompleted ? " is-done" : "") + (ms.IsOverdue ? " is-overdue" : "");
+
+                <div class="@rowClass">
+                    <div class="ms-main">
+                        <span class="ms-check">@(ms.IsCompleted ? "✓" : "○")</span>
                         <div>
-                            <span style="font-weight:650;@(ms.IsCompleted ? "text-decoration:line-through;opacity:0.6;" : "")">@ms.Title</span>
-                            <span class="summary-badge" style="font-size:9px;margin-left:6px;">@ms.ProjectName</span>
+                            <span class="ms-title">@ms.Title</span>
+                            <span class="summary-badge ms-project">@ms.ProjectName</span>
                         </div>
                     </div>
-                    <span style="color:var(--proj-muted);font-size:12px;">@ms.DueDate.ToString("dd/MM/yyyy")</span>
+                    <span class="ms-date">@ms.DueDate.ToString("dd/MM/yyyy")</span>
                 </div>
             }
         </div>
     </section>
+
+    <!-- MODAL: TẠO DỰ ÁN (chỉ mô phỏng giao diện, không lưu dữ liệu) -->
+    <div class="proj-modal" id="createProjectModal" role="dialog" aria-modal="true" aria-labelledby="createProjectTitle" hidden>
+        <div class="proj-modal__dialog">
+            <div class="proj-modal__head">
+                <div>
+                    <h3 id="createProjectTitle">Tạo dự án mới</h3>
+                    <p class="proj-sub">Bạn sẽ là Manager của dự án này.</p>
+                </div>
+                <button type="button" class="proj-modal__close" data-modal-close aria-label="Đóng">×</button>
+            </div>
+
+            <form data-demo-form novalidate>
+                <div class="proj-field">
+                    <label for="newProjectName">Tên dự án *</label>
+                    <input type="text" id="newProjectName" class="proj-input" maxlength="80" required placeholder="VD: Website nhóm NET108" />
+                </div>
+
+                <div class="proj-field">
+                    <label for="newProjectDesc">Mô tả</label>
+                    <textarea id="newProjectDesc" class="proj-input" rows="3" maxlength="300" placeholder="Mục tiêu và phạm vi của dự án"></textarea>
+                </div>
+
+                <div class="proj-field-row">
+                    <div class="proj-field">
+                        <label for="newProjectStart">Ngày bắt đầu *</label>
+                        <input type="date" id="newProjectStart" class="proj-input" required data-date-start />
+                    </div>
+                    <div class="proj-field">
+                        <label for="newProjectDue">Hạn chót *</label>
+                        <input type="date" id="newProjectDue" class="proj-input" required data-date-end />
+                    </div>
+                </div>
+
+                <div class="proj-field">
+                    <label for="newProjectStatus">Trạng thái ban đầu</label>
+                    <select id="newProjectStatus" class="proj-input">
+                        <option>Lên kế hoạch</option>
+                        <option>Đang chạy</option>
+                    </select>
+                </div>
+
+                <p class="proj-form-note" data-form-note hidden></p>
+
+                <div class="proj-modal__actions">
+                    <button type="button" class="proj-btn" data-modal-close>Hủy</button>
+                    <button type="submit" class="proj-btn primary">Tạo dự án</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: THÊM CỘT MỐC (chỉ mô phỏng giao diện, không lưu dữ liệu) -->
+    <div class="proj-modal" id="createMilestoneModal" role="dialog" aria-modal="true" aria-labelledby="createMilestoneTitle" hidden>
+        <div class="proj-modal__dialog">
+            <div class="proj-modal__head">
+                <div>
+                    <h3 id="createMilestoneTitle">Thêm cột mốc</h3>
+                    <p class="proj-sub">Đánh dấu một giai đoạn quan trọng của dự án.</p>
+                </div>
+                <button type="button" class="proj-modal__close" data-modal-close aria-label="Đóng">×</button>
+            </div>
+
+            <form data-demo-form novalidate>
+                <div class="proj-field">
+                    <label for="newMilestoneProject">Dự án *</label>
+                    <select id="newMilestoneProject" class="proj-input" required>
+                        @foreach (var p in m.Projects)
+                        {
+                            <option value="@p.Id">@p.Name</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="proj-field">
+                    <label for="newMilestoneTitleInput">Tên cột mốc *</label>
+                    <input type="text" id="newMilestoneTitleInput" class="proj-input" maxlength="100" required placeholder="VD: Hoàn thành thiết kế" />
+                </div>
+
+                <div class="proj-field">
+                    <label for="newMilestoneDue">Hạn hoàn thành *</label>
+                    <input type="date" id="newMilestoneDue" class="proj-input" required />
+                </div>
+
+                <p class="proj-form-note" data-form-note hidden></p>
+
+                <div class="proj-modal__actions">
+                    <button type="button" class="proj-btn" data-modal-close>Hủy</button>
+                    <button type="submit" class="proj-btn primary">Thêm cột mốc</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <script src="~/js/project.js" asp-append-version="true"></script>
+}

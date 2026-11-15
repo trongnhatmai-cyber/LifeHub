@@ -1,4 +1,4 @@
-
+using LifeHub.Models.MockData;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LifeHub.Controllers
@@ -12,7 +12,10 @@ namespace LifeHub.Controllers
             // Giá trị này phải trùng với điều kiện active trong _Layout.cshtml
             ViewData["ActivePage"] = "Project";
 
-            return View();
+            // Mock Data: sau này thay bằng dữ liệu thật từ Service/Repository
+            var model = ProjectMockData.BuildIndex();
+
+            return View(model);
         }
     }
 }
