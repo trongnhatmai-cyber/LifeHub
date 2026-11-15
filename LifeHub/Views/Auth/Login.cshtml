@@ -49,9 +49,16 @@
                     Đăng nhập để tiếp tục quản lý công việc,
                     học tập và cuộc sống của bạn.
                 </p>
+
+                @if (TempData["SuccessMessage"] is string ok)
+                {
+                    <p role="status" style="color:#16a34a;font-weight:600">@ok</p>
+                }
             </div>
 
-            <form class="auth-form" asp-controller="Auth" asp-action="Login" method="post">
+            <form class="auth-form" asp-controller="Auth" asp-action="Login"
+                asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
+                
                 @Html.AntiForgeryToken()
                 <div asp-validation-summary="All" class="text-danger"></div>
 

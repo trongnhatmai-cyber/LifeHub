@@ -1,4 +1,3 @@
-using AspNetCoreGeneratedDocument;
 using LifeHub.BusinessLogicLayer.Services;
 using LifeHub.Models;
 using LifeHub.Models.ViewModels;
@@ -61,8 +60,9 @@ public class AuthController : Controller
     // GET: /Auth/Login
     [AllowAnonymous]
     [HttpGet]
-    public IActionResult Login()
+    public IActionResult Login(string? returnUrl = null)
     {
+        ViewData["ReturnUrl"] = returnUrl;
         return View();
     }
 
@@ -74,6 +74,8 @@ public class AuthController : Controller
         LoginViewModel model,
         string? returnUrl = null)
     {
+        ViewData["ReturnUrl"] = returnUrl;
+
         if (!ModelState.IsValid)
             return View(model);
 

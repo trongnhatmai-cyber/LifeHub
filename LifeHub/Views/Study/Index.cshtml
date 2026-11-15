@@ -4,6 +4,9 @@
     Layout = "_Layout";
     ViewData["Title"] = "Quản lý học tập";
     ViewData["ActivePage"] = "Study";
+
+    var today = DateTime.Today;
+    string Score(decimal? v) => v.HasValue ? v.Value.ToString("0.0") : "—";
 }
 
 @section Styles {
@@ -14,181 +17,158 @@
     <!-- TIÊU ĐỀ PHÂN HỆ HỌC TẬP -->
     <header class="study-heading">
         <div>
-            <span class="study-label">STUDY MANAGEMENT · HỌC KỲ 1 · 2026-2027</span>
+            <span class="study-label">QUẢN LÝ HỌC TẬP@(string.IsNullOrEmpty(Model.SemesterName) ? "" : " - " + Model.SemesterName.ToUpper())</span>
             <h1>Học tập của bạn</h1>
             <p>Môn học, thời khóa biểu, bài tập và theo dõi điểm số trong một nơi.</p>
         </div>
 
         <div class="heading-actions">
-            <button type="button" class="study-btn" id="addSubjectBtn">
-                + Thêm môn học
-            </button>
-            <button type="button" class="study-btn primary" id="addAssignmentBtn">
-                + Thêm bài tập
-            </button>
+            <button type="button" class="study-btn" id="addSubjectBtn">+ Thêm môn học</button>
+            <button type="button" class="study-btn primary" id="addAssignmentBtn">+ Thêm bài tập</button>
         </div>
     </header>
 
-    <!-- 4 THẺ CHỈ SỐ PASTEL XANH DƯƠNG -->
+    <!-- 4 THẺ CHỈ SỐ -->
     <section class="study-summary">
         <div class="summary-card">
-            <div class="summary-top">
-                <span>Điểm trung bình (GPA)</span>
-                <span class="summary-badge">HỌC KỲ NÀY</span>
-            </div>
-            <h2>@(Model.CurrentGpa?.ToString("F2") ?? "0.00")</h2>
-            <p>Thang điểm 4 · Mục tiêu 3.6</p>
+            <div class="summary-top"><span>Điểm trung bình (GPA)</span><span class="summary-badge">HỌC KỲ NÀY</span></div>
+            <h2>@(Model.CurrentGpa?.ToString("0.00") ?? "—")</h2>
+            <p>Thang điểm 4@(Model.TargetGpa.HasValue ? ", mục tiêu " + Model.TargetGpa.Value.ToString("0.0") : "")</p>
         </div>
 
         <div class="summary-card">
-            <div class="summary-top">
-                <span>Môn đang học</span>
-                <span class="summary-badge">TÍN CHỈ</span>
-            </div>
-            <h2>0@Model.ActiveCoursesCount</h2>
+            <div class="summary-top"><span>Môn đang học</span><span class="summary-badge">TÍN CHỈ</span></div>
+            <h2>@Model.ActiveCoursesCount.ToString("00")</h2>
             <p>Tổng cộng @Model.TotalCredits tín chỉ</p>
         </div>
 
         <div class="summary-card">
-            <div class="summary-top">
-                <span>Bài tập chưa nộp</span>
-                <span class="summary-badge">DEADLINE</span>
-            </div>
+            <div class="summary-top"><span>Bài tập chưa nộp</span><span class="summary-badge">HẠN NỘP</span></div>
             <h2>@Model.PendingAssignmentsCount</h2>
-            <p>Cần hoàn thành trong tuần</p>
+            <p>Cần hoàn thành sớm</p>
         </div>
 
         <div class="summary-card">
-            <div class="summary-top">
-                <span>Kỳ thi gần nhất</span>
-                <span class="summary-badge">LỊCH THI</span>
-            </div>
-            <h2>@Model.NextExamDays ngày</h2>
-            <p>Môn @Model.NextExamName</p>
+            <div class="summary-top"><span>Kỳ thi gần nhất</span><span class="summary-badge">LỊCH THI</span></div>
+            <h2>@(Model.HasNextExam ? Model.NextExamDays + " ngày" : "—")</h2>
+            <p>@(Model.HasNextExam ? "Môn " + Model.NextExamName : "Chưa có lịch thi")</p>
         </div>
     </section>
 
-    <!-- KHỐI LƯỚI NỘI DUNG CHÍNH (2 CỘT CHUẨN) -->
+    <!-- THỜI KHÓA BIỂU VÀ TIẾN ĐỘ MÔN HỌC -->
     <div class="study-grid">
-        <!-- CỘT TRÁI: THỜI KHÓA BIỂU TUẦN -->
         <div class="study-card">
             <div class="section-heading">
-                <div>
-                    <h3>Thời khóa biểu tuần</h3>
-                    <p>Lịch học lặp lại theo tuần</p>
-                </div>
-                <span class="summary-badge">HK1 2026-2027</span>
+                <div><h3>Thời khóa biểu tuần</h3><p>Lịch học lặp lại theo tuần</p></div>
+                @if (!string.IsNullOrEmpty(Model.SemesterName))
+                {
+                    <span class="summary-badge">@Model.SemesterName</span>
+                }
             </div>
 
             <div class="timetable-grid">
                 @foreach (var day in Model.Schedule)
                 {
-                    <div class="timetable-day">
+                    <div class="timetable-day @(day.IsToday ? "today" : "")">
                         <div class="day-head">@day.DayName</div>
-                        @if (day.Events.Any())
+                        @foreach (var ev in day.Events)
                         {
-                            @foreach (var ev in day.Events)
-                            {
-                                <div class="timetable-event">
-                                    @ev.Subject
-                                    <small>@ev.Time · @ev.Room</small>
-                                </div>
-                            }
+                            <div class="timetable-event" style="border-left-color:@ev.Color">
+                                @ev.Subject
+                                <small>@ev.Time, @ev.Room</small>
+                            </div>
                         }
-                        else
+                        @if (!day.Events.Any())
                         {
-                            <span style="font-size:10px;color:var(--study-muted);text-align:center;margin:auto;">Nghỉ</span>
+                            <span class="day-empty">Nghỉ</span>
                         }
                     </div>
                 }
             </div>
         </div>
 
-        <!-- CỘT PHẢI: MÔN HỌC & TIẾN ĐỘ -->
         <div class="study-card">
             <div class="section-heading">
-                <div>
-                    <h3>Tiến độ môn học</h3>
-                    <p>Hoàn thành bài tập & đánh giá</p>
-                </div>
-                <button type="button" class="study-btn" style="padding:4px 10px;font-size:12px;min-height:30px;">
-                    Chi tiết
-                </button>
+                <div><h3>Tiến độ môn học</h3><p>Hoàn thành bài tập và đánh giá</p></div>
             </div>
 
             <div>
                 @foreach (var course in Model.Courses)
                 {
                     <div class="course-item">
-                        <div>
-                            <div class="course-code">@course.Code – @course.Name</div>
-                            <div style="font-size:11px;color:var(--study-muted);">@course.Credits tín chỉ · @course.Instructor</div>
+                        <div class="course-info">
+                            <div class="course-code"><i class="course-dot" style="background:@course.Color"></i>@course.Code - @course.Name</div>
+                            <div class="course-meta">@course.Credits tín chỉ, @course.Instructor</div>
+                            <div class="course-meta">Điểm hiện tại @Score(course.CurrentScore)@(course.TargetScore.HasValue ? " / mục tiêu " + Score(course.TargetScore) : "")</div>
                         </div>
 
                         <div class="course-progress">
-                            <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;">
-                                <span>Tiến độ</span>
-                                <span style="color:var(--study-accent);">@course.AssignmentProgressPercent%</span>
-                            </div>
-                            <div class="bar">
-                                <i style="width:@course.AssignmentProgressPercent%;"></i>
-                            </div>
+                            <div class="course-progress-top"><span>Tiến độ</span><span>@course.AssignmentProgressPercent%</span></div>
+                            <div class="bar"><i style="width:@course.AssignmentProgressPercent%"></i></div>
                         </div>
                     </div>
+                }
+                @if (!Model.Courses.Any())
+                {
+                    <div class="study-empty">Chưa có môn học nào. Bấm "+ Thêm môn học" để bắt đầu.</div>
                 }
             </div>
         </div>
     </div>
 
-    <!-- DANH SÁCH BÀI TẬP VÀ LỊCH THI -->
-    <section class="study-card" style="margin-top: 18px;">
+    <!-- BÀI TẬP VÀ LỊCH THI -->
+    <section class="study-card">
         <div class="section-heading">
-            <div>
-                <h3>Bài tập & Nhiệm vụ học tập</h3>
-                <p>Theo dõi hạn nộp bài và kết quả điểm số</p>
-            </div>
-            <button type="button" class="study-btn primary" id="addAssignmentBtn2">
-                + Thêm bài tập
-            </button>
+            <div><h3>Bài tập và lịch thi</h3><p>Theo dõi hạn nộp bài và kết quả điểm số</p></div>
+            <button type="button" class="study-btn primary" id="addAssignmentBtn2">+ Thêm bài tập</button>
         </div>
 
-        <div style="overflow-x:auto;">
+        <div class="study-chips" role="group" aria-label="Lọc bài tập">
+            <button type="button" class="study-chip active" data-filter="all">Tất cả</button>
+            <button type="button" class="study-chip" data-filter="upcoming">Chưa nộp</button>
+            <button type="button" class="study-chip" data-filter="overdue">Quá hạn</button>
+            <button type="button" class="study-chip" data-filter="done">Đã nộp</button>
+            <button type="button" class="study-chip" data-filter="exam">Lịch thi</button>
+        </div>
+
+        <div class="table-wrap">
             <table class="study-table">
                 <thead>
                     <tr>
-                        <th>TÊN BÀI TẬP / NHIỆM VỤ</th>
+                        <th>TÊN BÀI TẬP</th>
                         <th>MÔN HỌC</th>
-                        <th>HẠN NỘP</th>
+                        <th>HẠN NỘP / NGÀY THI</th>
                         <th>TRỌNG SỐ</th>
                         <th>TRẠNG THÁI</th>
-                        <th style="text-align:right;">ĐIỂM SỐ</th>
+                        <th class="right">ĐIỂM SỐ</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @foreach (var asg in Model.Assignments)
+                <tbody id="assignmentBody">
+                    @foreach (var asg in Model.Assignments.OrderBy(a => a.DueDate))
                     {
-                        <tr>
-                            <td style="font-weight:600;">@asg.Title</td>
+                        var status = asg.StatusKey(today);
+                        <tr data-status="@status" data-kind="@(asg.IsExam ? "exam" : "other")">
+                            <td><strong>@asg.Title</strong><small class="row-sub">@asg.KindLabel@(asg.IsExam && !string.IsNullOrEmpty(asg.Location) ? ", " + asg.Location : "")</small></td>
                             <td><span class="summary-badge">@asg.CourseName</span></td>
-                            <td style="color:var(--study-muted);">@asg.DueDate.ToString("dd/MM/yyyy")</td>
+                            <td class="muted">@asg.DueDate.ToString("dd/MM/yyyy")@(asg.IsExam ? " " + asg.DueDate.ToString("HH:mm") : "")</td>
                             <td>@asg.WeightPercent%</td>
-                            <td>
-                                @if (asg.IsSubmitted)
-                                {
-                                    <span style="font-size:11px;font-weight:700;color:#10b981;">✓ Đã nộp</span>
-                                }
-                                else
-                                {
-                                    <span style="font-size:11px;font-weight:700;color:var(--study-accent);">Chưa nộp</span>
-                                }
-                            </td>
-                            <td style="text-align:right;font-weight:750;">
-                                @(asg.Score.HasValue ? asg.Score.Value.ToString("F1") + " / 10" : "—")
-                            </td>
+                            <td><span class="status st-@status">@asg.StatusLabel(today)</span></td>
+                            <td class="right"><strong>@(asg.Score.HasValue ? $"{asg.Score.Value:0.0} / {asg.MaxScore:0.#}" : "—")</strong></td>
                         </tr>
                     }
+                    <tr id="assignmentEmpty" hidden="@Model.Assignments.Any()">
+                        <td colspan="6" class="study-empty">Không có bài tập phù hợp.</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
     </section>
+
+    <!-- HỘP THOẠI (chỉ mô phỏng giao diện, chưa lưu dữ liệu) -->
+    <partial name="_StudyModals" model="Model" />
+    <div class="study-toast" id="studyToast" role="status" hidden></div>
 </div>
+
+@section Scripts {
+    <script src="~/js/study.js" asp-append-version="true"></script>
+}
