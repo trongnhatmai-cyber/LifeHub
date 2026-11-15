@@ -1,92 +1,129 @@
-
 // =========================================
 // STUDY MANAGEMENT - JAVASCRIPT
+// Chỉ xử lý tương tác giao diện: hộp thoại, bộ lọc bảng bài tập, thông báo.
+// Dữ liệu do C# (StudyController + ViewModel) render sẵn trong View.
 // =========================================
 
 document.addEventListener("DOMContentLoaded", function () {
+    const byId = (id) => document.getElementById(id);
 
-    // Lấy các phần tử HTML
-    const assignmentContainer = document.getElementById("asg");
-    const assignmentCount = document.getElementById("asgCnt");
-    const addAssignmentButton = document.getElementById("addAssignmentBtn");
-    const addSubjectButton = document.getElementById("addSubjectBtn");
+    // ---------- Thông báo nhỏ (toast) ----------
+    const toast = byId("studyToast");
+    let toastTimer = null;
 
-    // Hiển thị danh sách bài tập
-    function renderAssignments() {
-        if (!assignmentContainer || !assignmentCount) return;
-
-        assignmentContainer.innerHTML = "";
-
-        assignments.forEach(function (assignment, index) {
-
-            const item = document.createElement("div");
-            item.className = "study-exam";
-
-            const info = document.createElement("div");
-            info.className = "study-exam-info";
-
-            const title = document.createElement("strong");
-            title.textContent = assignment.name;
-
-            const detail = document.createElement("small");
-            detail.textContent =
-                assignment.subject + " · Hạn: " + assignment.deadline;
-
-            info.appendChild(title);
-            info.appendChild(detail);
-
-            const completeButton = document.createElement("button");
-            completeButton.type = "button";
-            completeButton.className = "study-btn";
-            completeButton.textContent = "Hoàn thành";
-            completeButton.style.padding = "7px 10px";
-            completeButton.style.fontSize = "11px";
-
-            completeButton.addEventListener("click", function () {
-                assignments.splice(index, 1);
-                renderAssignments();
-            });
-
-            item.appendChild(info);
-            item.appendChild(completeButton);
-
-            assignmentContainer.appendChild(item);
-        });
-
-        assignmentCount.textContent = assignments.length;
+    function showToast(message) {
+        if (!toast) return;
+        toast.textContent = message;
+        toast.hidden = false;
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { toast.hidden = true; }, 3500);
     }
 
-    // Thêm bài tập mẫu qua hộp thoại nhập liệu
-    if (addAssignmentButton) {
-        addAssignmentButton.addEventListener("click", function () {
+    // ---------- Hộp thoại ----------
+    function openModal(modal) {
+        if (!modal) return;
+        modal.hidden = false;
+        document.body.classList.add("study-modal-open");
+        const first = modal.querySelector("input:not([type=hidden]), select");
+        if (first) first.focus();
+    }
 
-            const name = prompt("Nhập tên bài tập:");
-            if (!name || !name.trim()) return;
+    function closeModal(modal) {
+        if (!modal) return;
+        modal.hidden = true;
+        if (!document.querySelector(".study-modal:not([hidden])")) {
+            document.body.classList.remove("study-modal-open");
+        }
+    }
 
-            const subject = prompt("Nhập tên môn học:");
-            if (!subject || !subject.trim()) return;
+    const courseModal = byId("courseModal");
+    const assignmentModal = byId("assignmentModal");
 
-            const deadline = prompt("Nhập hạn nộp (VD: 25/11/2026):");
-            if (!deadline || !deadline.trim()) return;
+    const openers = [
+        ["addSubjectBtn", courseModal],
+        ["addAssignmentBtn", assignmentModal],
+        ["addAssignmentBtn2", assignmentModal]
+    ];
+    openers.forEach(function (pair) {
+        const button = byId(pair[0]);
+        if (button) button.addEventListener("click", function () { openModal(pair[1]); });
+    });
 
-            assignments.push({
-                name: name.trim(),
-                subject: subject.trim(),
-                deadline: deadline.trim(),
-                status: "Chưa hoàn thành"
-            });
+    document.querySelectorAll(".study-modal").forEach(function (modal) {
+        // Nút Hủy / dấu ×
+        modal.querySelectorAll("[data-close-modal]").forEach(function (btn) {
+            btn.addEventListener("click", function () { closeModal(modal); });
+        });
+        // Bấm vào nền mờ để đóng
+        modal.addEventListener("mousedown", function (e) {
+            if (e.target === modal) closeModal(modal);
+        });
+    });
 
-            renderAssignments();
+    document.addEventListener("keydown", function (e) {
+        if (e.key !== "Escape") return;
+        document.querySelectorAll(".study-modal:not([hidden])").forEach(closeModal);
+    });
+
+    // ---------- Form bài tập: chỉ hiện "thời lượng / phòng thi" khi là bài thi ----------
+    const kindSelect = byId("asgKind");
+
+    function syncExamFields() {
+        if (!kindSelect) return;
+        const isExam = kindSelect.value === "midterm" || kindSelect.value === "final";
+        document.querySelectorAll("[data-exam-only]").forEach(function (el) { el.hidden = !isExam; });
+    }
+    if (kindSelect) kindSelect.addEventListener("change", syncExamFields);
+
+    // ---------- Gửi form (MÔ PHỎNG, chưa lưu dữ liệu) ----------
+    // BACK-END: khi action POST trong StudyController đã làm xong, xóa toàn bộ khối này
+    // để form gửi thẳng lên server theo asp-action đã khai báo.
+    document.querySelectorAll(".study-modal form").forEach(function (form) {
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+            if (!form.reportValidity()) return;
+
+            closeModal(form.closest(".study-modal"));
+            form.reset();
+            syncExamFields();
+            showToast("Bản mô phỏng giao diện: dữ liệu chưa được lưu.");
+        });
+    });
+
+    // ---------- Bộ lọc bảng bài tập (lọc hàng đã render sẵn) ----------
+    const chips = document.querySelectorAll(".study-chip");
+    const rows = document.querySelectorAll("#assignmentBody tr[data-status]");
+    const emptyRow = byId("assignmentEmpty");
+
+    function rowMatches(row, filter) {
+        const status = row.dataset.status;
+        const isExam = row.dataset.kind === "exam";
+        switch (filter) {
+            case "upcoming": return status === "upcoming" && !isExam;
+            case "overdue": return status === "overdue";
+            case "done": return status === "graded" || status === "submitted";
+            case "exam": return isExam;
+            default: return true;
+        }
+    }
+
+    function applyFilter(filter) {
+        let visible = 0;
+        rows.forEach(function (row) {
+            const ok = rowMatches(row, filter);
+            row.hidden = !ok;
+            if (ok) visible++;
+        });
+        if (emptyRow) emptyRow.hidden = visible > 0;
+
+        chips.forEach(function (chip) {
+            const active = chip.dataset.filter === filter;
+            chip.classList.toggle("active", active);
+            chip.setAttribute("aria-pressed", active ? "true" : "false");
         });
     }
 
-    // Nút thêm môn học - hiện thông báo chức năng đang chờ kết nối
-    if (addSubjectButton) {
-        addSubjectButton.addEventListener("click", function () {
-            alert("Chức năng thêm môn học sẽ được kết nối ở bước quản lý dữ liệu.");
-        });
-    }
-
-    // Hiển thị dữ liệu lần đầu
-    renderAssignments();
+    chips.forEach(function (chip) {
+        chip.addEventListener("click", function () { applyFilter(chip.dataset.filter); });
+    });
 });

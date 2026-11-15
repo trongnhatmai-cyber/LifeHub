@@ -295,6 +295,7 @@ body {
 }
 
 .app .page-content {
+  box-sizing: border-box;   /* padding nằm trong width 100%, tránh tràn ngang */
   width: 100%;
   max-width: 1280px;
   padding: 28px;

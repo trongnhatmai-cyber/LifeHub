@@ -70,7 +70,6 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<CategoryService>();
-builder.Services.AddSingleton<LifeHub.Services.IProjectService, LifeHub.Services.InMemoryProjectService>();
 
 var app = builder.Build();
 

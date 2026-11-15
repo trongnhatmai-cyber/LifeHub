@@ -1,0 +1,119 @@
+@model LifeHub.Models.ViewModels.StudyManagement.StudyViewModel
+
+@* Hộp thoại chỉ mô phỏng giao diện. Form đã trỏ sẵn tới StudyController để back-end nối vào sau. *@
+
+<!-- THÊM MÔN HỌC -->
+<div class="study-modal" id="courseModal" role="dialog" aria-modal="true" aria-labelledby="courseModalTitle" hidden>
+    <div class="study-modal-box">
+        <div class="study-modal-head">
+            <h3 id="courseModalTitle">Thêm môn học</h3>
+            <button type="button" class="study-modal-close" data-close-modal aria-label="Đóng">&times;</button>
+        </div>
+
+        <form asp-controller="Study" asp-action="CreateCourse" method="post">
+            <div class="study-form-grid">
+                <div class="field">
+                    <label for="courseCode">Mã môn</label>
+                    <input id="courseCode" name="Code" type="text" maxlength="20" required placeholder="VD: IT301" />
+                </div>
+                <div class="field">
+                    <label for="courseCredits">Số tín chỉ</label>
+                    <input id="courseCredits" name="Credits" type="number" min="1" max="10" value="3" required />
+                </div>
+                <div class="field full">
+                    <label for="courseName">Tên môn học</label>
+                    <input id="courseName" name="Name" type="text" maxlength="150" required placeholder="VD: Lập trình Web ASP.NET" />
+                </div>
+                <div class="field">
+                    <label for="courseInstructor">Giảng viên</label>
+                    <input id="courseInstructor" name="Instructor" type="text" />
+                </div>
+                <div class="field">
+                    <label for="courseRoom">Phòng học</label>
+                    <input id="courseRoom" name="Room" type="text" />
+                </div>
+                <div class="field">
+                    <label for="courseTarget">Điểm mục tiêu (thang 10)</label>
+                    <input id="courseTarget" name="TargetScore" type="number" min="0" max="10" step="0.1" />
+                </div>
+                <div class="field">
+                    <label for="courseColor">Màu hiển thị</label>
+                    <input id="courseColor" name="Color" type="color" value="#2563eb" />
+                </div>
+            </div>
+
+            <p class="study-note">Bản mô phỏng giao diện: dữ liệu chưa được lưu.</p>
+
+            <div class="study-modal-foot">
+                <button type="button" class="study-btn" data-close-modal>Hủy</button>
+                <button type="submit" class="study-btn primary">Thêm môn học</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- THÊM BÀI TẬP / LỊCH THI -->
+<div class="study-modal" id="assignmentModal" role="dialog" aria-modal="true" aria-labelledby="assignmentModalTitle" hidden>
+    <div class="study-modal-box">
+        <div class="study-modal-head">
+            <h3 id="assignmentModalTitle">Thêm bài tập / lịch thi</h3>
+            <button type="button" class="study-modal-close" data-close-modal aria-label="Đóng">&times;</button>
+        </div>
+
+        <form asp-controller="Study" asp-action="CreateAssignment" method="post">
+            <div class="study-form-grid">
+                <div class="field full">
+                    <label for="asgTitle">Tên bài tập</label>
+                    <input id="asgTitle" name="Title" type="text" maxlength="200" required />
+                </div>
+                <div class="field">
+                    <label for="asgCourse">Môn học</label>
+                    <select id="asgCourse" name="CourseId" required>
+                        <option value="">Chọn môn học</option>
+                        @foreach (var c in Model.Courses)
+                        {
+                            <option value="@c.Id">@c.Code - @c.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="asgKind">Loại</label>
+                    <select id="asgKind" name="Kind" required>
+                        <option value="assignment">Bài tập</option>
+                        <option value="quiz">Kiểm tra nhanh</option>
+                        <option value="project">Đồ án</option>
+                        <option value="midterm">Thi giữa kỳ</option>
+                        <option value="final">Thi cuối kỳ</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="asgDue">Hạn nộp / ngày thi</label>
+                    <input id="asgDue" name="DueDate" type="datetime-local" required />
+                </div>
+                <div class="field">
+                    <label for="asgWeight">Trọng số (%)</label>
+                    <input id="asgWeight" name="WeightPercent" type="number" min="0" max="100" value="10" required />
+                </div>
+                <div class="field">
+                    <label for="asgMax">Điểm tối đa</label>
+                    <input id="asgMax" name="MaxScore" type="number" min="1" step="0.5" value="10" required />
+                </div>
+                <div class="field" data-exam-only hidden>
+                    <label for="asgDuration">Thời lượng thi (phút)</label>
+                    <input id="asgDuration" name="DurationMinutes" type="number" min="1" />
+                </div>
+                <div class="field full" data-exam-only hidden>
+                    <label for="asgLocation">Phòng thi</label>
+                    <input id="asgLocation" name="Location" type="text" />
+                </div>
+            </div>
+
+            <p class="study-note">Bản mô phỏng giao diện: dữ liệu chưa được lưu.</p>
+
+            <div class="study-modal-foot">
+                <button type="button" class="study-btn" data-close-modal>Hủy</button>
+                <button type="submit" class="study-btn primary">Thêm bài tập</button>
+            </div>
+        </form>
+    </div>
+</div>

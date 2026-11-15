@@ -1,10 +1,11 @@
 /* =====================================================================
    LIFEHUB - STUDY MANAGEMENT (HỌC TẬP)
-   Đồng bộ 100% Vibe chuẩn với phân hệ Tài chính (Finance)
-   Hỗ trợ Chế độ Sáng (Pastel xanh nhạt trên nền trắng) & Chế độ Tối (Pastel xanh đậm trên nền đen)
+   Đồng bộ Vibe chuẩn với phân hệ Tài chính (Finance)
+   Chế độ Sáng (pastel xanh nhạt trên nền trắng) & Chế độ Tối (pastel xanh đậm trên nền đen)
+   Phần đánh dấu [MỚI] là bổ sung cho View hiện tại; phần còn lại giữ nguyên.
    ===================================================================== */
 
-/* THEME LIGHT - Nền trắng tinh khôi, thẻ xanh dương pastel nhạt */
+/* THEME LIGHT */
 .study-page {
     --study-bg: #ffffff;
     --study-card: #eff6ff;
@@ -23,7 +24,7 @@
     transition: background 0.3s ease, color 0.3s ease;
 }
 
-/* THEME DARK - Nền đen sâu, các thẻ mang màu pastel xanh đậm */
+/* THEME DARK */
 :root[data-theme="dark"] .study-page,
 html[data-theme="dark"] .study-page {
     --study-bg: #080a0f;
@@ -41,6 +42,7 @@ html[data-theme="dark"] .study-page {
 .study-page * { box-sizing: border-box; }
 .study-page h1, .study-page h2, .study-page h3, .study-page p { margin-top: 0; }
 .study-page button, .study-page input, .study-page select { font: inherit; }
+.study-page [hidden] { display: none !important; }   /* [MỚI] đảm bảo thuộc tính hidden luôn có tác dụng */
 
 /* HEADER PHÂN HỆ */
 .study-page .study-heading {
@@ -105,7 +107,7 @@ html[data-theme="dark"] .study-page {
     box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
 }
 
-/* 4 THẺ CHỈ SỐ PASTEL XANH DƯƠNG */
+/* 4 THẺ CHỈ SỐ */
 .study-page .study-summary {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -137,7 +139,6 @@ html[data-theme="dark"] .study-page {
     opacity: 0.12;
     content: "";
 }
-
 .study-page .summary-top {
     display: flex;
     align-items: center;
@@ -155,7 +156,6 @@ html[data-theme="dark"] .study-page {
     background: var(--study-card-strong);
     color: var(--study-accent);
 }
-
 .study-page .summary-card h2 {
     position: relative;
     z-index: 1;
@@ -171,14 +171,13 @@ html[data-theme="dark"] .study-page {
     font-size: 11px;
 }
 
-/* KHỐI NỘI DUNG CHÍNH (GRID) */
+/* KHỐI NỘI DUNG CHÍNH */
 .study-page .study-grid {
     display: grid;
     grid-template-columns: minmax(0, 1.4fr) minmax(320px, 1fr);
     gap: 18px;
     margin-bottom: 20px;
 }
-
 .study-page .study-card {
     background: var(--study-bg);
     border: 1px solid var(--study-border);
@@ -191,7 +190,6 @@ html[data-theme="dark"] .study-page {
     transform: translateY(-2px);
     box-shadow: 0 10px 24px -4px rgba(0, 0, 0, 0.07);
 }
-
 .study-page .section-heading {
     display: flex;
     align-items: center;
@@ -225,6 +223,10 @@ html[data-theme="dark"] .study-page {
     display: flex;
     flex-direction: column;
 }
+.study-page .timetable-day.today {                       /* [MỚI] */
+    border-color: var(--study-accent);
+    box-shadow: 0 0 0 1px var(--study-accent) inset;
+}
 .study-page .day-head {
     font-size: 12px;
     font-weight: 750;
@@ -232,6 +234,12 @@ html[data-theme="dark"] .study-page {
     padding-bottom: 8px;
     border-bottom: 1px solid var(--study-border);
     margin-bottom: 8px;
+}
+.study-page .timetable-day.today .day-head { color: var(--study-accent); }   /* [MỚI] */
+.study-page .day-empty {                                  /* [MỚI] */
+    margin: auto;
+    font-size: 11px;
+    color: var(--study-muted);
 }
 .study-page .timetable-event {
     background: var(--study-bg);
@@ -257,18 +265,36 @@ html[data-theme="dark"] .study-page {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 12px;
     padding: 12px 14px;
     margin-bottom: 10px;
     border-radius: 12px;
     background: var(--study-card);
     border: 1px solid var(--study-border);
 }
+.study-page .course-info { min-width: 0; }                /* [MỚI] */
 .study-page .course-code {
     font-weight: 750;
     font-size: 13px;
 }
-.study-page .course-progress {
-    width: 140px;
+.study-page .course-dot {                                 /* [MỚI] */
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    margin-right: 8px;
+    border-radius: 50%;
+}
+.study-page .course-meta {                                /* [MỚI] */
+    margin-top: 3px;
+    font-size: 11px;
+    color: var(--study-muted);
+}
+.study-page .course-progress { width: 140px; flex-shrink: 0; }
+.study-page .course-progress-top {                        /* [MỚI] */
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--study-muted);
 }
 .study-page .course-progress .bar {
     height: 6px;
@@ -283,8 +309,15 @@ html[data-theme="dark"] .study-page {
     border-radius: 10px;
     background: var(--study-accent);
 }
+.study-page .study-empty {                                /* [MỚI] */
+    padding: 18px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--study-muted);
+}
 
 /* BẢNG BÀI TẬP VÀ LỊCH THI */
+.study-page .table-wrap { overflow-x: auto; }             /* [MỚI] */
 .study-page .study-table {
     width: 100%;
     border-collapse: collapse;
@@ -297,20 +330,179 @@ html[data-theme="dark"] .study-page {
     font-size: 11px;
     font-weight: 700;
     border-bottom: 1px solid var(--study-border);
+    white-space: nowrap;
 }
 .study-page .study-table td {
     padding: 12px 10px;
     border-bottom: 1px solid var(--study-border);
 }
+.study-page .study-table .right { text-align: right; }    /* [MỚI] */
+.study-page .study-table .muted { color: var(--study-muted); white-space: nowrap; }   /* [MỚI] */
+.study-page .row-sub {                                    /* [MỚI] */
+    display: block;
+    margin-top: 2px;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--study-muted);
+}
+
+/* [MỚI] Bộ lọc bài tập */
+.study-page .study-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+.study-page .study-chip {
+    padding: 6px 14px;
+    border: 1px solid var(--study-border);
+    border-radius: 999px;
+    background: var(--study-card);
+    color: var(--study-muted);
+    font-size: 12px;
+    font-weight: 650;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.study-page .study-chip:hover { color: var(--study-text); }
+.study-page .study-chip.active {
+    border-color: var(--study-accent);
+    background: var(--study-accent);
+    color: #ffffff;
+}
+html[data-theme="dark"] .study-page .study-chip.active,
+:root[data-theme="dark"] .study-page .study-chip.active { color: #08111f; }
+
+/* [MỚI] Nhãn trạng thái */
+.study-page .status {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.study-page .st-graded    { background: rgba(22, 163, 74, .14);  color: #15803d; }
+.study-page .st-submitted { background: rgba(37, 99, 235, .14);  color: #1d4ed8; }
+.study-page .st-overdue   { background: rgba(220, 38, 38, .14);  color: #b91c1c; }
+.study-page .st-upcoming  { background: rgba(217, 119, 6, .16);  color: #b45309; }
+html[data-theme="dark"] .study-page .st-graded,    :root[data-theme="dark"] .study-page .st-graded    { color: #4ade80; }
+html[data-theme="dark"] .study-page .st-submitted, :root[data-theme="dark"] .study-page .st-submitted { color: #93c5fd; }
+html[data-theme="dark"] .study-page .st-overdue,   :root[data-theme="dark"] .study-page .st-overdue   { color: #f87171; }
+html[data-theme="dark"] .study-page .st-upcoming,  :root[data-theme="dark"] .study-page .st-upcoming  { color: #fbbf24; }
+
+/* [MỚI] Hộp thoại */
+body.study-modal-open { overflow: hidden; }
+.study-page .study-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(8, 10, 15, .55);
+    backdrop-filter: blur(3px);
+}
+.study-page .study-modal-box {
+    width: 100%;
+    max-width: 560px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    padding: 24px;
+    border: 1px solid var(--study-border);
+    border-radius: 18px;
+    background: var(--study-bg);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .25);
+}
+.study-page .study-modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+}
+.study-page .study-modal-head h3 { margin: 0; font-size: 17px; font-weight: 800; }
+.study-page .study-modal-close {
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--study-card);
+    color: var(--study-muted);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+}
+.study-page .study-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+.study-page .study-form-grid .full { grid-column: 1 / -1; }
+.study-page .field label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--study-muted);
+}
+.study-page .field input,
+.study-page .field select {
+    width: 100%;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--study-border);
+    border-radius: 10px;
+    background: var(--study-card);
+    color: var(--study-text);
+    font-size: 13px;
+}
+.study-page .field input[type="color"] { padding: 3px; cursor: pointer; }
+.study-page .field input:focus,
+.study-page .field select:focus {
+    outline: 2px solid var(--study-accent);
+    outline-offset: 1px;
+}
+.study-page .study-note {
+    margin: 14px 0 0;
+    font-size: 11px;
+    color: var(--study-muted);
+}
+.study-page .study-modal-foot {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+/* [MỚI] Thông báo nhỏ */
+.study-page .study-toast {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 1300;
+    max-width: 340px;
+    padding: 12px 16px;
+    border: 1px solid var(--study-border);
+    border-radius: 12px;
+    background: var(--study-card-strong);
+    color: var(--study-text);
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .18);
+}
 
 /* Responsive */
-@media(max-width: 1024px) {
+@media (max-width: 1024px) {
     .study-page .study-summary { grid-template-columns: repeat(2, 1fr); }
     .study-page .study-grid { grid-template-columns: 1fr; }
     .study-page .timetable-grid { grid-template-columns: repeat(2, 1fr); }
 }
-@media(max-width: 640px) {
+@media (max-width: 640px) {
     .study-page .study-summary { grid-template-columns: 1fr; }
     .study-page .study-heading { flex-direction: column; align-items: flex-start; }
     .study-page .timetable-grid { grid-template-columns: 1fr; }
+    .study-page .study-form-grid { grid-template-columns: 1fr; }
+    .study-page .course-item { flex-direction: column; align-items: stretch; }
+    .study-page .course-progress { width: 100%; }
 }
