@@ -1,9 +1,10 @@
 /* =====================================================================
    LIFEHUB - TASK MANAGEMENT (CÔNG VIỆC)
-   Tone Cam / Peach pastel - Đồng bộ 100% Vibe chuẩn với Finance, Study & Project
+   Tone Cam / Peach pastel - Đồng bộ Vibe chuẩn với Finance, Study & Project
+   Phần đánh dấu [MỚI] là bổ sung cho View hiện tại; phần còn lại giữ nguyên.
    ===================================================================== */
 
-/* THEME LIGHT - Nền trắng tinh khôi, thẻ cam peach pastel nhạt */
+/* THEME LIGHT */
 .task-page {
     --task-bg: #ffffff;
     --task-card: #fff7ed;
@@ -22,7 +23,7 @@
     transition: background 0.3s ease, color 0.3s ease;
 }
 
-/* THEME DARK - Nền đen sâu, các thẻ mang màu pastel cam đậm */
+/* THEME DARK */
 :root[data-theme="dark"] .task-page,
 html[data-theme="dark"] .task-page {
     --task-bg: #080a0f;
@@ -39,7 +40,8 @@ html[data-theme="dark"] .task-page {
 
 .task-page * { box-sizing: border-box; }
 .task-page h1, .task-page h2, .task-page h3, .task-page p { margin-top: 0; }
-.task-page button, .task-page input, .task-page select { font: inherit; }
+.task-page button, .task-page input, .task-page select, .task-page textarea { font: inherit; }
+.task-page [hidden] { display: none !important; }   /* [MỚI] */
 
 /* HEADER PHÂN HỆ */
 .task-page .task-heading {
@@ -104,7 +106,7 @@ html[data-theme="dark"] .task-page {
     box-shadow: 0 4px 14px rgba(234, 88, 12, 0.25);
 }
 
-/* 4 THẺ CHỈ SỐ PASTEL CAM PEACH */
+/* 4 THẺ CHỈ SỐ */
 .task-page .task-summary {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -136,7 +138,6 @@ html[data-theme="dark"] .task-page {
     opacity: 0.12;
     content: "";
 }
-
 .task-page .summary-top {
     display: flex;
     align-items: center;
@@ -154,7 +155,6 @@ html[data-theme="dark"] .task-page {
     background: var(--task-card-strong);
     color: var(--task-accent);
 }
-
 .task-page .summary-card h2 {
     position: relative;
     z-index: 1;
@@ -170,7 +170,32 @@ html[data-theme="dark"] .task-page {
     font-size: 11px;
 }
 
-/* KANBAN BOARD 4 CỘT HIỆN ĐẠI */
+/* [MỚI] THANH TÌM KIẾM VÀ BỘ LỌC */
+.task-page .task-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+.task-page .task-toolbar input,
+.task-page .task-toolbar select {
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--task-border);
+    border-radius: 12px;
+    background: var(--task-card);
+    color: var(--task-text);
+    font-size: 13px;
+}
+.task-page .task-toolbar input { flex: 1 1 240px; min-width: 0; }
+.task-page .task-toolbar select { flex: 0 1 190px; }
+.task-page .task-toolbar input:focus,
+.task-page .task-toolbar select:focus {
+    outline: 2px solid var(--task-accent);
+    outline-offset: 1px;
+}
+
+/* KANBAN BOARD 4 CỘT */
 .task-page .kanban-board {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -196,6 +221,25 @@ html[data-theme="dark"] .task-page {
     font-weight: 750;
     font-size: 13px;
 }
+.task-page .column-body {                                 /* [MỚI] vùng thả thẻ, phủ hết chiều cao cột */
+    flex: 1;
+    min-height: 120px;
+    border-radius: 12px;
+    transition: background 0.15s ease, outline-color 0.15s ease;
+    outline: 2px dashed transparent;
+    outline-offset: 4px;
+}
+.task-page .column-body.drag-over {                       /* [MỚI] */
+    background: var(--task-card-strong);
+    outline-color: var(--task-accent);
+}
+.task-page .column-empty {                                /* [MỚI] */
+    padding: 18px 8px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--task-muted);
+}
+
 .task-page .task-card-item {
     background: var(--task-bg);
     border: 1px solid var(--task-border);
@@ -203,13 +247,17 @@ html[data-theme="dark"] .task-page {
     padding: 14px;
     margin-bottom: 12px;
     box-shadow: var(--task-shadow);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
     cursor: grab;
 }
 .task-page .task-card-item:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 18px -4px rgba(0, 0, 0, 0.08);
 }
+.task-page .task-card-item:active { cursor: grabbing; }   /* [MỚI] */
+.task-page .task-card-item.dragging { opacity: .45; }      /* [MỚI] */
+.task-page .task-card-item.is-done { opacity: .85; }       /* [MỚI] thay cho style inline */
+.task-page .task-card-item.is-done h4 { text-decoration: line-through; }
 .task-page .task-card-item h4 {
     margin: 0 0 6px;
     font-size: 13px;
@@ -221,6 +269,62 @@ html[data-theme="dark"] .task-page {
     color: var(--task-muted);
     line-height: 1.4;
 }
+.task-page .task-card-top {                               /* [MỚI] */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+.task-page .task-project {                                /* [MỚI] */
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .5px;
+    color: var(--task-accent);
+}
+.task-page .task-tags {                                   /* [MỚI] */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+.task-page .task-tag {
+    padding: 2px 8px;
+    border: 1px solid var(--tag-color, var(--task-accent));
+    border-radius: 20px;
+    background: var(--task-card-strong);
+    color: var(--tag-color, var(--task-accent));
+    font-size: 10px;
+    font-weight: 700;
+}
+@supports (background: color-mix(in srgb, red 10%, transparent)) {
+    .task-page .task-tag { background: color-mix(in srgb, var(--tag-color, var(--task-accent)) 14%, transparent); }
+}
+.task-page .task-progress {                               /* [MỚI] tiến độ việc con */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    font-size: 10px;
+    color: var(--task-muted);
+}
+.task-page .task-progress .bar {
+    flex: 1;
+    height: 5px;
+    overflow: hidden;
+    border-radius: 10px;
+    background: var(--task-card-strong);
+}
+.task-page .task-progress .bar i {
+    display: block;
+    height: 100%;
+    border-radius: 10px;
+    background: var(--task-accent);
+}
 .task-page .task-foot {
     display: flex;
     align-items: center;
@@ -228,24 +332,140 @@ html[data-theme="dark"] .task-page {
     font-size: 11px;
     color: var(--task-muted);
 }
+.task-page .task-meta { display: inline-flex; gap: 10px; }   /* [MỚI] */
+.task-page .task-deadline { font-weight: 600; }               /* [MỚI] */
+.task-page .task-deadline.overdue { color: #dc2626; font-weight: 800; }
+.task-page .task-deadline.overdue::before { content: "Quá hạn · "; }
+.task-page .task-card-item.is-done .task-deadline { color: #10b981; font-weight: 700; }
+.task-page .task-card-item.is-done .task-deadline::before { content: "✓ "; }
+html[data-theme="dark"] .task-page .task-deadline.overdue,
+:root[data-theme="dark"] .task-page .task-deadline.overdue { color: #f87171; }
+
 .task-page .badge-priority {
     padding: 3px 6px;
     border-radius: 6px;
     font-size: 9px;
     font-weight: 800;
+    white-space: nowrap;
 }
 .task-page .badge-priority.urgent { background: #fee2e2; color: #dc2626; }
 .task-page .badge-priority.high { background: #fef3c7; color: #d97706; }
 .task-page .badge-priority.medium { background: #e0f2fe; color: #0284c7; }
 .task-page .badge-priority.low { background: #f1f5f9; color: #64748b; }
 
+/* [MỚI] Hộp thoại */
+body.task-modal-open { overflow: hidden; }
+.task-page .task-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(8, 10, 15, .55);
+    backdrop-filter: blur(3px);
+}
+.task-page .task-modal-box {
+    width: 100%;
+    max-width: 560px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    padding: 24px;
+    border: 1px solid var(--task-border);
+    border-radius: 18px;
+    background: var(--task-bg);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .25);
+}
+.task-page .task-modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+}
+.task-page .task-modal-head h3 { margin: 0; font-size: 17px; font-weight: 800; }
+.task-page .task-modal-close {
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--task-card);
+    color: var(--task-muted);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+}
+.task-page .task-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+.task-page .task-form-grid .full { grid-column: 1 / -1; }
+.task-page .field label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--task-muted);
+}
+.task-page .field input,
+.task-page .field select,
+.task-page .field textarea {
+    width: 100%;
+    padding: 0 12px;
+    border: 1px solid var(--task-border);
+    border-radius: 10px;
+    background: var(--task-card);
+    color: var(--task-text);
+    font-size: 13px;
+}
+.task-page .field input,
+.task-page .field select { height: 40px; }
+.task-page .field textarea { padding: 10px 12px; resize: vertical; }
+.task-page .field input:focus,
+.task-page .field select:focus,
+.task-page .field textarea:focus {
+    outline: 2px solid var(--task-accent);
+    outline-offset: 1px;
+}
+.task-page .task-note {
+    margin: 14px 0 0;
+    font-size: 11px;
+    color: var(--task-muted);
+}
+.task-page .task-modal-foot {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+/* [MỚI] Thông báo nhỏ */
+.task-page .task-toast {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 1300;
+    max-width: 340px;
+    padding: 12px 16px;
+    border: 1px solid var(--task-border);
+    border-radius: 12px;
+    background: var(--task-card-strong);
+    color: var(--task-text);
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .18);
+}
+
 /* Responsive */
-@media(max-width: 1024px) {
+@media (max-width: 1024px) {
     .task-page .task-summary { grid-template-columns: repeat(2, 1fr); }
     .task-page .kanban-board { grid-template-columns: repeat(2, 1fr); }
 }
-@media(max-width: 640px) {
+@media (max-width: 640px) {
     .task-page .task-summary { grid-template-columns: 1fr; }
     .task-page .task-heading { flex-direction: column; align-items: flex-start; }
     .task-page .kanban-board { grid-template-columns: 1fr; }
+    .task-page .task-form-grid { grid-template-columns: 1fr; }
+    .task-page .task-toolbar select { flex: 1 1 100%; }
 }

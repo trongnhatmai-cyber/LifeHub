@@ -5,21 +5,12 @@
     ViewData["Title"] = "Quản lý công việc";
     ViewData["ActivePage"] = "Task";
 
-    var m = Model ?? new LifeHub.Models.ViewModels.TaskManagement.TaskViewModel
+    var columns = new[]
     {
-        TotalTasks = 12,
-        TodoTasksCount = 4,
-        InProgressTasksCount = 5,
-        CompletedTasksCount = 3,
-        Tasks = new List<LifeHub.Models.ViewModels.TaskManagement.TaskItemViewModel>
-        {
-            new() { Id = 1, Title = "Hoàn thiện Razor View Dashboard", Description = "Đồng bộ giao diện Dashboard và Study theo chuẩn tone màu pastel.", Status = "in_progress", Priority = "Urgent", ProjectName = "LIFEHUB", Deadline = DateTime.Now.AddDays(1) },
-            new() { Id = 2, Title = "Tạo các ViewModel strongly-typed", Description = "Tạo lớp ViewModel trong thư mục Models/ViewModels cho từng phân hệ.", Status = "done", Priority = "High", ProjectName = "LIFEHUB", Deadline = DateTime.Now },
-            new() { Id = 3, Title = "Làm bài tập Lab 4 .NET", Description = "Xây dựng các Controller và Views đáp ứng yêu cầu môn NET108.", Status = "todo", Priority = "High", ProjectName = "NET108", Deadline = DateTime.Now.AddDays(2) },
-            new() { Id = 4, Title = "Đọc tài liệu Entity Framework Core", Description = "Tìm hiểu DbContext, Migrations và Fluent API trong C#.", Status = "todo", Priority = "Medium", ProjectName = "Cá nhân", Deadline = DateTime.Now.AddDays(3) },
-            new() { Id = 5, Title = "Thiết kế bảng dữ liệu Kanban Task", Description = "Tối ưu hóa kéo thả Kanban và phân loại mức độ ưu tiên.", Status = "in_progress", Priority = "Medium", ProjectName = "LIFEHUB", Deadline = DateTime.Now.AddDays(4) },
-            new() { Id = 6, Title = "Kiểm tra responsive trên Mobile", Description = "Đảm bảo sidebar chuyển thành thanh ngang trên điện thoại mượt mà.", Status = "review", Priority = "Low", ProjectName = "LIFEHUB", Deadline = DateTime.Now.AddDays(5) }
-        }
+        (Key: "todo", Icon: "📋", Label: "Cần làm"),
+        (Key: "in_progress", Icon: "⚡", Label: "Đang làm"),
+        (Key: "review", Icon: "🔍", Label: "Chờ duyệt"),
+        (Key: "done", Icon: "✓", Label: "Đã xong")
     };
 }
 
@@ -37,127 +28,125 @@
         </div>
 
         <div class="heading-actions">
-            <button type="button" class="task-btn primary" id="createTaskBtn">
-                + Thêm công việc
-            </button>
+            <button type="button" class="task-btn primary" id="createTaskBtn">+ Thêm công việc</button>
         </div>
     </header>
 
-    <!-- 4 THẺ CHỈ SỐ PASTEL CAM PEACH -->
+    <!-- 4 THẺ CHỈ SỐ -->
     <section class="task-summary">
         <div class="summary-card">
-            <div class="summary-top">
-                <span>Tổng số việc</span>
-                <span class="summary-badge">TỔNG CỘNG</span>
-            </div>
-            <h2>@m.TotalTasks</h2>
+            <div class="summary-top"><span>Tổng số việc</span><span class="summary-badge">TỔNG CỘNG</span></div>
+            <h2 data-summary="total">@Model.TotalTasks</h2>
             <p>Nhiệm vụ trên hệ thống</p>
         </div>
 
         <div class="summary-card">
-            <div class="summary-top">
-                <span>Cần làm ngay</span>
-                <span class="summary-badge">CẦN LÀM</span>
-            </div>
-            <h2>0@m.TodoTasksCount</h2>
+            <div class="summary-top"><span>Cần làm ngay</span><span class="summary-badge">CẦN LÀM</span></div>
+            <h2 data-summary="todo">@Model.TodoTasksCount.ToString("00")</h2>
             <p>Chưa bắt đầu thực hiện</p>
         </div>
 
         <div class="summary-card">
-            <div class="summary-top">
-                <span>Đang thực hiện</span>
-                <span class="summary-badge">TIẾN HÀNH</span>
-            </div>
-            <h2>0@m.InProgressTasksCount</h2>
+            <div class="summary-top"><span>Đang thực hiện</span><span class="summary-badge">TIẾN HÀNH</span></div>
+            <h2 data-summary="in_progress">@Model.InProgressTasksCount.ToString("00")</h2>
             <p>Đang trong quy trình</p>
         </div>
 
         <div class="summary-card">
-            <div class="summary-top">
-                <span>Đã hoàn thành</span>
-                <span class="summary-badge">XONG</span>
-            </div>
-            <h2>0@m.CompletedTasksCount</h2>
+            <div class="summary-top"><span>Đã hoàn thành</span><span class="summary-badge">XONG</span></div>
+            <h2 data-summary="done">@Model.CompletedTasksCount.ToString("00")</h2>
             <p>Đã nghiệm thu kết quả</p>
         </div>
     </section>
 
-    <!-- BẢNG KANBAN 4 CỘT HIỆN ĐẠI -->
+    <!-- THANH TÌM KIẾM VÀ BỘ LỌC -->
+    <section class="task-toolbar" aria-label="Tìm kiếm và lọc công việc">
+        <input type="search" id="taskSearch" placeholder="Tìm công việc, dự án..." aria-label="Tìm công việc" autocomplete="off" />
+
+        <select id="taskPriorityFilter" aria-label="Lọc theo mức ưu tiên">
+            <option value="">Mọi mức ưu tiên</option>
+            <option value="urgent">Khẩn cấp</option>
+            <option value="high">Cao</option>
+            <option value="medium">Trung bình</option>
+            <option value="low">Thấp</option>
+        </select>
+
+        <select id="taskProjectFilter" aria-label="Lọc theo dự án">
+            <option value="">Mọi dự án</option>
+            @foreach (var project in Model.ProjectNames)
+            {
+                <option value="@project">@project</option>
+            }
+        </select>
+    </section>
+
+    <!-- BẢNG KANBAN 4 CỘT -->
     <div class="kanban-board">
-        <!-- CỘT 1: CẦN LÀM (TODO) -->
-        <div class="kanban-column">
-            <div class="column-head">
-                <span>📋 Cần làm</span>
-                <span class="summary-badge">@m.Tasks.Count(t => t.Status == "todo")</span>
-            </div>
-            @foreach (var t in m.Tasks.Where(t => t.Status == "todo"))
-            {
-                <div class="task-card-item">
-                    <h4>@t.Title</h4>
-                    <p>@t.Description</p>
-                    <div class="task-foot">
-                        <span class="badge-priority @t.Priority.ToLower()">@t.Priority</span>
-                        <span>@(t.Deadline.HasValue ? t.Deadline.Value.ToString("dd/MM") : "—")</span>
-                    </div>
-                </div>
-            }
-        </div>
+        @foreach (var col in columns)
+        {
+            var items = Model.Tasks.Where(t => t.Status == col.Key).ToList();
 
-        <!-- CỘT 2: ĐANG LÀM (IN PROGRESS) -->
-        <div class="kanban-column">
-            <div class="column-head">
-                <span>⚡ Đang làm</span>
-                <span class="summary-badge">@m.Tasks.Count(t => t.Status == "in_progress")</span>
-            </div>
-            @foreach (var t in m.Tasks.Where(t => t.Status == "in_progress"))
-            {
-                <div class="task-card-item">
-                    <h4>@t.Title</h4>
-                    <p>@t.Description</p>
-                    <div class="task-foot">
-                        <span class="badge-priority @t.Priority.ToLower()">@t.Priority</span>
-                        <span>@(t.Deadline.HasValue ? t.Deadline.Value.ToString("dd/MM") : "—")</span>
-                    </div>
+            <section class="kanban-column" data-column="@col.Key" aria-label="@col.Label">
+                <div class="column-head">
+                    <span>@col.Icon @col.Label</span>
+                    <span class="summary-badge" data-column-count>@items.Count</span>
                 </div>
-            }
-        </div>
 
-        <!-- CỘT 3: CHỜ DUYỆT (REVIEW) -->
-        <div class="kanban-column">
-            <div class="column-head">
-                <span>🔍 Chờ duyệt</span>
-                <span class="summary-badge">@m.Tasks.Count(t => t.Status == "review")</span>
-            </div>
-            @foreach (var t in m.Tasks.Where(t => t.Status == "review"))
-            {
-                <div class="task-card-item">
-                    <h4>@t.Title</h4>
-                    <p>@t.Description</p>
-                    <div class="task-foot">
-                        <span class="badge-priority @t.Priority.ToLower()">@t.Priority</span>
-                        <span>@(t.Deadline.HasValue ? t.Deadline.Value.ToString("dd/MM") : "—")</span>
-                    </div>
-                </div>
-            }
-        </div>
+                <div class="column-body" data-dropzone="@col.Key">
+                    @foreach (var t in items)
+                    {
+                        var search = $"{t.Title} {t.Description} {t.ProjectName}".ToLowerInvariant();
 
-        <!-- CỘT 4: HOÀN THÀNH (DONE) -->
-        <div class="kanban-column">
-            <div class="column-head">
-                <span>✓ Đã xong</span>
-                <span class="summary-badge">@m.Tasks.Count(t => t.Status == "done")</span>
-            </div>
-            @foreach (var t in m.Tasks.Where(t => t.Status == "done"))
-            {
-                <div class="task-card-item" style="opacity:0.85;">
-                    <h4 style="text-decoration:line-through;">@t.Title</h4>
-                    <p>@t.Description</p>
-                    <div class="task-foot">
-                        <span class="badge-priority @t.Priority.ToLower()">@t.Priority</span>
-                        <span style="color:#10b981;font-weight:700;">✓ Xong</span>
-                    </div>
+                        <article class="task-card-item @(t.IsDone ? "is-done" : "")" draggable="true"
+                                 data-id="@t.Id" data-status="@t.Status" data-priority="@t.Priority"
+                                 data-project="@t.ProjectName" data-search="@search">
+                            <div class="task-card-top">
+                                <span class="task-project">@t.ProjectName</span>
+                                <span class="badge-priority @t.Priority">@t.PriorityLabel</span>
+                            </div>
+
+                            <h4>@t.Title</h4>
+                            <p>@t.Description</p>
+
+                            @if (t.Tags.Any())
+                            {
+                                <div class="task-tags">
+                                    @foreach (var tag in t.Tags)
+                                    {
+                                        <span class="task-tag" style="--tag-color:@tag.Color">@tag.Name</span>
+                                    }
+                                </div>
+                            }
+
+                            @if (t.SubtaskTotal > 0)
+                            {
+                                <div class="task-progress" title="Việc con đã hoàn thành">
+                                    <div class="bar"><i style="width:@t.SubtaskPercent%"></i></div>
+                                    <span>@(t.SubtaskDone + "/" + t.SubtaskTotal)</span>
+                                </div>
+                            }
+
+                            <div class="task-foot">
+                                <span class="task-meta">
+                                    @if (t.CommentCount > 0) { <span>💬 @t.CommentCount</span> }
+                                    @if (t.EstimatedMinutes.HasValue) { <span>⏱ @t.EstimateLabel</span> }
+                                </span>
+                                <span class="task-deadline @(t.IsOverdue ? "overdue" : "")">@(t.Deadline.HasValue ? t.Deadline.Value.ToString("dd/MM") : "—")</span>
+                            </div>
+                        </article>
+                    }
+
+                    <div class="column-empty" hidden="@items.Any()">Không có công việc</div>
                 </div>
-            }
-        </div>
+            </section>
+        }
     </div>
+
+    <!-- HỘP THOẠI (chỉ mô phỏng giao diện, chưa lưu dữ liệu) -->
+    <partial name="_TaskModals" model="Model" />
+    <div class="task-toast" id="taskToast" role="status" hidden></div>
 </div>
+
+@section Scripts {
+    <script src="~/js/task.js" asp-append-version="true"></script>
+}

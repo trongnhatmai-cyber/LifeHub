@@ -1,0 +1,73 @@
+@model LifeHub.Models.ViewModels.TaskManagement.TaskViewModel
+
+@* Hộp thoại chỉ mô phỏng giao diện. Form đã trỏ sẵn tới TaskController để back-end nối vào sau. *@
+
+<!-- THÊM CÔNG VIỆC -->
+<div class="task-modal" id="taskModal" role="dialog" aria-modal="true" aria-labelledby="taskModalTitle" hidden>
+    <div class="task-modal-box">
+        <div class="task-modal-head">
+            <h3 id="taskModalTitle">Thêm công việc</h3>
+            <button type="button" class="task-modal-close" data-close-modal aria-label="Đóng">&times;</button>
+        </div>
+
+        <form asp-controller="Task" asp-action="Create" method="post">
+            <div class="task-form-grid">
+                <div class="field full">
+                    <label for="taskTitle">Tên công việc</label>
+                    <input id="taskTitle" name="Title" type="text" maxlength="200" required />
+                </div>
+                <div class="field full">
+                    <label for="taskDescription">Mô tả</label>
+                    <textarea id="taskDescription" name="Description" rows="3"></textarea>
+                </div>
+                <div class="field">
+                    <label for="taskStatus">Trạng thái</label>
+                    <select id="taskStatus" name="Status" required>
+                        <option value="todo">Cần làm</option>
+                        <option value="in_progress">Đang làm</option>
+                        <option value="review">Chờ duyệt</option>
+                        <option value="done">Đã xong</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="taskPriority">Mức ưu tiên</label>
+                    <select id="taskPriority" name="Priority" required>
+                        <option value="urgent">Khẩn cấp</option>
+                        <option value="high">Cao</option>
+                        <option value="medium" selected>Trung bình</option>
+                        <option value="low">Thấp</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="taskDeadline">Hạn hoàn thành</label>
+                    <input id="taskDeadline" name="Deadline" type="date" />
+                </div>
+                <div class="field">
+                    <label for="taskEstimate">Ước tính (phút)</label>
+                    <input id="taskEstimate" name="EstimatedMinutes" type="number" min="1" max="10000" />
+                </div>
+                <div class="field">
+                    <label for="taskProject">Dự án / môn học</label>
+                    <input id="taskProject" name="ProjectName" type="text" list="taskProjectList" placeholder="Chọn hoặc nhập mới" />
+                    <datalist id="taskProjectList">
+                        @foreach (var project in Model.ProjectNames)
+                        {
+                            <option value="@project"></option>
+                        }
+                    </datalist>
+                </div>
+                <div class="field">
+                    <label for="taskTags">Nhãn (cách nhau bằng dấu phẩy)</label>
+                    <input id="taskTags" name="Tags" type="text" placeholder="VD: Học tập, Đồ án" />
+                </div>
+            </div>
+
+            <p class="task-note">Bản mô phỏng giao diện: dữ liệu chưa được lưu.</p>
+
+            <div class="task-modal-foot">
+                <button type="button" class="task-btn" data-close-modal>Hủy</button>
+                <button type="submit" class="task-btn primary">Thêm công việc</button>
+            </div>
+        </form>
+    </div>
+</div>
