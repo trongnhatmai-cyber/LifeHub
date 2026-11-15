@@ -24,6 +24,17 @@
         ("Trợ lý", new List<string[]> {
             new[] { "AI", "Trợ lý AI", "AI", "ai", "✦" } })
     };
+
+    // MỤC CON: khóa là ActivePage của mục cha. Mỗi mục con: { ActivePage key, nhãn, controller }. Action luôn là Index.
+    // Trang con phải đặt ViewData["ActivePage"] = key của mục con để mục cha tự mở và mục con được tô sáng.
+    var children = new Dictionary<string, List<string[]>>
+    {
+        ["Finance"] = new List<string[]> {
+            new[] { "Transaction", "Giao dịch", "Transaction" },
+            new[] { "Category", "Danh mục và hạn mức", "Category" },
+            new[] { "Wallet", "Ví và tài khoản", "Wallet" },
+            new[] { "SavingGoal", "Mục tiêu tiết kiệm", "SavingGoal" } }
+    };
 }
 
 <!DOCTYPE html>
@@ -61,11 +72,33 @@
                 <nav class="menu" aria-label="@g.Title">
                     @foreach (var item in g.Items)
                     {
+                        var kids = children.TryGetValue(item[0], out var childList) ? childList : null;
+                        var hasKids = kids != null;
+                        var isSelf = active == item[0];
+                        var isOpen = isSelf || (hasKids && kids!.Any(x => x[0] == active));
+
                         <a asp-controller="@item[2]" asp-action="Index"
-                           class="@(active == item[0] ? "active" : null)"
-                           aria-current="@(active == item[0] ? "page" : null)">
+                           class="@(isSelf ? "active" : (isOpen ? "is-open" : null))"
+                           aria-current="@(isSelf ? "page" : null)"
+                           aria-expanded="@(hasKids ? (isOpen ? "true" : "false") : null)">
                             <span class="menu-sym" style="color:var(--pastel-@(item[3])-accent)" aria-hidden="true">@item[4]</span>@item[1]
+                            @if (hasKids)
+                            {
+                                <span class="menu-chevron" aria-hidden="true">›</span>
+                            }
                         </a>
+
+                        @if (hasKids && isOpen)
+                        {
+                            <div class="submenu">
+                                @foreach (var sub in kids!)
+                                {
+                                    <a asp-controller="@sub[2]" asp-action="Index"
+                                       class="@(active == sub[0] ? "active" : null)"
+                                       aria-current="@(active == sub[0] ? "page" : null)">@sub[1]</a>
+                                }
+                            </div>
+                        }
                     }
                 </nav>
             }

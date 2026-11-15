@@ -161,6 +161,34 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+/* Menu cha - con: mục cha đang mở (đang ở một trang con) và danh sách mục con */
+.app .menu a.is-open {
+  color: var(--lh-text);
+  font-weight: 650;
+}
+.app .menu-chevron {
+  margin-left: auto;
+  font-size: 16px;
+  line-height: 1;
+  opacity: 0.6;
+  transition: transform 0.2s ease;
+}
+.app .menu a[aria-expanded="true"] .menu-chevron {
+  transform: rotate(90deg);
+}
+.app .submenu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 2px 0 8px 22px;
+  padding-left: 10px;
+  border-left: 1px solid var(--lh-line);
+}
+.app .submenu a {
+  padding: 7px 12px;
+  font-size: 13px;
+}
+
 .app .menu-sym {
   font-size: 15px;
   width: 20px;
@@ -352,6 +380,8 @@ button:active, .finance-btn:active, .btn:active {
   .app .logo,.app .menu-label,.app .sidebar-spacer{display:none}
   .app .menu{flex-direction:row}
   .app .menu a,.app .sidebar-bottom{white-space:nowrap;margin:0;border:0;padding:10px 12px}
+  .app .submenu{flex-direction:row;margin:0;padding:0;border:0}
+  .app .menu-chevron{display:none}
   .app .topbar{padding:0 16px}
   .app .topbar-date,.app .user-name{display:none}
   .app .page-content{padding:16px}

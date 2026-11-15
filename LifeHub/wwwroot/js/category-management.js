@@ -71,5 +71,22 @@ document.addEventListener("DOMContentLoaded", () => {
         filterCategories
     );
 
+     var select = document.getElementById("Type");
+    var blocks = document.querySelectorAll("[data-expense-only]");
+    if (!select || blocks.length === 0) return;
+
+    function sync() {
+        var isExpense = select.value === "Expense";
+        Array.prototype.forEach.call(blocks, function (block) {
+            block.hidden = !isExpense;
+            Array.prototype.forEach.call(block.querySelectorAll("input"), function (input) {
+                input.disabled = !isExpense;
+            });
+        });
+    }
+
+    select.addEventListener("change", sync);
+
     filterCategories();
+    sync();
 });

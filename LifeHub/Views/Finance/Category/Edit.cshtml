@@ -1,7 +1,9 @@
 @model LifeHub.Models.ViewModels.FinanceManagement.CategoryViewModel
 
 @{
+    Layout = "_Layout";
     ViewData["Title"] = "Chỉnh sửa danh mục";
+    ViewData["ActivePage"] = "Category";
 }
 
 @section Styles {
@@ -15,7 +17,7 @@
             <p class="page-eyebrow">QUẢN LÝ TÀI CHÍNH</p>
             <h1>Chỉnh sửa danh mục</h1>
             <p class="page-description">
-                Cập nhật thông tin danh mục tài chính.
+                Cập nhật thông tin và hạn mức chi tiêu của danh mục.
             </p>
         </div>
 
@@ -31,8 +33,6 @@
         <form asp-controller="Category"
               asp-action="Edit"
               method="post">
-
-            @Html.AntiForgeryToken()
 
             <input asp-for="Id" type="hidden" />
             <input asp-for="Icon" type="hidden" />
@@ -64,21 +64,35 @@
                 </span>
             </div>
 
+            <div class="form-group" data-expense-only>
+                <label asp-for="MonthlyLimit">
+                    Hạn mức mỗi tháng
+                    <span class="optional-label">Không bắt buộc</span>
+                </label>
+
+                <div class="input-suffix">
+                    <input asp-for="MonthlyLimit"
+                           type="number"
+                           min="0"
+                           step="1000"
+                           class="module-input"
+                           placeholder="Ví dụ: 3000000" />
+                    <span aria-hidden="true">₫</span>
+                </div>
+
+                <span class="form-hint">Để trống nếu không giới hạn. Hạn mức được lặp lại mỗi tháng.</span>
+
+                <span asp-validation-for="MonthlyLimit"
+                      class="validation-message">
+                </span>
+            </div>
+
             <div class="form-group">
                 <label asp-for="Color">Màu danh mục</label>
 
                 <input asp-for="Color"
                        type="color"
                        class="color-input" />
-            </div>
-
-            <div class="form-group">
-                <label asp-for="ParentId">Danh mục cha</label>
-
-                <input asp-for="ParentId"
-                       type="number"
-                       min="1"
-                       class="module-input" />
             </div>
 
             <div class="form-actions">
@@ -102,4 +116,5 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script src="~/js/finance.js" asp-append-version="true"></script>
+    <script src="~/js/category-form.js" asp-append-version="true"></script>
 }

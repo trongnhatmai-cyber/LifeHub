@@ -1,7 +1,12 @@
+@using System.Globalization
 @model IEnumerable<LifeHub.Models.ViewModels.FinanceManagement.CategoryViewModel>
 
 @{
-    ViewData["Title"] = "Danh mục tài chính";
+    Layout = "_Layout";
+    ViewData["Title"] = "Danh mục và hạn mức";
+    ViewData["ActivePage"] = "Category";
+
+    var vi = new CultureInfo("vi-VN");
 }
 
 @section Styles {
@@ -13,9 +18,9 @@
     <div class="page-header">
         <div>
             <p class="page-eyebrow">QUẢN LÝ TÀI CHÍNH</p>
-            <h1>Danh mục & Chi tiêu</h1>
+            <h1>Danh mục và hạn mức</h1>
             <p class="page-description">
-                Quản lý các nhóm thu nhập và chi tiêu của bạn.
+                Quản lý các nhóm thu nhập, chi tiêu và đặt hạn mức chi tiêu mỗi tháng cho từng danh mục.
             </p>
         </div>
 
@@ -88,6 +93,24 @@
                         <span>
                             @(item.Type.ToString() == "Income" ? "Thu nhập" : "Chi tiêu")
                         </span>
+
+                        @* Hạn mức chỉ hiện với danh mục chi tiêu đã đặt hạn mức. MonthlyLimit và SpentThisMonth do backend cung cấp. *@
+                        @if (item.Type.ToString() == "Expense" && item.MonthlyLimit.HasValue && item.MonthlyLimit.Value > 0)
+                        {
+                            var limit = item.MonthlyLimit.Value;
+                            var spent = item.SpentThisMonth;
+                            var rawPercent = (int)Math.Round(spent * 100 / limit);
+                            var barPercent = Math.Min(100, rawPercent);
+                            var limitState = spent > limit ? "is-over" : (rawPercent >= 80 ? "is-warn" : "");
+
+                            <div class="category-limit @limitState">
+                                <div class="limit-text">
+                                    <span>Đã chi @spent.ToString("N0", vi) ₫ / @limit.ToString("N0", vi) ₫ mỗi tháng</span>
+                                    <span>@rawPercent%</span>
+                                </div>
+                                <div class="limit-bar"><i style="width:@barPercent%"></i></div>
+                            </div>
+                        }
                     </div>
 
                     <div class="category-actions">
@@ -103,8 +126,6 @@
                               asp-route-id="@item.Id"
                               method="post"
                               onsubmit="return confirm('Bạn có chắc muốn xóa danh mục này?');">
-
-                            @Html.AntiForgeryToken()
 
                             <button type="submit" class="delete-button">
                                 Xóa

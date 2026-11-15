@@ -1,17 +1,23 @@
 /* =====================================================
    LIFEHUB — CATEGORY MANAGEMENT
    Dùng chung cho Category/Index, Create và Edit.
-   Không tự định nghĩa dark/light; kế thừa theme từ layout.css.
+   Không tự định nghĩa dark/light; kế thừa theme từ lifehub.css
+   (--lh-page, --lh-sidebar-bg, --lh-line, --lh-text, --lh-muted, --pastel-finance-accent).
 ===================================================== */
 .finance-page {
-    --cat-bg: var(--lh-surface, #fff);
-    --cat-soft: color-mix(in srgb, var(--lh-primary, #269b68) 8%, var(--lh-surface, #fff));
-    --cat-border: var(--lh-border, #e6ebe7);
-    --cat-text: var(--lh-text, #202923);
-    --cat-muted: var(--lh-muted, #7b867e);
-    --cat-accent: var(--lh-primary, #269b68);
+    --cat-bg: var(--lh-sidebar-bg, #f8fafc);
+    --cat-soft: color-mix(in srgb, var(--cat-accent) 8%, var(--cat-bg));
+    --cat-border: var(--lh-line, #e2e8f0);
+    --cat-text: var(--lh-text, #1e293b);
+    --cat-muted: var(--lh-muted, #64748b);
+    --cat-accent: var(--pastel-finance-accent, #e11d48);
+    --cat-on-accent: #ffffff;
     width: 100%; min-width: 0; color: var(--cat-text);
 }
+/* Chế độ tối: nền nút chính sáng hơn nên chữ phải tối để đủ tương phản */
+:root[data-theme="dark"] .finance-page,
+html[data-theme="dark"] .finance-page { --cat-on-accent: #260d16; }
+
 .finance-page *, .finance-page *::before, .finance-page *::after { box-sizing: border-box; }
 .finance-page [hidden] { display: none !important; }
 .finance-page h1, .finance-page h2, .finance-page h3, .finance-page p { margin-top: 0; }
@@ -38,7 +44,7 @@
 .finance-page .category-actions { display:flex; align-items:center; gap:8px; }
 .finance-page .category-actions form { margin:0; }
 .finance-page .primary-button, .finance-page .secondary-button, .finance-page .delete-button, .finance-page .filter-button { display:inline-flex; align-items:center; justify-content:center; min-height:38px; padding:9px 14px; border:1px solid transparent; border-radius:10px; font:inherit; font-size:12px; font-weight:700; text-decoration:none; cursor:pointer; transition:background .18s ease,border-color .18s ease,transform .18s ease; }
-.finance-page .primary-button { background:var(--cat-accent); color:#fff; }
+.finance-page .primary-button { background:var(--cat-accent); color:var(--cat-on-accent); }
 .finance-page .primary-button:hover { filter:brightness(.94); transform:translateY(-1px); }
 .finance-page .secondary-button { border-color:var(--cat-border); background:var(--cat-bg); color:var(--cat-text); }
 .finance-page .secondary-button:hover { border-color:var(--cat-accent); color:var(--cat-accent); }
@@ -46,7 +52,7 @@
 .finance-page .delete-button:hover { background:color-mix(in srgb, #d34d5c 9%, var(--cat-bg)); }
 .finance-page .filter-tabs { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:13px; }
 .finance-page .filter-button { border-color:var(--cat-border); background:var(--cat-bg); color:var(--cat-muted); }
-.finance-page .filter-button.active { border-color:var(--cat-accent); background:var(--cat-accent); color:#fff; }
+.finance-page .filter-button.active { border-color:var(--cat-accent); background:var(--cat-accent); color:var(--cat-on-accent); }
 .finance-page .module-input { display:block; width:100%; min-height:43px; padding:10px 13px; border:1px solid var(--cat-border); border-radius:10px; outline:none; background:var(--cat-bg); color:var(--cat-text); font:inherit; font-size:13px; }
 .finance-page .module-input::placeholder { color:var(--cat-muted); opacity:.8; }
 .finance-page .module-input:focus { border-color:var(--cat-accent); box-shadow:0 0 0 3px color-mix(in srgb,var(--cat-accent) 16%,transparent); }
@@ -62,6 +68,18 @@
 .finance-page .empty-state { padding:35px 15px; text-align:center; color:var(--cat-muted); }
 .finance-page .empty-state h3 { margin:0 0 7px; color:var(--cat-text); font-size:16px; }
 .finance-page .empty-state p { margin:0; font-size:13px; }
+/* Hạn mức chi tiêu theo tháng của danh mục */
+.finance-page .category-limit { max-width:360px; margin-top:6px; }
+.finance-page .limit-text { display:flex; justify-content:space-between; gap:10px; margin-bottom:5px; color:var(--cat-muted); font-size:11px; }
+.finance-page .limit-bar { height:6px; overflow:hidden; border-radius:999px; background:color-mix(in srgb, var(--cat-accent) 14%, var(--cat-bg)); }
+.finance-page .limit-bar i { display:block; height:100%; border-radius:999px; background:var(--cat-accent); }
+.finance-page .category-limit.is-warn .limit-bar i { background:#d97706; }
+.finance-page .category-limit.is-over .limit-bar i { background:#d34d5c; }
+.finance-page .category-limit.is-over .limit-text { color:#d34d5c; font-weight:700; }
+.finance-page .input-suffix { position:relative; }
+.finance-page .input-suffix .module-input { padding-right:38px; }
+.finance-page .input-suffix span { position:absolute; top:50%; right:13px; transform:translateY(-50%); color:var(--cat-muted); font-size:13px; pointer-events:none; }
+.finance-page .form-hint { color:var(--cat-muted); font-size:11px; }
 @media(max-width:760px) {
     .finance-page .page-header, .finance-page .section-heading { align-items:flex-start; flex-direction:column; }
     .finance-page .finance-summary-grid { grid-template-columns:1fr; }

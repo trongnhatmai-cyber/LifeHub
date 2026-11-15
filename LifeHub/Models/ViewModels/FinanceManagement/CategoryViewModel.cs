@@ -21,4 +21,9 @@ public class CategoryViewModel
 
      public decimal Spent { get; set; }
     public decimal Limit { get; set; }
+    
+    [System.ComponentModel.DataAnnotations.Range(typeof(decimal), "0", "999999999999", ErrorMessage = "Hạn mức không được âm.")]
+    public decimal? MonthlyLimit { get; set; }   // Hạn mức chi tiêu mỗi tháng, để trống = không giới hạn
+
+    public decimal SpentThisMonth { get; set; }  // Tổng đã chi tháng này của danh mục (chỉ để hiển thị)
 }
