@@ -5,22 +5,24 @@
     var initial = userName.Trim()[0].ToString().ToUpperInvariant();
     var today = DateTime.Now.ToString("dddd, dd/MM/yyyy", new CultureInfo("vi-VN"));
 
-    // Mỗi mục: { ActivePage key, nhãn, controller, màu chấm }. Action luôn là Index.
+    // Mỗi mục: { ActivePage key, nhãn, controller, tên màu pastel (--pastel-{tên}-accent), ký hiệu }. Action luôn là Index.
     var groups = new List<(string Title, List<string[]> Items)>
     {
         ("Tổng quan", new List<string[]> {
-            new[] { "Dashboard", "Tổng quan", "Dashboard", "#2563eb" } }),
+            new[] { "Dashboard", "Tổng quan", "Dashboard", "study", "◧" } }),
         ("Học tập và công việc", new List<string[]> {
-            new[] { "Study", "Học tập", "Study", "#2563eb" },
-            new[] { "Task", "Công việc", "Task", "#ea580c" },
-            new[] { "Project", "Dự án", "Project", "#16a34a" },
-            new[] { "Time", "Lịch và thời gian", "Time", "#7c3aed" } }),
+            new[] { "Study", "Học tập", "Study", "study", "✎" },
+            new[] { "Task", "Công việc", "Task", "task", "☑" },
+            new[] { "Project", "Dự án", "Project", "project", "❖" },
+            new[] { "Time", "Lịch và thời gian", "Time", "time", "◷" } }),
         ("Cuộc sống", new List<string[]> {
-            new[] { "Finance", "Tài chính", "Finance", "#e11d48" },
-            new[] { "Goal", "Mục tiêu", "Goal", "#7c3aed" },
-            new[] { "Habit", "Thói quen", "Habit", "#ea580c" },
-            new[] { "Knowledge", "Ghi chú và tài liệu", "Knowledge", "#0d9488" },
-            new[] { "Lifestyle", "Sinh hoạt", "Lifestyle", "#16a34a" } })
+            new[] { "Finance", "Tài chính", "Finance", "finance", "₫" },
+            new[] { "Goal", "Mục tiêu", "Goal", "goal", "◎" },
+            new[] { "Habit", "Thói quen", "Habit", "habit", "↻" },
+            new[] { "Knowledge", "Ghi chú và tài liệu", "Knowledge", "knowledge", "❏" },
+            new[] { "Lifestyle", "Sinh hoạt", "Lifestyle", "lifestyle", "♡" } }),
+        ("Trợ lý", new List<string[]> {
+            new[] { "AI", "Trợ lý AI", "AI", "ai", "✦" } })
     };
 }
 <!DOCTYPE html>
@@ -28,12 +30,12 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>@ViewData["Title"] - LifeHub</title>
+    <title>@ViewData["Title"] | LifeHub</title>
     <script>
         // Đặt theme trước khi trang vẽ để không bị nháy sáng/tối.
         (function () {
             try {
-                var t = localStorage.getItem("lifehub.theme");
+                var t = localStorage.getItem("lifehub_theme");
                 if (!t && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches) t = "dark";
                 document.documentElement.dataset.theme = t === "dark" ? "dark" : "light";
             } catch (e) { document.documentElement.dataset.theme = "light"; }
@@ -41,55 +43,56 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/lifehub.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
-    <div class="lh-shell" id="lhShell">
-        <aside class="lh-sidebar" id="lhSidebar" aria-label="Điều hướng chính">
-            <a asp-controller="Dashboard" asp-action="Index" class="lh-brand">LifeHub</a>
+    <div class="app">
+        <aside class="sidebar">
+            <a asp-controller="Dashboard" asp-action="Index" class="logo">
+                <span class="logo-mark">L</span>LifeHub
+            </a>
 
-            <nav class="lh-nav">
-                @foreach (var g in groups)
-                {
-                    <div class="lh-nav-group">
-                        <p class="lh-nav-title">@g.Title</p>
-                        @foreach (var item in g.Items)
-                        {
-                            <a asp-controller="@item[2]" asp-action="Index"
-                               class="lh-nav-link@(active == item[0] ? " is-active" : "")"
-                               aria-current="@(active == item[0] ? "page" : null)">
-                                <i class="lh-dot" style="--dot:@item[3]"></i>@item[1]
-                            </a>
-                        }
-                    </div>
-                }
-            </nav>
+            @foreach (var g in groups)
+            {
+                <div class="menu-label">@g.Title</div>
+                <nav class="menu" aria-label="@g.Title">
+                    @foreach (var item in g.Items)
+                    {
+                        <a asp-controller="@item[2]" asp-action="Index"
+                           class="@(active == item[0] ? "active" : null)"
+                           aria-current="@(active == item[0] ? "page" : null)">
+                            <span class="menu-sym" style="color:var(--pastel-@(item[3])-accent)" aria-hidden="true">@item[4]</span>@item[1]
+                        </a>
+                    }
+                </nav>
+            }
 
-            <div class="lh-nav-foot">
-                <a asp-controller="Settings" asp-action="Index"
-                   class="lh-nav-link@(active == "Settings" ? " is-active" : "")"
-                   aria-current="@(active == "Settings" ? "page" : null)">
-                    <i class="lh-dot" style="--dot:#64748b"></i>Cài đặt
-                </a>
-            </div>
+            <div class="sidebar-spacer"></div>
+
+            <a asp-controller="Settings" asp-action="Index" class="sidebar-bottom"
+               aria-current="@(active == "Settings" ? "page" : null)">
+                <span class="menu-sym" aria-hidden="true">⚙</span>Cài đặt
+            </a>
         </aside>
 
-        <div class="lh-backdrop" id="lhBackdrop" hidden></div>
-
-        <div class="lh-main">
-            <header class="lh-topbar">
-                <button type="button" class="lh-icon-btn lh-menu-btn" id="sidebarToggle"
-                        aria-label="Mở menu" aria-controls="lhSidebar" aria-expanded="false">Menu</button>
-                <span class="lh-date">@today</span>
-                <span class="lh-spacer"></span>
-                <a asp-controller="Notification" asp-action="Index" class="lh-icon-btn">Thông báo</a>
-                <button type="button" class="lh-icon-btn" id="themeToggle" aria-pressed="false">Chế độ tối</button>
-                <a asp-controller="Account" asp-action="Profile" class="lh-avatar" title="@userName" aria-label="Hồ sơ của @userName">@initial</a>
+        <div class="main">
+            <header class="topbar">
+                <h2>@ViewData["Title"]</h2>
+                <div class="topbar-right">
+                    <span class="topbar-date">@today</span>
+                    <a asp-controller="Notification" asp-action="Index" class="theme-button">Thông báo</a>
+                    <button type="button" class="theme-button" id="themeToggle" aria-pressed="false">☾ Chế độ tối</button>
+                    <span class="user-name">@userName</span>
+                    <a asp-controller="Profile" asp-action="Index" class="avatar" title="Hồ sơ của @userName" aria-label="Hồ sơ của @userName">@initial</a>
+                    <form asp-controller="Auth" asp-action="Logout" method="post">
+                        <button type="submit" class="theme-button">Đăng xuất</button>
+                    </form>
+                </div>
             </header>
 
-            <main class="lh-content">
+            <main class="page-content">
                 @RenderBody()
             </main>
         </div>

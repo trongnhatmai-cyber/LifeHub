@@ -502,3 +502,166 @@ body.proj-modal-open { overflow: hidden; }
     .project-page .proj-meta { flex-direction: column; align-items: flex-start; }
     .project-page .proj-due { text-align: left; }
 }
+
+/* =====================================================================
+   PROJECT DETAIL / KANBAN / MODAL THẬT  (dán ở CUỐI project.css)
+   ===================================================================== */
+.project-page {
+    --proj-danger-bg: #fee2e2;
+}
+:root[data-theme="dark"] .project-page,
+html[data-theme="dark"] .project-page {
+    --proj-danger-bg: #3f1515;
+}
+
+.project-page .project-item-card { position: relative; }
+
+/* Thẻ dự án bấm được toàn bộ (stretched link) */
+.project-page .proj-card-link { color: inherit; text-decoration: none; }
+.project-page .proj-card-link::after { content: ""; position: absolute; inset: 0; border-radius: 18px; }
+.project-page .proj-card-link:focus-visible::after { outline: 2px solid var(--proj-accent); outline-offset: 2px; }
+
+/* Thông báo sau thao tác */
+.project-page .proj-flash {
+    margin-bottom: 12px; padding: 11px 14px; border-radius: 12px;
+    font-size: 13px; font-weight: 650; border: 1px solid var(--proj-border);
+    background: var(--proj-card-strong); color: var(--proj-text);
+}
+.project-page .proj-flash--error { background: var(--proj-danger-bg); color: var(--proj-danger); border-color: transparent; }
+.project-page .proj-memory-note { margin: 0 0 14px; color: var(--proj-muted); font-size: 11px; }
+
+/* Nút nguy hiểm + form nằm ngang */
+.project-page .proj-btn.danger { color: var(--proj-danger); border-color: var(--proj-danger); background: transparent; }
+.project-page .inline-form { margin: 0; display: inline-flex; }
+
+/* Tick cột mốc / việc con */
+.project-page .ms-toggle {
+    width: 26px; height: 26px; padding: 0; display: grid; place-items: center;
+    border: 1px solid var(--proj-border); border-radius: 50%;
+    background: var(--proj-card); color: var(--proj-accent);
+    font-size: 14px; font-weight: 800; cursor: pointer; transition: all .2s ease;
+}
+.project-page .ms-toggle:hover { background: var(--proj-accent); color: #fff; border-color: var(--proj-accent); }
+.project-page .ms-row.is-done .ms-toggle { background: var(--proj-ok-bg); color: var(--proj-ok-text); }
+.project-page .ms-main form { margin: 0; }
+
+/* Breadcrumb + thống kê */
+.project-page .proj-breadcrumb { display: flex; gap: 8px; margin-bottom: 10px; font-size: 12px; color: var(--proj-muted); }
+.project-page .proj-breadcrumb a { color: var(--proj-accent); text-decoration: none; font-weight: 700; }
+.project-page .detail-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 18px; }
+.project-page .detail-stats .proj-progress { margin: 10px 0 0; position: relative; z-index: 1; }
+
+/* Thành viên */
+.project-page .detail-members { margin-bottom: 18px; }
+.project-page .detail-members .proj-top { margin-bottom: 10px; }
+.project-page .member-chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.project-page .member-chip {
+    display: flex; align-items: center; gap: 10px; padding: 8px 10px;
+    border: 1px solid var(--proj-border); border-radius: 14px; background: var(--proj-card);
+    transition: box-shadow .2s ease, transform .2s ease;
+}
+.project-page .member-chip[draggable="true"] { cursor: grab; }
+.project-page .member-chip[draggable="true"]:hover { box-shadow: 0 6px 16px rgba(0,0,0,.08); transform: translateY(-1px); }
+.project-page .member-chip.is-dragging { opacity: .5; }
+.project-page .member-chip__avatar {
+    display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%;
+    background: var(--proj-accent); color: #fff; font-size: 13px; font-weight: 800;
+}
+.project-page .member-chip__info { display: grid; line-height: 1.3; }
+.project-page .member-chip__info strong { font-size: 13px; }
+.project-page .member-chip__info small { font-size: 11px; color: var(--proj-muted); }
+.project-page .member-chip form { margin: 0; }
+.project-page .chip-remove {
+    width: 22px; height: 22px; padding: 0; border: 0; border-radius: 50%;
+    background: transparent; color: var(--proj-muted); font-size: 16px; line-height: 1; cursor: pointer;
+}
+.project-page .chip-remove:hover { background: var(--proj-danger-bg); color: var(--proj-danger); }
+
+.project-page .invite-list { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--proj-border); }
+.project-page .invite-list h4 { margin: 0 0 8px; font-size: 13px; font-weight: 800; }
+.project-page .invite-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 8px 0; font-size: 13px; flex-wrap: wrap;
+}
+.project-page .invite-row small { display: block; color: var(--proj-muted); font-size: 11px; }
+.project-page .invite-actions { display: flex; gap: 8px; }
+.project-page .invite-actions form { margin: 0; }
+
+/* Kanban */
+.project-page .kanban {
+    display: grid; grid-template-columns: repeat(4, minmax(240px, 1fr));
+    gap: 14px; margin-bottom: 22px; overflow-x: auto; padding-bottom: 6px;
+}
+.project-page .kanban-col {
+    display: flex; flex-direction: column; min-height: 240px; padding: 12px;
+    border: 1px solid var(--proj-border); border-radius: 16px; background: var(--proj-card);
+}
+.project-page .kanban-col.is-drop-target { outline: 2px dashed var(--proj-accent); outline-offset: -4px; }
+.project-page .kanban-col__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.project-page .kanban-col__head h3 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 13px; font-weight: 800; }
+.project-page .kanban-col__body { display: flex; flex-direction: column; gap: 10px; flex: 1; min-height: 90px; }
+.project-page .kanban-empty { margin: 8px 0; text-align: center; color: var(--proj-muted); font-size: 12px; }
+
+.project-page .task-card {
+    padding: 12px; border: 1px solid var(--proj-border); border-radius: 14px;
+    background: var(--proj-bg); cursor: pointer; box-shadow: var(--proj-shadow);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+.project-page .task-card[draggable="true"] { cursor: grab; }
+.project-page .task-card:hover { transform: translateY(-2px); box-shadow: 0 10px 22px -8px rgba(0,0,0,.12); }
+.project-page .task-card:focus-visible { outline: 2px solid var(--proj-accent); outline-offset: 2px; }
+.project-page .task-card.is-dragging { opacity: .45; }
+.project-page .task-card.is-drop-target { box-shadow: 0 0 0 2px var(--proj-accent); }
+.project-page .task-card h4 { margin: 8px 0; font-size: 13px; font-weight: 700; line-height: 1.4; }
+.project-page .task-card__top, .project-page .task-card__foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.project-page .task-key { color: var(--proj-muted); font-size: 11px; font-weight: 800; letter-spacing: .4px; }
+.project-page .task-sub { margin-bottom: 8px; color: var(--proj-muted); font-size: 11px; }
+.project-page .task-due { color: var(--proj-muted); font-size: 11px; font-weight: 700; }
+.project-page .task-due.is-overdue { color: var(--proj-danger); }
+.project-page .task-assignee {
+    display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%;
+    background: var(--proj-accent); color: #fff; font-size: 11px; font-weight: 800;
+}
+.project-page .task-assignee--empty { background: transparent; border: 1px dashed var(--proj-muted); color: var(--proj-muted); }
+
+.project-page .task-prio {
+    padding: 3px 8px; border-radius: 20px; font-size: 9px; font-weight: 800; letter-spacing: .4px;
+    background: var(--proj-card-strong); color: var(--proj-accent);
+}
+.project-page .task-prio--low { background: var(--proj-gray-bg); color: var(--proj-gray-text); }
+.project-page .task-prio--high { background: var(--proj-warn-bg); color: var(--proj-warn-text); }
+.project-page .task-prio--urgent { background: var(--proj-danger-bg); color: var(--proj-danger); }
+
+/* Lưới cột mốc + hoạt động */
+.project-page .detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-bottom: 22px; }
+.project-page .detail-grid .proj-milestones { margin-top: 0; }
+.project-page .act-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.project-page .act-list li { display: flex; gap: 10px; font-size: 13px; }
+.project-page .act-list p { margin: 0; line-height: 1.5; }
+.project-page .act-list small { color: var(--proj-muted); font-size: 11px; }
+.project-page .act-dot { flex: none; width: 8px; height: 8px; margin-top: 6px; border-radius: 50%; background: var(--proj-accent); }
+
+/* Modal chi tiết nhiệm vụ */
+.project-page .proj-modal__dialog--wide { width: min(620px, 100%); }
+.project-page .task-desc { margin: 0 0 14px; color: var(--proj-muted); font-size: 13px; line-height: 1.6; }
+.project-page .task-facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 0 0 16px; }
+.project-page .task-facts div { padding: 10px 12px; border-radius: 12px; background: var(--proj-card); }
+.project-page .task-facts dt { color: var(--proj-muted); font-size: 11px; font-weight: 700; }
+.project-page .task-facts dd { margin: 4px 0 0; font-size: 13px; font-weight: 700; }
+.project-page .task-inline-form { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; }
+.project-page .task-inline-form label { flex: none; font-size: 12px; font-weight: 700; min-width: 84px; }
+.project-page .task-inline-form .proj-input { flex: 1; }
+.project-page .task-subs { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--proj-border); }
+.project-page .task-subs h4 { margin: 0 0 10px; font-size: 13px; font-weight: 800; }
+.project-page .sub-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; font-size: 13px; }
+.project-page .sub-row form { margin: 0; }
+.project-page .sub-title.is-done { text-decoration: line-through; opacity: .6; }
+
+@media (max-width: 1024px) {
+    .project-page .detail-stats { grid-template-columns: 1fr; }
+    .project-page .detail-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+    .project-page .task-facts { grid-template-columns: 1fr; }
+    .project-page .task-inline-form { flex-wrap: wrap; }
+}

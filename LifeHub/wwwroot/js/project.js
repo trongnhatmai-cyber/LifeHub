@@ -1,7 +1,7 @@
 /* =====================================================================
-   LIFEHUB - PROJECT MANAGEMENT (DỰ ÁN)
-   Chỉ xử lý tương tác giao diện: tìm kiếm, lọc, sắp xếp, modal.
-   Dữ liệu do C# render sẵn trong Razor (data-attributes).
+   LIFEHUB - PROJECT MANAGEMENT (DỰ ÁN) - dùng cho cả Index và Details
+   Chỉ xử lý tương tác giao diện: tìm kiếm, lọc, sắp xếp, modal, xác nhận.
+   Mọi thay đổi dữ liệu đều gửi bằng form POST về Controller.
    ===================================================================== */
 (function () {
     'use strict';
@@ -10,7 +10,7 @@
     if (!page) return;
 
     /* ---------- Tiện ích ---------- */
-    // Bỏ dấu tiếng Việt để tìm kiếm "du an" vẫn ra "Dự án"
+    // Bỏ dấu tiếng Việt để tìm "du an" vẫn ra "Dự án"
     function normalize(text) {
         return (text || '')
             .toString()
@@ -21,13 +21,13 @@
             .trim();
     }
 
-    /* ---------- Tìm kiếm / Lọc / Sắp xếp ---------- */
+    /* ---------- Tìm kiếm / Lọc / Sắp xếp (trang danh sách) ---------- */
     var grid = document.getElementById('projectGrid');
     var searchInput = document.getElementById('projectSearch');
     var sortSelect = document.getElementById('projectSort');
     var emptyBox = document.getElementById('projectEmpty');
     var counter = document.getElementById('projectResultCount');
-    var tabs = Array.prototype.slice.call(page.querySelectorAll('.proj-tab'));
+    var tabs = Array.prototype.slice.call(page.querySelectorAll('.proj-tab[data-filter]'));
     var cards = grid ? Array.prototype.slice.call(grid.querySelectorAll('[data-project-card]')) : [];
 
     var state = { filter: 'all', query: '', sort: 'default' };
@@ -65,6 +65,7 @@
     }
 
     function applyFilter() {
+        if (!grid) return;
         var query = normalize(state.query);
         var visible = 0;
 
@@ -121,28 +122,35 @@
         }
     }
 
-    function showNote(form, state, message) {
+    function showNote(form, noteState, message) {
         var note = form.querySelector('[data-form-note]');
         if (!note) return;
         note.textContent = message;
-        note.setAttribute('data-state', state);
+        note.setAttribute('data-state', noteState);
         note.hidden = false;
     }
 
-    function openModal(modal) {
+    function openModal(modal, opener) {
         lastFocus = document.activeElement;
 
-        var form = modal.querySelector('[data-demo-form]');
+        var form = modal.querySelector('form[data-reset-on-open]');
         if (form) {
             form.reset();
             hideNote(form);
+
+            // Điền sẵn cột khi bấm "+" ở đầu cột Kanban
+            var prefill = opener ? opener.getAttribute('data-prefill-status') : null;
+            var statusField = form.querySelector('[name="status"]');
+            if (prefill && statusField) statusField.value = prefill;
         }
 
         modal.hidden = false;
         document.body.classList.add('proj-modal-open');
 
-        var first = modal.querySelector('input, select, textarea');
-        if (first) first.focus();
+        var focusTarget = form
+            ? form.querySelector('input:not([type="hidden"]), select, textarea')
+            : modal.querySelector('.proj-modal__close');
+        if (focusTarget) focusTarget.focus();
     }
 
     function closeModal(modal) {
@@ -156,7 +164,7 @@
         var opener = e.target.closest('[data-modal-open]');
         if (opener) {
             var target = document.getElementById(opener.getAttribute('data-modal-open'));
-            if (target) openModal(target);
+            if (target) openModal(target, opener);
             return;
         }
 
@@ -173,36 +181,48 @@
     });
 
     document.addEventListener('keydown', function (e) {
-        if (e.key !== 'Escape') return;
-        closeModal(page.querySelector('.proj-modal:not([hidden])'));
+        if (e.key === 'Escape') {
+            closeModal(page.querySelector('.proj-modal:not([hidden])'));
+            return;
+        }
+
+        // Enter trên thẻ nhiệm vụ (không phải nút) cũng mở chi tiết
+        if (e.key === 'Enter' && e.target.matches && e.target.matches('[data-task-card][data-modal-open]')) {
+            var modal = document.getElementById(e.target.getAttribute('data-modal-open'));
+            if (modal) openModal(modal, e.target);
+        }
     });
 
-    /* ---------- Form mô phỏng ----------
-       Chưa có Database/API: chỉ kiểm tra dữ liệu nhập và báo rõ là chưa lưu.
-       Không thêm thẻ mới vào danh sách và không báo thành công giả. */
+    // Sau khi POST, Controller redirect về #task-ID để mở lại đúng nhiệm vụ
+    var hashMatch = /^#task-(\d+)$/.exec(window.location.hash);
+    if (hashMatch) {
+        var taskModal = document.getElementById('taskModal-' + hashMatch[1]);
+        if (taskModal) openModal(taskModal, null);
+    }
+
+    /* ---------- Form: xác nhận + kiểm tra ngày trước khi gửi ---------- */
     page.addEventListener('submit', function (e) {
-        var form = e.target.closest('[data-demo-form]');
-        if (!form) return;
+        var form = e.target;
+        if (!form || form.tagName !== 'FORM') return;
 
-        e.preventDefault();
-
-        if (!form.checkValidity()) {
-            form.reportValidity();
+        var confirmText = form.getAttribute('data-confirm');
+        if (confirmText && !window.confirm(confirmText)) {
+            e.preventDefault();
             return;
         }
 
         var start = form.querySelector('[data-date-start]');
         var end = form.querySelector('[data-date-end]');
         if (start && end && start.value && end.value && end.value < start.value) {
+            e.preventDefault();
             showNote(form, 'error', 'Hạn chót phải sau hoặc bằng ngày bắt đầu.');
             end.focus();
-            return;
         }
+    });
 
-        showNote(
-            form,
-            'info',
-            'Đây là bản giao diện mô phỏng: dữ liệu chưa được lưu. Chức năng lưu sẽ hoạt động khi kết nối cơ sở dữ liệu.'
-        );
+    // Select tự gửi form khi đổi giá trị (VD: đổi trạng thái dự án)
+    page.addEventListener('change', function (e) {
+        var el = e.target.closest ? e.target.closest('[data-autosubmit]') : null;
+        if (el && el.form) el.form.submit();
     });
 })();

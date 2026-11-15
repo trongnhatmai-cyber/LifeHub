@@ -1,0 +1,11 @@
+@{
+    var message = TempData["ProjectMessage"] as string;
+    var type = TempData["ProjectMessageType"] as string ?? "success";
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="proj-flash proj-flash--@type" role="status">@message</div>
+}
+
+<p class="proj-memory-note">Dữ liệu dự án đang lưu tạm trong bộ nhớ máy chủ, sẽ mất khi khởi động lại ứng dụng.</p>
