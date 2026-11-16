@@ -1,0 +1,111 @@
+@{
+    // Trả về "active" nếu đang ở đúng trang
+    string Cls(string page) => ViewData["ActivePage"]?.ToString() == page ? "active" : "";
+
+    var userName = User.Identity?.IsAuthenticated == true && !string.IsNullOrWhiteSpace(User.Identity?.Name)
+        ? User.Identity!.Name!
+        : "Người dùng Demo";
+    var initial = userName.Trim()[0].ToString().ToUpper();
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>@ViewData["Title"] - LifeHub</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <!-- Áp dụng giao diện đã lưu trước khi trình duyệt vẽ trang (tránh nháy trắng) -->
+    <script>try { document.documentElement.setAttribute('data-theme', localStorage.getItem('lifehub-theme') || 'light'); } catch (e) { }</script>
+
+    <!-- Bootstrap: xóa dòng này nếu không trang nào còn dùng -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- CSS chung của Layout (nạp sau Bootstrap để ghi đè) -->
+    <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true" />
+
+    <!-- CSS riêng của từng trang -->
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+
+<body>
+    <!-- Bộ biểu tượng dùng chung -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <symbol id="lh-i-grid" viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" /></symbol>
+            <symbol id="lh-i-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5zM4 19.5V21h16" /></symbol>
+            <symbol id="lh-i-folder" viewBox="0 0 24 24"><path d="M3 7h18v13H3zM8 7V4h8v3" /></symbol>
+            <symbol id="lh-i-check" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></symbol>
+            <symbol id="lh-i-cal" viewBox="0 0 24 24"><path d="M3 5h18v16H3zM3 10h18M8 3v4M16 3v4" /></symbol>
+            <symbol id="lh-i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="1" /></symbol>
+            <symbol id="lh-i-wallet" viewBox="0 0 24 24"><path d="M3 6h16v4M3 6v13h18V10H3M16 15h2" /></symbol>
+            <symbol id="lh-i-note" viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h7" /></symbol>
+            <symbol id="lh-i-moon" viewBox="0 0 24 24"><path d="M20 14A8 8 0 1 1 10 4a6 6 0 0 0 10 10z" /></symbol>
+            <symbol id="lh-i-spark" viewBox="0 0 24 24"><path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z" /></symbol>
+            <symbol id="lh-i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></symbol>
+        </g>
+    </svg>
+
+    <div class="app">
+
+        <aside class="sidebar">
+            <div class="logo">
+                <span class="logo-mark">L</span>
+                <span>LIFEHUB</span>
+            </div>
+
+            <div class="menu-label">KHÔNG GIAN CỦA BẠN</div>
+
+            <nav class="menu">
+                <a asp-controller="Dashboard" asp-action="Index" class="@Cls("Dashboard")"><svg class="menu-icon"><use href="#lh-i-grid" /></svg>Tổng quan</a>
+                <a asp-controller="Study" asp-action="Index" class="@Cls("Study")"><svg class="menu-icon"><use href="#lh-i-book" /></svg>Học tập</a>
+                <a asp-controller="Project" asp-action="Index" class="@Cls("Project")"><svg class="menu-icon"><use href="#lh-i-folder" /></svg>Dự án</a>
+                <a asp-controller="Work" asp-action="Index" class="@Cls("Work")"><svg class="menu-icon"><use href="#lh-i-check" /></svg>Công việc</a>
+                <a asp-controller="Time" asp-action="Index" class="@Cls("Time")"><svg class="menu-icon"><use href="#lh-i-cal" /></svg>Thời gian</a>
+                <a asp-controller="Goals" asp-action="Index" class="@Cls("Goals")"><svg class="menu-icon"><use href="#lh-i-target" /></svg>Mục tiêu &amp; Thói quen</a>
+                <a asp-controller="Finance" asp-action="Index" class="@Cls("Finance")"><svg class="menu-icon"><use href="#lh-i-wallet" /></svg>Tài chính</a>
+                <a asp-controller="Knowledge" asp-action="Index" class="@Cls("Knowledge")"><svg class="menu-icon"><use href="#lh-i-note" /></svg>Kiến thức &amp; Tài liệu</a>
+                <a asp-controller="Lifestyle" asp-action="Index" class="@Cls("Lifestyle")"><svg class="menu-icon"><use href="#lh-i-moon" /></svg>Sinh hoạt &amp; Thành tích</a>
+                <a asp-controller="AI" asp-action="Index" class="@Cls("AI")"><svg class="menu-icon"><use href="#lh-i-spark" /></svg>Trợ lý AI</a>
+            </nav>
+
+            <div class="sidebar-spacer"></div>
+
+            <a asp-controller="Profile" asp-action="Index" class="sidebar-bottom @Cls("Profile")">
+                <svg class="menu-icon"><use href="#lh-i-user" /></svg>Hồ sơ &amp; cài đặt
+            </a>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <h2>@ViewData["Title"]</h2>
+
+                <div class="topbar-right">
+                    <span class="topbar-date" id="currentDate"></span>
+
+                    <button class="theme-button" id="themeToggle" type="button" aria-label="Chuyển chế độ giao diện">
+                        Sáng / Tối
+                    </button>
+
+                    <span class="user-name">@userName</span>
+                    <div class="avatar">@initial</div>
+                </div>
+            </header>
+
+            <div class="page-content">
+                @RenderBody()
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript dùng chung toàn hệ thống -->
+    <script src="~/js/lifehub.js" asp-append-version="true"></script>
+
+    <!-- JavaScript riêng của từng trang -->
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

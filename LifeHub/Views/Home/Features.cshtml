@@ -1,0 +1,253 @@
+@{
+    Layout = "_LandingLayout";
+    ViewData["Title"] = "Tính năng – LifeHub";
+    ViewData["LandingPage"] = "features";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/lifehub-features.css" asp-append-version="true" />
+}
+
+<main>
+<div class="lh-wrap">
+<div class="lh-hero" style="padding-bottom:40px">
+<div class="lh-pill"><i>Tính năng</i>Mọi thứ LifeHub làm được cho bạn</div>
+<h1>Mọi thứ để sắp xếp cuộc sống, trong một nơi.</h1>
+<p class="lh-lead">Từ việc cần làm, lịch học và dự án đến tiền bạc, thói quen và mục tiêu. Xem LifeHub giúp gì cho từng phần trong ngày của bạn.</p>
+<div class="lh-cta"><a class="lh-btn lh-pri lh-lg" asp-controller="Auth" asp-action="Register">Bắt đầu ngay</a><a class="lh-btn lh-lg" asp-controller="Home" asp-action="Index" asp-fragment="lh-phan-he">Xem các phân hệ</a></div>
+</div>
+</div>
+
+<nav class="lh-subnav" aria-label="Nhóm tính năng"><div class="lh-wrap">
+<a href="#lh-f-tasks">Công việc </a>
+<a href="#lh-f-time">Lịch </a>
+<a href="#lh-f-focus">Tập trung </a>
+<a href="#lh-f-projects">Dự án </a>
+<a href="#lh-f-study">Học tập </a>
+<a href="#lh-f-money">Tài chính </a>
+<a href="#lh-f-habits">Thói quen </a>
+<a href="#lh-f-notes">Kiến thức </a>
+<a href="#lh-f-life">Sinh hoạt </a>
+<a href="#lh-f-reports">Báo cáo </a>
+<a href="#lh-f-ai">Trợ lý AI </a>
+<a href="#lh-f-more">Tiện ích </a>
+</div></nav>
+
+<!-- 1. CÔNG VIỆC -->
+<section class="lh-fsec" id="lh-f-tasks"><div class="lh-wrap">
+<div class="lh-split">
+<div class="lh-copy">
+<h2>Việc nào cũng có chỗ của nó</h2>
+<p>Ghi nhanh mọi việc cần làm, gắn hạn nộp và mức ưu tiên, rồi để LifeHub nhắc bạn đúng lúc.</p>
+<ul class="lh-ticks"><li>Bốn mức ưu tiên: thấp, trung bình, cao, khẩn cấp</li><li>Chia việc lớn thành việc con và danh sách kiểm</li><li>Gắn nhãn và lọc nhanh theo nhãn, môn học hoặc mục tiêu</li></ul>
+</div>
+<div class="lh-vis"><div class="lh-panel"><h4>Việc hôm nay</h4>
+<div class="lh-row lh-d"><i class="lh-cb lh-d"></i><span>Nộp bài tập Cơ sở dữ liệu</span><small class="lh-tag">Học tập</small></div>
+<div class="lh-row"><i class="lh-cb"></i><span>Họp nhóm đồ án</span><small class="lh-tag">Dự án</small><i class="lh-dot" style="background:var(--lh-bad)"></i></div>
+<div class="lh-row"><i class="lh-cb"></i><span>Viết báo cáo tuần</span><small class="lh-tag">Công việc</small><i class="lh-dot" style="background:var(--lh-warn)"></i></div>
+<div class="lh-row"><i class="lh-cb"></i><span>Ôn từ vựng IELTS</span><small class="lh-tag">Mục tiêu</small><i class="lh-dot" style="background:var(--lh-ok)"></i></div>
+</div></div>
+</div>
+<div class="lh-also"><b>Còn có </b><span>Việc lặp lại</span><span>Giao việc cho người khác</span><span>Bình luận</span><span>Tệp đính kèm</span><span>Kéo thả sắp xếp</span></div>
+</div></section>
+
+<!-- 2. LỊCH -->
+<section class="lh-fsec lh-alt" id="lh-f-time"><div class="lh-wrap">
+<div class="lh-split">
+<div class="lh-copy">
+<h2>Một lịch cho học tập, công việc và dự án</h2>
+<p>Lịch học, hạn nộp bài, lịch thi và lịch dự án tự động hiện chung một chỗ. Bạn không phải nhập lại.</p>
+<ul class="lh-ticks"><li>Xem theo ngày, tuần hoặc tháng</li><li>Tự gộp lịch học, deadline và lịch dự án</li><li>Nhắc trước giờ học, giờ thi và hạn nộp</li></ul>
+</div>
+<div class="lh-vis"><div class="lh-cal">
+<div><h5>T2</h5><div class="lh-ev lh-a">Mạng máy tính<small>07:30</small></div><div class="lh-ev">Chạy bộ<small>18:00</small></div></div>
+<div><h5>T3</h5><div class="lh-ev lh-b lh-h">Họp nhóm<small>09:00</small></div></div>
+<div><h5>T4</h5><div class="lh-ev lh-a">Cơ sở dữ liệu<small>13:00</small></div><div class="lh-ev lh-c">Hạn nộp bài<small>23:59</small></div></div>
+<div><h5>T5</h5><div class="lh-ev lh-c lh-h">Thi giữa kỳ<small>14:00</small></div></div>
+<div><h5>T6</h5><div class="lh-ev lh-b">Demo dự án<small>10:00</small></div><div class="lh-ev">Xem phim<small>20:00</small></div></div>
+</div></div>
+</div>
+<div class="lh-also"><b>Còn có</b><span>Sự kiện cả ngày</span><span>Sự kiện lặp lại</span><span>Màu theo phân hệ</span><span>Đồng bộ lịch ngoài <i class="lh-soon" style="margin-left:4px;padding:1px 8px;font-style:normal">Sắp có</i></span></div>
+</div></section>
+
+<!-- 3. POMODORO -->
+<section class="lh-fsec" id="lh-f-focus"><div class="lh-wrap">
+<div class="lh-split">
+<div class="lh-copy">
+<h2>Tập trung từng phiên, không bị phân tâm</h2>
+<p>Bấm bắt đầu ngay trên một công việc hay một môn học. LifeHub ghi lại để bạn biết mình đã tập trung được bao lâu.</p>
+<ul class="lh-ticks"><li>Tùy chỉnh thời gian tập trung và thời gian nghỉ</li><li>Gắn phiên tập trung với việc hoặc môn học</li><li>Thống kê thời gian tập trung theo ngày và tuần</li></ul>
+</div>
+<div class="lh-vis"><div class="lh-panel">
+<div class="lh-ring"><div><strong>18:42</strong><small>Ôn Cơ sở dữ liệu</small></div></div>
+<div class="lh-ctl"><span class="lh-btn">Tạm dừng</span><span class="lh-btn lh-pri">Bỏ qua phiên nghỉ</span></div>
+</div></div>
+</div>
+<div class="lh-also"><b>Còn có</b><span>Nghỉ ngắn và nghỉ dài</span><span>Ghi nhận phiên bỏ dở</span><span>Tính vào điểm năng suất</span></div>
+</div></section>
+
+<!-- 4. DỰ ÁN -->
+<section class="lh-fsec lh-alt" id="lh-f-projects"><div class="lh-wrap">
+<div class="lh-split">
+<div class="lh-copy">
+<h2>Làm việc nhóm không rối</h2>
+<p>Chia dự án thành việc nhỏ, giao đúng người và nhìn tiến độ thật, không cần hỏi từng thành viên.</p>
+<ul class="lh-ticks"><li>Bảng Kanban kéo thả, có nhãn và mức ưu tiên</li><li>Mời thành viên bằng email, phân vai quản lý hoặc thành viên</li><li>Bình luận, tệp đính kèm và nhật ký hoạt động trong từng dự án</li></ul>
+</div>
+<div class="lh-vis"><div class="lh-kan">
+<div class="lh-col"><h5>Cần làm</h5><div class="lh-card">Thiết kế giao diện<small><i class="lh-av"></i>An</small></div><div class="lh-card">Viết tài liệu API<small><i class="lh-av"></i>Bình</small></div></div>
+<div class="lh-col"><h5>Đang làm</h5><div class="lh-card lh-mv">Xây dựng trang đăng nhập<small><i class="lh-av"></i>Minh</small></div></div>
+<div class="lh-col"><h5>Hoàn thành</h5><div class="lh-drop"></div><div class="lh-card">Thiết kế cơ sở dữ liệu<small><i class="lh-av"></i>Minh</small></div></div>
+</div></div>
+</div>
+<div class="lh-also"><b>Còn có</b><span>Cột mốc dự án</span><span>Tiến độ tự tính</span><span>Tài liệu dự án</span><span>Thông báo khi có thay đổi</span></div>
+</div></section>
+
+<!-- 5. HỌC TẬP -->
+<section class="lh-fsec" id="lh-f-study"><div class="lh-wrap">
+<div class="lh-split">
+<div class="lh-copy">
+<h2>Biết ngay mình đang học tới đâu</h2>
+<p>Nhập môn học và bài tập một lần. LifeHub tự tính điểm, tiến độ từng môn và nhắc trước ngày thi.</p>
+<ul class="lh-ticks"><li>Thời khóa biểu lặp lại theo tuần</li><li>Điểm từng bài tự cộng thành điểm môn và GPA</li><li>Tài liệu lưu ngay trong từng môn học</li></ul>
+</div>
+<div class="lh-vis"><div class="lh-panel"><h4>Điểm trung bình học kỳ: 3,42</h4>
+<div class="lh-row"><span>Cơ sở dữ liệu</span><div class="lh-meter"><i style="width:85%"></i></div><em>8,5</em></div>
+<div class="lh-row"><span>Mạng máy tính</span><div class="lh-meter"><i style="width:72%"></i></div><em>7,2</em></div>
+<div class="lh-row"><span>Toán rời rạc</span><div class="lh-meter"><i style="width:91%"></i></div><em>9,1</em></div>
+<div class="lh-row"><span>Tiếng Anh</span><div class="lh-meter"><i style="width:40%;background:var(--lh-warn)"></i></div><em>Còn 3 bài</em></div>
+</div></div>
+</div>
+<div class="lh-also"><b>Còn có</b><span>Điểm mục tiêu</span><span>Lịch thi</span><span>Quản lý học kỳ</span><span>Tiến độ từng môn</span></div>
+</div></section>
+
+<!-- 6. TÀI CHÍNH -->
+<section class="lh-fsec lh-alt" id="lh-f-money"><div class="lh-wrap">
+<div class="lh-split">
+<div class="lh-copy">
+<h2>Biết tiền đi đâu, còn bao nhiêu</h2>
+<p>Ghi mỗi khoản thu chi vào đúng ví và đúng danh mục. Chi gần hết ngân sách là có cảnh báo.</p>
+<ul class="lh-ticks"><li>Nhiều ví: tiền mặt, ngân hàng, ví điện tử</li><li>Ngân sách theo tháng, cảnh báo khi gần hết</li><li>Mục tiêu tiết kiệm có thanh tiến độ</li></ul>
+</div>
+<div class="lh-vis"><div class="lh-panel"><h4>Ngân sách tháng 11</h4>
+<div class="lh-row"><span>Ăn uống</span><div class="lh-meter"><i style="width:80%;background:var(--lh-warn)"></i></div><em>2,4/3 tr</em></div>
+<div class="lh-row"><span>Đi lại</span><div class="lh-meter"><i style="width:60%"></i></div><em>0,6/1 tr</em></div>
+<div class="lh-row"><span>Mua sắm</span><div class="lh-meter"><i style="width:100%;background:var(--lh-bad)"></i></div><em>Vượt mức</em></div>
+<div class="lh-row"><span>Mua laptop</span><div class="lh-meter"><i style="width:45%;background:var(--lh-ok)"></i></div><em>9/20 tr</em></div>
+</div></div>
+</div>
+<div class="lh-also"><b>Còn có</b><span>Chuyển tiền giữa các ví</span><span>Danh mục tự tạo</span><span>Biểu đồ thu chi</span><span>Lịch sử giao dịch</span></div>
+</div></section>
+
+<!-- 7. THÓI QUEN VÀ MỤC TIÊU -->
+<section class="lh-fsec" id="lh-f-habits"><div class="lh-wrap">
+<div class="lh-split">
+<div class="lh-copy">
+<h2>Giữ thói quen, đạt mục tiêu</h2>
+<p>Chia mục tiêu lớn thành những chỉ số nhỏ. Mỗi ngày bấm một lần, chuỗi ngày liên tiếp tự tăng.</p>
+<ul class="lh-ticks"><li>Mục tiêu đo được, ví dụ làm 20 đề IELTS</li><li>Chuỗi ngày và tỷ lệ duy trì cho từng thói quen</li><li>Huy hiệu và điểm thưởng khi đạt cột mốc</li></ul>
+</div>
+<div class="lh-vis"><div class="lh-panel"><h4>Tuần này của bạn</h4>
+<div class="lh-row"><span>Chạy bộ</span><div class="lh-dots"><i class="lh-d"></i><i class="lh-d"></i><i></i><i class="lh-d"></i><i class="lh-d"></i><i class="lh-d"></i><i></i></div><em>5/7</em></div>
+<div class="lh-row"><span>Đọc sách</span><div class="lh-dots"><i class="lh-d"></i><i class="lh-d"></i><i class="lh-d"></i><i class="lh-d"></i><i class="lh-d"></i><i></i><i></i></div><em>5/7</em></div>
+<div class="lh-row"><span>IELTS 7.0: 8/20 đề</span><div class="lh-meter" style="width:190px"><i style="width:40%"></i></div><em>40%</em></div>
+</div></div>
+</div>
+<div class="lh-also"><b>Còn có</b><span>Mục tiêu ngắn và dài hạn</span><span>Nhắc theo giờ</span><span>Đánh giá khi kết thúc</span><span>Gắn thói quen với mục tiêu</span></div>
+</div></section>
+
+<!-- 8. KIẾN THỨC -->
+<section class="lh-fsec lh-alt" id="lh-f-notes"><div class="lh-wrap">
+<div class="lh-split">
+<div class="lh-copy">
+<h2>Ghi chú và tài liệu, tìm là thấy</h2>
+<p>Lưu mọi thứ bạn học và đọc ở một nơi, phân loại gọn gàng và tìm lại trong vài giây.</p>
+<ul class="lh-ticks"><li>Ghi chú có thư mục và nhãn, ghim những ghi chú quan trọng</li><li>Lưu tài liệu theo môn học hoặc dự án</li><li>Chia sẻ ghi chú, tài liệu với quyền xem hoặc quyền sửa</li></ul>
+</div>
+<div class="lh-vis"><div class="lh-panel"><h4>Ghi chú gần đây</h4>
+<div class="lh-row"><span>Tóm tắt chương 3: Chuẩn hóa</span><small class="lh-tag">Cơ sở dữ liệu</small></div>
+<div class="lh-row"><span>Ý tưởng cho đồ án nhóm</span><small class="lh-tag">Dự án</small></div>
+<div class="lh-row"><span>Từ vựng IELTS tuần 5</span><small class="lh-tag">Tiếng Anh</small></div>
+<div class="lh-row"><span>Danh sách sách muốn đọc</span><small class="lh-tag">Cá nhân</small></div>
+</div></div>
+</div>
+<div class="lh-also"><b>Còn có</b><span>Tìm kiếm toàn hệ thống</span><span>Thư viện kiến thức</span><span>Gắn ghi chú với môn học</span><span>Tải tệp lên</span></div>
+</div></section>
+
+<!-- 9. SINH HOẠT -->
+<section class="lh-fsec" id="lh-f-life"><div class="lh-wrap">
+<div class="lh-split">
+<div class="lh-copy">
+<h2>Chăm sóc bản thân cũng là một việc</h2>
+<p>Ghi nhanh giấc ngủ, nước uống và vận động mỗi ngày. Nhìn lại cả tuần để biết cơ thể bạn đang thế nào.</p>
+<ul class="lh-ticks"><li>Giờ đi ngủ, giờ thức dậy và chất lượng giấc ngủ</li><li>Lượng nước, thời gian vận động và cân nặng</li><li>Tâm trạng mỗi ngày, xem lại theo tuần hoặc tháng</li></ul>
+</div>
+<div class="lh-vis"><div class="lh-panel"><h4>Hôm nay</h4>
+<div class="lh-row"><span>Giấc ngủ</span><div class="lh-meter"><i style="width:94%;background:var(--lh-ok)"></i></div><em>7,5 giờ</em></div>
+<div class="lh-row"><span>Nước uống</span><div class="lh-meter"><i style="width:72%"></i></div><em>1,8 lít</em></div>
+<div class="lh-row"><span>Vận động</span><div class="lh-meter"><i style="width:75%"></i></div><em>45 phút</em></div>
+<div class="lh-row"><span>Tâm trạng</span><div class="lh-dots"><i class="lh-d"></i><i class="lh-d"></i><i class="lh-d"></i><i class="lh-d"></i><i></i></div><em>4/5</em></div>
+</div></div>
+</div>
+</div></section>
+
+<!-- 10. BÁO CÁO -->
+<section class="lh-fsec lh-alt" id="lh-f-reports"><div class="lh-wrap">
+<div class="lh-split">
+<div class="lh-copy">
+<h2>Nhìn lại để làm tốt hơn</h2>
+<p>Mọi con số được tổng hợp tự động từ những gì bạn đã ghi. Không cần tự tính, chỉ cần nhìn biểu đồ.</p>
+<ul class="lh-ticks"><li>Biểu đồ theo ngày, tuần, tháng và năm</li><li>Điểm năng suất mỗi ngày, tính từ việc, thói quen và Pomodoro</li><li>Xuất báo cáo ra PDF hoặc Excel</li></ul>
+</div>
+<div class="lh-vis"><div class="lh-panel"><h4>Năng suất tuần này</h4>
+<div class="lh-score"><b>86</b><span>điểm trung bình, tăng 8 điểm so với tuần trước</span></div>
+<div class="lh-chart"><i style="height:45%"></i><i style="height:70%"></i><i style="height:55%"></i><i style="height:85%"></i><i class="lh-t" style="height:100%"></i><i style="height:30%"></i><i style="height:20%"></i></div>
+<div class="lh-days"><span>T2</span><span>T3</span><span>T4</span><span>T5</span><span>T6</span><span>T7</span><span>CN</span></div>
+</div></div>
+</div>
+<div class="lh-also"><b>Còn có</b><span>Báo cáo học tập</span><span>Báo cáo công việc và dự án</span><span>Thống kê thu chi</span><span>Phân tích mục tiêu và thói quen</span></div>
+</div></section>
+
+<!-- 11. TRỢ LÝ AI -->
+<section class="lh-fsec" id="lh-f-ai"><div class="lh-wrap">
+<div class="lh-split">
+<div class="lh-copy">
+<h2>Trợ lý lập kế hoạch cho bạn<span class="lh-soon">Sắp có</span></h2>
+<p>Hỏi bằng lời bình thường. Trợ lý đọc dữ liệu của chính bạn để gợi ý và trả lời.</p>
+<ul class="lh-ticks"><li>Gợi ý lịch trình dựa trên việc cần làm và hạn nộp</li><li>Trả lời câu hỏi về dữ liệu cá nhân, ví dụ chi tiêu tuần này</li><li>Sắp xếp việc hợp lý theo ưu tiên và thời gian rảnh</li></ul>
+</div>
+<div class="lh-vis"><div class="lh-chat">
+<div class="lh-bub lh-me">Tuần này mình có những hạn nộp nào?</div>
+<div class="lh-bub">Bạn có 3 hạn nộp: Bài tập lớn Cơ sở dữ liệu (thứ 4), Lab VLAN (thứ 5) và Essay tiếng Anh (thứ 6).</div>
+<div class="lh-bub lh-me">Xếp lịch giúp mình để kịp hết nhé.</div>
+<div class="lh-bub">Mình gợi ý làm Bài tập lớn vào tối thứ 2 và sáng thứ 3. Bạn muốn thêm vào lịch không?</div>
+</div></div>
+</div>
+<div class="lh-also"><b>Còn có</b><span>Nhắc nhở thông minh</span><span>Gợi ý giờ học hiệu quả</span></div>
+</div></section>
+
+<!-- 12. TIỆN ÍCH -->
+<section class="lh-fsec lh-alt" id="lh-f-more"><div class="lh-wrap">
+<div class="lh-head"><h2>Và nhiều tiện ích làm bạn dùng dễ hơn</h2><p>Những thứ nhỏ nhưng dùng mỗi ngày.</p></div>
+<div class="lh-mods">
+<div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-search"/></svg></div><h3>Tìm kiếm toàn hệ thống</h3><p>Tìm việc, dự án, môn học, ghi chú và tài liệu từ một ô tìm kiếm.</p></div>
+<div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-bell"/></svg></div><h3>Thông báo</h3><p>Biết ngay việc mới, hạn nộp, lịch học và hoạt động dự án.</p></div>
+<div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-sun"/></svg></div><h3>Giao diện sáng và tối</h3><p>Chọn giao diện hợp với mắt bạn, đổi bất cứ lúc nào.</p></div>
+<div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-award"/></svg></div><h3>Huy hiệu và điểm thưởng</h3><p>Nhận huy hiệu khi giữ chuỗi thói quen hoặc hoàn thành mục tiêu.</p></div>
+<div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-download"/></svg></div><h3>Xuất PDF và Excel</h3><p>Xuất báo cáo và dữ liệu để lưu lại hoặc gửi cho người khác.</p></div>
+<div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-share"/></svg></div><h3>Chia sẻ và làm việc nhóm</h3><p>Chia sẻ ghi chú, tài liệu, dự án với quyền xem hoặc sửa.</p></div>
+<div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-shield"/></svg></div><h3>Sao lưu và khôi phục<span class="lh-soon">Sắp có</span></h3><p>Sao lưu dữ liệu cá nhân và khôi phục khi cần.</p></div>
+<div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-folder"/></svg></div><h3>Bật tắt phân hệ</h3><p>Chỉ hiện những phân hệ bạn thật sự dùng ở thanh bên.</p></div>
+<div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-grid"/></svg></div><h3>Dùng trên mọi thiết bị</h3><p>Giao diện tự co giãn trên máy tính, máy tính bảng và điện thoại.</p></div>
+<div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-cal"/></svg></div><h3>Đồng bộ lịch ngoài<span class="lh-soon">Sắp có</span></h3><p>Kết nối lịch bạn đang dùng để mọi sự kiện nằm cùng một chỗ.</p></div>
+</div>
+</div></section>
+
+<section><div class="lh-wrap">
+<div class="lh-end">
+<h2>Sẵn sàng sắp xếp cuộc sống của bạn?</h2>
+<p>Tạo tài khoản trong một phút và thử từng tính năng ở trên.</p>
+<div class="lh-cta"><a class="lh-btn lh-pri lh-lg" asp-controller="Auth" asp-action="Register">Tạo tài khoản</a><a class="lh-btn lh-lg" asp-controller="Auth" asp-action="Login">Đăng nhập</a></div>
+</div>
+</div></section>
+</main>

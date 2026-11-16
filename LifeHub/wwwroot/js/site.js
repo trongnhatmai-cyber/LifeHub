@@ -1,17 +1,24 @@
-﻿document.addEventListener("DOMContentLoaded", () => {
+﻿/* LIFEHUB - JavaScript dùng chung (nạp trong _Layout).
+   Giao diện sáng là mặc định; lựa chọn được nhớ trong localStorage. */
+document.addEventListener("DOMContentLoaded", () => {
+    const KEY = "lifehub-theme";
     const html = document.documentElement;
-    const themeToggle = document.getElementById("themeToggle");
+    const toggle = document.getElementById("themeToggle");
 
-    // Light Mode là giao diện mặc định
-    const savedTheme = localStorage.getItem("lifehub-theme") || "light";
+    // localStorage có thể bị chặn (chế độ riêng tư), nên bọc try/catch.
+    const readTheme = () => { try { return localStorage.getItem(KEY); } catch { return null; } };
+    const saveTheme = value => { try { localStorage.setItem(KEY, value); } catch { /* bỏ qua */ } };
 
-    html.setAttribute("data-theme", savedTheme);
+    function applyTheme(theme) {
+        html.setAttribute("data-theme", theme);
+        toggle?.setAttribute("aria-pressed", String(theme === "dark"));
+    }
 
-    themeToggle?.addEventListener("click", () => {
-        const currentTheme = html.getAttribute("data-theme");
-        const newTheme = currentTheme === "light" ? "dark" : "light";
+    applyTheme(readTheme() === "dark" ? "dark" : "light");
 
-        html.setAttribute("data-theme", newTheme);
-        localStorage.setItem("lifehub-theme", newTheme);
+    toggle?.addEventListener("click", () => {
+        const next = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        applyTheme(next);
+        saveTheme(next);
     });
 });

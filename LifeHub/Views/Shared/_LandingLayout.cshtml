@@ -1,0 +1,85 @@
+@* Layout dùng chung cho trang chủ (Home/Index) và trang tính năng (Home/Features).
+   Mỗi View chỉ cần: Layout = "_LandingLayout"; ViewData["Title"] = "..."; ViewData["LandingPage"] = "home" | "features"; *@
+@{
+    var page = ViewData["LandingPage"]?.ToString() ?? "home";
+    var signedIn = User.Identity?.IsAuthenticated == true;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"]</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+    <script>document.documentElement.classList.add('lh-js')</script>
+</head>
+<body>
+    <!-- Bộ biểu tượng dùng chung -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <symbol id="lh-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5zM4 19.5V21h16" /></symbol>
+            <symbol id="lh-check" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></symbol>
+            <symbol id="lh-folder" viewBox="0 0 24 24"><path d="M3 7h18v13H3zM8 7V4h8v3" /></symbol>
+            <symbol id="lh-cal" viewBox="0 0 24 24"><path d="M3 5h18v16H3zM3 10h18M8 3v4M16 3v4" /></symbol>
+            <symbol id="lh-wallet" viewBox="0 0 24 24"><path d="M3 6h16v4M3 6v13h18V10H3M16 15h2" /></symbol>
+            <symbol id="lh-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="1" /></symbol>
+            <symbol id="lh-flame" viewBox="0 0 24 24"><path d="M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3 0-6 1-9z" /></symbol>
+            <symbol id="lh-note" viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h7" /></symbol>
+            <symbol id="lh-moon" viewBox="0 0 24 24"><path d="M20 14A8 8 0 1 1 10 4a6 6 0 0 0 10 10z" /></symbol>
+            <symbol id="lh-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></symbol>
+            <symbol id="lh-grid" viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" /></symbol>
+            <symbol id="lh-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3" /></symbol>
+            <symbol id="lh-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0" /></symbol>
+            <symbol id="lh-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5" /></symbol>
+            <symbol id="lh-award" viewBox="0 0 24 24"><circle cx="12" cy="9" r="6" /><path d="M8.5 14l-1.5 8 5-3 5 3-1.5-8" /></symbol>
+            <symbol id="lh-download" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 21h16" /></symbol>
+            <symbol id="lh-share" viewBox="0 0 24 24"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v13" /></symbol>
+            <symbol id="lh-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z" /></symbol>
+        </g>
+    </svg>
+
+    <header class="lh-nav">
+        <div class="lh-wrap">
+            <a class="lh-logo" asp-controller="Home" asp-action="Index"><b>L</b>LifeHub</a>
+            <nav class="lh-links">
+                <a asp-controller="Home" asp-action="Index">Giới thiệu</a>
+                <a asp-controller="Home" asp-action="Features" class="@(page == "features" ? "lh-act" : "")">Tính năng</a>
+                <a asp-controller="Home" asp-action="Index">Cách hoạt động</a>
+            </nav>
+            @if (signedIn)
+            {
+                <a class="lh-btn lh-pri" asp-controller="Dashboard" asp-action="Index">Vào ứng dụng</a>
+            }
+            else
+            {
+                <a class="lh-btn" asp-controller="Auth" asp-action="Login">Đăng nhập</a>
+                <a class="lh-btn lh-pri" asp-controller="Auth" asp-action="Register">Bắt đầu ngay</a>
+            }
+        </div>
+    </header>
+
+    @RenderBody()
+
+    <footer>
+        <div class="lh-wrap">
+            <a class="lh-logo" asp-controller="Home" asp-action="Index"><b>L</b>LifeHub</a>
+            <nav>
+                <a asp-controller="Home" asp-action="Index">Trang chủ</a>
+                <a asp-controller="Home" asp-action="Features">Tính năng</a>
+                <a href="#">Trợ giúp</a>
+                <a href="#">Điều khoản</a>
+            </nav>
+            <span>© 2026 LifeHub</span>
+        </div>
+    </footer>
+
+    <script src="~/js/landing.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

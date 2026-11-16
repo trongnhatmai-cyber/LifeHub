@@ -1,0 +1,42 @@
+/* Trang tính năng - chỉ chứa phần mới. Phần chung (menu, nút, lưới, bảng mẫu...) nằm trong lifehub-landing.css */
+
+/* thanh chuyển nhanh giữa các nhóm tính năng */
+.lh-subnav{position:sticky;top:64px;z-index:9;background:color-mix(in srgb,var(--lh-bg) 88%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--lh-line)}
+.lh-subnav .lh-wrap{display:flex;gap:6px;overflow-x:auto;padding-block:10px;scrollbar-width:none}
+.lh-subnav .lh-wrap::-webkit-scrollbar{display:none}
+.lh-subnav a{flex:none;padding:8px 16px;border-radius:999px;font-size:13.5px;font-weight:600;color:var(--lh-muted);transition:background .15s,color .15s}
+.lh-subnav a:hover{background:var(--lh-soft);color:var(--lh-text)}
+.lh-subnav a.lh-on{background:var(--lh-accent);color:var(--lh-on-accent)}
+
+/* từng nhóm tính năng */
+.lh-fsec{padding:48px 0;scroll-margin-top:128px}
+.lh-fsec.lh-alt{background:var(--lh-soft);border-block:1px solid var(--lh-line)}
+.lh-fsec.lh-alt .lh-vis{background:var(--lh-bg)}
+.lh-fsec .lh-split{padding:32px 0 20px}
+.lh-also{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding-bottom:8px}
+.lh-also b{margin-right:6px;font-size:13px;color:var(--lh-muted);font-weight:600}
+.lh-also span{padding:7px 14px;border-radius:999px;border:1px solid var(--lh-line);background:var(--lh-surface);font-size:13px;color:var(--lh-muted)}
+.lh-tag{padding:3px 9px;border-radius:999px;background:var(--lh-soft);color:var(--lh-muted);font-size:11px;font-weight:600}
+.lh-soon{display:inline-block;margin-left:10px;padding:3px 10px;border-radius:999px;background:var(--lh-accent);color:var(--lh-on-accent);font-size:11px;font-weight:700;letter-spacing:0;vertical-align:middle}
+
+/* Pomodoro */
+.lh-ring{width:172px;height:172px;margin:8px auto 22px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--lh-accent) 0 68%,var(--lh-line) 0);animation:lh-bob 5s ease-in-out infinite}
+.lh-ring div{width:140px;height:140px;border-radius:50%;background:var(--lh-surface);display:grid;place-content:center;text-align:center}
+.lh-ring strong{font-size:34px;letter-spacing:-.03em;line-height:1}
+.lh-ring small{margin-top:8px;font-size:12px;color:var(--lh-muted)}
+.lh-ctl{display:flex;gap:10px;justify-content:center}
+
+/* báo cáo */
+.lh-score{display:flex;align-items:baseline;gap:10px;margin-bottom:18px}
+.lh-score b{font-size:44px;letter-spacing:-.04em;line-height:1}
+.lh-score span{font-size:13px;color:var(--lh-muted)}
+
+/* trợ lý AI */
+.lh-chat{display:flex;flex-direction:column;gap:10px}
+.lh-bub{max-width:84%;padding:12px 16px;border-radius:18px 18px 18px 6px;border:1px solid var(--lh-line);background:var(--lh-surface);font-size:13.5px;line-height:1.5}
+.lh-bub.lh-me{align-self:flex-end;border-radius:18px 18px 6px 18px;border-color:var(--lh-accent);background:var(--lh-accent);color:var(--lh-on-accent)}
+.lh-vis.lh-in .lh-bub{animation:lh-pop .6s cubic-bezier(.3,1.6,.5,1) both}
+.lh-vis.lh-in .lh-bub:nth-child(2){animation-delay:.5s}.lh-vis.lh-in .lh-bub:nth-child(3){animation-delay:1s}.lh-vis.lh-in .lh-bub:nth-child(4){animation-delay:1.5s}
+
+.lh-mod h3 .lh-soon{margin-left:6px;padding:2px 8px;font-size:10px}
+@media(max-width:520px){.lh-fsec{padding:32px 0}}
