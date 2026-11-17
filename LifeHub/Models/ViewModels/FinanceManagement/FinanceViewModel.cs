@@ -28,6 +28,8 @@ namespace LifeHub.Models.ViewModels.FinanceManagement
 
         // Danh sách giao dịch
         public List<FinanceTransactionViewModel> Transactions { get; set; } = new();
+
+        public TransactionCreateViewModel CreateTransaction { get; set; } = new();
     }
 
     public class FinanceCategoryViewModel

@@ -476,6 +476,7 @@
     </section>
 
     <!-- MODAL NHẬP GIAO DỊCH MẪU -->
+    
     <div class="finance-modal"
          id="transactionModal"
          aria-hidden="true"
@@ -486,7 +487,7 @@
 
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
                 <h3 style="margin:0;font-size:17px;font-weight:750;">
-                    Nhập giao dịch mẫu
+                    Nhập giao dịch
                 </h3>
 
                 <button type="button"
@@ -497,10 +498,17 @@
             </div>
 
             <p style="font-size:12px;color:var(--finance-muted);margin-bottom:16px;">
-                Đây là giao diện thử nghiệm. Thông tin nhập vào chưa được lưu vào cơ sở dữ liệu.
+                Điền thông tin bên dưới để ghi nhận giao dịch của bạn.
             </p>
 
-            <form id="transactionForm">
+            <form id="transactionForm"
+                  asp-controller="Transaction"
+                  asp-action="Create"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <!-- Nội dung giao dịch -->
                 <div style="margin-bottom:14px;">
                     <label for="transactionName"
                            style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--finance-text);">
@@ -508,14 +516,17 @@
                     </label>
 
                     <input type="text"
+                           asp-for="CreateTransaction.Note"
                            id="transactionName"
                            class="finance-select"
                            style="width:100%;"
                            placeholder="VD: Mua sách, Tiền lương..."
-                           required />
+                           maxlength="500" />
                 </div>
 
+                <!-- Loại giao dịch và số tiền -->
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+
                     <div>
                         <label for="transactionType"
                                style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--finance-text);">
@@ -524,23 +535,99 @@
 
                         <select id="transactionType"
                                 class="finance-select"
-                                style="width:100%;">
-                            <option value="expense" selected>Chi tiêu</option>
-                            <option value="income">Thu nhập</option>
+                                style="width:100%;"
+                                asp-for="CreateTransaction.TransactionType">
+
+                            <option value="Expense">Chi tiêu</option>
+                            <option value="Income">Thu nhập</option>
+                            <option value="Transfer">Chuyển tiền</option>
                         </select>
                     </div>
 
                     <div>
+                        <label for="transactionAmount"
+                               style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--finance-text);">
+                            Số tiền (VNĐ)
+                        </label>
+
+                        <input type="number"
+                               asp-for="CreateTransaction.Amount"
+                               id="transactionAmount"   
+                               min="0"
+                               step="1000"
+                               class="finance-select"
+                               style="width:100%;"
+                               placeholder="VD: 50000"
+                               required />
+                    </div>
+                </div>
+
+                <!-- Ví giao dịch và ví nhận -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+
+                    <div>
+                        <label for="transactionWallet"
+                               style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--finance-text);">
+                            Ví giao dịch
+                        </label>
+
+                        <select asp-for="CreateTransaction.WalletId"
+                                id="transactionWallet"
+                                class="finance-select"
+                                style="width:100%;"
+                                required>
+
+                            <option value="">Chọn ví</option>
+
+                            @if (ViewBag.Wallets != null)
+                            {
+                                foreach (var wallet in ViewBag.Wallets)
+                                {
+                                    <option value="@wallet.Id">@wallet.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div id="targetWalletGroup" style="display:none;">
+                        <label for="targetWallet"
+                               style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--finance-text);">
+                            Ví nhận tiền
+                        </label>
+
+                        <select asp-for="CreateTransaction.ToWalletId"
+                                id="targetWallet"
+                                class="finance-select"
+                                style="width:100%;">
+
+                            <option value="">Chọn ví nhận</option>
+
+                            @if (ViewBag.Wallets != null)
+                            {
+                                foreach (var wallet in ViewBag.Wallets)
+                                {
+                                    <option value="@wallet.Id">@wallet.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Danh mục và mục tiêu tiết kiệm -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+
+                    <div id="categoryGroup">
                         <label for="transactionCategory"
                                style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--finance-text);">
                             Danh mục
                         </label>
 
                         <select id="transactionCategory"
+                                asp-for="CreateTransaction.CategoryId"
                                 class="finance-select"
-                                style="width:100%;"
-                                required>
-                            <option value="" disabled selected>Chọn danh mục</option>
+                                style="width:100%;">
+
+                            <option value="">Chọn danh mục</option>
 
                             @if (Model.Categories != null)
                             {
@@ -554,39 +641,47 @@
                             }
                         </select>
                     </div>
-                </div>
-
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
-                    <div>
-                        <label for="transactionAmount"
-                               style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--finance-text);">
-                            Số tiền (VNĐ)
-                        </label>
-
-                        <input type="number"
-                               id="transactionAmount"
-                               min="1000"
-                               step="1000"
-                               class="finance-select"
-                               style="width:100%;"
-                               placeholder="VD: 50000"
-                               required />
-                    </div>
 
                     <div>
-                        <label for="transactionDate"
+                        <label for="transactionSavingGoal"
                                style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--finance-text);">
-                            Ngày
+                            Mục tiêu tiết kiệm
                         </label>
 
-                        <input type="date"
-                               id="transactionDate"
-                               class="finance-select"
-                               style="width:100%;"
-                               required />
+                        <select asp-for="CreateTransaction.SavingsGoalId"
+                                id="transactionSavingGoal"
+                                class="finance-select"
+                                style="width:100%;">
+
+                            <option value="">Không liên kết</option>
+
+                            @if (ViewBag.SavingsGoals != null)
+                            {
+                                foreach (var goal in ViewBag.SavingsGoals)
+                                {
+                                    <option value="@goal.Id">@goal.Name</option>
+                                }
+                            }
+                        </select>
                     </div>
                 </div>
 
+                <!-- Ngày giao dịch -->
+                <div style="margin-bottom:20px;">
+                    <label for="transactionDate"
+                           style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--finance-text);">
+                        Ngày giao dịch
+                    </label>
+
+                    <input type="date"
+                           asp-for="CreateTransaction.TransactionDate"
+                           id="transactionDate"
+                           class="finance-select"
+                           style="width:100%;"
+                           required />
+                </div>
+
+                <!-- Nút thao tác -->
                 <div style="display:flex;justify-content:flex-end;gap:10px;">
                     <button type="button"
                             class="finance-btn"
@@ -596,9 +691,10 @@
 
                     <button type="submit"
                             class="finance-btn primary">
-                        Xem trước
+                        Lưu giao dịch
                     </button>
                 </div>
+
             </form>
         </div>
     </div>

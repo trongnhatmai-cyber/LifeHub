@@ -70,6 +70,7 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<TransactionService>();
 
 var app = builder.Build();
 
