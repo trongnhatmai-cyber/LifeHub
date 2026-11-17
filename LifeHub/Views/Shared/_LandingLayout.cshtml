@@ -16,6 +16,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/landing-pages.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
     <script>document.documentElement.classList.add('lh-js')</script>
 </head>
@@ -40,6 +41,7 @@
             <symbol id="lh-award" viewBox="0 0 24 24"><circle cx="12" cy="9" r="6" /><path d="M8.5 14l-1.5 8 5-3 5 3-1.5-8" /></symbol>
             <symbol id="lh-download" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 21h16" /></symbol>
             <symbol id="lh-share" viewBox="0 0 24 24"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v13" /></symbol>
+            <symbol id="lh-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></symbol>
             <symbol id="lh-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z" /></symbol>
         </g>
     </svg>
@@ -48,9 +50,9 @@
         <div class="lh-wrap">
             <a class="lh-logo" asp-controller="Home" asp-action="Index"><b>L</b>LifeHub</a>
             <nav class="lh-links">
-                <a asp-controller="Home" asp-action="Index">Giới thiệu</a>
                 <a asp-controller="Home" asp-action="Features" class="@(page == "features" ? "lh-act" : "")">Tính năng</a>
-                <a asp-controller="Home" asp-action="Index">Cách hoạt động</a>
+                <a asp-controller="Home" asp-action="Index" asp-fragment="lh-phan-he">Phân hệ</a>
+                <a asp-controller="Home" asp-action="HowItWorks" class="@(page == "how" ? "lh-act" : "")">Cách hoạt động</a>
             </nav>
             @if (signedIn)
             {
@@ -72,6 +74,7 @@
             <nav>
                 <a asp-controller="Home" asp-action="Index">Trang chủ</a>
                 <a asp-controller="Home" asp-action="Features">Tính năng</a>
+                <a asp-controller="Home" asp-action="HowItWorks">Cách hoạt động</a>
                 <a href="#">Trợ giúp</a>
                 <a href="#">Điều khoản</a>
             </nav>

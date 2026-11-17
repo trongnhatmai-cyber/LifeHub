@@ -1,4 +1,4 @@
-﻿@{
+@{
     Layout = "_LandingLayout";
     ViewData["Title"] = "LifeHub – Quản lý cả cuộc sống trong một nơi";
     ViewData["LandingPage"] = "home";
@@ -59,7 +59,13 @@
 </div>
 </div>
 
-<section style="padding-top:40px">
+<nav class="lh-subnav" aria-label="Các phần của trang"><div class="lh-wrap">
+<a href="#lh-gioi-thieu">Giới thiệu</a><a href="#lh-tinh-nang">Lịch và dự án</a><a href="#lh-hang-ngay">Mỗi ngày</a><a href="#lh-phan-he">Phân hệ</a><a href="#lh-bat-dau">Bắt đầu</a>
+<i class="lh-sep"></i>
+<a class="lh-ext" asp-controller="Home" asp-action="Features">Tất cả tính năng</a><a class="lh-ext" asp-controller="Home" asp-action="HowItWorks">Cách hoạt động</a>
+</div></nav>
+
+<section id="lh-gioi-thieu" style="padding-top:40px">
 <div class="lh-wrap">
 <div class="lh-head" style="margin-bottom:0"><h2>Dành cho mọi người cần sắp xếp cuộc sống</h2>
 <div class="lh-who"><span>Học sinh</span><span>Sinh viên</span><span>Người đi làm</span><span>Nhóm làm việc</span></div></div>
@@ -98,7 +104,7 @@
 </div>
 </section>
 
-<section style="padding-top:24px">
+<section id="lh-hang-ngay" style="padding-top:24px">
 <div class="lh-wrap">
 <div class="lh-head"><h2>LifeHub giúp bạn làm gì mỗi ngày</h2><p>Ba việc quen thuộc nhất, được gói gọn để bạn nhìn là hiểu.</p></div>
 
@@ -163,18 +169,7 @@
 </div>
 </section>
 
-<section id="lh-cach-hoat-dong" style="padding-top:24px">
-<div class="lh-wrap">
-<div class="lh-head"><h2>Ghi một lần, kết nối khắp nơi</h2><p>Khi bạn thêm một việc có hạn nộp, LifeHub làm phần còn lại.</p></div>
-<div class="lh-flow">
-<div class="lh-step"><b>1</b><h3>Bạn tạo việc</h3><p>Thêm một việc có deadline, gắn với môn học, dự án hoặc mục tiêu.</p></div>
-<div class="lh-step"><b>2</b><h3>Hệ thống tự nối</h3><p>Việc xuất hiện trên lịch chung, được đặt nhắc nhở và tính vào tiến độ.</p></div>
-<div class="lh-step"><b>3</b><h3>Bạn nhìn toàn cảnh</h3><p>Trang tổng quan cập nhật ngay, thống kê và điểm năng suất tự tính.</p></div>
-</div>
-</div>
-</section>
-
-<section style="padding-top:24px">
+<section id="lh-bat-dau" style="padding-top:24px">
 <div class="lh-wrap">
 <div class="lh-end">
 <h2>Bắt đầu sắp xếp cuộc sống hôm nay</h2>

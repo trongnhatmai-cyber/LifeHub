@@ -1,0 +1,30 @@
+@model LifeHub.Models.ViewModels.ProjectManagement.RecentTaskItem
+
+@{
+    var dueClass = Model.IsOverdue ? "task-due is-overdue" : "task-due";
+    var fragment = "task-" + Model.TaskId;
+}
+
+<div class="recent-row">
+    <div class="recent-main">
+        <div class="recent-title">
+            <span class="task-key">@Model.TaskKey</span>
+            <strong>@Model.Title</strong>
+        </div>
+        <div class="recent-meta">
+            <span class="summary-badge">@Model.ProjectName</span>
+            <span class="proj-status proj-status--@Model.StatusKey">@Model.StatusLabel</span>
+            <span class="task-prio task-prio--@Model.PriorityKey">@Model.PriorityLabel</span>
+            <span class="@dueClass">@(Model.DueDate.HasValue ? "Hạn " + Model.DueDate.Value.ToString("dd/MM") : "Không hạn")</span>
+        </div>
+    </div>
+
+    <div class="recent-side">
+        <span class="task-assignee" title="@Model.PersonName">@Model.PersonInitial</span>
+        <div class="recent-who">
+            <small>@Model.PersonLabel</small>
+            <small>@Model.TimeText</small>
+        </div>
+        <a asp-action="Details" asp-route-id="@Model.ProjectId" asp-fragment="@fragment" class="proj-btn sm">Xem chi tiết</a>
+    </div>
+</div>

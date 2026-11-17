@@ -22,9 +22,9 @@
     <!-- TIÊU ĐỀ PHÂN HỆ CÔNG VIỆC -->
     <header class="task-heading">
         <div>
-            <span class="task-label">TASK MANAGEMENT · KANBAN & PRODUCTIVITY</span>
+            <span class="task-label">WORK HUB · KANBAN & PRODUCTIVITY</span>
             <h1>Công việc của bạn</h1>
-            <p>Sắp xếp danh sách việc cần làm, kéo thả trạng thái và kiểm soát tiến độ hoàn thành.</p>
+            <p>Sắp xếp việc cá nhân và việc được giao, kéo thả trạng thái và trao đổi ngay trên từng công việc.</p>
         </div>
 
         <div class="heading-actions">
@@ -59,9 +59,17 @@
         </div>
     </section>
 
+    <!-- TAB PHẠM VI: TẤT CẢ / CÁ NHÂN / ĐƯỢC GIAO / TRONG DỰ ÁN -->
+    <div class="task-scope" role="group" aria-label="Phạm vi công việc">
+        <button type="button" class="task-chip active" data-scope="all" aria-pressed="true">Tất cả <span>@Model.TotalTasks</span></button>
+        <button type="button" class="task-chip" data-scope="personal" aria-pressed="false">Cá nhân <span>@Model.PersonalTasksCount</span></button>
+        <button type="button" class="task-chip" data-scope="assigned" aria-pressed="false">Được giao cho tôi <span>@Model.AssignedToMeCount</span></button>
+        <button type="button" class="task-chip" data-scope="project" aria-pressed="false">Trong dự án <span>@Model.ProjectTasksCount</span></button>
+    </div>
+
     <!-- THANH TÌM KIẾM VÀ BỘ LỌC -->
     <section class="task-toolbar" aria-label="Tìm kiếm và lọc công việc">
-        <input type="search" id="taskSearch" placeholder="Tìm công việc, dự án..." aria-label="Tìm công việc" autocomplete="off" />
+        <input type="search" id="taskSearch" placeholder="Tìm công việc, dự án, người thực hiện..." aria-label="Tìm công việc" autocomplete="off" />
 
         <select id="taskPriorityFilter" aria-label="Lọc theo mức ưu tiên">
             <option value="">Mọi mức ưu tiên</option>
@@ -73,9 +81,9 @@
 
         <select id="taskProjectFilter" aria-label="Lọc theo dự án">
             <option value="">Mọi dự án</option>
-            @foreach (var project in Model.ProjectNames)
+            @foreach (var project in Model.Projects)
             {
-                <option value="@project">@project</option>
+                <option value="@project.Id">@project.Name</option>
             }
         </select>
     </section>
@@ -95,13 +103,23 @@
                 <div class="column-body" data-dropzone="@col.Key">
                     @foreach (var t in items)
                     {
-                        var search = $"{t.Title} {t.Description} {t.ProjectName}".ToLowerInvariant();
+                        var search = $"{t.Title} {t.Description} {t.ProjectName} {t.CourseCode} {t.AssignedTo} {t.AssignedBy}".ToLowerInvariant();
 
-                        <article class="task-card-item @(t.IsDone ? "is-done" : "")" draggable="true"
+                        <article class="task-card-item @(t.IsDone ? "is-done" : "")" draggable="true" tabindex="0" role="button"
+                                 aria-label="Xem chi tiết: @t.Title"
                                  data-id="@t.Id" data-status="@t.Status" data-priority="@t.Priority"
-                                 data-project="@t.ProjectName" data-search="@search">
+                                 data-project-id="@(t.ProjectId?.ToString() ?? "")" data-assigned="@(t.IsAssignedToMe ? "1" : "0")"
+                                 data-search="@search">
                             <div class="task-card-top">
-                                <span class="task-project">@t.ProjectName</span>
+                                @if (t.IsProjectTask)
+                                {
+                                    @* Liên kết sang phân hệ Quản lý dự án: ProjectController.Details(id) *@
+                                    <a class="task-project" asp-controller="Project" asp-action="Details" asp-route-id="@t.ProjectId" title="Mở dự án @t.ProjectName">@t.ProjectName</a>
+                                }
+                                else
+                                {
+                                    <span class="task-project">@(string.IsNullOrEmpty(t.CourseCode) ? "CÁ NHÂN" : t.CourseCode)</span>
+                                }
                                 <span class="badge-priority @t.Priority">@t.PriorityLabel</span>
                             </div>
 
@@ -126,10 +144,22 @@
                                 </div>
                             }
 
+                            @if (t.IsProjectTask || t.IsAssignedToMe)
+                            {
+                                <div class="task-assign-line">
+                                    <span class="task-assignee" title="Người thực hiện">👤 @t.AssignedTo</span>
+                                    @if (t.IsAssignedToMe)
+                                    {
+                                        <span class="task-assigned-by">Giao bởi @t.AssignedBy</span>
+                                    }
+                                </div>
+                            }
+
                             <div class="task-foot">
                                 <span class="task-meta">
                                     @if (t.CommentCount > 0) { <span>💬 @t.CommentCount</span> }
                                     @if (t.EstimatedMinutes.HasValue) { <span>⏱ @t.EstimateLabel</span> }
+                                    @if (t.IsProjectTask && !string.IsNullOrEmpty(t.CourseCode)) { <span>📘 @t.CourseCode</span> }
                                 </span>
                                 <span class="task-deadline @(t.IsOverdue ? "overdue" : "")">@(t.Deadline.HasValue ? t.Deadline.Value.ToString("dd/MM") : "—")</span>
                             </div>
@@ -142,7 +172,7 @@
         }
     </div>
 
-    <!-- HỘP THOẠI (chỉ mô phỏng giao diện, chưa lưu dữ liệu) -->
+    <!-- HỘP THOẠI THÊM VIỆC + CHI TIẾT/BÌNH LUẬN (chỉ mô phỏng giao diện, chưa lưu dữ liệu) -->
     <partial name="_TaskModals" model="Model" />
     <div class="task-toast" id="taskToast" role="status" hidden></div>
 </div>

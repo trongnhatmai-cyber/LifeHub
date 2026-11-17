@@ -113,27 +113,30 @@
                         }
                     </div>
 
+                    
                     <div class="category-actions">
                         <a asp-controller="Category"
-                           asp-action="Edit"
-                           asp-route-id="@item.Id"
-                           class="secondary-button">
+                        asp-action="Edit"
+                        asp-route-id="@item.Id"
+                        class="secondary-button">
                             Chỉnh sửa
                         </a>
 
-                        <form asp-controller="Category"
-                              asp-action="Delete"
-                              asp-route-id="@item.Id"
-                              method="post"
-                              onsubmit="return confirm('Bạn có chắc muốn xóa danh mục này?');">
-
-                            <button type="submit" class="delete-button">
-                                Xóa
-                            </button>
-                        </form>
+                        <a asp-controller="Category"
+                        asp-action="Delete"
+                        asp-route-id="@item.Id"
+                        class="delete-button">
+                            Xóa
+                        </a>
                     </div>
+
                 </div>
             }
+            
+            <div class="empty-state" id="categoryEmpty" hidden>
+                <h3>Không tìm thấy danh mục</h3>
+                <p>Thử thay đổi từ khóa hoặc bộ lọc.</p>
+            </div>
 
             @if (!Model.Any())
             {
@@ -149,5 +152,5 @@
 </div>
 
 @section Scripts {
-    <script src="~/js/finance.js" asp-append-version="true"></script>
+    <script src="~/js/category-form.js" asp-append-version="true"></script>
 }

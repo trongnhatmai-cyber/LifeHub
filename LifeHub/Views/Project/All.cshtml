@@ -1,0 +1,86 @@
+@model LifeHub.Models.ViewModels.ProjectManagement.ProjectViewModel
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Tất cả dự án";
+    ViewData["ActivePage"] = "Project";
+
+    var m = Model;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/project.css" asp-append-version="true" />
+}
+
+<div class="project-page">
+    <partial name="_Flash" />
+
+    <nav class="proj-breadcrumb" aria-label="Điều hướng">
+        <a asp-action="Index">Dự án</a><span>/</span><span>Tất cả dự án</span>
+    </nav>
+
+    <header class="project-heading">
+        <div>
+            <span class="project-label">PROJECT MANAGEMENT · DANH SÁCH</span>
+            <h1>Tất cả dự án</h1>
+            <p>@m.TotalProjects dự án bạn đang tham gia. Tìm kiếm, lọc theo trạng thái hoặc vai trò, rồi bấm vào thẻ để mở dự án.</p>
+        </div>
+
+        <div class="heading-actions">
+            <button type="button" class="proj-btn primary" data-modal-open="createProjectModal">+ Tạo dự án mới</button>
+        </div>
+    </header>
+
+    <!-- THANH CÔNG CỤ: TÌM KIẾM / LỌC / SẮP XẾP (xử lý phía trình duyệt) -->
+    <section class="project-toolbar" aria-label="Bộ lọc dự án">
+        <input type="search" id="projectSearch" class="proj-input proj-search"
+               placeholder="Tìm theo tên, mã hoặc mô tả dự án..." autocomplete="off" aria-label="Tìm dự án" />
+
+        <div class="proj-tabs" role="group" aria-label="Lọc theo trạng thái">
+            @foreach (var f in m.StatusFilters)
+            {
+                var tabClass = f.Key == "all" ? "proj-tab is-active" : "proj-tab";
+                <button type="button" class="@tabClass" data-filter="@f.Key"
+                        aria-pressed="@(f.Key == "all" ? "true" : "false")">
+                    @f.Label <span class="proj-tab-count">@f.Count</span>
+                </button>
+            }
+        </div>
+
+        <select id="projectRole" class="proj-input proj-select" aria-label="Lọc theo vai trò">
+            <option value="all">Mọi vai trò</option>
+            <option value="manager">Manager (trưởng nhóm)</option>
+            <option value="member">Member</option>
+            <option value="viewer">Viewer</option>
+        </select>
+
+        <select id="projectSort" class="proj-input proj-select" aria-label="Sắp xếp dự án">
+            <option value="default">Hoạt động mới nhất</option>
+            <option value="deadline">Hạn chót gần nhất</option>
+            <option value="progress">Tiến độ cao nhất</option>
+            <option value="name">Tên A → Z</option>
+        </select>
+    </section>
+
+    <p class="proj-result" id="projectResultCount" aria-live="polite"></p>
+
+    <div class="project-grid" id="projectGrid" data-page-size="9">
+        @foreach (var p in m.Projects)
+        {
+            <partial name="_ProjectCard" model="p" />
+        }
+    </div>
+
+    <div class="proj-empty" id="projectEmpty" hidden>
+        Không tìm thấy dự án phù hợp. Hãy thử đổi từ khóa hoặc bộ lọc.
+    </div>
+
+    <nav class="proj-pager" id="projectPager" aria-label="Phân trang dự án" hidden></nav>
+
+    <partial name="_CreateProjectModal" />
+</div>
+
+@section Scripts {
+    <script src="~/js/project.js" asp-append-version="true"></script>
+    <script src="~/js/project-ui.js" asp-append-version="true"></script>
+}

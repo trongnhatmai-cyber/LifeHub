@@ -14,7 +14,7 @@
         var vis = s.querySelector('.lh-vis');
         if (vis) vis.classList.add('lh-rv', 'lh-l');
     });
-    d.querySelectorAll('.lh-head,.lh-who span,.lh-mod,.lh-step,.lh-end,.lh-also').forEach(function (e, i) {
+    d.querySelectorAll('.lh-head,.lh-who span,.lh-mod,.lh-step,.lh-end,.lh-also,.lh-modc,.lh-lk,.lh-flowwrap').forEach(function (e, i) {
         e.classList.add('lh-rv');
         e.style.setProperty('--lh-d', (i % 5) * .08 + 's');
     });
@@ -59,7 +59,8 @@
     }
 
     // Thanh chuyển nhanh trang tính năng: tô sáng nhóm đang xem
-    var links = [].slice.call(d.querySelectorAll('.lh-subnav a'));
+    // chỉ lấy liên kết dạng #neo (bỏ qua liên kết sang trang khác)
+    var links = [].slice.call(d.querySelectorAll('.lh-subnav a')).filter(function (a) { return (a.getAttribute('href') || '').charAt(0) === '#'; });
     if (links.length && 'IntersectionObserver' in window) {
         var so = new IntersectionObserver(function (entries) {
             entries.forEach(function (x) {

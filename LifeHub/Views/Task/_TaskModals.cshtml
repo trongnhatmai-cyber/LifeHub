@@ -47,16 +47,30 @@
                     <input id="taskEstimate" name="EstimatedMinutes" type="number" min="1" max="10000" />
                 </div>
                 <div class="field">
-                    <label for="taskProject">Dự án / môn học</label>
-                    <input id="taskProject" name="ProjectName" type="text" list="taskProjectList" placeholder="Chọn hoặc nhập mới" />
-                    <datalist id="taskProjectList">
-                        @foreach (var project in Model.ProjectNames)
+                    <label for="taskProject">Dự án</label>
+                    <select id="taskProject" name="ProjectId">
+                        <option value="">Việc cá nhân (không thuộc dự án)</option>
+                        @foreach (var p in Model.Projects)
                         {
-                            <option value="@project"></option>
+                            <option value="@p.Id">@p.Name</option>
                         }
-                    </datalist>
+                    </select>
                 </div>
-                <div class="field">
+                <div class="field" data-assignee-field hidden>
+                    <label for="taskAssignee">Giao cho</label>
+                    <select id="taskAssignee" name="AssignedTo">
+                        <option value="">Chính tôi</option>
+                        @foreach (var p in Model.Projects)
+                        {
+                            @* Chỉ manager/member của dự án mới được nhận việc (viewer thì không) *@
+                            foreach (var m in p.Members.Where(m => m.Role != "viewer"))
+                            {
+                                <option value="@m.UserId" data-project="@p.Id" hidden disabled>@m.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="field full">
                     <label for="taskTags">Nhãn (cách nhau bằng dấu phẩy)</label>
                     <input id="taskTags" name="Tags" type="text" placeholder="VD: Học tập, Đồ án" />
                 </div>
@@ -69,5 +83,86 @@
                 <button type="submit" class="task-btn primary">Thêm công việc</button>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- CHI TIẾT CÔNG VIỆC + BÌNH LUẬN & TRAO ĐỔI -->
+<div class="task-modal" id="taskDetailModal" role="dialog" aria-modal="true" aria-label="Chi tiết công việc" hidden>
+    <div class="task-modal-box wide">
+        <div class="task-modal-head">
+            <h3>Chi tiết công việc</h3>
+            <button type="button" class="task-modal-close" data-close-modal aria-label="Đóng">&times;</button>
+        </div>
+
+        @foreach (var t in Model.Tasks)
+        {
+            <div class="task-detail" data-detail-id="@t.Id" hidden>
+                <div class="task-detail-top">
+                    <span class="badge-priority @t.Priority">@t.PriorityLabel</span>
+                    <span class="summary-badge" data-detail-status>@t.StatusLabel</span>
+                </div>
+
+                <h4 class="task-detail-title">@t.Title</h4>
+                <p class="task-detail-desc">@t.Description</p>
+
+                <dl class="task-detail-meta">
+                    <div>
+                        <dt>Dự án</dt>
+                        <dd>
+                            @if (t.IsProjectTask)
+                            {
+                                <a asp-controller="Project" asp-action="Details" asp-route-id="@t.ProjectId">@t.ProjectName</a>
+                            }
+                            else
+                            {
+                                <span>Việc cá nhân</span>
+                            }
+                        </dd>
+                    </div>
+                    <div><dt>Người thực hiện</dt><dd>@t.AssignedTo</dd></div>
+                    @if (t.IsAssignedToMe)
+                    {
+                        <div><dt>Người giao</dt><dd>@t.AssignedBy</dd></div>
+                    }
+                    @if (!string.IsNullOrEmpty(t.CourseCode))
+                    {
+                        <div><dt>Môn học</dt><dd>@t.CourseCode</dd></div>
+                    }
+                    <div><dt>Hạn hoàn thành</dt><dd>@(t.Deadline.HasValue ? t.Deadline.Value.ToString("dd/MM/yyyy") : "Chưa đặt")</dd></div>
+                    @if (t.EstimatedMinutes.HasValue)
+                    {
+                        <div><dt>Ước tính</dt><dd>@t.EstimateLabel</dd></div>
+                    }
+                    @if (t.SubtaskTotal > 0)
+                    {
+                        <div><dt>Việc con</dt><dd>@(t.SubtaskDone + "/" + t.SubtaskTotal + " đã xong")</dd></div>
+                    }
+                </dl>
+
+                <h4 class="task-comments-title">Bình luận (@t.CommentCount)</h4>
+                <ul class="task-comments">
+                    @foreach (var c in t.Comments)
+                    {
+                        <li>
+                            <div class="task-comment-head">
+                                <strong>@c.AuthorName</strong>
+                                <span>@c.CreatedAt.ToString("dd/MM HH:mm")</span>
+                            </div>
+                            <p>@c.Content</p>
+                        </li>
+                    }
+                    @if (!t.Comments.Any())
+                    {
+                        <li class="task-comments-empty">Chưa có bình luận nào.</li>
+                    }
+                </ul>
+
+                <form asp-controller="Task" asp-action="AddComment" method="post" class="task-comment-form">
+                    <input type="hidden" name="TaskId" value="@t.Id" />
+                    <input type="text" name="Content" maxlength="1000" required placeholder="Viết bình luận..." aria-label="Nội dung bình luận" />
+                    <button type="submit" class="task-btn primary">Gửi</button>
+                </form>
+            </div>
+        }
     </div>
 </div>

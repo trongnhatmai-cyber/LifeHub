@@ -37,5 +37,15 @@ namespace LifeHub.Controllers
         {
             return StatusCode(StatusCodes.Status501NotImplemented, "Chức năng cập nhật trạng thái chưa được triển khai.");
         }
+
+        // POST /Task/AddComment  (khung "Bình luận & trao đổi" trong chi tiết công việc)
+        // TODO (Back-end): lưu task_comments; nếu việc thuộc dự án thì ghi thêm project_activities
+        // và tạo notifications cho người được giao.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult AddComment(AddCommentInput input)
+        {
+            return StatusCode(StatusCodes.Status501NotImplemented, "Chức năng bình luận chưa được triển khai.");
+        }
     }
 }

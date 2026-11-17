@@ -21,10 +21,11 @@
         <div>
             <span class="project-label">PROJECT MANAGEMENT · TEAM & PERSONAL</span>
             <h1>Dự án của bạn</h1>
-            <p>Tổ chức không gian làm việc, phân chia công việc nhóm và theo dõi cột mốc tiến độ.</p>
+            <p>Tổng quan nhanh: dự án gần đây, nhiệm vụ được giao và các cột mốc sắp tới.</p>
         </div>
 
         <div class="heading-actions">
+            <a asp-action="All" class="proj-btn">Tất cả dự án</a>
             <button type="button" class="proj-btn primary" id="createProjectBtn" data-modal-open="createProjectModal">
                 + Tạo dự án mới
             </button>
@@ -35,125 +36,88 @@
     <section class="project-summary">
         <div class="summary-card">
             <div class="summary-top"><span>Tổng số dự án</span><span class="summary-badge">DỰ ÁN</span></div>
-            <h2>@m.TotalProjects.ToString("00")</h2>
+            <h2 data-count="@m.TotalProjects">@m.TotalProjects.ToString("00")</h2>
             <p>Không gian đang quản lý</p>
         </div>
         <div class="summary-card">
             <div class="summary-top"><span>Đang thực hiện</span><span class="summary-badge">TIẾN ĐỘ</span></div>
-            <h2>@m.ActiveProjects.ToString("00")</h2>
+            <h2 data-count="@m.ActiveProjects">@m.ActiveProjects.ToString("00")</h2>
             <p>Dự án đang chạy</p>
         </div>
         <div class="summary-card">
             <div class="summary-top"><span>Đã hoàn thành</span><span class="summary-badge">HOÀN TẤT</span></div>
-            <h2>@m.CompletedProjects.ToString("00")</h2>
+            <h2 data-count="@m.CompletedProjects">@m.CompletedProjects.ToString("00")</h2>
             <p>Dự án đã nghiệm thu</p>
         </div>
         <div class="summary-card">
             <div class="summary-top"><span>Thành viên cộng tác</span><span class="summary-badge">NHÓM</span></div>
-            <h2>@m.TotalTeamMembers.ToString("00")</h2>
+            <h2 data-count="@m.TotalTeamMembers">@m.TotalTeamMembers.ToString("00")</h2>
             <p>Thành viên tham gia</p>
         </div>
     </section>
 
-    <!-- THANH CÔNG CỤ: TÌM KIẾM / LỌC / SẮP XẾP (xử lý phía trình duyệt) -->
-    <section class="project-toolbar" aria-label="Bộ lọc dự án">
-        <input type="search" id="projectSearch" class="proj-input proj-search"
-               placeholder="Tìm theo tên hoặc mô tả dự án..." autocomplete="off" aria-label="Tìm dự án" />
-
-        <div class="proj-tabs" role="group" aria-label="Lọc theo trạng thái">
-            @foreach (var f in m.StatusFilters)
-            {
-                var tabClass = f.Key == "all" ? "proj-tab is-active" : "proj-tab";
-                <button type="button" class="@tabClass" data-filter="@f.Key"
-                        aria-pressed="@(f.Key == "all" ? "true" : "false")">
-                    @f.Label <span class="proj-tab-count">@f.Count</span>
+    <!-- NHIỆM VỤ GẦN ĐÂY: giao cho tôi / tôi đã giao -->
+    <section class="project-item-card recent-tasks" id="recentTasks">
+        <div class="proj-top recent-head">
+            <div>
+                <h3>Nhiệm vụ gần đây</h3>
+                <p class="proj-sub">Bấm "Xem chi tiết" để vào đúng dự án và mở nhiệm vụ đó.</p>
+            </div>
+            <div class="recent-tabs" role="group" aria-label="Loại nhiệm vụ">
+                <button type="button" class="proj-tab is-active" data-recent-tab="mine" aria-pressed="true">
+                    Giao cho tôi <span class="proj-tab-count">@m.AssignedToMe.Count</span>
                 </button>
+                <button type="button" class="proj-tab" data-recent-tab="given" aria-pressed="false">
+                    Tôi đã giao <span class="proj-tab-count">@m.AssignedByMe.Count</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="recent-panel" data-recent-panel="mine">
+            @if (m.AssignedToMe.Count == 0)
+            {
+                <p class="proj-sub">Bạn chưa có nhiệm vụ nào đang chờ làm.</p>
+            }
+            @foreach (var r in m.AssignedToMe)
+            {
+                <partial name="_RecentRow" model="r" />
             }
         </div>
 
-        <select id="projectSort" class="proj-input proj-select" aria-label="Sắp xếp dự án">
-            <option value="default">Mặc định</option>
-            <option value="deadline">Hạn chót gần nhất</option>
-            <option value="progress">Tiến độ cao nhất</option>
-            <option value="name">Tên A → Z</option>
-        </select>
+        <div class="recent-panel" data-recent-panel="given" hidden>
+            @if (m.AssignedByMe.Count == 0)
+            {
+                <p class="proj-sub">Bạn chưa giao nhiệm vụ nào cho thành viên khác.</p>
+            }
+            @foreach (var r in m.AssignedByMe)
+            {
+                <partial name="_RecentRow" model="r" />
+            }
+        </div>
     </section>
 
-    <p class="proj-result" id="projectResultCount" aria-live="polite"></p>
+    <!-- DỰ ÁN GẦN ĐÂY: chỉ 6 dự án, còn lại xem ở trang Tất cả dự án -->
+    <div class="proj-section-head">
+        <div>
+            <h2>Dự án gần đây</h2>
+            <p class="proj-sub">@m.RecentProjects.Count dự án có hoạt động mới nhất. Bấm vào thẻ để mở dự án.</p>
+        </div>
+        <a asp-action="All" class="proj-btn sm">Xem tất cả @m.TotalProjects dự án →</a>
+    </div>
 
-    <!-- DANH SÁCH THẺ DỰ ÁN: bấm vào thẻ để mở trang chi tiết -->
-    <div class="project-grid" id="projectGrid">
-        @for (var i = 0; i < m.Projects.Count; i++)
+    <div class="project-grid">
+        @foreach (var p in m.RecentProjects)
         {
-            var p = m.Projects[i];
-            var searchText = p.Name + " " + p.Description + " " + p.Key;
-            var dueClass = p.IsOverdue ? "proj-due is-overdue" : "proj-due";
-
-            <article class="project-item-card" data-project-card
-                     data-index="@i"
-                     data-status="@p.StatusKey"
-                     data-role="@p.RoleKey"
-                     data-progress="@p.ProgressPercent"
-                     data-due="@p.DueDate.ToString("yyyy-MM-dd")"
-                     data-name="@p.Name"
-                     data-search="@searchText">
-                <div>
-                    <div class="proj-top">
-                        <div>
-                            <h3><a asp-action="Details" asp-route-id="@p.Id" class="proj-card-link">@p.Name</a></h3>
-                            <span class="summary-badge">@p.Key</span>
-                            <span class="summary-badge">Vai trò: @p.Role</span>
-                        </div>
-                        <span class="proj-status proj-status--@p.StatusKey">@p.Status</span>
-                    </div>
-
-                    <p class="proj-desc">@p.Description</p>
-                </div>
-
-                <div>
-                    <div class="proj-progress">
-                        <div class="proj-progress-head">
-                            <span>Tiến độ thực hiện</span>
-                            <span class="proj-progress-value">@p.ProgressPercent% (@p.CompletedTasks/@p.TotalTasks việc)</span>
-                        </div>
-                        <div class="bar"><i style="width:@p.ProgressPercent%;"></i></div>
-                    </div>
-
-                    <div class="proj-meta">
-                        <div class="proj-members">
-                            <div class="proj-avatars">
-                                @foreach (var name in p.MemberNames.Take(3))
-                                {
-                                    <span title="@name">@name.Substring(0, 1)</span>
-                                }
-                                @if (p.MemberNames.Count > 3)
-                                {
-                                    <span class="proj-avatars-more">+@(p.MemberNames.Count - 3)</span>
-                                }
-                            </div>
-                            <span>@p.MemberCount thành viên</span>
-                        </div>
-
-                        <div class="@dueClass">
-                            <span>Hạn chót: @p.DueDate.ToString("dd/MM/yyyy")</span>
-                            <small>@p.DueText</small>
-                        </div>
-                    </div>
-                </div>
-            </article>
+            <partial name="_ProjectCard" model="p" />
         }
     </div>
 
-    <div class="proj-empty" id="projectEmpty" hidden>
-        Không tìm thấy dự án phù hợp. Hãy thử đổi từ khóa hoặc bộ lọc.
-    </div>
-
-    <!-- CỘT MỐC GẦN ĐÂY (tick được) -->
-    <section class="project-item-card proj-milestones">
+    <!-- CỘT MỐC SẮP TỚI (tick được, mô phỏng phía trình duyệt) -->
+    <section class="project-item-card proj-milestones" data-ms-scope>
         <div class="proj-top proj-milestones-head">
             <div>
-                <h3>Cột mốc dự án (Milestones)</h3>
-                <p class="proj-sub">Bấm vào vòng tròn để đánh dấu hoàn thành</p>
+                <h3>Cột mốc sắp tới</h3>
+                <p class="proj-sub">Cột mốc gần hạn nhất của các dự án. Bấm vào vòng tròn để đánh dấu hoàn thành.</p>
             </div>
             @if (managedProjects.Count > 0)
             {
@@ -165,13 +129,14 @@
             @foreach (var ms in m.RecentMilestones)
             {
                 var rowClass = "ms-row" + (ms.IsCompleted ? " is-done" : "") + (ms.IsOverdue ? " is-overdue" : "");
+                var pastDue = ms.DueDate.Date < DateTime.Today ? "true" : "false";
                 var toggleLabel = ms.IsCompleted ? "Mở lại cột mốc" : "Đánh dấu hoàn thành";
 
-                <div class="@rowClass">
+                <div class="@rowClass" data-ms-item data-past-due="@pastDue" data-open-text="@ms.OpenDueText">
                     <div class="ms-main">
                         @if (ms.CanToggle)
                         {
-                            <form method="post" asp-action="ToggleMilestone">
+                            <form method="post" asp-action="ToggleMilestone" data-sim-milestone>
                                 <input type="hidden" name="milestoneId" value="@ms.Id" />
                                 <input type="hidden" name="projectId" value="@ms.ProjectId" />
                                 <input type="hidden" name="returnTo" value="index" />
@@ -180,11 +145,12 @@
                         }
                         else
                         {
-                            <span class="ms-check">@(ms.IsCompleted ? "✓" : "○")</span>
+                            <span class="ms-toggle ms-toggle--static">@(ms.IsCompleted ? "✓" : "○")</span>
                         }
                         <div>
                             <span class="ms-title">@ms.Title</span>
                             <span class="summary-badge ms-project">@ms.ProjectName</span>
+                            <small class="ms-meta" data-ms-meta>@ms.DueText</small>
                         </div>
                     </div>
                     <span class="ms-date">@ms.DueDate.ToString("dd/MM/yyyy")</span>
@@ -193,61 +159,7 @@
         </div>
     </section>
 
-    <!-- MODAL: TẠO DỰ ÁN -->
-    <div class="proj-modal" id="createProjectModal" role="dialog" aria-modal="true" aria-labelledby="createProjectTitle" hidden>
-        <div class="proj-modal__dialog">
-            <div class="proj-modal__head">
-                <div>
-                    <h3 id="createProjectTitle">Tạo dự án mới</h3>
-                    <p class="proj-sub">Bạn sẽ là Manager của dự án này.</p>
-                </div>
-                <button type="button" class="proj-modal__close" data-modal-close aria-label="Đóng">×</button>
-            </div>
-
-            <form method="post" asp-action="Create" data-reset-on-open>
-                <div class="proj-field">
-                    <label for="newProjectName">Tên dự án *</label>
-                    <input type="text" id="newProjectName" name="name" class="proj-input" maxlength="80" required placeholder="VD: Website nhóm NET108" />
-                </div>
-
-                <div class="proj-field">
-                    <label for="newProjectKey">Mã dự án (2–6 ký tự, bỏ trống để tự tạo)</label>
-                    <input type="text" id="newProjectKey" name="key" class="proj-input" maxlength="6" placeholder="VD: NET" />
-                </div>
-
-                <div class="proj-field">
-                    <label for="newProjectDesc">Mô tả</label>
-                    <textarea id="newProjectDesc" name="description" class="proj-input" rows="3" maxlength="300" placeholder="Mục tiêu và phạm vi của dự án"></textarea>
-                </div>
-
-                <div class="proj-field-row">
-                    <div class="proj-field">
-                        <label for="newProjectStart">Ngày bắt đầu *</label>
-                        <input type="date" id="newProjectStart" name="startDate" class="proj-input" required data-date-start />
-                    </div>
-                    <div class="proj-field">
-                        <label for="newProjectDue">Hạn chót *</label>
-                        <input type="date" id="newProjectDue" name="dueDate" class="proj-input" required data-date-end />
-                    </div>
-                </div>
-
-                <div class="proj-field">
-                    <label for="newProjectStatus">Trạng thái ban đầu</label>
-                    <select id="newProjectStatus" name="status" class="proj-input">
-                        <option value="Lên kế hoạch">Lên kế hoạch</option>
-                        <option value="Đang chạy">Đang chạy</option>
-                    </select>
-                </div>
-
-                <p class="proj-form-note" data-form-note hidden></p>
-
-                <div class="proj-modal__actions">
-                    <button type="button" class="proj-btn" data-modal-close>Hủy</button>
-                    <button type="submit" class="proj-btn primary">Tạo dự án</button>
-                </div>
-            </form>
-        </div>
-    </div>
+    <partial name="_CreateProjectModal" />
 
     <!-- MODAL: THÊM CỘT MỐC (chỉ hiện với dự án mà bạn là Manager) -->
     @if (managedProjects.Count > 0)
@@ -299,4 +211,5 @@
 
 @section Scripts {
     <script src="~/js/project.js" asp-append-version="true"></script>
+    <script src="~/js/project-ui.js" asp-append-version="true"></script>
 }

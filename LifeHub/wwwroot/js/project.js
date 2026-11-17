@@ -1,7 +1,6 @@
 /* =====================================================================
-   LIFEHUB - PROJECT MANAGEMENT (DỰ ÁN) - dùng cho cả Index và Details
-   Chỉ xử lý tương tác giao diện: tìm kiếm, lọc, sắp xếp, modal, xác nhận.
-   Mọi thay đổi dữ liệu đều gửi bằng form POST về Controller.
+   LIFEHUB - PROJECT MANAGEMENT (DỰ ÁN) - dùng cho Index, All và Details
+   Tương tác giao diện: tìm kiếm, lọc, sắp xếp, phân trang, modal, xác nhận.
    ===================================================================== */
 (function () {
     'use strict';
@@ -21,16 +20,19 @@
             .trim();
     }
 
-    /* ---------- Tìm kiếm / Lọc / Sắp xếp (trang danh sách) ---------- */
+    /* ---------- Tìm kiếm / Lọc / Sắp xếp / Phân trang (trang Tất cả dự án) ---------- */
     var grid = document.getElementById('projectGrid');
     var searchInput = document.getElementById('projectSearch');
     var sortSelect = document.getElementById('projectSort');
+    var roleSelect = document.getElementById('projectRole');
     var emptyBox = document.getElementById('projectEmpty');
     var counter = document.getElementById('projectResultCount');
+    var pager = document.getElementById('projectPager');
     var tabs = Array.prototype.slice.call(page.querySelectorAll('.proj-tab[data-filter]'));
     var cards = grid ? Array.prototype.slice.call(grid.querySelectorAll('[data-project-card]')) : [];
+    var pageSize = grid ? parseInt(grid.getAttribute('data-page-size') || '0', 10) : 0;
 
-    var state = { filter: 'all', query: '', sort: 'default' };
+    var state = { filter: 'all', role: 'all', query: '', sort: 'default', page: 1 };
 
     cards.forEach(function (card) {
         card.dataset.searchKey = normalize(card.dataset.search);
@@ -64,26 +66,102 @@
         });
     }
 
+    // Danh sách số trang có dấu "…" khi có nhiều trang
+    function pageList(current, total) {
+        var out = [];
+        var i;
+        if (total <= 7) {
+            for (i = 1; i <= total; i++) out.push(i);
+            return out;
+        }
+        out.push(1);
+        var start = Math.max(2, current - 1);
+        var end = Math.min(total - 1, current + 1);
+        if (start > 2) out.push('…');
+        for (i = start; i <= end; i++) out.push(i);
+        if (end < total - 1) out.push('…');
+        out.push(total);
+        return out;
+    }
+
+    function addPagerButton(label, target, disabled, active) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = label;
+        b.disabled = disabled;
+        if (active) {
+            b.classList.add('is-active');
+            b.setAttribute('aria-current', 'page');
+        }
+        b.addEventListener('click', function () {
+            state.page = target;
+            applyFilter();
+            if (grid && grid.scrollIntoView) grid.scrollIntoView({ block: 'start' });
+        });
+        pager.appendChild(b);
+    }
+
+    function renderPager(totalPages) {
+        if (!pager) return;
+        pager.innerHTML = '';
+        if (totalPages <= 1) {
+            pager.hidden = true;
+            return;
+        }
+        pager.hidden = false;
+
+        addPagerButton('‹ Trước', state.page - 1, state.page === 1, false);
+        pageList(state.page, totalPages).forEach(function (n) {
+            if (n === '…') {
+                var gap = document.createElement('span');
+                gap.className = 'proj-pager-gap';
+                gap.textContent = '…';
+                pager.appendChild(gap);
+            } else {
+                addPagerButton(String(n), n, false, n === state.page);
+            }
+        });
+        addPagerButton('Sau ›', state.page + 1, state.page === totalPages, false);
+    }
+
     function applyFilter() {
         if (!grid) return;
         var query = normalize(state.query);
-        var visible = 0;
 
-        cards.forEach(function (card) {
-            var matchStatus = state.filter === 'all' || card.dataset.status === state.filter;
-            var matchQuery = !query || card.dataset.searchKey.indexOf(query) !== -1;
-            var show = matchStatus && matchQuery;
-            card.hidden = !show;
-            if (show) visible++;
+        var matches = cards.filter(function (card) {
+            var okStatus = state.filter === 'all' || card.dataset.status === state.filter;
+            var okRole = state.role === 'all' || card.dataset.role === state.role;
+            var okQuery = !query || card.dataset.searchKey.indexOf(query) !== -1;
+            return okStatus && okRole && okQuery;
         });
 
-        if (emptyBox) emptyBox.hidden = visible !== 0;
-        if (counter) counter.textContent = 'Hiển thị ' + visible + '/' + cards.length + ' dự án';
+        var totalPages = pageSize > 0 ? Math.max(1, Math.ceil(matches.length / pageSize)) : 1;
+        if (state.page > totalPages) state.page = totalPages;
+
+        var from = pageSize > 0 ? (state.page - 1) * pageSize : 0;
+        var to = pageSize > 0 ? from + pageSize : matches.length;
+        var visible = matches.slice(from, to);
+
+        cards.forEach(function (card) {
+            card.hidden = visible.indexOf(card) === -1;
+        });
+
+        if (emptyBox) emptyBox.hidden = matches.length !== 0;
+
+        if (counter) {
+            counter.textContent = matches.length === 0
+                ? 'Không có dự án phù hợp'
+                : 'Hiển thị ' + (from + 1) + '–' + Math.min(to, matches.length) + ' / ' + matches.length + ' dự án' +
+                  (matches.length !== cards.length ? ' (đã lọc từ ' + cards.length + ')' : '');
+        }
+
+        renderPager(totalPages);
     }
 
     tabs.forEach(function (tab) {
         tab.addEventListener('click', function () {
             state.filter = tab.getAttribute('data-filter');
+            state.page = 1;
             tabs.forEach(function (t) {
                 var active = t === tab;
                 t.classList.toggle('is-active', active);
@@ -96,6 +174,15 @@
     if (searchInput) {
         searchInput.addEventListener('input', function () {
             state.query = searchInput.value;
+            state.page = 1;
+            applyFilter();
+        });
+    }
+
+    if (roleSelect) {
+        roleSelect.addEventListener('change', function () {
+            state.role = roleSelect.value;
+            state.page = 1;
             applyFilter();
         });
     }
@@ -103,7 +190,9 @@
     if (sortSelect) {
         sortSelect.addEventListener('change', function () {
             state.sort = sortSelect.value;
+            state.page = 1;
             applySort();
+            applyFilter();
         });
     }
 
