@@ -14,7 +14,7 @@ namespace LifeHub.Controllers
             ViewData["ActivePage"] = "Transaction";
 
             // ĐIỂM THAY THẾ DUY NHẤT: sau này đổi sang service/DB, View không phải sửa.
-            return View(FinanceModulesMockData.GetTransactionPage(filter));
+            return View("~/Views/Finance/Transaction/Index.cshtml", FinanceModulesMockData.GetTransactionPage(filter));
         }
 
         // POST /Transaction/Create

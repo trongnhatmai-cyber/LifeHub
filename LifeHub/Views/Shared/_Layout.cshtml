@@ -176,80 +176,79 @@
                 <div class="menu-label">@g.Title</div>
 
                 <nav class="menu" aria-label="@g.Title">
+                    
+                @foreach (var item in g.Items)
+                {
+                    var kids = children.TryGetValue(item[0], out var childList)
+                        ? childList
+                        : null;
 
-                    @foreach (var item in g.Items)
+                    var hasKids = kids != null;
+                    var isSelf = active == item[0];
+
+                    var isChildActive = hasKids &&
+                        kids!.Any(x => x[0] == active);
+
+                    var isOpen = isSelf || isChildActive;
+
+                    if (hasKids)
                     {
-                        var kids = children.TryGetValue(item[0], out var childList)
-                            ? childList
-                            : null;
-
-                        var hasKids = kids != null;
-
-                        var isSelf = active == item[0];
-
-                        var isChildActive = hasKids &&
-                            kids!.Any(x => x[0] == active);
-
-                        var isOpen = isSelf || isChildActive;
-
-                        if (hasKids)
-                        {
-                            <details class="menu-group" open="@(isOpen ? "open" : null)">
-
-                                <summary class="menu-parent @(isOpen ? "is-open" : "")">
-
-                                    <span class="menu-sym"
-                                          style="color:var(--pastel-@(item[3])-accent)"
-                                          aria-hidden="true">
-                                        @item[4]
-                                    </span>
-
-                                    <span class="menu-text">@item[1]</span>
-
-                                    <span class="menu-chevron" aria-hidden="true">›</span>
-
-                                </summary>
-
-                                <div class="submenu">
-
-                                    @foreach (var sub in kids!)
-                                    {
-                                        var isSubActive = active == sub[0];
-
-                                        <a asp-controller="@item[2]"
-                                           asp-action="Index"
-                                           asp-route-section="@sub[0]"
-                                           class="submenu-link @(isSubActive ? "active" : "")"
-                                           aria-current="@(isSubActive ? "page" : null)">
-
-                                            <span class="submenu-dot"></span>
-                                            <span>@sub[1]</span>
-
-                                        </a>
-                                    }
-
-                                </div>
-
-                            </details>
-                        }
-                        else
-                        {
-                            <a asp-controller="@item[2]"
-                               asp-action="Index"
-                               class="menu-link @(isSelf ? "active" : "")"
-                               aria-current="@(isSelf ? "page" : null)">
-
+                        <details class="menu-group" open="@(isOpen ? "open" : null)">
+                            <summary class="menu-parent @(isOpen ? "is-open" : "")">
                                 <span class="menu-sym"
-                                      style="color:var(--pastel-@(item[3])-accent)"
-                                      aria-hidden="true">
+                                    style="color:var(--pastel-@(item[3])-accent)"
+                                    aria-hidden="true">
                                     @item[4]
                                 </span>
 
                                 <span class="menu-text">@item[1]</span>
+                                <span class="menu-chevron" aria-hidden="true">›</span>
+                            </summary>
 
-                            </a>
-                        }
+                            <div class="submenu">
+                                @foreach (var sub in kids!)
+                                {
+                                    var isSubActive = active == sub[0];
+
+                                    var childController = sub[0] switch
+                                    {
+                                        "Transaction" => "Transaction",
+                                        "Category" => "Category",
+                                        "Wallet" => "Wallet",
+                                        "SavingGoal" => "SavingGoal",
+                                        _ => item[2]
+                                    };
+
+                                    <a asp-controller="@childController"
+                                    asp-action="Index"
+                                    class="submenu-link @(isSubActive ? "active" : "")"
+                                    aria-current="@(isSubActive ? "page" : null)">
+
+                                        <span class="submenu-dot"></span>
+                                        <span>@sub[1]</span>
+                                    </a>
+                                }
+                            </div>
+                        </details>
                     }
+                    else
+                    {
+                        <a asp-controller="@item[2]"
+                        asp-action="Index"
+                        class="submenu-link @(isSelf ? "active" : "")"
+                        aria-current="@(isSelf ? "page" : null)">
+
+                            <span class="menu-sym"
+                                style="color:var(--pastel-@(item[3])-accent)"
+                                aria-hidden="true">
+                                @item[4]
+                            </span>
+
+                            <span class="menu-text">@item[1]</span>
+                        </a>
+                    }
+                }
+
 
                 </nav>
             }

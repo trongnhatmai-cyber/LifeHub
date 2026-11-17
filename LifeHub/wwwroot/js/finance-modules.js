@@ -198,3 +198,15 @@ document.addEventListener("DOMContentLoaded", () => {
         el.addEventListener("change", () => { if (el.form) el.form.requestSubmit(); });
     });
 });
+// ---------- Bộ lọc tab danh mục (chỉ ẩn/hiện card đã được Razor render) ----------
+document.addEventListener("DOMContentLoaded", () => {
+    const categoryPage = document.querySelector('[data-module="categories"]');
+    if (!categoryPage) return;
+    const buttons = categoryPage.querySelectorAll("[data-category-filter]");
+    const cards = categoryPage.querySelectorAll("[data-category-kind]");
+    buttons.forEach(button => button.addEventListener("click", () => {
+        const filter = button.dataset.categoryFilter;
+        buttons.forEach(item => item.classList.toggle("active", item === button));
+        cards.forEach(card => { card.hidden = filter !== "all" && card.dataset.categoryKind !== filter; });
+    }));
+});

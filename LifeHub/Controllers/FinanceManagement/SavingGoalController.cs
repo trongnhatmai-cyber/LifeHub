@@ -13,7 +13,7 @@ namespace LifeHub.Controllers
             ViewData["ActivePage"] = "SavingGoal";
 
             // ĐIỂM THAY THẾ DUY NHẤT: sau này đổi sang service/DB, View không phải sửa.
-            return View(FinanceModulesMockData.GetSavingGoalPage(status));
+            return View("~/Views/Finance/SavingGoal/Index.cshtml", FinanceModulesMockData.GetSavingGoalPage(status));
         }
 
         // POST /SavingGoal/Create   TODO (Back-end): lưu bảng savings_goals.

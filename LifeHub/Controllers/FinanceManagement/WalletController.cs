@@ -13,7 +13,7 @@ namespace LifeHub.Controllers
             ViewData["ActivePage"] = "Wallet";
 
             // ĐIỂM THAY THẾ DUY NHẤT: sau này đổi sang service/DB, View không phải sửa.
-            return View(FinanceModulesMockData.GetWalletPage());
+            return View("~/Views/Finance/Wallet/Index.cshtml", FinanceModulesMockData.GetWalletPage());
         }
 
         // POST /Wallet/Create   TODO (Back-end): lưu bảng wallets.
