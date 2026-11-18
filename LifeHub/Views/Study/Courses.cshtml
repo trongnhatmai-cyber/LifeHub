@@ -1,0 +1,121 @@
+@model LifeHub.Models.ViewModels.StudyManagement.StudyCoursesPageViewModel
+
+@{
+    string Score(decimal? v) => v.HasValue ? v.Value.ToString("0.0") : "—";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/study.css" asp-append-version="true" />
+}
+
+<div class="study-page" data-module="courses">
+    <header class="study-heading">
+        <div>
+            <span class="study-label">MÔN HỌC VÀ KHÓA HỌC</span>
+            <h1>Môn học của bạn</h1>
+            <p>Quản lý mã môn, tín chỉ, giảng viên, điểm mục tiêu và tiến độ từng môn.</p>
+        </div>
+        <div class="heading-actions">
+            <button type="button" class="study-btn primary" data-open="courseModal" data-mode="create" data-title="Thêm môn học">+ Thêm môn học</button>
+        </div>
+    </header>
+
+    <section class="study-summary">
+        <div class="summary-card">
+            <div class="summary-top"><span>Môn đang học</span><span class="summary-badge">HỌC KỲ NÀY</span></div>
+            <h2>@Model.CurrentCount.ToString("00")</h2><p>Tổng cộng @Model.CurrentCredits tín chỉ</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Điểm trung bình</span><span class="summary-badge">THANG 10</span></div>
+            <h2>@(Model.AverageScore?.ToString("0.00") ?? "—")</h2><p>Các môn đã có điểm</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Đã hoàn thành</span><span class="summary-badge">HỌC KỲ TRƯỚC</span></div>
+            <h2>@Model.CompletedCount.ToString("00")</h2><p>Môn đã học xong</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Đang hiển thị</span><span class="summary-badge">DANH SÁCH</span></div>
+            <h2>@Model.Rows.Count.ToString("00")</h2><p>Theo bộ lọc bên dưới</p>
+        </div>
+    </section>
+
+    <div class="study-chips" role="group" aria-label="Lọc môn học">
+        <a asp-action="Courses" asp-route-status="current" class="study-chip @(Model.Status == "current" ? "active" : "")">Đang học</a>
+        <a asp-action="Courses" asp-route-status="completed" class="study-chip @(Model.Status == "completed" ? "active" : "")">Đã hoàn thành</a>
+        <a asp-action="Courses" asp-route-status="all" class="study-chip @(Model.Status == "all" ? "active" : "")">Tất cả</a>
+    </div>
+
+    <div class="course-grid">
+        @foreach (var r in Model.Rows)
+        {
+            var c = r.Course;
+            <article class="course-card" style="--course-color:@c.Color">
+                <div class="course-card-top">
+                    <span class="summary-badge">@c.Code</span>
+                    <span class="status @(r.IsCompleted ? "st-graded" : "st-submitted")">@c.Status</span>
+                </div>
+                <h3>@c.Name</h3>
+                <p class="course-meta">@c.Credits tín chỉ · @c.Instructor · @c.Room</p>
+                <p class="course-meta">@(string.IsNullOrEmpty(r.ScheduleSummary) ? r.SemesterName : r.SemesterName + " · " + r.ScheduleSummary)</p>
+
+                <div class="course-progress-top"><span>Đã nộp @r.SubmittedCount/@r.AssignmentCount bài</span><span>@c.AssignmentProgressPercent%</span></div>
+                <div class="bar"><i style="width:@c.AssignmentProgressPercent%"></i></div>
+
+                <div class="course-score">
+                    <span>Điểm hiện tại <strong>@Score(c.CurrentScore)</strong></span>
+                    <span>Mục tiêu <strong>@Score(c.TargetScore)</strong></span>
+                </div>
+
+                <div class="card-actions">
+                    <a asp-action="Assignments" asp-route-courseId="@c.Id" class="study-btn small">Bài tập</a>
+                    <button type="button" class="study-btn small" data-open="courseModal" data-mode="edit" data-action="@Url.Action("UpdateCourse")"
+                            data-title="Chỉnh sửa môn học" data-id="@c.Id" data-code="@c.Code" data-name="@c.Name" data-credits="@c.Credits"
+                            data-instructor="@c.Instructor" data-room="@c.Room" data-targetscore="@(c.TargetScore?.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture))"
+                            data-color="@c.Color" data-status="@c.Status">Sửa</button>
+                    <button type="button" class="study-btn small" data-open="deleteModal" data-mode="delete" data-id="@c.Id" data-name="@c.Name">Xóa</button>
+                </div>
+            </article>
+        }
+    </div>
+
+    @if (!Model.Rows.Any())
+    {
+        <div class="study-empty">Không có môn học nào trong mục này.</div>
+    }
+
+    <div class="study-modal" id="courseModal" role="dialog" aria-modal="true" aria-labelledby="courseModalTitle" hidden>
+        <div class="study-modal-box">
+            <div class="study-modal-head">
+                <h3 id="courseModalTitle" data-modal-title>Thêm môn học</h3>
+                <button type="button" class="study-modal-close" data-close aria-label="Đóng">&times;</button>
+            </div>
+            <form asp-action="CreateCourse" method="post" data-simulate>
+                <input type="hidden" name="Id" disabled />
+                <div class="study-form-grid">
+                    <div class="field"><label for="cCode">Mã môn</label><input id="cCode" name="Code" maxlength="20" required /></div>
+                    <div class="field"><label for="cCredits">Số tín chỉ</label><input id="cCredits" name="Credits" type="number" min="1" max="10" value="3" required /></div>
+                    <div class="field full"><label for="cName">Tên môn học</label><input id="cName" name="Name" maxlength="150" required /></div>
+                    <div class="field"><label for="cInstructor">Giảng viên</label><input id="cInstructor" name="Instructor" /></div>
+                    <div class="field"><label for="cRoom">Phòng học</label><input id="cRoom" name="Room" /></div>
+                    <div class="field"><label for="cTarget">Điểm mục tiêu (thang 10)</label><input id="cTarget" name="TargetScore" type="number" min="0" max="10" step="0.1" /></div>
+                    <div class="field"><label for="cColor">Màu hiển thị</label><input id="cColor" name="Color" type="color" value="#2563eb" /></div>
+                    <div class="field full">
+                        <label for="cStatus">Trạng thái</label>
+                        <select id="cStatus" name="Status"><option value="Đang học">Đang học</option><option value="Đã hoàn thành">Đã hoàn thành</option></select>
+                    </div>
+                </div>
+                <p class="study-note">Bản mô phỏng giao diện: dữ liệu chưa được lưu.</p>
+                <div class="study-modal-foot">
+                    <button type="button" class="study-btn" data-close>Hủy</button>
+                    <button type="submit" class="study-btn primary">Lưu môn học</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <partial name="_StudyDeleteModal" model='"DeleteCourse"' />
+</div>
+
+@section Scripts {
+    <script src="~/js/study-pages.js" asp-append-version="true"></script>
+}

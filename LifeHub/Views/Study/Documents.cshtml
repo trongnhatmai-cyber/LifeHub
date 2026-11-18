@@ -1,0 +1,98 @@
+@model LifeHub.Models.ViewModels.StudyManagement.StudyDocumentsPageViewModel
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/study.css" asp-append-version="true" />
+}
+
+<div class="study-page" data-module="documents">
+    <header class="study-heading">
+        <div>
+            <span class="study-label">TÀI LIỆU HỌC TẬP</span>
+            <h1>Tài liệu theo môn học</h1>
+            <p>Giáo trình, slide, liên kết và ghi chú được gom theo từng môn.</p>
+        </div>
+        <div class="heading-actions">
+            <button type="button" class="study-btn primary" data-open="documentModal" data-mode="create" data-title="Thêm tài liệu">+ Thêm tài liệu</button>
+        </div>
+    </header>
+
+    <section class="study-card">
+        <form method="get" asp-action="Documents" class="study-toolbar">
+            <input type="search" name="q" value="@Model.Q" placeholder="Tìm tài liệu..." aria-label="Tìm tài liệu" />
+            <select name="courseId" aria-label="Lọc môn học" data-autosubmit>
+                <option value="">Mọi môn học</option>
+                @foreach (var c in Model.Courses) { <option value="@c.Id" selected="@(Model.CourseId == c.Id)">@c.Code - @c.Name</option> }
+            </select>
+            <select name="kind" aria-label="Lọc loại tài liệu" data-autosubmit>
+                <option value="all" selected="@(Model.Kind == "all")">Mọi loại</option>
+                <option value="pdf" selected="@(Model.Kind == "pdf")">PDF</option>
+                <option value="slide" selected="@(Model.Kind == "slide")">Slide</option>
+                <option value="link" selected="@(Model.Kind == "link")">Liên kết</option>
+                <option value="video" selected="@(Model.Kind == "video")">Video</option>
+                <option value="note" selected="@(Model.Kind == "note")">Ghi chú</option>
+            </select>
+            <button type="submit" class="study-btn">Lọc</button>
+            @if (Model.HasFilter) { <a asp-action="Documents" class="study-btn">Xóa lọc</a> }
+        </form>
+
+        <p class="study-count">Hiển thị @Model.Items.Count / @Model.TotalCount tài liệu</p>
+
+        <div class="doc-grid">
+            @foreach (var d in Model.Items)
+            {
+                <article class="doc-card" style="--course-color:@d.CourseColor">
+                    <div class="course-card-top"><span class="summary-badge">@d.CourseCode</span><span class="doc-kind">@d.KindLabel</span></div>
+                    <h3>@d.Title</h3>
+                    @if (!string.IsNullOrEmpty(d.Note)) { <p class="course-meta">@d.Note</p> }
+                    <p class="course-meta">Thêm ngày @d.AddedAt.ToString("dd/MM/yyyy")@(string.IsNullOrEmpty(d.SizeLabel) ? "" : " · " + d.SizeLabel)</p>
+                    <div class="card-actions">
+                        <a class="study-btn small" href="@d.Url" target="_blank" rel="noopener noreferrer">Mở</a>
+                        <button type="button" class="study-btn small" data-open="deleteModal" data-mode="delete" data-id="@d.Id" data-name="@d.Title">Xóa</button>
+                    </div>
+                </article>
+            }
+        </div>
+        @if (!Model.Items.Any()) { <div class="study-empty">Không có tài liệu phù hợp.</div> }
+    </section>
+
+    <div class="study-modal" id="documentModal" role="dialog" aria-modal="true" aria-labelledby="documentModalTitle" hidden>
+        <div class="study-modal-box">
+            <div class="study-modal-head">
+                <h3 id="documentModalTitle" data-modal-title>Thêm tài liệu</h3>
+                <button type="button" class="study-modal-close" data-close aria-label="Đóng">&times;</button>
+            </div>
+            <form asp-action="CreateDocument" method="post" data-simulate>
+                <div class="study-form-grid">
+                    <div class="field full"><label for="dTitle">Tên tài liệu</label><input id="dTitle" name="Title" maxlength="200" required /></div>
+                    <div class="field">
+                        <label for="dCourse">Môn học</label>
+                        <select id="dCourse" name="CourseId" required>
+                            <option value="" disabled selected>Chọn môn học</option>
+                            @foreach (var c in Model.Courses) { <option value="@c.Id">@c.Code - @c.Name</option> }
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="dKind">Loại</label>
+                        <select id="dKind" name="Kind" required>
+                            <option value="pdf">PDF</option><option value="slide">Slide</option><option value="link">Liên kết</option>
+                            <option value="video">Video</option><option value="note">Ghi chú</option>
+                        </select>
+                    </div>
+                    <div class="field full"><label for="dUrl">Đường dẫn</label><input id="dUrl" name="Url" maxlength="500" placeholder="https://..." required /></div>
+                    <div class="field full"><label for="dNote">Ghi chú</label><input id="dNote" name="Note" maxlength="500" /></div>
+                </div>
+                <p class="study-note">Bản mô phỏng giao diện: dữ liệu chưa được lưu và chưa tải được tệp lên.</p>
+                <div class="study-modal-foot">
+                    <button type="button" class="study-btn" data-close>Hủy</button>
+                    <button type="submit" class="study-btn primary">Thêm tài liệu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <partial name="_StudyDeleteModal" model='"DeleteDocument"' />
+</div>
+
+@section Scripts {
+    <script src="~/js/study-pages.js" asp-append-version="true"></script>
+}

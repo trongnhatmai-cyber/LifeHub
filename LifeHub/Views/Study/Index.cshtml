@@ -3,7 +3,7 @@
 @{
     Layout = "_Layout";
     ViewData["Title"] = "Quản lý học tập";
-    ViewData["ActivePage"] = "Study";
+    ViewData["ActivePage"] = "StudyOverview";
 
     var today = DateTime.Today;
     string Score(decimal? v) => v.HasValue ? v.Value.ToString("0.0") : "—";

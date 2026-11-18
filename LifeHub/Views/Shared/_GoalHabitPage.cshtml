@@ -1,0 +1,113 @@
+@model LifeHub.Models.ViewModels.GoalManagement.GoalHabitPageViewModel
+@{
+    var isHabit = Model.Accent == "habit";
+}
+<div class="gh-page @(isHabit ? "gh-habit" : "gh-goal")">
+    <header class="gh-heading">
+        <div>
+            <span class="gh-eyebrow">@Model.Eyebrow</span>
+            <h1>@Model.Title</h1>
+            <p>@Model.Description</p>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(Model.PrimaryActionLabel))
+        {
+            <button type="button" class="gh-button gh-button-primary" data-demo-action>@Model.PrimaryActionLabel</button>
+        }
+    </header>
+
+    <section class="gh-metrics">
+        @foreach (var metric in Model.Metrics)
+        {
+            <article class="gh-metric">
+                <div class="gh-metric-top"><span>@metric.Label</span><span class="gh-metric-icon">@metric.Icon</span></div>
+                <strong>@metric.Value</strong>
+                <small>@metric.Hint</small>
+            </article>
+        }
+    </section>
+
+    <div class="gh-layout">
+        <section class="gh-panel gh-main-panel">
+            <div class="gh-panel-heading">
+                <div><h2>@Model.SectionTitle</h2><p>@Model.SectionDescription</p></div>
+                <span class="gh-counter">@Model.Items.Count mục</span>
+            </div>
+
+            <div class="gh-toolbar">
+                <label class="gh-search">
+                    <span>⌕</span>
+                    <input type="search" placeholder="Tìm kiếm..." data-gh-search />
+                </label>
+                <select class="gh-select" aria-label="Lọc trạng thái" data-gh-filter>
+                    <option value="">Tất cả trạng thái</option>
+                    @foreach (var filter in Model.Filters)
+                    {
+                        <option value="@filter">@filter</option>
+                    }
+                </select>
+            </div>
+
+            <div class="gh-item-list" data-gh-list>
+                @foreach (var item in Model.Items)
+                {
+                    <article class="gh-item" data-title="@($"{item.Title} {item.Subtitle} {item.Category}")" data-status="@item.Status">
+                        <div class="gh-item-main">
+                            @if (isHabit && Model.Title == "Theo dõi hằng ngày")
+                            {
+                                <label class="gh-check-wrap"><input type="checkbox" class="gh-check" checked="@(item.Status == "Đã hoàn thành")" /><span class="gh-check-ui"></span></label>
+                            }
+                            <div class="gh-item-copy">
+                                <h3>@item.Title</h3>
+                                <p>@item.Subtitle</p>
+                                <div class="gh-tags">
+                                    @if (!string.IsNullOrWhiteSpace(item.Category)) { <span class="gh-tag">@item.Category</span> }
+                                    @if (!string.IsNullOrWhiteSpace(item.Status)) { <span class="gh-status">@item.Status</span> }
+                                    @if (!string.IsNullOrWhiteSpace(item.DueDate)) { <span class="gh-tag">Hạn @item.DueDate</span> }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="gh-item-side">
+                            <strong>@(string.IsNullOrWhiteSpace(item.Value) ? $"{item.Progress}%" : item.Value)</strong>
+                            <div class="gh-progress"><i style="width:@Math.Clamp(item.Progress, 0, 100)%"></i></div>
+                            <small>@item.Progress% hoàn thành</small>
+                        </div>
+                    </article>
+                }
+                <div class="gh-empty" data-gh-empty hidden>Không tìm thấy dữ liệu phù hợp.</div>
+            </div>
+            <p class="gh-demo-note">Dữ liệu minh họa từ C# MockData. Các thao tác trên trang chỉ phục vụ xem trước giao diện, chưa ghi hoặc lưu dữ liệu.</p>
+        </section>
+
+        <aside class="gh-side-column">
+            <section class="gh-panel">
+                <div class="gh-panel-heading"><div><h2>@Model.SecondaryTitle</h2><p>Tóm tắt dữ liệu liên quan</p></div></div>
+                @foreach (var item in Model.SecondaryItems)
+                {
+                    <div class="gh-mini-item">
+                        <div class="gh-mini-top"><strong>@item.Title</strong><span>@(string.IsNullOrWhiteSpace(item.Value) ? $"{item.Progress}%" : item.Value)</span></div>
+                        <p>@item.Subtitle</p>
+                        <div class="gh-progress"><i style="width:@Math.Clamp(item.Progress, 0, 100)%"></i></div>
+                    </div>
+                }
+            </section>
+
+            <section class="gh-panel">
+                <div class="gh-panel-heading"><div><h2>Xu hướng 7 ngày</h2><p>Mức độ hoàn thành theo ngày</p></div></div>
+                <div class="gh-chart" role="img" aria-label="Biểu đồ xu hướng 7 ngày">
+                    @foreach (var point in Model.Chart)
+                    {
+                        <div class="gh-chart-column">
+                            <div class="gh-chart-track"><i style="height:@Math.Clamp(point.Value, 0, 100)%"></i></div>
+                            <span>@point.Label</span>
+                        </div>
+                    }
+                </div>
+                <div class="gh-chart-foot"><strong>68%</strong><span>Hiệu suất trung bình</span></div>
+            </section>
+        </aside>
+    </div>
+</div>
+
+<div class="gh-toast" role="status" aria-live="polite" data-gh-toast hidden>
+    Đây là giao diện mô phỏng. Chức năng lưu dữ liệu chưa được triển khai.
+</div>

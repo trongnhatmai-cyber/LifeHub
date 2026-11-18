@@ -1,0 +1,11 @@
+@model LifeHub.Models.ViewModels.GoalManagement.GoalHabitPageViewModel
+@{
+    Layout = "_Layout";
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/goal-habit.css" asp-append-version="true" />
+}
+@await Html.PartialAsync("_GoalHabitPage", Model)
+@section Scripts {
+    <script src="~/js/goal-habit.js" asp-append-version="true"></script>
+}
