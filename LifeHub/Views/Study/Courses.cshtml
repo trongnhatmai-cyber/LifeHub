@@ -1,6 +1,10 @@
 @model LifeHub.Models.ViewModels.StudyManagement.StudyCoursesPageViewModel
 
 @{
+    Layout = "_Layout";
+    ViewData["Title"] = "Môn học và khóa học";
+    ViewData["ActivePage"] = "Course";
+
     string Score(decimal? v) => v.HasValue ? v.Value.ToString("0.0") : "—";
 }
 

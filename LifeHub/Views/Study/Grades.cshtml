@@ -1,6 +1,10 @@
 @model LifeHub.Models.ViewModels.StudyManagement.StudyGradesPageViewModel
 
 @{
+    Layout = "_Layout";
+    ViewData["Title"] = "Điểm số";
+    ViewData["ActivePage"] = "Grade";
+
     string Score(decimal? v) => v.HasValue ? v.Value.ToString("0.0") : "—";
     string Pct(decimal? v) => (v.HasValue ? Math.Min(100m, v.Value * 10m) : 0m).ToString("0.#", System.Globalization.CultureInfo.InvariantCulture);
 }
