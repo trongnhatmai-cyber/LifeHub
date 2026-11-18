@@ -1,0 +1,163 @@
+@model LifeHub.Models.ViewModels.StudyManagement.StudyAssignmentsPageViewModel
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Bài tập và kỳ thi";
+    ViewData["ActivePage"] = "Assignment";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/study.css" asp-append-version="true" />
+}
+
+<div class="study-page" data-module="assignments">
+    <header class="study-heading">
+        <div>
+            <span class="study-label">BÀI TẬP VÀ KỲ THI</span>
+            <h1>Bài tập và lịch thi</h1>
+            <p>Theo dõi hạn nộp, trọng số, trạng thái và điểm số của từng bài.</p>
+        </div>
+        <div class="heading-actions">
+            <button type="button" class="study-btn primary" data-open="assignmentModal" data-mode="create" data-title="Thêm bài tập">+ Thêm bài tập</button>
+        </div>
+    </header>
+
+    <section class="study-summary">
+        <div class="summary-card"><div class="summary-top"><span>Tổng số bài</span><span class="summary-badge">TẤT CẢ</span></div><h2>@Model.TotalCount.ToString("00")</h2><p>Bài tập, đồ án và kỳ thi</p></div>
+        <div class="summary-card"><div class="summary-top"><span>Chưa nộp</span><span class="summary-badge">CÒN HẠN</span></div><h2>@Model.PendingCount.ToString("00")</h2><p>Cần hoàn thành sớm</p></div>
+        <div class="summary-card"><div class="summary-top"><span>Quá hạn</span><span class="summary-badge">CẢNH BÁO</span></div><h2>@Model.OverdueCount.ToString("00")</h2><p>Nộp càng sớm càng tốt</p></div>
+        <div class="summary-card"><div class="summary-top"><span>Đã nộp</span><span class="summary-badge">HOÀN THÀNH</span></div><h2>@Model.DoneCount.ToString("00")</h2><p>Gồm cả bài đã có điểm</p></div>
+    </section>
+
+    <section class="study-card">
+        <form method="get" asp-action="Assignments" class="study-toolbar">
+            <input type="search" name="q" value="@Model.Q" placeholder="Tìm bài tập, môn học..." aria-label="Tìm bài tập" />
+            <select name="status" aria-label="Lọc trạng thái" data-autosubmit>
+                <option value="all" selected="@(Model.Status == "all")">Mọi trạng thái</option>
+                <option value="upcoming" selected="@(Model.Status == "upcoming")">Chưa nộp</option>
+                <option value="overdue" selected="@(Model.Status == "overdue")">Quá hạn</option>
+                <option value="done" selected="@(Model.Status == "done")">Đã nộp</option>
+            </select>
+            <select name="kind" aria-label="Lọc loại" data-autosubmit>
+                <option value="all" selected="@(Model.Kind == "all")">Mọi loại</option>
+                <option value="assignment" selected="@(Model.Kind == "assignment")">Bài tập</option>
+                <option value="quiz" selected="@(Model.Kind == "quiz")">Kiểm tra nhanh</option>
+                <option value="project" selected="@(Model.Kind == "project")">Đồ án</option>
+                <option value="midterm" selected="@(Model.Kind == "midterm")">Thi giữa kỳ</option>
+                <option value="final" selected="@(Model.Kind == "final")">Thi cuối kỳ</option>
+            </select>
+            <select name="courseId" aria-label="Lọc môn học" data-autosubmit>
+                <option value="">Mọi môn học</option>
+                @foreach (var c in Model.Courses) { <option value="@c.Id" selected="@(Model.CourseId == c.Id)">@c.Code - @c.Name</option> }
+            </select>
+            <button type="submit" class="study-btn">Lọc</button>
+            @if (Model.HasFilter) { <a asp-action="Assignments" class="study-btn">Xóa lọc</a> }
+        </form>
+
+        <p class="study-count">Hiển thị @Model.Items.Count / @Model.TotalCount bài</p>
+
+        <div class="table-wrap">
+            <table class="study-table">
+                <thead><tr><th>TÊN BÀI TẬP</th><th>MÔN HỌC</th><th>HẠN NỘP / NGÀY THI</th><th>TRỌNG SỐ</th><th>TRẠNG THÁI</th><th class="right">ĐIỂM</th><th class="right">THAO TÁC</th></tr></thead>
+                <tbody>
+                    @foreach (var a in Model.Items)
+                    {
+                        var key = a.StatusKey(Model.Today);
+                        var hint = Model.DueHint(a);
+                        <tr>
+                            <td><strong>@a.Title</strong><small class="row-sub">@a.KindLabel@(a.IsExam && !string.IsNullOrEmpty(a.Location) ? ", " + a.Location : "")@(a.DurationMinutes.HasValue ? " · " + a.DurationMinutes + " phút" : "")</small></td>
+                            <td><span class="summary-badge">@a.CourseCode</span></td>
+                            <td class="muted">@a.DueDate.ToString("dd/MM/yyyy")@(a.IsExam ? " " + a.DueDate.ToString("HH:mm") : "")@if (hint != "") { <small class="row-sub due-hint @(key == "overdue" ? "overdue" : "")">@hint</small> }</td>
+                            <td>@a.WeightPercent%</td>
+                            <td><span class="status st-@key">@a.StatusLabel(Model.Today)</span></td>
+                            <td class="right"><strong>@(a.Score.HasValue ? $"{a.Score.Value:0.0} / {a.MaxScore:0.#}" : "—")</strong></td>
+                            <td class="right">
+                                <div class="row-actions">
+                                    @if (!a.IsExam && !a.Score.HasValue)
+                                    {
+                                        <form asp-action="ToggleSubmitted" method="post" data-simulate>
+                                            <input type="hidden" name="Id" value="@a.Id" />
+                                            <button type="submit" class="row-btn">@(a.IsSubmitted ? "Hoàn tác nộp" : "Đã nộp")</button>
+                                        </form>
+                                    }
+                                    <button type="button" class="row-btn" data-open="scoreModal" data-mode="edit" data-title="Nhập điểm" data-id="@a.Id" data-name="@a.Title"
+                                            data-score="@(a.Score?.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture))">Nhập điểm</button>
+                                    <button type="button" class="row-btn" data-open="assignmentModal" data-mode="edit" data-action="@Url.Action("UpdateAssignment")" data-title="Chỉnh sửa bài tập"
+                                            data-id="@a.Id" data-courseid="@a.CourseId" data-kind="@a.Kind" data-duedate="@a.DueDate.ToString("yyyy-MM-ddTHH:mm")"
+                                            data-weightpercent="@a.WeightPercent" data-maxscore="@a.MaxScore.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)"
+                                            data-durationminutes="@a.DurationMinutes" data-location="@a.Location" data-assignmenttitle="@a.Title">Sửa</button>
+                                    <button type="button" class="row-btn" data-open="deleteModal" data-mode="delete" data-id="@a.Id" data-name="@a.Title">Xóa</button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        @if (!Model.Items.Any()) { <div class="study-empty">Không có bài tập phù hợp.</div> }
+    </section>
+
+    <div class="study-modal" id="assignmentModal" role="dialog" aria-modal="true" aria-labelledby="assignmentModalTitle" hidden>
+        <div class="study-modal-box">
+            <div class="study-modal-head">
+                <h3 id="assignmentModalTitle" data-modal-title>Thêm bài tập</h3>
+                <button type="button" class="study-modal-close" data-close aria-label="Đóng">&times;</button>
+            </div>
+            <form asp-action="CreateAssignment" method="post" data-simulate>
+                <input type="hidden" name="Id" disabled />
+                <div class="study-form-grid">
+                    <div class="field full"><label for="aTitle">Tên bài tập</label><input id="aTitle" name="Title" maxlength="200" required /></div>
+                    <div class="field">
+                        <label for="aCourse">Môn học</label>
+                        <select id="aCourse" name="CourseId" required>
+                            <option value="" disabled selected>Chọn môn học</option>
+                            @foreach (var c in Model.Courses) { <option value="@c.Id">@c.Code - @c.Name</option> }
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="aKind">Loại</label>
+                        <select id="aKind" name="Kind" required>
+                            <option value="assignment">Bài tập</option><option value="quiz">Kiểm tra nhanh</option><option value="project">Đồ án</option>
+                            <option value="midterm">Thi giữa kỳ</option><option value="final">Thi cuối kỳ</option>
+                        </select>
+                    </div>
+                    <div class="field"><label for="aDue">Hạn nộp / ngày thi</label><input id="aDue" name="DueDate" type="datetime-local" required /></div>
+                    <div class="field"><label for="aWeight">Trọng số (%)</label><input id="aWeight" name="WeightPercent" type="number" min="0" max="100" value="10" required /></div>
+                    <div class="field"><label for="aMax">Điểm tối đa</label><input id="aMax" name="MaxScore" type="number" min="1" step="0.5" value="10" required /></div>
+                    <div class="field" data-exam-only hidden><label for="aDuration">Thời lượng thi (phút)</label><input id="aDuration" name="DurationMinutes" type="number" min="1" /></div>
+                    <div class="field full" data-exam-only hidden><label for="aLocation">Phòng thi</label><input id="aLocation" name="Location" /></div>
+                </div>
+                <p class="study-note">Bản mô phỏng giao diện: dữ liệu chưa được lưu.</p>
+                <div class="study-modal-foot">
+                    <button type="button" class="study-btn" data-close>Hủy</button>
+                    <button type="submit" class="study-btn primary">Lưu bài tập</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="study-modal" id="scoreModal" role="dialog" aria-modal="true" aria-labelledby="scoreModalTitle" hidden>
+        <div class="study-modal-box">
+            <div class="study-modal-head">
+                <h3 id="scoreModalTitle">Nhập điểm</h3>
+                <button type="button" class="study-modal-close" data-close aria-label="Đóng">&times;</button>
+            </div>
+            <p class="study-note">Bài: <strong data-text="name"></strong></p>
+            <form asp-action="RecordScore" method="post" data-simulate>
+                <input type="hidden" name="Id" />
+                <div class="field"><label for="scoreValue">Điểm đạt được</label><input id="scoreValue" name="Score" type="number" min="0" step="0.1" required /></div>
+                <p class="study-note">Bản mô phỏng giao diện: dữ liệu chưa được lưu.</p>
+                <div class="study-modal-foot">
+                    <button type="button" class="study-btn" data-close>Hủy</button>
+                    <button type="submit" class="study-btn primary">Lưu điểm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <partial name="_StudyDeleteModal" model='"DeleteAssignment"' />
+</div>
+
+@section Scripts {
+    <script src="~/js/study-pages.js" asp-append-version="true"></script>
+}

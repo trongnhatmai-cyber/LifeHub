@@ -1,0 +1,143 @@
+@model LifeHub.Models.ViewModels.StudyManagement.StudySchedulePageViewModel
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Thời khóa biểu";
+    ViewData["ActivePage"] = "Schedule";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/study.css" asp-append-version="true" />
+}
+
+<div class="study-page" data-module="schedule">
+    <header class="study-heading">
+        <div>
+            <span class="study-label">THỜI KHÓA BIỂU</span>
+            <h1>Lịch học theo tuần</h1>
+            <p>Các buổi học lặp lại hàng tuần. Bấm vào một buổi để chỉnh sửa.</p>
+        </div>
+        <div class="heading-actions">
+            <button type="button" class="study-btn primary" data-open="slotModal" data-mode="create" data-title="Thêm buổi học">+ Thêm buổi học</button>
+        </div>
+    </header>
+
+    <section class="study-summary">
+        <div class="summary-card"><div class="summary-top"><span>Buổi học mỗi tuần</span><span class="summary-badge">TỔNG</span></div><h2>@Model.Slots.Count.ToString("00")</h2><p>Lặp lại hằng tuần</p></div>
+        <div class="summary-card"><div class="summary-top"><span>Giờ học mỗi tuần</span><span class="summary-badge">GIỜ</span></div><h2>@Model.WeeklyHours.ToString("0.#")</h2><p>Không tính giờ tự học</p></div>
+        <div class="summary-card"><div class="summary-top"><span>Hôm nay</span><span class="summary-badge">LỊCH HÔM NAY</span></div><h2>@Model.TodayCount.ToString("00")</h2><p>@(Model.TodayCount == 0 ? "Hôm nay không có buổi học" : "buổi học")</p></div>
+        <div class="summary-card"><div class="summary-top"><span>Trùng lịch</span><span class="summary-badge">CẢNH BÁO</span></div><h2>@Model.ConflictCount.ToString("00")</h2><p>@(Model.ConflictCount == 0 ? "Không có buổi nào trùng giờ" : "Cần xử lý sớm")</p></div>
+    </section>
+
+    <section class="study-card">
+        <div class="section-heading"><div><h3>Thời khóa biểu tuần</h3><p>@(Model.StartHour):00 đến @(Model.EndHour):00</p></div></div>
+
+        <div class="tt-wrap">
+            <div class="tt" style="--tt-hours:@(Model.EndHour - Model.StartHour)">
+                <div class="tt-col tt-hours">
+                    <div class="tt-head"></div>
+                    <div class="tt-body">
+                        @for (var h = Model.StartHour; h < Model.EndHour; h++)
+                        {
+                            <span>@(h.ToString("00")):00</span>
+                        }
+                    </div>
+                </div>
+
+                @foreach (var day in Model.Days)
+                {
+                    <div class="tt-col @(day.IsToday ? "today" : "")">
+                        <div class="tt-head">@day.DayName</div>
+                        <div class="tt-body">
+                            @foreach (var b in day.Blocks)
+                            {
+                                var s = b.Slot;
+                                <button type="button" class="tt-block @(s.HasConflict ? "conflict" : "")"
+                                        style="top:@b.TopCss;height:@b.HeightCss;--block-color:@s.Color"
+                                        title="@s.CourseName"
+                                        data-open="slotModal" data-mode="edit" data-action="@Url.Action("UpdateScheduleSlot")" data-title="Chỉnh sửa buổi học"
+                                        data-id="@s.Id" data-courseid="@s.CourseId" data-day="@((int)s.Day)" data-start="@s.Start" data-end="@s.End" data-room="@s.Room">
+                                    <strong>@s.CourseCode</strong>
+                                    <span>@s.Start - @s.End</span>
+                                    <span>@s.Room</span>
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <section class="study-card" style="margin-top:18px">
+        <div class="section-heading"><div><h3>Danh sách buổi học</h3><p>Sắp xếp theo thứ trong tuần</p></div></div>
+        <div class="table-wrap">
+            <table class="study-table">
+                <thead><tr><th>THỨ</th><th>GIỜ</th><th>MÔN HỌC</th><th>PHÒNG</th><th>GHI CHÚ</th><th class="right">THAO TÁC</th></tr></thead>
+                <tbody>
+                    @foreach (var s in Model.Slots)
+                    {
+                        <tr>
+                            <td><strong>@s.DayLabel</strong></td>
+                            <td class="muted">@s.Start - @s.End</td>
+                            <td><i class="course-dot" style="background:@s.Color"></i>@s.CourseCode - @s.CourseName</td>
+                            <td>@s.Room</td>
+                            <td>@if (s.HasConflict) { <span class="status st-overdue">Trùng lịch</span> }</td>
+                            <td class="right">
+                                <div class="row-actions">
+                                    <button type="button" class="row-btn" data-open="slotModal" data-mode="edit" data-action="@Url.Action("UpdateScheduleSlot")" data-title="Chỉnh sửa buổi học"
+                                            data-id="@s.Id" data-courseid="@s.CourseId" data-day="@((int)s.Day)" data-start="@s.Start" data-end="@s.End" data-room="@s.Room">Sửa</button>
+                                    <button type="button" class="row-btn" data-open="deleteModal" data-mode="delete" data-id="@s.Id" data-name="buổi học @s.CourseCode (@s.DayLabel @s.Start)">Xóa</button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        @if (!Model.Slots.Any()) { <div class="study-empty">Chưa có buổi học nào.</div> }
+    </section>
+
+    <div class="study-modal" id="slotModal" role="dialog" aria-modal="true" aria-labelledby="slotModalTitle" hidden>
+        <div class="study-modal-box">
+            <div class="study-modal-head">
+                <h3 id="slotModalTitle" data-modal-title>Thêm buổi học</h3>
+                <button type="button" class="study-modal-close" data-close aria-label="Đóng">&times;</button>
+            </div>
+            <form asp-action="CreateScheduleSlot" method="post" data-simulate data-validate="slot">
+                <input type="hidden" name="Id" disabled />
+                <div class="study-form-grid">
+                    <div class="field full">
+                        <label for="sCourse">Môn học</label>
+                        <select id="sCourse" name="CourseId" required>
+                            <option value="" disabled selected>Chọn môn học</option>
+                            @foreach (var c in Model.Courses) { <option value="@c.Id">@c.Code - @c.Name</option> }
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="sDay">Thứ</label>
+                        <select id="sDay" name="Day" required>
+                            <option value="1">Thứ Hai</option><option value="2">Thứ Ba</option><option value="3">Thứ Tư</option>
+                            <option value="4">Thứ Năm</option><option value="5">Thứ Sáu</option><option value="6">Thứ Bảy</option><option value="0">Chủ nhật</option>
+                        </select>
+                    </div>
+                    <div class="field"><label for="sRoom">Phòng học</label><input id="sRoom" name="Room" /></div>
+                    <div class="field"><label for="sStart">Bắt đầu</label><input id="sStart" name="Start" type="time" value="07:00" required /></div>
+                    <div class="field"><label for="sEnd">Kết thúc</label><input id="sEnd" name="End" type="time" value="09:00" required /></div>
+                </div>
+                <p class="form-error" role="alert" hidden></p>
+                <p class="study-note">Bản mô phỏng giao diện: dữ liệu chưa được lưu. Khi làm back-end cần chặn buổi học trùng giờ trong cùng ngày.</p>
+                <div class="study-modal-foot">
+                    <button type="button" class="study-btn" data-close>Hủy</button>
+                    <button type="submit" class="study-btn primary">Lưu buổi học</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <partial name="_StudyDeleteModal" model='"DeleteScheduleSlot"' />
+</div>
+
+@section Scripts {
+    <script src="~/js/study-pages.js" asp-append-version="true"></script>
+}

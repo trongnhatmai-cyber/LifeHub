@@ -1,0 +1,106 @@
+@model LifeHub.Models.ViewModels.StudyManagement.StudyGradesPageViewModel
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Điểm số";
+    ViewData["ActivePage"] = "Grade";
+
+    string Score(decimal? v) => v.HasValue ? v.Value.ToString("0.0") : "—";
+    string Pct(decimal? v) => (v.HasValue ? Math.Min(100m, v.Value * 10m) : 0m).ToString("0.#", System.Globalization.CultureInfo.InvariantCulture);
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/study.css" asp-append-version="true" />
+}
+
+<div class="study-page" data-module="grades">
+    <header class="study-heading">
+        <div>
+            <span class="study-label">ĐIỂM SỐ</span>
+            <h1>Kết quả học tập</h1>
+            <p>Điểm từng môn, GPA học kỳ và điểm cần đạt để chạm mục tiêu.</p>
+        </div>
+    </header>
+
+    <section class="study-summary">
+        <div class="summary-card"><div class="summary-top"><span>GPA học kỳ này</span><span class="summary-badge">THANG 4</span></div><h2>@(Model.Gpa?.ToString("0.00") ?? "—")</h2><p>Tính theo tín chỉ</p></div>
+        <div class="summary-card"><div class="summary-top"><span>GPA mục tiêu</span><span class="summary-badge">MỤC TIÊU</span></div><h2>@(Model.TargetGpa?.ToString("0.0") ?? "—")</h2><p>@(Model.Gpa.HasValue && Model.TargetGpa.HasValue ? (Model.Gpa >= Model.TargetGpa ? "Đã đạt mục tiêu" : "Còn thiếu " + (Model.TargetGpa - Model.Gpa)!.Value.ToString("0.00") + " điểm") : "Chưa đặt mục tiêu")</p></div>
+        <div class="summary-card"><div class="summary-top"><span>Tín chỉ đã có điểm</span><span class="summary-badge">TÍN CHỈ</span></div><h2>@Model.ScoredCredits.ToString("00")</h2><p>Trên @Model.Rows.Count môn đang học</p></div>
+        <div class="summary-card"><div class="summary-top"><span>Môn đạt mục tiêu</span><span class="summary-badge">KẾT QUẢ</span></div><h2>@Model.TargetMetCount.ToString("00")</h2><p>Điểm hiện tại không thấp hơn mục tiêu</p></div>
+    </section>
+
+    <section class="study-card">
+        <div class="section-heading"><div><h3>Điểm hiện tại và mục tiêu</h3><p>Thang điểm 10 theo từng môn</p></div></div>
+        <div class="chart-legend"><span><i class="legend-now"></i> Hiện tại</span><span><i class="legend-target"></i> Mục tiêu</span></div>
+        <div class="grade-chart">
+            @foreach (var r in Model.Rows)
+            {
+                <div class="grade-group">
+                    <div class="grade-bars">
+                        <div class="grade-bar now" style="height:@Pct(r.Course.CurrentScore)%" title="Hiện tại: @Score(r.Course.CurrentScore)"></div>
+                        <div class="grade-bar target" style="height:@Pct(r.Course.TargetScore)%" title="Mục tiêu: @Score(r.Course.TargetScore)"></div>
+                    </div>
+                    <small>@r.Course.Code</small>
+                </div>
+            }
+        </div>
+    </section>
+
+    <div class="grade-list">
+        @foreach (var r in Model.Rows)
+        {
+            var c = r.Course;
+            <details class="study-card grade-card">
+                <summary>
+                    <span class="grade-name"><i class="course-dot" style="background:@c.Color"></i><strong>@c.Code - @c.Name</strong><small>@c.Credits tín chỉ</small></span>
+                    <span class="grade-score">@Score(c.CurrentScore)<small>/ mục tiêu @Score(c.TargetScore)</small></span>
+                    <span class="status @(r.MetTarget ? "st-graded" : "st-upcoming")">@(c.CurrentScore.HasValue ? r.Letter + " · " + r.Gpa4!.Value.ToString("0.0") : "Chưa có điểm")</span>
+                </summary>
+
+                <div class="grade-body">
+                    <p class="grade-need">@r.RequiredLabel</p>
+                    <div class="table-wrap">
+                        <table class="study-table">
+                            <thead><tr><th>BÀI ĐÃ CÓ ĐIỂM</th><th>LOẠI</th><th>TRỌNG SỐ</th><th class="right">ĐIỂM</th></tr></thead>
+                            <tbody>
+                                @foreach (var g in r.Graded)
+                                {
+                                    <tr><td><strong>@g.Title</strong></td><td class="muted">@g.KindLabel</td><td>@g.WeightPercent%</td><td class="right"><strong>@g.Score.ToString("0.0") / @g.MaxScore.ToString("0.#")</strong></td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    @if (!r.Graded.Any()) { <div class="study-empty">Chưa có bài nào được chấm điểm.</div> }
+                    <div class="grade-foot">
+                        <span>Trọng số đã chấm: <strong>@r.GradedWeight%</strong> · Còn lại: <strong>@r.RemainingWeight%</strong></span>
+                        <button type="button" class="study-btn small" data-open="targetModal" data-mode="edit" data-title="Đặt điểm mục tiêu"
+                                data-courseid="@c.Id" data-name="@c.Code - @c.Name" data-targetscore="@(c.TargetScore?.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture))">Đặt điểm mục tiêu</button>
+                    </div>
+                </div>
+            </details>
+        }
+    </div>
+
+    <div class="study-modal" id="targetModal" role="dialog" aria-modal="true" aria-labelledby="targetModalTitle" hidden>
+        <div class="study-modal-box">
+            <div class="study-modal-head">
+                <h3 id="targetModalTitle" data-modal-title>Đặt điểm mục tiêu</h3>
+                <button type="button" class="study-modal-close" data-close aria-label="Đóng">&times;</button>
+            </div>
+            <p class="study-note">Môn: <strong data-text="name"></strong></p>
+            <form asp-action="SetTargetScore" method="post" data-simulate>
+                <input type="hidden" name="CourseId" />
+                <div class="field"><label for="tScore">Điểm mục tiêu (thang 10)</label><input id="tScore" name="TargetScore" type="number" min="0" max="10" step="0.1" required /></div>
+                <p class="study-note">Bản mô phỏng giao diện: dữ liệu chưa được lưu.</p>
+                <div class="study-modal-foot">
+                    <button type="button" class="study-btn" data-close>Hủy</button>
+                    <button type="submit" class="study-btn primary">Lưu mục tiêu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/study-pages.js" asp-append-version="true"></script>
+}

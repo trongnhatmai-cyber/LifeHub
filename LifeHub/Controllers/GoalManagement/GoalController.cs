@@ -1,18 +1,22 @@
-
+using LifeHub.Models.MockData;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LifeHub.Controllers
 {
     public class GoalController : Controller
     {
-        public IActionResult Index()
+        public IActionResult Index() => Page("GoalOverview", "GoalOverview");
+        public IActionResult GoalList() => Page("GoalList", "GoalList");
+        public IActionResult KeyResult() => Page("KeyResult", "KeyResult");
+        public IActionResult GoalProgress() => Page("GoalProgress", "GoalProgress");
+        public IActionResult GoalReview() => Page("GoalReview", "GoalReview");
+
+        private IActionResult Page(string page, string activePage)
         {
-            ViewData["Title"] = "Mục tiêu";
-
-            // Giá trị này phải trùng với điều kiện active trong _Layout.cshtml
-            ViewData["ActivePage"] = "Goal";
-
-            return View();
+            var model = GoalHabitMockData.Get(page);
+            ViewData["Title"] = model.Title;
+            ViewData["ActivePage"] = activePage;
+            return View(page == "GoalOverview" ? "Index" : page, model);
         }
     }
 }

@@ -506,3 +506,84 @@ body.study-modal-open { overflow: hidden; }
     .study-page .course-item { flex-direction: column; align-items: stretch; }
     .study-page .course-progress { width: 100%; }
 }
+
+/* =====================================================================
+   [MỚI] CÁC TRANG CON: Môn học · Thời khóa biểu · Bài tập · Điểm số · Tài liệu
+   ===================================================================== */
+.study-page .study-btn.small { min-height: 32px; padding: 0 12px; border-radius: 9px; font-size: 12px; }
+.study-page .study-btn.danger { border-color: #dc2626; background: #dc2626; color: #fff; }
+.study-page .study-count { margin: 0 0 12px; color: var(--study-muted); font-size: 12px; }
+.study-page a.study-chip { display: inline-flex; align-items: center; text-decoration: none; }
+.study-page .field textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--study-border); border-radius: 10px; background: var(--study-card); color: var(--study-text); font-size: 13px; }
+.study-page .form-error { margin: 12px 0 0; padding: 9px 11px; border-radius: 9px; background: rgba(220, 38, 38, .12); color: #dc2626; font-size: 12px; font-weight: 600; }
+
+/* Thanh lọc (GET) */
+.study-page .study-toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+.study-page .study-toolbar input, .study-page .study-toolbar select { height: 40px; padding: 0 12px; border: 1px solid var(--study-border); border-radius: 12px; background: var(--study-card); color: var(--study-text); font-size: 13px; }
+.study-page .study-toolbar input { flex: 1 1 220px; min-width: 0; }
+.study-page .study-toolbar select { flex: 0 1 190px; }
+.study-page .study-toolbar input:focus, .study-page .study-toolbar select:focus { outline: 2px solid var(--study-accent); outline-offset: 1px; }
+
+/* Nút thao tác trong bảng */
+.study-page .row-actions { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+.study-page .row-actions form { margin: 0; }
+.study-page .row-btn { padding: 6px 11px; border: 1px solid var(--study-border); border-radius: 8px; background: var(--study-card); color: var(--study-text); font-size: 11px; font-weight: 700; cursor: pointer; }
+.study-page .row-btn:hover { border-color: var(--study-accent); color: var(--study-accent); }
+.study-page .due-hint.overdue { color: #dc2626; font-weight: 700; }
+
+/* Thẻ môn học và tài liệu */
+.study-page .course-grid, .study-page .doc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 16px; }
+.study-page .course-card, .study-page .doc-card { display: flex; flex-direction: column; min-width: 0; padding: 18px; border: 1px solid var(--study-border); border-left: 4px solid var(--course-color, var(--study-accent)); border-radius: 16px; background: var(--study-bg); box-shadow: var(--study-shadow); }
+.study-page .course-card h3, .study-page .doc-card h3 { margin: 10px 0 6px; font-size: 15px; font-weight: 800; }
+.study-page .course-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.study-page .course-card .bar { height: 6px; margin: 4px 0 12px; overflow: hidden; border-radius: 10px; background: var(--study-card-strong); }
+.study-page .course-card .bar i { display: block; height: 100%; border-radius: 10px; background: var(--course-color, var(--study-accent)); }
+.study-page .course-score { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 14px; padding: 9px 11px; border-radius: 10px; background: var(--study-card); color: var(--study-muted); font-size: 12px; }
+.study-page .course-score strong { color: var(--study-text); }
+.study-page .card-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 12px; }
+.study-page .doc-kind { padding: 4px 9px; border-radius: 20px; background: var(--study-card-strong); color: var(--study-accent); font-size: 10px; font-weight: 800; }
+
+/* Thời khóa biểu dạng lưới theo giờ */
+.study-page .tt-wrap { overflow-x: auto; }
+.study-page .tt { display: grid; grid-template-columns: 52px repeat(7, minmax(104px, 1fr)); min-width: 800px; --tt-row: 56px; }
+.study-page .tt-col { min-width: 0; border-left: 1px solid var(--study-border); }
+.study-page .tt-col.tt-hours { border-left: 0; }
+.study-page .tt-head { display: flex; height: 36px; align-items: center; justify-content: center; border-bottom: 1px solid var(--study-border); font-size: 12px; font-weight: 750; }
+.study-page .tt-col.today .tt-head { color: var(--study-accent); }
+.study-page .tt-col.today { background: color-mix(in srgb, var(--study-accent) 6%, transparent); }
+.study-page .tt-body { position: relative; height: calc(var(--tt-hours) * var(--tt-row)); background: repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--tt-row) - 1px), var(--study-border) calc(var(--tt-row) - 1px), var(--study-border) var(--tt-row)); }
+.study-page .tt-hours .tt-body { background: none; }
+.study-page .tt-hours .tt-body span { display: block; height: var(--tt-row); padding: 2px 6px 0 0; text-align: right; color: var(--study-muted); font-size: 10px; }
+.study-page .tt-block { position: absolute; left: 3px; right: 3px; display: flex; flex-direction: column; gap: 1px; overflow: hidden; padding: 5px 7px; border: 1px solid color-mix(in srgb, var(--block-color) 35%, transparent); border-left: 4px solid var(--block-color); border-radius: 8px; background: color-mix(in srgb, var(--block-color) 14%, var(--study-bg)); color: var(--study-text); font-size: 10px; text-align: left; cursor: pointer; }
+.study-page .tt-block strong { font-size: 11px; }
+.study-page .tt-block:hover { filter: brightness(.97); }
+.study-page .tt-block.conflict { border-color: #dc2626; box-shadow: 0 0 0 1px #dc2626 inset; }
+
+/* Điểm số */
+.study-page .legend-now, .study-page .legend-target { display: inline-block; width: 9px; height: 9px; margin-right: 6px; border-radius: 3px; }
+.study-page .legend-now { background: var(--study-accent); }
+.study-page .legend-target { background: var(--study-soft); }
+.study-page .chart-legend { display: flex; gap: 16px; margin-bottom: 12px; color: var(--study-muted); font-size: 11px; }
+.study-page .grade-chart { display: flex; height: 200px; align-items: flex-end; gap: 12px; }
+.study-page .grade-group { display: flex; min-width: 0; flex: 1; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; }
+.study-page .grade-bars { display: flex; width: 100%; max-width: 54px; height: calc(100% - 20px); align-items: flex-end; justify-content: center; gap: 5px; }
+.study-page .grade-bar { width: 18px; min-height: 2px; border-radius: 6px 6px 2px 2px; }
+.study-page .grade-bar.now { background: var(--study-accent); }
+.study-page .grade-bar.target { background: var(--study-soft); }
+.study-page .grade-group small { color: var(--study-muted); font-size: 10px; }
+.study-page .grade-list { display: grid; gap: 12px; margin-top: 18px; }
+.study-page .grade-card { padding: 0; }
+.study-page .grade-card summary { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; cursor: pointer; list-style: none; }
+.study-page .grade-card summary::-webkit-details-marker { display: none; }
+.study-page .grade-name { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.study-page .grade-name small, .study-page .grade-score small { margin-left: 6px; color: var(--study-muted); font-size: 11px; font-weight: 400; }
+.study-page .grade-score { font-size: 18px; font-weight: 800; }
+.study-page .grade-body { padding: 0 20px 18px; }
+.study-page .grade-need { margin: 0 0 12px; padding: 9px 12px; border-radius: 10px; background: var(--study-card); color: var(--study-muted); font-size: 12px; }
+.study-page .grade-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; color: var(--study-muted); font-size: 12px; }
+.study-page .grade-foot strong { color: var(--study-text); }
+
+@media (max-width: 640px) {
+    .study-page .study-toolbar select { flex: 1 1 100%; }
+    .study-page .grade-card summary { padding: 14px; }
+}

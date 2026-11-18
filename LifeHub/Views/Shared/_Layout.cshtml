@@ -1,4 +1,3 @@
-
 @using System.Globalization
 @{
     var active = ViewData["ActivePage"] as string;
@@ -94,14 +93,16 @@
             new[] { "GoalOverview", "Tổng quan mục tiêu" },
             new[] { "GoalList", "Mục tiêu cá nhân" },
             new[] { "KeyResult", "Kết quả then chốt (KR)" },
-            new[] { "GoalProgress", "Tiến độ mục tiêu" }
+            new[] { "GoalProgress", "Tiến độ mục tiêu" },
+            new[] { "GoalReview", "Đánh giá kết quả" }
         },
 
         ["Habit"] = new List<string[]> {
             new[] { "HabitOverview", "Tổng quan thói quen" },
             new[] { "HabitList", "Danh sách thói quen" },
-            new[] { "HabitLog", "Lịch sử thực hiện" },
-            new[] { "HabitStreak", "Chuỗi ngày duy trì" }
+            new[] { "HabitTracking", "Theo dõi hằng ngày" },
+            new[] { "HabitStreak", "Chuỗi Streak" },
+            new[] { "HabitStatistics", "Thống kê thói quen" }
         },
 
         ["Knowledge"] = new List<string[]> {
@@ -176,7 +177,7 @@
                 <div class="menu-label">@g.Title</div>
 
                 <nav class="menu" aria-label="@g.Title">
-                    
+
                 @foreach (var item in g.Items)
                 {
                     var kids = children.TryGetValue(item[0], out var childList)
@@ -216,11 +217,32 @@
                                         "Category" => "Category",
                                         "Wallet" => "Wallet",
                                         "SavingGoal" => "SavingGoal",
+                                        "Course" or "Schedule" or "Assignment" or "Grade" or "StudyDocument" => "Study",
                                         _ => item[2]
                                     };
 
+                                    var childAction = sub[0] switch
+                                    {
+                                        "GoalOverview" or "HabitOverview" => "Index",
+                                        "GoalList" => "GoalList",
+                                        "KeyResult" => "KeyResult",
+                                        "GoalProgress" => "GoalProgress",
+                                        "GoalReview" => "GoalReview",
+                                        "HabitList" => "HabitList",
+                                        "HabitTracking" => "HabitTracking",
+                                        "HabitStreak" => "HabitStreak",
+                                        "HabitStatistics" => "HabitStatistics",
+                                        "Course" => "Courses",
+                                        "Schedule" => "Schedule",
+                                        "Assignment" => "Assignments",
+                                        "Grade" => "Grades",
+                                        "StudyDocument" => "Documents",
+                                        _ => "Index"
+                                    };
+
+
                                     <a asp-controller="@childController"
-                                    asp-action="Index"
+                                    asp-action="@childAction"
                                     class="submenu-link @(isSubActive ? "active" : "")"
                                     aria-current="@(isSubActive ? "page" : null)">
 

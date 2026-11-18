@@ -12,8 +12,6 @@ namespace LifeHub.Models.MockData
     /// </summary>
     public static class StudyMockData
     {
-        private record ScheduleSlot(int CourseId, DayOfWeek Day, string Start, string End, string Room);
-
         public static StudyViewModel GetStudyViewModel()
         {
             var today = DateTime.Today;
@@ -116,19 +114,28 @@ namespace LifeHub.Models.MockData
             }
         }
 
+        /// <summary>Các buổi học lặp lại hàng tuần (course_schedules). Dùng chung cho Tổng quan và trang Thời khóa biểu.</summary>
+        public static List<StudyScheduleSlot> GetScheduleSlots()
+        {
+            StudyScheduleSlot S(int id, int courseId, DayOfWeek day, string start, string end, string room) =>
+                new() { Id = id, CourseId = courseId, Day = day, Start = start, End = end, Room = room };
+
+            return new List<StudyScheduleSlot>
+            {
+                S(1, 1, DayOfWeek.Monday,    "07:00", "09:30", "B2-301"),
+                S(2, 4, DayOfWeek.Monday,    "13:00", "15:00", "B1-102"),
+                S(3, 2, DayOfWeek.Tuesday,   "09:30", "12:00", "A1-204"),
+                S(4, 5, DayOfWeek.Tuesday,   "13:00", "15:30", "A2-310"),
+                S(5, 3, DayOfWeek.Wednesday, "07:00", "09:30", "C3-105"),
+                S(6, 1, DayOfWeek.Thursday,  "13:00", "15:30", "B2-301"),
+                S(7, 2, DayOfWeek.Friday,    "07:00", "09:30", "A1-204"),
+                S(8, 5, DayOfWeek.Friday,    "13:00", "15:30", "A2-310")
+            };
+        }
+
         private static List<StudyScheduleDay> BuildSchedule(DateTime today, List<StudyCourseItem> courses)
         {
-            var slots = new List<ScheduleSlot>
-            {
-                new(1, DayOfWeek.Monday,    "07:00", "09:30", "B2-301"),
-                new(4, DayOfWeek.Monday,    "13:00", "15:00", "B1-102"),
-                new(2, DayOfWeek.Tuesday,   "09:30", "12:00", "A1-204"),
-                new(5, DayOfWeek.Tuesday,   "13:00", "15:30", "A2-310"),
-                new(3, DayOfWeek.Wednesday, "07:00", "09:30", "C3-105"),
-                new(1, DayOfWeek.Thursday,  "13:00", "15:30", "B2-301"),
-                new(2, DayOfWeek.Friday,    "07:00", "09:30", "A1-204"),
-                new(5, DayOfWeek.Friday,    "13:00", "15:30", "A2-310")
-            };
+            var slots = GetScheduleSlots();
 
             var days = new (DayOfWeek Day, string Label)[]
             {
@@ -152,7 +159,7 @@ namespace LifeHub.Models.MockData
         }
 
         /// <summary>Quy đổi điểm thang 10 sang thang 4.</summary>
-        private static decimal ToGpa4(decimal s) => s switch
+        public static decimal ToGpa4(decimal s) => s switch
         {
             >= 8.5m => 4.0m, >= 8.0m => 3.5m, >= 7.0m => 3.0m, >= 6.5m => 2.5m,
             >= 5.5m => 2.0m, >= 5.0m => 1.5m, >= 4.0m => 1.0m, _ => 0m
