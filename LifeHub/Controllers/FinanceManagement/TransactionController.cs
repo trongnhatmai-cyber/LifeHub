@@ -16,7 +16,7 @@ public class TransactionController : Controller
     {
         _transactionService = transactionService;
     }
-    
+
     public IActionResult Index()
     {
         return View("~/Views/Finance/Transaction/Index.cshtml");
@@ -72,3 +72,4 @@ public class TransactionController : Controller
         );
     }
 }
+

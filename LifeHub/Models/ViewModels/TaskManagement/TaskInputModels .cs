@@ -18,11 +18,23 @@ namespace LifeHub.Models.ViewModels.TaskManagement
         [Required] public string Priority { get; set; } = "medium";
 
         public DateTime? Deadline { get; set; }
-        public string? ProjectName { get; set; }
+
+        /// <summary>tasks.project_id. Trống là việc cá nhân.</summary>
+        public int? ProjectId { get; set; }
+
+        /// <summary>tasks.assigned_to. Trống là việc của chính người tạo. Phải là thành viên (manager/member) của ProjectId.</summary>
+        public int? AssignedTo { get; set; }
         [Range(1, 10000)] public int? EstimatedMinutes { get; set; }
 
         /// <summary>Danh sách nhãn, cách nhau bằng dấu phẩy (back-end tách ra bảng tags/task_tags).</summary>
         public string? Tags { get; set; }
+    }
+
+    /// <summary>Gửi bình luận trong khung trao đổi của công việc (bảng task_comments).</summary>
+    public class AddCommentInput
+    {
+        [Required] public int TaskId { get; set; }
+        [Required, StringLength(1000)] public string Content { get; set; } = string.Empty;
     }
 
     /// <summary>Kéo thả thẻ sang cột khác trên Kanban.</summary>

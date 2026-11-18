@@ -310,3 +310,214 @@ html[data-theme="dark"] .project-page .task-prio--urgent { color: #f87171; }
     .project-page .proj-meta { flex-direction: column; align-items: flex-start; }
     .project-page .proj-due { text-align: left; }
 }
+/* =====================================================================
+   BỔ SUNG: NHIỆM VỤ GẦN ĐÂY / KANBAN KIỂU JIRA / BÌNH LUẬN / DUYỆT
+   ===================================================================== */
+
+/* Badge trạng thái nhiệm vụ */
+.project-page .proj-status--todo { background: var(--proj-gray-bg); color: var(--proj-gray-text); }
+.project-page .proj-status--review { background: var(--proj-warn-bg); color: var(--proj-warn-text); }
+.project-page .proj-status--done { background: var(--proj-ok-bg); color: var(--proj-ok-text); }
+
+/* Thông báo nổi (toast) */
+.project-page .proj-toast-wrap { position: fixed; right: 20px; bottom: 20px; z-index: 1200; display: grid; gap: 10px; }
+.project-page .proj-toast {
+    max-width: 360px; padding: 12px 14px; border-radius: 12px;
+    border: 1px solid var(--proj-border); background: var(--proj-bg); color: var(--proj-text);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .18); font-size: 13px; line-height: 1.5;
+}
+.project-page .proj-toast--success { border-color: var(--proj-accent); }
+.project-page .proj-toast--error { border-color: var(--proj-danger); color: var(--proj-danger); }
+
+/* Nhiệm vụ gần đây (trang Index) */
+.project-page .recent-tasks { margin-bottom: 22px; }
+.project-page .recent-head { align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+.project-page .recent-head h3 { margin-bottom: 4px; }
+.project-page .recent-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+.project-page .recent-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    flex-wrap: wrap; padding: 12px 0; border-bottom: 1px solid var(--proj-border);
+}
+.project-page .recent-row:last-child { border-bottom: 0; }
+.project-page .recent-main { display: grid; gap: 6px; min-width: 0; flex: 1 1 320px; }
+.project-page .recent-title { display: flex; align-items: baseline; gap: 8px; font-size: 13px; }
+.project-page .recent-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.project-page .recent-side { display: flex; align-items: center; gap: 12px; }
+.project-page .recent-who { display: grid; text-align: right; line-height: 1.3; }
+.project-page .recent-who small { color: var(--proj-muted); font-size: 11px; }
+
+/* Thanh lọc bảng Kanban */
+.project-page .board-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+.project-page .board-search { max-width: 260px; }
+.project-page .board-avatars { display: flex; gap: 6px; }
+.project-page .filter-avatar {
+    width: 32px; height: 32px; padding: 0; border-radius: 50%;
+    border: 2px solid var(--proj-border); background: var(--proj-card-strong); color: var(--proj-accent);
+    font-size: 12px; font-weight: 800; cursor: pointer; transition: all .2s ease;
+}
+.project-page .filter-avatar:hover { transform: translateY(-1px); }
+.project-page .filter-avatar.is-active { background: var(--proj-accent); border-color: var(--proj-accent-dark); color: #fff; }
+
+.project-page .kanban-hint { display: block; color: var(--proj-muted); font-size: 10px; font-weight: 600; }
+.project-page .kanban-col__head h3 { justify-content: space-between; flex: 1; margin-right: 8px; }
+.project-page .task-meta { color: var(--proj-muted); font-size: 11px; font-weight: 700; }
+.project-page .task-meta-group { display: flex; align-items: center; gap: 10px; }
+
+/* Modal nhiệm vụ kiểu Jira */
+.project-page #reworkModal { z-index: 1100; }
+.project-page .proj-modal__dialog--jira { width: min(1000px, 100%); }
+.project-page .jira-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.project-page .jira-layout { display: grid; grid-template-columns: minmax(0, 1fr) 290px; gap: 26px; }
+.project-page .jira-title { margin: 0 0 16px; font-size: 22px; font-weight: 800; line-height: 1.3; }
+.project-page .jira-h { margin: 18px 0 8px; font-size: 13px; font-weight: 800; }
+.project-page .jira-main .task-desc { margin: 0; }
+.project-page .jira-side { display: grid; gap: 14px; align-content: start; }
+.project-page .jira-panel {
+    padding: 14px; border: 1px solid var(--proj-border); border-radius: 14px; background: var(--proj-card);
+}
+.project-page .jira-panel h4 { margin: 0 0 10px; font-size: 13px; font-weight: 800; }
+.project-page .jira-label { display: block; margin-bottom: 6px; font-size: 12px; font-weight: 700; }
+.project-page .review-actions { display: grid; gap: 8px; margin-top: 10px; }
+.project-page .jira-details dl { margin: 0; display: grid; gap: 10px; }
+.project-page .jira-details dl > div { display: grid; grid-template-columns: 110px 1fr; gap: 8px; align-items: center; font-size: 12px; }
+.project-page .jira-details dt { color: var(--proj-muted); font-weight: 700; }
+.project-page .jira-details dd { margin: 0; min-width: 0; font-weight: 700; }
+.project-page .sub-row.is-done .sub-title { text-decoration: line-through; opacity: .6; }
+
+/* Tab Bình luận / Lịch sử */
+.project-page .jira-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+.project-page .jira-tab {
+    padding: 5px 12px; border: 1px solid var(--proj-border); border-radius: 8px;
+    background: transparent; color: var(--proj-muted); font-size: 12px; font-weight: 700; cursor: pointer;
+}
+.project-page .jira-tab.is-active { border-color: var(--proj-accent); background: var(--proj-card); color: var(--proj-accent); }
+
+/* Bình luận */
+.project-page .comment-list { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 14px; }
+.project-page .comment-empty { color: var(--proj-muted); font-size: 12px; }
+.project-page .comment { display: flex; gap: 10px; }
+.project-page .comment-avatar {
+    flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%;
+    background: var(--proj-accent); color: #fff; font-size: 12px; font-weight: 800;
+}
+.project-page .comment-body { min-width: 0; flex: 1; }
+.project-page .comment-head { margin: 0 0 4px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 12px; }
+.project-page .comment-head small { color: var(--proj-muted); font-size: 11px; }
+.project-page .comment-text { margin: 0; font-size: 13px; line-height: 1.55; white-space: pre-wrap; word-break: break-word; }
+.project-page .comment-flag {
+    padding: 2px 8px; border-radius: 20px; background: var(--proj-danger-bg); color: var(--proj-danger);
+    font-size: 10px; font-weight: 800;
+}
+.project-page .comment--rework .comment-body {
+    padding: 10px 12px; border: 1px solid var(--proj-danger); border-radius: 12px; background: var(--proj-danger-bg);
+}
+.project-page .comment-form { display: flex; gap: 10px; align-items: flex-start; }
+.project-page .comment-form__body { flex: 1; display: grid; gap: 8px; justify-items: start; }
+
+@media (max-width: 820px) {
+    .project-page .jira-layout { grid-template-columns: 1fr; }
+}
+
+/* =====================================================================
+   BỔ SUNG: TRANG TẤT CẢ DỰ ÁN, THẺ BẤM ĐƯỢC, PHÂN TRANG, TIMELINE, HIỆU ỨNG
+   ===================================================================== */
+.project-page .project-item-card { position: relative; }
+
+/* Thẻ dự án: bấm vào đâu trên thẻ cũng mở dự án (stretched link) */
+.project-page .project-item-card.is-link { cursor: pointer; }
+.project-page .proj-card-link { color: inherit; text-decoration: none; transition: color .2s ease; }
+.project-page .proj-card-link::after { content: ""; position: absolute; inset: 0; z-index: 1; border-radius: 18px; }
+.project-page .proj-card-link:focus-visible::after { outline: 2px solid var(--proj-accent); outline-offset: 2px; }
+.project-page .project-item-card.is-link:hover { border-color: var(--proj-accent); }
+.project-page .project-item-card.is-link:hover .proj-card-link { color: var(--proj-accent); }
+
+.project-page .proj-foot {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    margin-top: 12px; color: var(--proj-muted); font-size: 11px;
+}
+.project-page .proj-open { display: inline-flex; align-items: center; gap: 6px; color: var(--proj-accent); font-weight: 800; }
+.project-page .proj-open i { font-style: normal; transition: transform .25s ease; }
+.project-page .project-item-card.is-link:hover .proj-open i { transform: translateX(5px); }
+
+/* Tiêu đề từng khối trên trang tổng quan */
+.project-page .proj-section-head {
+    display: flex; align-items: flex-end; justify-content: space-between; gap: 12px;
+    flex-wrap: wrap; margin: 6px 0 14px;
+}
+.project-page .proj-section-head h2 { margin: 0 0 4px; font-size: 18px; font-weight: 800; }
+.project-page .proj-section-head p { margin: 0; }
+
+/* Phân trang */
+.project-page .proj-pager { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; margin: 4px 0 24px; }
+.project-page .proj-pager button {
+    min-width: 36px; min-height: 36px; padding: 0 10px; border: 1px solid var(--proj-border);
+    border-radius: 10px; background: var(--proj-card); color: var(--proj-text);
+    font-size: 13px; font-weight: 700; cursor: pointer; transition: all .2s ease;
+}
+.project-page .proj-pager button:hover:not(:disabled) { background: var(--proj-card-strong); transform: translateY(-1px); }
+.project-page .proj-pager button.is-active { background: var(--proj-accent); border-color: var(--proj-accent); color: #fff; }
+.project-page .proj-pager button:disabled { opacity: .45; cursor: default; }
+.project-page .proj-pager-gap { align-self: center; color: var(--proj-muted); }
+
+/* Cột mốc dạng danh sách (Index) */
+.project-page .ms-meta { display: block; margin-top: 2px; color: var(--proj-muted); font-size: 11px; }
+.project-page .ms-row.is-overdue .ms-meta { color: var(--proj-danger); font-weight: 700; }
+.project-page .ms-toggle--static { cursor: default; }
+.project-page .ms-toggle--static:hover { background: var(--proj-card); color: var(--proj-accent); border-color: var(--proj-border); }
+.project-page .ms-row.is-done .ms-toggle--static { background: var(--proj-ok-bg); color: var(--proj-ok-text); }
+.project-page .ms-title { transition: opacity .25s ease; }
+
+/* Cột mốc dạng timeline (trang chi tiết) */
+.project-page .ms-progress { margin: 0 0 16px; }
+.project-page .ms-timeline { list-style: none; margin: 0; padding: 0; }
+.project-page .ms-node { position: relative; display: flex; gap: 14px; padding-bottom: 18px; }
+.project-page .ms-node:last-child { padding-bottom: 0; }
+.project-page .ms-node::before {
+    content: ""; position: absolute; left: 12px; top: 28px; bottom: 0; width: 2px;
+    background: var(--proj-border); transition: background .4s ease;
+}
+.project-page .ms-node:last-child::before { display: none; }
+.project-page .ms-node.is-done::before { background: var(--proj-accent); }
+.project-page .ms-node form { margin: 0; }
+.project-page .ms-node .ms-toggle { flex: none; position: relative; z-index: 1; }
+.project-page .ms-node.is-done .ms-toggle { background: var(--proj-ok-bg); color: var(--proj-ok-text); border-color: var(--proj-accent); }
+.project-page .ms-node.is-done .ms-toggle--static { background: var(--proj-ok-bg); color: var(--proj-ok-text); }
+.project-page .ms-node__body { flex: 1; min-width: 0; padding-top: 3px; }
+.project-page .ms-node__top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.project-page .ms-node__title { font-size: 13px; font-weight: 700; transition: opacity .25s ease; }
+.project-page .ms-node.is-done .ms-node__title { text-decoration: line-through; opacity: .6; }
+.project-page .ms-node__meta { display: block; margin-top: 2px; color: var(--proj-muted); font-size: 11px; font-weight: 600; }
+.project-page .ms-node.is-overdue .ms-node__meta { color: var(--proj-danger); font-weight: 700; }
+
+/* ---------- HIỆU ỨNG ---------- */
+@keyframes proj-rise { from { opacity: 0; transform: translateY(14px); } }
+@keyframes proj-fill { from { width: 0; } }
+@keyframes proj-pop { 0% { transform: scale(1); } 40% { transform: scale(1.35); } 100% { transform: scale(1); } }
+
+/* Trượt vào lần lượt. Dùng "backwards" để không đè hiệu ứng hover sau khi chạy xong */
+.project-page .summary-card,
+.project-page .project-item-card,
+.project-page .recent-row {
+    animation: proj-rise .5s cubic-bezier(.16, 1, .3, 1) backwards;
+    animation-delay: calc(min(var(--i, 0), 8) * 70ms);
+}
+.project-page .project-summary .summary-card:nth-child(2) { animation-delay: 70ms; }
+.project-page .project-summary .summary-card:nth-child(3) { animation-delay: 140ms; }
+.project-page .project-summary .summary-card:nth-child(4) { animation-delay: 210ms; }
+
+/* Thanh tiến độ chạy từ 0 và mượt khi đổi giá trị */
+.project-page .proj-progress .bar i {
+    transition: width .5s ease;
+    animation: proj-fill .9s cubic-bezier(.16, 1, .3, 1) backwards;
+}
+
+/* Vòng tròn cột mốc / việc con nảy khi tick */
+.project-page .ms-toggle.is-popping { animation: proj-pop .35s ease; }
+
+/* Tôn trọng người dùng bật "giảm chuyển động" */
+@media (prefers-reduced-motion: reduce) {
+    .project-page *, .project-page *::before, .project-page *::after {
+        animation: none !important;
+        transition: none !important;
+    }
+}

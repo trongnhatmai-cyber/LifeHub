@@ -93,3 +93,96 @@ html[data-theme="dark"] .finance-page { --cat-on-accent: #260d16; }
     .finance-page .form-actions { flex-direction:column-reverse; }
     .finance-page .form-actions > * { width:100%; }
 }
+
+/* ---------- Xác nhận xóa danh mục ---------- */
+
+.finance-page .delete-confirm-card {
+    max-width: 700px;
+}
+
+.finance-page .delete-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 24px;
+    padding: 16px;
+    border: 1px solid color-mix(in srgb, #d34d5c 25%, var(--cat-border));
+    border-radius: 13px;
+    background: color-mix(in srgb, #d34d5c 7%, var(--cat-bg));
+}
+
+.finance-page .delete-warning-icon {
+    display: grid;
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    border-radius: 50%;
+    background: #d34d5c;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.finance-page .delete-warning h2 {
+    margin: 0 0 6px;
+    color: var(--cat-text);
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.finance-page .delete-warning p {
+    margin: 0;
+    color: var(--cat-muted);
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.finance-page .delete-category-preview {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 25px;
+    padding: 16px;
+    border: 1px solid var(--cat-border);
+    border-radius: 12px;
+    background: var(--cat-soft);
+}
+
+.finance-page .delete-category-preview .category-color {
+    flex-basis: 12px;
+    height: 45px;
+}
+
+.finance-page .delete-category-preview .category-information {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.finance-page .delete-category-preview .category-information strong {
+    color: var(--cat-text);
+    font-size: 14px;
+}
+
+.finance-page .delete-category-preview .category-information span {
+    color: var(--cat-muted);
+    font-size: 12px;
+}
+
+.finance-page .delete-button {
+    background: #d34d5c;
+    color: #fff;
+}
+
+.finance-page .delete-button:hover {
+    border-color: #d34d5c;
+    background: #bd3949;
+    color: #fff;
+}
+
+@media (max-width: 520px) {
+    .finance-page .delete-warning {
+        padding: 13px;
+    }
+}

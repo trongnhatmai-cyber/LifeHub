@@ -1,0 +1,55 @@
+<!-- MODAL: TẠO DỰ ÁN (dùng ở Index và All) -->
+<div class="proj-modal" id="createProjectModal" role="dialog" aria-modal="true" aria-labelledby="createProjectTitle" hidden>
+    <div class="proj-modal__dialog">
+        <div class="proj-modal__head">
+            <div>
+                <h3 id="createProjectTitle">Tạo dự án mới</h3>
+                <p class="proj-sub">Bạn sẽ là Manager (trưởng nhóm) của dự án này.</p>
+            </div>
+            <button type="button" class="proj-modal__close" data-modal-close aria-label="Đóng">×</button>
+        </div>
+
+        <form method="post" asp-controller="Project" asp-action="Create" data-reset-on-open>
+            <div class="proj-field">
+                <label for="newProjectName">Tên dự án *</label>
+                <input type="text" id="newProjectName" name="name" class="proj-input" maxlength="80" required placeholder="VD: Website nhóm NET108" />
+            </div>
+
+            <div class="proj-field">
+                <label for="newProjectKey">Mã dự án (2–6 ký tự, bỏ trống để tự tạo)</label>
+                <input type="text" id="newProjectKey" name="key" class="proj-input" maxlength="6" placeholder="VD: NET" />
+            </div>
+
+            <div class="proj-field">
+                <label for="newProjectDesc">Mô tả</label>
+                <textarea id="newProjectDesc" name="description" class="proj-input" rows="3" maxlength="300" placeholder="Mục tiêu và phạm vi của dự án"></textarea>
+            </div>
+
+            <div class="proj-field-row">
+                <div class="proj-field">
+                    <label for="newProjectStart">Ngày bắt đầu *</label>
+                    <input type="date" id="newProjectStart" name="startDate" class="proj-input" required data-date-start />
+                </div>
+                <div class="proj-field">
+                    <label for="newProjectDue">Hạn chót *</label>
+                    <input type="date" id="newProjectDue" name="dueDate" class="proj-input" required data-date-end />
+                </div>
+            </div>
+
+            <div class="proj-field">
+                <label for="newProjectStatus">Trạng thái ban đầu</label>
+                <select id="newProjectStatus" name="status" class="proj-input">
+                    <option value="Lên kế hoạch">Lên kế hoạch</option>
+                    <option value="Đang chạy">Đang chạy</option>
+                </select>
+            </div>
+
+            <p class="proj-form-note" data-form-note hidden></p>
+
+            <div class="proj-modal__actions">
+                <button type="button" class="proj-btn" data-modal-close>Hủy</button>
+                <button type="submit" class="proj-btn primary">Tạo dự án</button>
+            </div>
+        </form>
+    </div>
+</div>

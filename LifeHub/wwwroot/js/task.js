@@ -65,6 +65,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             closeModal(form.closest(".task-modal"));
             form.reset();
+            syncAssignee();
             showToast("Bản mô phỏng giao diện: dữ liệu chưa được lưu.");
         });
     });
@@ -108,15 +109,27 @@ document.addEventListener("DOMContentLoaded", function () {
             .replace(/đ/g, "d");
     }
 
+    let activeScope = "all";   // all / personal / assigned / project
+
+    function scopeMatches(card) {
+        switch (activeScope) {
+            case "personal": return !card.dataset.projectId;
+            case "assigned": return card.dataset.assigned === "1";
+            case "project": return !!card.dataset.projectId;
+            default: return true;
+        }
+    }
+
     function applyFilters() {
         const q = fold(searchInput ? searchInput.value.trim() : "");
         const priority = prioritySelect ? prioritySelect.value : "";
         const project = projectSelect ? projectSelect.value : "";
 
         allCards().forEach(function (card) {
-            const ok = (!q || fold(card.dataset.search).includes(q))
+            const ok = scopeMatches(card)
+                && (!q || fold(card.dataset.search).includes(q))
                 && (!priority || card.dataset.priority === priority)
-                && (!project || card.dataset.project === project);
+                && (!project || card.dataset.projectId === project);
             card.hidden = !ok;
         });
         refreshCounts();
@@ -125,6 +138,59 @@ document.addEventListener("DOMContentLoaded", function () {
     if (searchInput) searchInput.addEventListener("input", applyFilters);
     if (prioritySelect) prioritySelect.addEventListener("change", applyFilters);
     if (projectSelect) projectSelect.addEventListener("change", applyFilters);
+
+    // ---------- Tab phạm vi: Tất cả / Cá nhân / Được giao cho tôi / Trong dự án ----------
+    const scopeButtons = document.querySelectorAll("[data-scope]");
+    scopeButtons.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            activeScope = btn.dataset.scope;
+            scopeButtons.forEach(function (b) {
+                const on = b === btn;
+                b.classList.toggle("active", on);
+                b.setAttribute("aria-pressed", on ? "true" : "false");
+            });
+            applyFilters();
+        });
+    });
+
+    // ---------- Chi tiết công việc + bình luận ----------
+    const detailModal = byId("taskDetailModal");
+    const detailPanels = Array.from(document.querySelectorAll("[data-detail-id]"));
+
+    function openDetail(id) {
+        detailPanels.forEach(function (panel) { panel.hidden = panel.dataset.detailId !== String(id); });
+        openModal(detailModal);
+    }
+
+    allCards().forEach(function (card) {
+        card.addEventListener("click", function (e) {
+            if (e.target.closest("a")) return;   // bấm vào tên dự án thì đi sang trang dự án, không mở chi tiết
+            openDetail(card.dataset.id);
+        });
+        card.addEventListener("keydown", function (e) {
+            if (e.key === "Enter" && e.target === card) openDetail(card.dataset.id);
+        });
+    });
+
+    // ---------- Form thêm việc: chỉ giao cho thành viên của dự án đã chọn ----------
+    const projectField = byId("taskProject");
+    const assigneeWrap = document.querySelector("[data-assignee-field]");
+    const assigneeSelect = byId("taskAssignee");
+
+    function syncAssignee() {
+        if (!projectField || !assigneeSelect || !assigneeWrap) return;
+        const projectId = projectField.value;
+        assigneeWrap.hidden = !projectId;
+        assigneeSelect.value = "";
+        Array.from(assigneeSelect.options).forEach(function (opt) {
+            if (!opt.dataset.project) return;
+            const match = opt.dataset.project === projectId;
+            opt.hidden = !match;
+            opt.disabled = !match;
+        });
+    }
+    if (projectField) projectField.addEventListener("change", syncAssignee);
+    syncAssignee();
 
     // ---------- Kéo thả thẻ giữa các cột (MÔ PHỎNG, chưa lưu) ----------
     const zones = Array.from(document.querySelectorAll("[data-dropzone]"));
@@ -137,6 +203,10 @@ document.addEventListener("DOMContentLoaded", function () {
         card.dataset.status = status;
         card.classList.toggle("is-done", status === "done");
         refreshCounts();
+
+        const statusLabels = { todo: "Cần làm", in_progress: "Đang làm", review: "Chờ duyệt", done: "Đã xong" };
+        const detailStatus = document.querySelector('[data-detail-id="' + card.dataset.id + '"] [data-detail-status]');
+        if (detailStatus && statusLabels[status]) detailStatus.textContent = statusLabels[status];
 
         // BACK-END: thay dòng toast bằng fetch POST tới /Task/UpdateStatus
         // (gửi Id + Status kèm __RequestVerificationToken), nếu lỗi thì đưa thẻ về cột cũ.

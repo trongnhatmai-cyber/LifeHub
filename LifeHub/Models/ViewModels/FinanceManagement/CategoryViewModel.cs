@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace LifeHub.Models.ViewModels.FinanceManagement;
 
@@ -26,4 +27,6 @@ public class CategoryViewModel
     public decimal? MonthlyLimit { get; set; }   // Hạn mức chi tiêu mỗi tháng, để trống = không giới hạn
 
     public decimal SpentThisMonth { get; set; }  // Tổng đã chi tháng này của danh mục (chỉ để hiển thị)
+    public IEnumerable<SelectListItem> ParentCategories { get; set; }
+        = new List<SelectListItem>();
 }

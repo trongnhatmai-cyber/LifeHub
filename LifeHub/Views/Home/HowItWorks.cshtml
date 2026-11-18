@@ -1,0 +1,231 @@
+@{
+    Layout = "_LandingLayout";
+    ViewData["Title"] = "Cách hoạt động – LifeHub";
+    ViewData["LandingPage"] = "how";
+
+    // Nội dung giới thiệu 9 phân hệ (theo sơ đồ luồng hệ thống). Sửa chữ ở đây, không cần sửa HTML bên dưới.
+    var modules = new List<Module>
+    {
+        new("study", "book", "Quản lý học tập",
+            "Môn học, lịch học, bài tập, lịch thi và điểm số của từng học kỳ.",
+            new[] { "Tạo học kỳ và thêm các môn đang học (mã môn, số tín chỉ, giảng viên).", "Nhập thời khóa biểu, bài tập, bài kiểm tra và lịch thi kèm hạn nộp, trọng số.", "Cập nhật điểm sau mỗi bài. LifeHub tự tính điểm môn, GPA và tiến độ." },
+            new[] { ("Học kỳ và môn học", "Tín chỉ, mã môn"), ("Thời khóa biểu", "Lịch học theo tuần"), ("Bài tập và lịch thi", "Hạn nộp, trọng số"), ("Điểm số", "Điểm mục tiêu"), ("Tiến độ học tập", "% bài tập đã nộp") },
+            new[] { "semesters", "courses", "course_schedules", "assignments" },
+            "Bài tập và lịch thi tự hiện trên lịch chung và được nhắc trước hạn. Tài liệu được lưu theo từng môn."),
+        new("work", "check", "Quản lý công việc",
+            "Ghi mọi việc cần làm, phân loại theo mức ưu tiên và theo dõi đến khi xong.",
+            new[] { "Tạo công việc với tiêu đề và deadline.", "Chọn mức ưu tiên, trạng thái và gắn thẻ để dễ lọc.", "Chuyển qua các bước Todo, Doing, Done và trao đổi ngay trong công việc." },
+            new[] { ("Tạo công việc", "Tiêu đề, deadline"), ("Phân loại và ưu tiên", "Mức độ, trạng thái"), ("Thiết lập deadline", "Hạn, ước lượng phút"), ("Theo dõi tiến độ", "Todo, Doing, Done"), ("Bình luận và gắn thẻ", "Ghi chú, thẻ") },
+            new[] { "tasks", "task_comments", "task_tags", "tags" },
+            "Công việc có thể gắn với môn học, dự án hoặc mục tiêu. Đồng hồ Pomodoro chạy trực tiếp trên từng công việc."),
+        new("project", "folder", "Quản lý dự án",
+            "Chia dự án thành việc nhỏ, giao đúng người và theo dõi tiến độ cả nhóm.",
+            new[] { "Tạo dự án (tên, thời gian, màu) rồi mời thành viên bằng email.", "Tạo công việc trong dự án và phân công cho từng người.", "Theo dõi trên bảng Kanban, các cột mốc và nhật ký hoạt động." },
+            new[] { ("Tạo dự án", "Tên, thời gian, màu"), ("Phân công công việc", "Gán việc cho thành viên"), ("Quản lý thành viên", "Vai trò, lời mời"), ("Bảng Kanban", "Trạng thái theo dự án"), ("Mốc và hoạt động", "Milestone, nhật ký") },
+            new[] { "projects", "project_members", "project_roles", "project_invitations" },
+            "Việc trong dự án dùng chung bảng công việc nên cũng hiện trên lịch và Dashboard của người được giao."),
+        new("time", "cal", "Quản lý thời gian",
+            "Gộp mọi lịch vào một nơi, nhắc đúng lúc và giữ nhịp tập trung.",
+            new[] { "Xem lịch chung gồm lịch học, deadline và lịch dự án.", "Tạo sự kiện cá nhân, đặt lặp lại và thời gian nhắc trước.", "Bấm Pomodoro trên một công việc để ghi nhận phiên tập trung." },
+            new[] { ("Lịch cá nhân", "Sự kiện, địa điểm"), ("Lịch tổng hợp", "Học, việc, dự án"), ("Tạo sự kiện", "Lặp lại theo quy tắc"), ("Nhắc deadline", "Báo trước, đã gửi chưa"), ("Pomodoro", "Phiên tập trung") },
+            new[] { "events", "reminders", "pomodoro_sessions" },
+            "Nhắc nhở đến giờ sẽ sinh thông báo. Phiên Pomodoro được tính vào điểm năng suất."),
+        new("finance", "wallet", "Quản lý tài chính",
+            "Theo dõi thu chi, ngân sách và tiết kiệm trên nhiều ví.",
+            new[] { "Tạo các ví và danh mục thu chi.", "Ghi giao dịch vào đúng ví, đúng danh mục. Chuyển tiền giữa các ví khi cần.", "Đặt ngân sách tháng và mục tiêu tiết kiệm, xem biểu đồ thu chi." },
+            new[] { ("Ví và danh mục", "Ví tiền, phân loại"), ("Giao dịch thu chi", "Số tiền, ghi chú"), ("Ngân sách", "Hạn mức theo tháng"), ("Tiết kiệm", "Quỹ mục tiêu, tiến độ"), ("Thống kê thu chi", "Biểu đồ thu chi") },
+            new[] { "wallets", "transactions", "categories", "budgets" },
+            "Chi gần hết ngân sách sẽ có cảnh báo. Tiền nạp vào quỹ tiết kiệm không bị tính là chi tiêu."),
+        new("goal", "target", "Quản lý mục tiêu",
+            "Đặt mục tiêu, chia thành kết quả đo được và giữ thói quen mỗi ngày.",
+            new[] { "Tạo mục tiêu và thêm các kết quả chính (KR) có số liệu.", "Gắn công việc và thói quen phục vụ mục tiêu đó.", "Điểm danh thói quen mỗi ngày. Khi kết thúc, ghi đánh giá kết quả." },
+            new[] { ("Mục tiêu và OKR", "Kết quả chính, %"), ("Chia nhỏ mục tiêu", "Gắn việc, môn"), ("Theo dõi tiến độ", "Progress % theo KR"), ("Thói quen và streak", "Tần suất, chuỗi ngày"), ("Đánh giá kết quả", "Ghi chú, hoàn thành") },
+            new[] { "goals", "key_results", "habits", "habit_logs" },
+            "Tiến độ mục tiêu tính từ các KR và công việc đã gắn. Chuỗi ngày thói quen giúp mở huy hiệu."),
+        new("knowledge", "note", "Kiến thức và tài liệu",
+            "Lưu ghi chú và tài liệu, phân loại gọn và tìm lại thật nhanh.",
+            new[] { "Tạo ghi chú, xếp vào thư mục và gắn thẻ.", "Tải tài liệu lên và gắn với môn học hoặc dự án.", "Tìm theo từ khóa, thẻ hoặc thư mục. Chia sẻ cho người khác khi cần." },
+            new[] { ("Ghi chú và thẻ", "Ghim, gắn thẻ"), ("Danh mục ghi chú", "Cây thư mục cha, con"), ("Tài liệu đính kèm", "Đường dẫn, dung lượng"), ("Tìm kiếm và lọc", "Theo thẻ, danh mục"), ("Trợ lý AI hội thoại (sắp có)", "Hỏi đáp về dữ liệu") },
+            new[] { "notes", "note_categories", "note_tags", "documents" },
+            "Một ô tìm kiếm chung quét cả ghi chú, tài liệu, công việc, dự án và môn học."),
+        new("life", "moon", "Sinh hoạt cá nhân",
+            "Một bản ghi mỗi ngày về giấc ngủ, vận động, nước uống và tâm trạng.",
+            new[] { "Mỗi ngày mở nhật ký sinh hoạt và nhập giờ ngủ, lượng nước, thời gian vận động.", "Chấm điểm tâm trạng và ghi chú ngắn.", "Xem xu hướng theo tuần hoặc theo tháng." },
+            new[] { ("Nhật ký sinh hoạt", "Một bản ghi mỗi ngày"), ("Giấc ngủ và vận động", "Giờ ngủ, số phút"), ("Nước và cân nặng", "Lượng nước (ml), kg"), ("Tâm trạng", "Điểm mood, ghi chú"), ("Tổng hợp sức khỏe", "Xu hướng theo tuần") },
+            new[] { "lifestyle_logs" },
+            "Số liệu sinh hoạt được đưa vào báo cáo, giúp bạn thấy mối liên hệ với năng suất."),
+        new("report", "chart", "Thống kê và báo cáo",
+            "Tổng hợp mọi dữ liệu thành biểu đồ và điểm năng suất, bạn không phải nhập thêm.",
+            new[] { "Mở Dashboard để xem các widget tổng quan trong ngày.", "Chọn báo cáo học tập, công việc hoặc tài chính theo ngày, tuần, tháng, năm.", "Xem điểm năng suất mỗi ngày và các huy hiệu đã đạt. Xuất báo cáo ra PDF hoặc Excel." },
+            new[] { ("Tổng quan hoạt động", "Widget trên Dashboard"), ("Báo cáo học tập", "Điểm, tín chỉ, bài tập"), ("Báo cáo công việc", "Hoàn thành, trễ hạn"), ("Báo cáo tài chính", "Thu chi theo tháng"), ("Điểm năng suất", "Tổng hợp theo ngày") },
+            new[] { "productivity_scores", "achievements" },
+            "Điểm năng suất được tính từ công việc, thói quen, Pomodoro và số việc trễ hạn.")
+    };
+
+    var linkRows = new List<LinkRow>
+    {
+        new("Bài tập, lịch học, deadline", new[] { "Lịch chung", "Nhắc nhở", "Tiến độ môn học" }, "Mỗi việc có hạn tự xuất hiện trên lịch và được đặt nhắc, bạn không phải nhập lại."),
+        new("Công việc", new[] { "Môn học", "Dự án", "Mục tiêu" }, "Một công việc có thể gắn với môn học, dự án hoặc mục tiêu để theo dõi ở nhiều nơi."),
+        new("Phiên Pomodoro", new[] { "Công việc", "Thời gian tập trung", "Điểm năng suất" }, "Mỗi phiên tập trung gắn với một công việc và được cộng vào thống kê trong ngày."),
+        new("Giao dịch", new[] { "Ví", "Danh mục", "Ngân sách", "Quỹ tiết kiệm" }, "Một khoản thu chi cập nhật số dư ví, mức đã dùng của ngân sách và tiến độ tiết kiệm."),
+        new("Điểm danh thói quen", new[] { "Chuỗi ngày", "Mục tiêu", "Huy hiệu" }, "Mỗi lần điểm danh làm chuỗi ngày dài thêm, đẩy tiến độ mục tiêu và có thể mở huy hiệu."),
+        new("Lời mời vào dự án", new[] { "Thành viên", "Nhật ký hoạt động", "Thông báo" }, "Khi có người chấp nhận lời mời, dự án ghi nhật ký và báo cho người quản lý.")
+    };
+}
+
+@functions {
+    record Module(string Id, string Icon, string Name, string Intro, string[] Steps, (string Name, string Detail)[] Funcs, string[] Tables, string Link);
+    record LinkRow(string From, string[] To, string Note);
+}
+
+<main>
+    <div class="lh-wrap">
+        <div class="lh-hero" style="padding-bottom:40px">
+            <div class="lh-pill"><i>Hướng dẫn</i>Tìm hiểu LifeHub từng bước</div>
+            <h1>LifeHub hoạt động như thế nào?</h1>
+            <p class="lh-lead">Từ lúc đăng ký đến khi dùng mỗi ngày: dữ liệu đi qua những bước nào, từng phân hệ làm gì và chúng kết nối với nhau ra sao.</p>
+            <div class="lh-cta">
+                <a class="lh-btn lh-pri lh-lg" asp-controller="Auth" asp-action="Register">Bắt đầu ngay</a>
+                <a class="lh-btn lh-lg" asp-controller="Home" asp-action="Features">Xem tất cả tính năng</a>
+            </div>
+        </div>
+    </div>
+
+    <nav class="lh-subnav" aria-label="Các phần của trang"><div class="lh-wrap">
+        <a href="#lh-h-flow">Luồng hệ thống</a><a href="#lh-h-modules">9 phân hệ</a><a href="#lh-h-links">Liên kết dữ liệu</a><a href="#lh-h-shared">Chức năng dùng chung</a><a href="#lh-h-security">Bảo mật</a>
+    </div></nav>
+
+    <!-- 1. LUỒNG HỆ THỐNG -->
+    <section class="lh-fsec" id="lh-h-flow"><div class="lh-wrap">
+        <div class="lh-head"><h2>Từ lúc truy cập đến khi dùng hằng ngày</h2><p>Sơ đồ bên trái là đường đi của bạn trong hệ thống. Bên phải là cách hệ thống xử lý dữ liệu.</p></div>
+        <div class="lh-flowwrap">
+            <div class="lh-flowbox">
+                <svg class="lh-flowsvg" viewBox="0 0 760 760" role="img" aria-label="Sơ đồ luồng hệ thống từ trang chủ, đăng nhập đến Dashboard và các phân hệ">
+                    <defs><marker id="lh-fs-arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></marker></defs>
+
+                    <rect class="lh-fs-s" x="250" y="10" width="160" height="40" rx="20" /><text class="lh-fs-t" x="330" y="30">Bắt đầu</text>
+                    <line class="lh-fs-a" x1="330" y1="50" x2="330" y2="70" marker-end="url(#lh-fs-arr)" />
+                    <rect class="lh-fs-n" x="250" y="70" width="160" height="44" rx="10" /><text class="lh-fs-t" x="330" y="88">Trang chủ</text><text class="lh-fs-u" x="330" y="103">(landing page)</text>
+                    <line class="lh-fs-a" x1="330" y1="114" x2="330" y2="134" marker-end="url(#lh-fs-arr)" />
+                    <rect class="lh-fs-n" x="250" y="134" width="160" height="44" rx="10" /><text class="lh-fs-t" x="330" y="156">Đăng nhập</text>
+                    <line class="lh-fs-a" x1="330" y1="178" x2="330" y2="200" marker-end="url(#lh-fs-arr)" />
+
+                    <polygon class="lh-fs-d" points="330,200 440,250 330,300 220,250" /><text class="lh-fs-t" x="330" y="244">Đã có</text><text class="lh-fs-t" x="330" y="260">tài khoản?</text>
+                    <line class="lh-fs-a" x1="440" y1="250" x2="540" y2="250" marker-end="url(#lh-fs-arr)" /><text class="lh-fs-l" x="490" y="238">Không</text>
+                    <rect class="lh-fs-n" x="540" y="228" width="170" height="44" rx="10" /><text class="lh-fs-t" x="625" y="250">Đăng ký</text>
+                    <path class="lh-fs-a" d="M625 272 V388 H412" marker-end="url(#lh-fs-arr)" /><text class="lh-fs-l" x="520" y="376">Gửi email xác thực</text>
+
+                    <line class="lh-fs-a" x1="330" y1="300" x2="330" y2="350" marker-end="url(#lh-fs-arr)" /><text class="lh-fs-l" x="346" y="326">Có</text>
+                    <rect class="lh-fs-n" x="250" y="350" width="160" height="76" rx="10" /><text class="lh-fs-t" x="330" y="380">Xác thực thông tin</text><text class="lh-fs-u" x="330" y="398">(email, mật khẩu)</text>
+                    <line class="lh-fs-a" x1="330" y1="426" x2="330" y2="452" marker-end="url(#lh-fs-arr)" />
+
+                    <polygon class="lh-fs-d" points="330,452 450,512 330,572 210,512" /><text class="lh-fs-t" x="330" y="506">Đăng nhập</text><text class="lh-fs-t" x="330" y="522">thành công?</text>
+                    <line class="lh-fs-a" x1="450" y1="512" x2="540" y2="512" marker-end="url(#lh-fs-arr)" /><text class="lh-fs-l" x="495" y="500">Không</text>
+                    <rect class="lh-fs-n" x="540" y="490" width="170" height="44" rx="10" /><text class="lh-fs-t" x="625" y="506">Hiển thị lỗi</text><text class="lh-fs-u" x="625" y="522">Quay lại đăng nhập</text>
+                    <line class="lh-fs-a" x1="330" y1="572" x2="330" y2="612" marker-end="url(#lh-fs-arr)" /><text class="lh-fs-l" x="346" y="594">Có</text>
+
+                    <rect class="lh-fs-k" x="250" y="612" width="160" height="56" rx="14" /><text class="lh-fs-t lh-fs-on" x="330" y="633">Dashboard</text><text class="lh-fs-u lh-fs-on" x="330" y="652" opacity=".75">Trang tổng quan</text>
+                    <line class="lh-fs-a" x1="250" y1="640" x2="174" y2="640" marker-end="url(#lh-fs-arr)" /><text class="lh-fs-l" x="212" y="628">Dùng chung</text>
+                    <rect class="lh-fs-n" x="10" y="618" width="164" height="44" rx="10" /><text class="lh-fs-t" x="92" y="634">Chức năng</text><text class="lh-fs-t" x="92" y="650">dùng chung</text>
+                    <line class="lh-fs-a" x1="410" y1="640" x2="498" y2="640" marker-end="url(#lh-fs-arr)" /><text class="lh-fs-l" x="454" y="628">Đăng xuất</text>
+                    <rect class="lh-fs-n" x="498" y="618" width="100" height="44" rx="10" /><text class="lh-fs-t" x="548" y="640">Đăng xuất</text>
+                    <line class="lh-fs-a" x1="598" y1="640" x2="640" y2="640" marker-end="url(#lh-fs-arr)" />
+                    <rect class="lh-fs-s" x="640" y="620" width="110" height="40" rx="20" /><text class="lh-fs-t" x="695" y="640">Kết thúc</text>
+                    <line class="lh-fs-a" x1="330" y1="668" x2="330" y2="700" marker-end="url(#lh-fs-arr)" />
+                    <rect class="lh-fs-n" x="210" y="700" width="240" height="46" rx="10" /><text class="lh-fs-t" x="330" y="717">9 phân hệ quản lý</text><text class="lh-fs-u" x="330" y="734">Học tập, Công việc, Dự án, Tài chính...</text>
+                </svg>
+            </div>
+            <ol class="lh-howlist">
+                <li><div><b>Đăng ký và đăng nhập.</b> Bạn tạo tài khoản, xác thực email rồi đăng nhập. Hệ thống cấp phiên đăng nhập bảo mật (JWT).</div></li>
+                <li><div><b>Dashboard tổng hợp trong ngày.</b> Lịch, công việc, ví và mục tiêu hiện chung một trang.</div></li>
+                <li><div><b>Mỗi phân hệ quản lý dữ liệu riêng.</b> Những gì bạn nhập được lưu vào các bảng tương ứng của phân hệ đó.</div></li>
+                <li><div><b>Liên kết xuyên phân hệ.</b> Công việc gắn môn học, dự án, mục tiêu. Pomodoro gắn công việc. Giao dịch gắn danh mục và tiết kiệm.</div></li>
+                <li><div><b>Nhắc nhở, thông báo và thống kê tự tính</b> từ dữ liệu các phân hệ, bạn không phải tính tay.</div></li>
+                <li><div><b>Chia sẻ có phân quyền và nhật ký.</b> Chỉ người được cấp quyền xem hoặc sửa mới thấy dữ liệu. Các hành động quan trọng đều được ghi lại.</div></li>
+            </ol>
+        </div>
+    </div></section>
+
+    <!-- 2. CÁC PHÂN HỆ -->
+    <section class="lh-fsec lh-alt" id="lh-h-modules"><div class="lh-wrap">
+        <div class="lh-head"><h2>9 phân hệ, mỗi phân hệ làm gì và dùng thế nào</h2><p>Mỗi thẻ gồm các bước dùng cơ bản, các chức năng chính, dữ liệu được lưu và cách phân hệ kết nối với phần còn lại.</p></div>
+        <div class="lh-mchips">
+            @foreach (var m in modules) { <a href="#lh-m-@m.Id">@m.Name</a> }
+        </div>
+
+        @foreach (var m in modules)
+        {
+            <article class="lh-modc" id="lh-m-@m.Id">
+                <header>
+                    <div class="lh-ic"><svg class="lh-i"><use href="#lh-@m.Icon" /></svg></div>
+                    <div><h3>@m.Name</h3><p>@m.Intro</p></div>
+                </header>
+                <div class="lh-modc-body">
+                    <div>
+                        <h4>Cách dùng</h4>
+                        <ol>@foreach (var step in m.Steps) { <li>@step</li> }</ol>
+                    </div>
+                    <div>
+                        <h4>Chức năng chính</h4>
+                        <ul class="lh-fn">@foreach (var f in m.Funcs) { <li><b>@f.Name</b><span>@f.Detail</span></li> }</ul>
+                    </div>
+                </div>
+                <footer>
+                    <div><small>Bảng dữ liệu</small>@foreach (var t in m.Tables) { <code>@t</code> }</div>
+                    <div><small>Kết nối với phần còn lại</small>@m.Link</div>
+                </footer>
+            </article>
+        }
+    </div></section>
+
+    <!-- 3. LIÊN KẾT DỮ LIỆU -->
+    <section class="lh-fsec" id="lh-h-links"><div class="lh-wrap">
+        <div class="lh-head"><h2>Ghi một lần, dữ liệu tự chảy sang nơi cần</h2><p>Đây là lý do LifeHub khác với việc dùng nhiều ứng dụng rời rạc.</p></div>
+        <div class="lh-lks">
+            @foreach (var row in linkRows)
+            {
+                <div class="lh-lk">
+                    <div class="lh-lk-flow"><b>@row.From</b><em></em>@foreach (var to in row.To) { <span>@to</span> }</div>
+                    <p>@row.Note</p>
+                </div>
+            }
+        </div>
+    </div></section>
+
+    <!-- 4. CHỨC NĂNG DÙNG CHUNG -->
+    <section class="lh-fsec lh-alt" id="lh-h-shared"><div class="lh-wrap">
+        <div class="lh-head"><h2>Chức năng dùng chung cho mọi phân hệ</h2><p>Có mặt ở khắp nơi trong ứng dụng, bất kể bạn đang dùng phân hệ nào.</p></div>
+        <div class="lh-mods lh-mods3">
+            <div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-search" /></svg></div><h3>Tìm kiếm toàn hệ thống</h3><p>Một ô tìm kiếm cho công việc, dự án, môn học, ghi chú và tài liệu.</p></div>
+            <div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-bell" /></svg></div><h3>Thông báo và nhắc nhở</h3><p>Phân biệt đã đọc, chưa đọc. Nhắc nhở được hẹn giờ và gửi đúng lúc.</p></div>
+            <div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-share" /></svg></div><h3>Chia sẻ và phân quyền</h3><p>Chia sẻ ghi chú, tài liệu với quyền chỉ xem hoặc được sửa.</p></div>
+            <div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-user" /></svg></div><h3>Hồ sơ và cài đặt</h3><p>Thông tin cá nhân, giao diện sáng tối, thông báo và phân hệ muốn hiển thị.</p></div>
+            <div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-award" /></svg></div><h3>Thành tựu và huy hiệu</h3><p>Nhận huy hiệu và điểm thưởng khi giữ chuỗi thói quen hay hoàn thành mục tiêu.</p></div>
+            <div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-note" /></svg></div><h3>Nhật ký hệ thống</h3><p>Ghi lại hành động quan trọng cùng địa chỉ IP, phục vụ truy vết khi có sự cố.</p></div>
+        </div>
+    </div></section>
+
+    <!-- 5. BẢO MẬT -->
+    <section class="lh-fsec" id="lh-h-security"><div class="lh-wrap">
+        <div class="lh-head"><h2>Dữ liệu của bạn chỉ của bạn</h2><p>Mỗi người chỉ thấy và thao tác trên dữ liệu mình được cấp quyền.</p></div>
+        <div class="lh-mods lh-mods3">
+            <div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-shield" /></svg></div><h3>Đăng nhập an toàn</h3><p>Mật khẩu được mã hóa, phiên đăng nhập dùng token (JWT) và có thời hạn.</p></div>
+            <div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-bell" /></svg></div><h3>Xác thực email</h3><p>Tài khoản mới phải xác thực qua email. Quên mật khẩu cũng đặt lại qua email.</p></div>
+            <div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-user" /></svg></div><h3>Vai trò hệ thống</h3><p>Người dùng thường chỉ thấy dữ liệu của mình. Quản trị viên mới vào được trang quản trị.</p></div>
+            <div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-folder" /></svg></div><h3>Vai trò trong dự án</h3><p>Quản lý, thành viên hoặc người xem. Mỗi vai trò có quyền khác nhau trong từng dự án.</p></div>
+            <div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-share" /></svg></div><h3>Chia sẻ có kiểm soát</h3><p>Bạn quyết định chia sẻ gì, cho ai và với quyền xem hay sửa.</p></div>
+            <div class="lh-mod"><div class="lh-ic"><svg class="lh-i"><use href="#lh-note" /></svg></div><h3>Có nhật ký</h3><p>Mọi hành động quan trọng đều được ghi lại để kiểm tra khi cần.</p></div>
+        </div>
+    </div></section>
+
+    <section><div class="lh-wrap">
+        <div class="lh-end">
+            <h2>Sẵn sàng thử từng bước?</h2>
+            <p>Tạo tài khoản trong một phút và đi theo đúng sơ đồ ở trên.</p>
+            <div class="lh-cta">
+                <a class="lh-btn lh-pri lh-lg" asp-controller="Auth" asp-action="Register">Tạo tài khoản</a>
+                <a class="lh-btn lh-lg" asp-controller="Auth" asp-action="Login">Đăng nhập</a>
+            </div>
+        </div>
+    </div></section>
+</main>

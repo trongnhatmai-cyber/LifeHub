@@ -1,0 +1,37 @@
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Xóa ví";
+    ViewData["ActivePage"] = "Wallet";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/finance.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/finance-modules.css" asp-append-version="true" />
+}
+
+<div class="finance-page">
+    <header class="finance-heading">
+        <div>
+            <span class="finance-label">WALLET</span>
+            <h1>Xóa ví</h1>
+            <p>Xác nhận tài khoản cần xóa.</p>
+        </div>
+    </header>
+
+    <section class="finance-card">
+        <p>
+            Bạn có chắc muốn xóa ví
+            <strong>@ViewBag.Name</strong> không?
+        </p>
+
+        <form asp-controller="Wallet" asp-action="Delete" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="Id" value="@ViewBag.Id" />
+
+            <div class="card-actions">
+                <button class="finance-btn primary" type="submit">Xác nhận xóa</button>
+                <a class="finance-btn" asp-controller="Wallet" asp-action="Index">Hủy</a>
+            </div>
+        </form>
+    </section>
+</div>

@@ -1,0 +1,92 @@
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Chỉnh sửa giao dịch";
+    ViewData["ActivePage"] = "Transaction";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/finance.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/finance-modules.css" asp-append-version="true" />
+}
+
+<div class="finance-page">
+    <header class="finance-heading">
+        <div>
+            <span class="finance-label">TRANSACTION</span>
+            <h1>Chỉnh sửa giao dịch</h1>
+            <p>Cập nhật thông tin giao dịch.</p>
+        </div>
+        <a class="finance-btn" asp-controller="Transaction" asp-action="Index">← Quay lại</a>
+    </header>
+
+    <section class="finance-card">
+        <form asp-controller="Transaction" asp-action="Edit" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="Id" value="@ViewBag.Id" />
+
+            <div class="modal-grid">
+                <div>
+                    <label for="Name">Tên giao dịch</label>
+                    <input class="finance-select" id="Name" name="Name"
+                           value="@ViewBag.Name" required maxlength="120" />
+                </div>
+
+                <div>
+                    <label for="Type">Loại giao dịch</label>
+                    <select class="finance-select" id="Type" name="Type" required>
+                        <option value="expense" selected="@(ViewBag.Type?.ToString() == "expense")">Chi tiêu</option>
+                        <option value="income" selected="@(ViewBag.Type?.ToString() == "income")">Thu nhập</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="CategoryId">Danh mục</label>
+                    <select class="finance-select" id="CategoryId" name="CategoryId" required>
+                        @if (ViewBag.Categories != null)
+                        {
+                            foreach (var c in ViewBag.Categories)
+                            {
+                                <option value="@c.Id" selected="@(ViewBag.CategoryId?.ToString() == c.Id.ToString())">
+                                    @c.Name
+                                </option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div>
+                    <label for="WalletId">Ví / tài khoản</label>
+                    <select class="finance-select" id="WalletId" name="WalletId" required>
+                        @if (ViewBag.Wallets != null)
+                        {
+                            foreach (var w in ViewBag.Wallets)
+                            {
+                                <option value="@w.Id" selected="@(ViewBag.WalletId?.ToString() == w.Id.ToString())">
+                                    @w.Name
+                                </option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div>
+                    <label for="Amount">Số tiền (₫)</label>
+                    <input class="finance-select" id="Amount" name="Amount"
+                           type="number" min="1" step="1000"
+                           value="@ViewBag.Amount" required />
+                </div>
+
+                <div>
+                    <label for="Date">Ngày giao dịch</label>
+                    <input class="finance-select" id="Date" name="Date"
+                           type="date" value="@ViewBag.Date" required />
+                </div>
+            </div>
+
+            <div class="card-actions">
+                <button class="finance-btn primary" type="submit">Lưu thay đổi</button>
+                <a class="finance-btn" asp-controller="Transaction" asp-action="Index">Hủy</a>
+            </div>
+        </form>
+    </section>
+</div>

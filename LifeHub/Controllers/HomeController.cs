@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authentication;
 using LifeHub.Models;
 
 namespace LifeHub.Controllers;
@@ -19,6 +18,10 @@ public class HomeController : Controller
         return View();
     }
 
+    public IActionResult Features() => View();
+
+    public IActionResult HowItWorks() => View();
+    
     public IActionResult Privacy()
     {
         return View();

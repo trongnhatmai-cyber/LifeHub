@@ -1,0 +1,101 @@
+/* CSS dùng chung cho Index, Features, HowItWorks (nạp sau site.css trong _LandingLayout) */
+
+/* thanh chuyển nhanh giữa các nhóm tính năng */
+.lh-subnav{position:sticky;top:64px;z-index:9;background:color-mix(in srgb,var(--lh-bg) 88%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--lh-line)}
+.lh-subnav .lh-wrap{display:flex;gap:6px;overflow-x:auto;padding-block:10px;scrollbar-width:none}
+.lh-subnav .lh-wrap::-webkit-scrollbar{display:none}
+.lh-subnav a{flex:none;padding:8px 16px;border-radius:999px;font-size:13.5px;font-weight:600;color:var(--lh-muted);transition:background .15s,color .15s}
+.lh-subnav a:hover{background:var(--lh-soft);color:var(--lh-text)}
+.lh-subnav a.lh-on{background:var(--lh-accent);color:var(--lh-on-accent)}
+
+/* từng nhóm tính năng */
+.lh-fsec{padding:48px 0;scroll-margin-top:128px}
+.lh-fsec.lh-alt{background:var(--lh-soft);border-block:1px solid var(--lh-line)}
+.lh-fsec.lh-alt .lh-vis{background:var(--lh-bg)}
+.lh-fsec .lh-split{padding:32px 0 20px}
+.lh-also{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding-bottom:8px}
+.lh-also b{margin-right:6px;font-size:13px;color:var(--lh-muted);font-weight:600}
+.lh-also span{padding:7px 14px;border-radius:999px;border:1px solid var(--lh-line);background:var(--lh-surface);font-size:13px;color:var(--lh-muted)}
+.lh-tag{padding:3px 9px;border-radius:999px;background:var(--lh-soft);color:var(--lh-muted);font-size:11px;font-weight:600}
+.lh-soon{display:inline-block;margin-left:10px;padding:3px 10px;border-radius:999px;background:var(--lh-accent);color:var(--lh-on-accent);font-size:11px;font-weight:700;letter-spacing:0;vertical-align:middle}
+
+/* Pomodoro */
+.lh-ring{width:172px;height:172px;margin:8px auto 22px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--lh-accent) 0 68%,var(--lh-line) 0);animation:lh-bob 5s ease-in-out infinite}
+.lh-ring div{width:140px;height:140px;border-radius:50%;background:var(--lh-surface);display:grid;place-content:center;text-align:center}
+.lh-ring strong{font-size:34px;letter-spacing:-.03em;line-height:1}
+.lh-ring small{margin-top:8px;font-size:12px;color:var(--lh-muted)}
+.lh-ctl{display:flex;gap:10px;justify-content:center}
+
+/* báo cáo */
+.lh-score{display:flex;align-items:baseline;gap:10px;margin-bottom:18px}
+.lh-score b{font-size:44px;letter-spacing:-.04em;line-height:1}
+.lh-score span{font-size:13px;color:var(--lh-muted)}
+
+/* trợ lý AI */
+.lh-chat{display:flex;flex-direction:column;gap:10px}
+.lh-bub{max-width:84%;padding:12px 16px;border-radius:18px 18px 18px 6px;border:1px solid var(--lh-line);background:var(--lh-surface);font-size:13.5px;line-height:1.5}
+.lh-bub.lh-me{align-self:flex-end;border-radius:18px 18px 6px 18px;border-color:var(--lh-accent);background:var(--lh-accent);color:var(--lh-on-accent)}
+.lh-vis.lh-in .lh-bub{animation:lh-pop .6s cubic-bezier(.3,1.6,.5,1) both}
+.lh-vis.lh-in .lh-bub:nth-child(2){animation-delay:.5s}.lh-vis.lh-in .lh-bub:nth-child(3){animation-delay:1s}.lh-vis.lh-in .lh-bub:nth-child(4){animation-delay:1.5s}
+
+.lh-mod h3 .lh-soon{margin-left:6px;padding:2px 8px;font-size:10px}
+@media(max-width:520px){.lh-fsec{padding:32px 0}}
+
+/* neo cuộn: chừa chỗ cho menu + thanh chuyển nhanh */
+section[id]{scroll-margin-top:128px}
+.lh-subnav .lh-sep{flex:none;width:1px;margin:6px 8px;background:var(--lh-line)}
+.lh-subnav a.lh-ext{border:1px solid var(--lh-line)}
+
+/* ===== Trang Cách hoạt động ===== */
+.lh-flowwrap{display:grid;grid-template-columns:1.25fr 1fr;gap:48px;align-items:center;padding-top:24px}
+.lh-flowbox{background:var(--lh-surface);border:1px solid var(--lh-line);border-radius:24px;padding:20px}
+.lh-flowsvg{display:block;width:100%;height:auto}
+.lh-fs-n{fill:var(--lh-surface);stroke:var(--lh-line);stroke-width:1.2}
+.lh-fs-d{fill:var(--lh-soft);stroke:var(--lh-muted);stroke-width:1.2}
+.lh-fs-s{fill:var(--lh-soft);stroke:var(--lh-muted);stroke-width:1.2}
+.lh-fs-k{fill:var(--lh-accent)}
+.lh-fs-t,.lh-fs-u,.lh-fs-l{text-anchor:middle;dominant-baseline:central;font-family:"Plus Jakarta Sans",system-ui,sans-serif}
+.lh-fs-t{font-size:12.5px;font-weight:600;fill:var(--lh-text)}
+.lh-fs-u{font-size:10.5px;fill:var(--lh-muted)}
+.lh-fs-l{font-size:11px;font-weight:600;fill:var(--lh-muted)}
+.lh-fs-on{fill:var(--lh-on-accent)}
+.lh-fs-a{fill:none;stroke:var(--lh-muted);stroke-width:1.4}
+.lh-howlist{counter-reset:h;list-style:none;margin:0;padding:0;display:grid;gap:16px}
+.lh-howlist li{counter-increment:h;display:flex;gap:14px;font-size:15px;line-height:1.55}
+.lh-howlist li:before{content:counter(h);flex:none;width:28px;height:28px;border-radius:50%;background:var(--lh-accent);color:var(--lh-on-accent);display:grid;place-items:center;font-size:13px;font-weight:700}
+.lh-howlist b{font-weight:700}
+
+.lh-mchips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px}
+.lh-mchips a{padding:8px 16px;border-radius:999px;border:1px solid var(--lh-line);background:var(--lh-surface);font-size:13.5px;font-weight:600;color:var(--lh-muted);transition:background .15s,color .15s}
+.lh-mchips a:hover{background:var(--lh-accent);color:var(--lh-on-accent);border-color:var(--lh-accent)}
+
+.lh-modc{margin-bottom:20px;padding:28px;border:1px solid var(--lh-line);border-radius:24px;background:var(--lh-surface);scroll-margin-top:128px}
+.lh-modc>header{display:flex;align-items:center;gap:16px;margin-bottom:24px}
+.lh-modc .lh-ic{display:grid;place-items:center;flex:none;width:46px;height:46px;border-radius:14px;background:var(--lh-soft)}
+.lh-modc h3{margin:0 0 2px;font-size:20px;letter-spacing:-.02em}
+.lh-modc>header p{margin:0;font-size:14.5px;color:var(--lh-muted)}
+.lh-modc-body{display:grid;grid-template-columns:1fr 1.25fr;gap:32px}
+.lh-modc h4{margin:0 0 12px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--lh-muted)}
+.lh-modc ol{display:grid;gap:10px;margin:0;padding-left:20px;font-size:14.5px;line-height:1.55}
+.lh-fn{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0;padding:0;list-style:none}
+.lh-fn li{padding:12px 14px;border:1px solid var(--lh-line);border-radius:12px;background:var(--lh-bg)}
+.lh-fn b{display:block;font-size:13.5px}
+.lh-fn span{font-size:12px;color:var(--lh-muted)}
+.lh-modc footer{display:flex;flex-wrap:wrap;gap:14px 36px;margin-top:22px;padding-top:18px;border-top:1px solid var(--lh-line);font-size:13px;line-height:1.55;color:var(--lh-muted)}
+.lh-modc footer small{display:block;margin-bottom:6px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.lh-modc footer>div:last-child{flex:1;min-width:240px}
+.lh-modc code{display:inline-block;margin:0 6px 6px 0;padding:3px 9px;border-radius:8px;background:var(--lh-soft);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:var(--lh-text)}
+
+.lh-lks{display:grid;gap:12px}
+.lh-lk{display:grid;grid-template-columns:1.4fr 1fr;gap:20px;align-items:center;padding:18px 22px;border:1px solid var(--lh-line);border-radius:18px;background:var(--lh-surface)}
+.lh-lk p{margin:0;font-size:13.5px;color:var(--lh-muted);line-height:1.55}
+.lh-lk-flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.lh-lk-flow b,.lh-lk-flow span{padding:6px 13px;border-radius:999px;font-size:13px}
+.lh-lk-flow b{background:var(--lh-accent);color:var(--lh-on-accent)}
+.lh-lk-flow span{border:1px solid var(--lh-line);background:var(--lh-soft)}
+.lh-lk-flow em{position:relative;width:22px;height:2px;background:var(--lh-muted)}
+.lh-lk-flow em:after{content:"";position:absolute;right:-1px;top:-3px;border:4px solid transparent;border-left:6px solid var(--lh-muted)}
+
+.lh-mods.lh-mods3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:960px){.lh-flowwrap,.lh-modc-body,.lh-lk{grid-template-columns:1fr}.lh-mods.lh-mods3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.lh-fn,.lh-mods.lh-mods3{grid-template-columns:1fr}.lh-modc{padding:20px}}

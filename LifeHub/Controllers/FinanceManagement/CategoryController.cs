@@ -143,10 +143,19 @@ public class CategoryController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    [HttpGet]
+    public IActionResult Delete(int id)
+    {
+        // Tạm thời kiểm tra route và ID
+        ViewBag.CategoryId = id;
+
+        return View("~/Views/Finance/Category/Delete.cshtml");
+    }
+
     // POST: /Category/Delete/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> DeleteConfirmed(int id)
     {
         int userId = User.GetUserId();
 

@@ -1,0 +1,65 @@
+@model LifeHub.Models.ViewModels.ProjectManagement.ProjectCardItem
+
+@{
+    var p = Model;
+    var searchText = p.Name + " " + p.Description + " " + p.Key;
+    var dueClass = p.IsOverdue ? "proj-due is-overdue" : "proj-due";
+}
+
+<article class="project-item-card is-link" data-project-card style="--i:@p.SortIndex"
+         data-index="@p.SortIndex"
+         data-status="@p.StatusKey"
+         data-role="@p.RoleKey"
+         data-progress="@p.ProgressPercent"
+         data-due="@p.DueDate.ToString("yyyy-MM-dd")"
+         data-name="@p.Name"
+         data-search="@searchText">
+    <div>
+        <div class="proj-top">
+            <div>
+                <h3><a asp-controller="Project" asp-action="Details" asp-route-id="@p.Id" class="proj-card-link">@p.Name</a></h3>
+                <span class="summary-badge">@p.Key</span>
+                <span class="summary-badge">Vai trò: @p.Role</span>
+            </div>
+            <span class="proj-status proj-status--@p.StatusKey">@p.Status</span>
+        </div>
+
+        <p class="proj-desc">@p.Description</p>
+    </div>
+
+    <div>
+        <div class="proj-progress">
+            <div class="proj-progress-head">
+                <span>Tiến độ thực hiện</span>
+                <span class="proj-progress-value">@p.ProgressPercent% (@p.CompletedTasks/@p.TotalTasks việc)</span>
+            </div>
+            <div class="bar"><i style="width:@p.ProgressPercent%;"></i></div>
+        </div>
+
+        <div class="proj-meta">
+            <div class="proj-members">
+                <div class="proj-avatars">
+                    @foreach (var name in p.MemberNames.Take(3))
+                    {
+                        <span title="@name">@name.Substring(0, 1)</span>
+                    }
+                    @if (p.MemberNames.Count > 3)
+                    {
+                        <span class="proj-avatars-more">+@(p.MemberNames.Count - 3)</span>
+                    }
+                </div>
+                <span>@p.MemberCount thành viên</span>
+            </div>
+
+            <div class="@dueClass">
+                <span>Hạn chót: @p.DueDate.ToString("dd/MM/yyyy")</span>
+                <small>@p.DueText</small>
+            </div>
+        </div>
+
+        <div class="proj-foot">
+            <span>Cập nhật @p.ActivityText</span>
+            <span class="proj-open">Xem chi tiết <i>→</i></span>
+        </div>
+    </div>
+</article>

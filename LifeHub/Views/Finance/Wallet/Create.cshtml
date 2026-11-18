@@ -1,0 +1,56 @@
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Thêm ví";
+    ViewData["ActivePage"] = "Wallet";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/finance.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/finance-modules.css" asp-append-version="true" />
+}
+
+<div class="finance-page">
+    <header class="finance-heading">
+        <div>
+            <span class="finance-label">WALLET</span>
+            <h1>Thêm ví / tài khoản</h1>
+            <p>Tạo một nguồn tiền mới để theo dõi.</p>
+        </div>
+        <a class="finance-btn" asp-controller="Wallet" asp-action="Index">← Quay lại</a>
+    </header>
+
+    <section class="finance-card">
+        <form asp-controller="Wallet" asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="modal-grid">
+                <div>
+                    <label for="Name">Tên ví</label>
+                    <input class="finance-select" id="Name" name="Name"
+                           required maxlength="80" placeholder="Ví dụ: Tiền mặt" />
+                </div>
+
+                <div>
+                    <label for="Kind">Loại ví</label>
+                    <select class="finance-select" id="Kind" name="Kind" required>
+                        <option value="cash">Tiền mặt</option>
+                        <option value="bank">Ngân hàng</option>
+                        <option value="ewallet">Ví điện tử</option>
+                        <option value="savings">Quỹ tiết kiệm</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="Color">Màu nhận diện</label>
+                    <input class="finance-select" id="Color" name="Color"
+                           type="color" value="#e11d48" />
+                </div>
+            </div>
+
+            <div class="card-actions">
+                <button class="finance-btn primary" type="submit">Tạo ví</button>
+                <a class="finance-btn" asp-controller="Wallet" asp-action="Index">Hủy</a>
+            </div>
+        </form>
+    </section>
+</div>
