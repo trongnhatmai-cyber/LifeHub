@@ -55,21 +55,6 @@ document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll(".task-modal:not([hidden])").forEach(closeModal);
     });
 
-    // ---------- Gửi form (MÔ PHỎNG, chưa lưu dữ liệu) ----------
-    // BACK-END: khi action Create trong TaskController đã làm xong, xóa khối này
-    // để form gửi thẳng lên server theo asp-action đã khai báo.
-    document.querySelectorAll(".task-modal form").forEach(function (form) {
-        form.addEventListener("submit", function (e) {
-            e.preventDefault();
-            if (!form.reportValidity()) return;
-
-            closeModal(form.closest(".task-modal"));
-            form.reset();
-            syncAssignee();
-            showToast("Bản mô phỏng giao diện: dữ liệu chưa được lưu.");
-        });
-    });
-
     // ---------- Cập nhật số đếm và trạng thái rỗng ----------
     function setSummary(key, value, pad) {
         const el = document.querySelector('[data-summary="' + key + '"]');
@@ -192,13 +177,15 @@ document.addEventListener("DOMContentLoaded", function () {
     if (projectField) projectField.addEventListener("change", syncAssignee);
     syncAssignee();
 
-    // ---------- Kéo thả thẻ giữa các cột (MÔ PHỎNG, chưa lưu) ----------
+    // ---------- Kéo thả thẻ giữa các cột ----------
     const zones = Array.from(document.querySelectorAll("[data-dropzone]"));
     let dragged = null;
 
-    function moveCard(card, status, zone) {
+    async function moveCard(card, status, zone) {
         if (card.dataset.status === status) return;
-
+        const oldStatus = card.dataset.status;
+        const oldZone = card.closest("[data-dropzone]");
+        const oldNext = card.nextElementSibling;
         zone.insertBefore(card, zone.querySelector(".column-empty"));
         card.dataset.status = status;
         card.classList.toggle("is-done", status === "done");
@@ -208,9 +195,20 @@ document.addEventListener("DOMContentLoaded", function () {
         const detailStatus = document.querySelector('[data-detail-id="' + card.dataset.id + '"] [data-detail-status]');
         if (detailStatus && statusLabels[status]) detailStatus.textContent = statusLabels[status];
 
-        // BACK-END: thay dòng toast bằng fetch POST tới /Task/UpdateStatus
-        // (gửi Id + Status kèm __RequestVerificationToken), nếu lỗi thì đưa thẻ về cột cũ.
-        showToast("Bản mô phỏng: trạng thái chưa được lưu, tải lại trang sẽ trở về như cũ.");
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+        try {
+            const body = new URLSearchParams({ Id: card.dataset.id, Status: status, __RequestVerificationToken: token || "" });
+            const response = await fetch("/Task/UpdateStatus", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded", "X-Requested-With": "XMLHttpRequest" }, body });
+            if (!response.ok) throw new Error("request rejected");
+            showToast("Đã cập nhật trạng thái.");
+        } catch {
+            oldZone.insertBefore(card, oldNext);
+            card.dataset.status = oldStatus;
+            card.classList.toggle("is-done", oldStatus === "done");
+            if (detailStatus) detailStatus.textContent = statusLabels[oldStatus] || "";
+            refreshCounts();
+            showToast("Không thể cập nhật trạng thái. Vui lòng tải lại trang.");
+        }
     }
 
     allCards().forEach(function (card) {

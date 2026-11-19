@@ -1,0 +1,68 @@
+@model LifeHub.Models.ViewModels.FinanceModules.ContributeInput
+@using LifeHub.Models.ViewModels.FinanceModules
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Nạp tiền vào mục tiêu";
+    ViewData["ActivePage"] = "SavingGoal";
+    var wallets = ViewBag.Wallets as List<WalletOption> ?? new List<WalletOption>();
+    var currentAmount = (decimal)(ViewBag.CurrentAmount ?? 0m);
+    var targetAmount = (decimal)(ViewBag.TargetAmount ?? 0m);
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/finance.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/finance-modules.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script src="~/js/finance-modules.js" asp-append-version="true" defer></script>
+}
+
+<div class="finance-page" data-module="saving-goals">
+    <header class="finance-heading">
+        <div>
+            <span class="finance-label">SAVING PLAN</span>
+            <h1>Nạp tiền vào mục tiêu</h1>
+            <p>@ViewBag.GoalTitle · Đã tích lũy @FinanceFormat.Money(currentAmount) / @FinanceFormat.Money(targetAmount)</p>
+        </div>
+        <a class="finance-btn" asp-action="Index">← Quay lại mục tiêu</a>
+    </header>
+
+    <section class="finance-card">
+        <form asp-action="Contribute" method="post" data-validate="contribute">
+            <input asp-for="GoalId" type="hidden" />
+            <div asp-validation-summary="ModelOnly" class="form-error" role="alert"></div>
+
+            <div class="modal-grid">
+                <div>
+                    <label asp-for="WalletId">Ví nguồn</label>
+                    <select asp-for="WalletId" class="finance-select" required>
+                        <option value="">Chọn ví để nạp tiền</option>
+                        @foreach (var wallet in wallets)
+                        {
+                            <option value="@wallet.Id" data-balance="@wallet.Balance">
+                                @wallet.Name — @FinanceFormat.Money(wallet.Balance)
+                            </option>
+                        }
+                    </select>
+                    <span asp-validation-for="WalletId" class="form-error"></span>
+                    @if (wallets.Count == 0)
+                    {
+                        <small>Bạn cần có ví đang hoạt động để nạp tiền vào mục tiêu.</small>
+                    }
+                </div>
+
+                <div>
+                    <label asp-for="Amount">Số tiền muốn nạp (₫)</label>
+                    <input asp-for="Amount" class="finance-select" type="number" min="1000" step="1000" required />
+                    <span asp-validation-for="Amount" class="form-error"></span>
+                </div>
+            </div>
+
+            <div class="card-actions">
+                <button class="finance-btn primary" type="submit" disabled="@(wallets.Count == 0)">Ghi nhận khoản nạp</button>
+                <a class="finance-btn" asp-action="Index">Hủy</a>
+            </div>
+        </form>
+    </section>
+</div>

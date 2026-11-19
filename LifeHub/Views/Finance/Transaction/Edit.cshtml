@@ -9,7 +9,11 @@
     <link rel="stylesheet" href="~/css/finance-modules.css" asp-append-version="true" />
 }
 
-<div class="finance-page">
+@section Scripts {
+    <script src="~/js/finance-modules.js" asp-append-version="true" defer></script>
+}
+
+<div class="finance-page" data-module="transactions">
     <header class="finance-heading">
         <div>
             <span class="finance-label">TRANSACTION</span>
@@ -41,12 +45,13 @@
 
                 <div>
                     <label for="CategoryId">Danh mục</label>
-                    <select class="finance-select" id="CategoryId" name="CategoryId" required>
+                    <select class="finance-select" id="CategoryId" name="CategoryId">
+                        <option value="" selected="@(ViewBag.CategoryId == null || ViewBag.CategoryId == 0)">Không phân loại</option>
                         @if (ViewBag.Categories != null)
                         {
                             foreach (var c in ViewBag.Categories)
                             {
-                                <option value="@c.Id" selected="@(ViewBag.CategoryId?.ToString() == c.Id.ToString())">
+                                <option value="@c.Id" data-type="@c.Type" selected="@(ViewBag.CategoryId?.ToString() == c.Id.ToString())">
                                     @c.Name
                                 </option>
                             }

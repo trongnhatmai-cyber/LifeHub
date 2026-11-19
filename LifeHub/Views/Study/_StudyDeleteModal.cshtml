@@ -7,9 +7,8 @@
             <button type="button" class="study-modal-close" data-close aria-label="Đóng">&times;</button>
         </div>
         <p class="study-note">Bạn có chắc muốn xóa <strong data-text="name"></strong>? Thao tác này không thể hoàn tác.</p>
-        <form asp-action="@Model" method="post" data-simulate>
+        <form asp-action="@Model" method="post">
             <input type="hidden" name="Id" />
-            <p class="study-note">Bản mô phỏng giao diện: dữ liệu chưa được lưu.</p>
             <div class="study-modal-foot">
                 <button type="button" class="study-btn" data-close>Hủy</button>
                 <button type="submit" class="study-btn danger">Xóa</button>

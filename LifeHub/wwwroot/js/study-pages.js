@@ -7,7 +7,7 @@
    - Tự gửi form lọc (GET) khi đổi lựa chọn.
 
    Không có dữ liệu học tập trong file này. Lọc, đếm, GPA, tiến độ đều do C# (Controller + ViewModel) tính.
-   Form thêm/sửa/xóa hiện CHỈ MÔ PHỎNG giao diện, chưa lưu dữ liệu.
+   Các form gửi dữ liệu tới action MVC để kiểm tra quyền và lưu trong SQL.
 ============================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -129,31 +129,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         return "";
     }
-
-    // ---------- Gửi form (MÔ PHỎNG, chưa lưu dữ liệu) ----------
-    // BACK-END: khi action POST tương ứng đã làm xong, xóa khối này để form gửi thẳng lên server theo asp-action.
-    document.querySelectorAll("form[data-simulate]").forEach(form => {
-        form.addEventListener("submit", event => {
-            event.preventDefault();
-
-            if (!form.checkValidity()) {
-                form.reportValidity();
-                return;
-            }
-
-            const message = validate(form);
-            const error = form.querySelector(".form-error");
-            if (message) {
-                if (error) { error.textContent = message; error.hidden = false; }
-                return;
-            }
-            if (error) error.hidden = true;
-
-            const modal = form.closest(".study-modal");
-            if (modal) closeModal(modal);
-            toast("Bản mô phỏng giao diện: dữ liệu chưa được lưu.");
-        });
-    });
 
     // ---------- Form lọc (GET): tự gửi khi đổi lựa chọn ----------
     document.querySelectorAll("[data-autosubmit]").forEach(el => {

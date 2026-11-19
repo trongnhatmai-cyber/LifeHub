@@ -12,7 +12,7 @@ namespace LifeHub.Models.ViewModels.FinanceModules
         [Required, StringLength(200)] public string Name { get; set; } = string.Empty;
         /// <summary>income / expense</summary>
         [Required] public string Type { get; set; } = "expense";
-        [Required] public int CategoryId { get; set; }
+        public int? CategoryId { get; set; }
         [Required] public int WalletId { get; set; }
         [Range(1000, 1_000_000_000)] public decimal Amount { get; set; }
         [Required] public DateTime Date { get; set; }

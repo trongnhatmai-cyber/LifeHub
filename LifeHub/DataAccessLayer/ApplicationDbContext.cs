@@ -1284,6 +1284,7 @@ public class ApplicationDbContext :DbContext
         modelBuilder.Entity<SavingsGoal>(entity =>
         {
             entity.Property(x => x.Title).HasMaxLength(150);
+            entity.Property(x => x.Color).HasMaxLength(15).IsUnicode(false);
 
             entity.Property(x => x.TargetAmount).HasPrecision(18, 2);
 

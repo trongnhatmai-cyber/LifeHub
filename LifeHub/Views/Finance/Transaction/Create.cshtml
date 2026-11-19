@@ -1,3 +1,4 @@
+@model LifeHub.Models.ViewModels.FinanceManagement.TransactionCreateViewModel
 @{
     Layout = "_Layout";
     ViewData["Title"] = "Thêm giao dịch";
@@ -9,7 +10,11 @@
     <link rel="stylesheet" href="~/css/finance-modules.css" asp-append-version="true" />
 }
 
-<div class="finance-page">
+@section Scripts {
+    <script src="~/js/finance-modules.js" asp-append-version="true" defer></script>
+}
+
+<div class="finance-page" data-module="transactions">
     <header class="finance-heading">
         <div>
             <span class="finance-label">TRANSACTION</span>
@@ -22,26 +27,27 @@
     <section class="finance-card">
         <form asp-controller="Transaction" asp-action="Create" method="post">
             @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
 
             <div class="modal-grid">
                 <div>
-                    <label for="Name">Tên giao dịch</label>
-                    <input class="finance-select" id="Name" name="Name"
-                           required maxlength="120" placeholder="Ví dụ: Ăn trưa" />
+                    <label asp-for="Note">Nội dung giao dịch</label>
+                    <input asp-for="Note" class="finance-select" maxlength="255" placeholder="Ví dụ: Ăn trưa" />
                 </div>
 
                 <div>
-                    <label for="Type">Loại giao dịch</label>
-                    <select class="finance-select" id="Type" name="Type" required>
-                        <option value="expense">Chi tiêu</option>
-                        <option value="income">Thu nhập</option>
+                    <label asp-for="TransactionType">Loại giao dịch</label>
+                    <select asp-for="TransactionType" class="finance-select" required>
+                        <option value="Expense">Chi tiêu</option>
+                        <option value="Income">Thu nhập</option>
+                        <option value="Transfer">Chuyển tiền</option>
                     </select>
                 </div>
 
                 <div>
                     <label for="CategoryId">Danh mục</label>
-                    <select class="finance-select" id="CategoryId" name="CategoryId" required>
-                        <option value="">Chọn danh mục</option>
+                    <select asp-for="CategoryId" class="finance-select">
+                        <option value="">Không phân loại</option>
                         @if (ViewBag.Categories != null)
                         {
                             foreach (var c in ViewBag.Categories)
@@ -54,7 +60,7 @@
 
                 <div>
                     <label for="WalletId">Ví / tài khoản</label>
-                    <select class="finance-select" id="WalletId" name="WalletId" required>
+                    <select asp-for="WalletId" class="finance-select" required>
                         <option value="">Chọn ví</option>
                         @if (ViewBag.Wallets != null)
                         {
@@ -67,15 +73,35 @@
                 </div>
 
                 <div>
-                    <label for="Amount">Số tiền (₫)</label>
-                    <input class="finance-select" id="Amount" name="Amount"
-                           type="number" min="1" step="1000" required />
+                    <label asp-for="ToWalletId">Ví nhận (dùng khi chuyển tiền)</label>
+                    <select asp-for="ToWalletId" class="finance-select">
+                        <option value="">Chọn ví nhận</option>
+                        @if (ViewBag.Wallets != null)
+                        {
+                            foreach (var w in ViewBag.Wallets) { <option value="@w.Id">@w.Name</option> }
+                        }
+                    </select>
                 </div>
 
                 <div>
-                    <label for="Date">Ngày giao dịch</label>
-                    <input class="finance-select" id="Date" name="Date"
-                           type="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                    <label asp-for="SavingsGoalId">Mục tiêu tiết kiệm</label>
+                    <select asp-for="SavingsGoalId" class="finance-select">
+                        <option value="">Không liên kết</option>
+                        @if (ViewBag.SavingsGoals != null)
+                        {
+                            foreach (var g in ViewBag.SavingsGoals) { <option value="@g.Id">@g.Name</option> }
+                        }
+                    </select>
+                </div>
+
+                <div>
+                    <label asp-for="Amount">Số tiền (₫)</label>
+                    <input asp-for="Amount" class="finance-select" type="number" min="0.01" step="0.01" required />
+                </div>
+
+                <div>
+                    <label asp-for="TransactionDate">Ngày giao dịch</label>
+                    <input asp-for="TransactionDate" class="finance-select" type="date" required />
                 </div>
             </div>
 

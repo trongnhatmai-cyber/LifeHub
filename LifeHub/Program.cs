@@ -5,11 +5,26 @@ using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
 using LifeHub.BusinessLogicLayer.Services;
 using LifeHub.BusinessLogicLayer.FinanceManagement;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddPolicy("login", context => RateLimitPartition.GetFixedWindowLimiter(
+        context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+        _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 10,
+            Window = TimeSpan.FromMinutes(5),
+            QueueLimit = 0,
+            AutoReplenishment = true
+        }));
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -27,6 +42,7 @@ builder.Services
 
         options.Cookie.HttpOnly = true;
         options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.SameSite = SameSiteMode.Lax;
 
         options.Events.OnValidatePrincipal = async context =>
         {
@@ -84,6 +100,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();

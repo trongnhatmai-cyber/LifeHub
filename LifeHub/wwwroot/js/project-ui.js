@@ -1,6 +1,5 @@
 /* =====================================================================
-   LIFEHUB - PROJECT UI dùng chung: thông báo nổi, đếm số, tab "Nhiệm vụ gần đây",
-   tick cột mốc có hiệu ứng (mô phỏng phía trình duyệt, chưa lưu dữ liệu).
+   LIFEHUB - PROJECT UI dùng chung: thông báo nổi, đếm số, tab "Nhiệm vụ gần đây".
    ===================================================================== */
 (function () {
     'use strict';
@@ -8,7 +7,6 @@
     var page = document.querySelector('.project-page');
     if (!page) return;
 
-    var NOTE = ' (mô phỏng, chưa lưu)';
     var wrap = null;
 
     function pad2(n) { return n < 10 ? '0' + n : String(n); }
@@ -27,7 +25,7 @@
         window.setTimeout(function () { el.remove(); }, 4200);
     }
 
-    window.ProjectUI = { toast: toast, note: NOTE };
+    window.ProjectUI = { toast: toast };
 
     /* ---------- Số tổng quan đếm lên từ 0 ---------- */
     function countUp() {
@@ -83,37 +81,4 @@
         if (bar) bar.style.width = (total === 0 ? 0 : Math.round(done * 100 / total)) + '%';
     }
 
-    /* ---------- Tick cột mốc ---------- */
-    page.addEventListener('submit', function (e) {
-        var form = e.target.closest ? e.target.closest('form[data-sim-milestone]') : null;
-        if (!form) return;
-
-        e.preventDefault();
-
-        var item = form.closest('[data-ms-item]');
-        var button = form.querySelector('.ms-toggle');
-        if (!item || !button) return;
-
-        var done = item.classList.toggle('is-done');
-        item.classList.toggle('is-overdue', !done && item.getAttribute('data-past-due') === 'true');
-
-        button.textContent = done ? '✓' : '○';
-        var label = done ? 'Mở lại cột mốc' : 'Đánh dấu hoàn thành';
-        button.title = label;
-        button.setAttribute('aria-label', label);
-
-        // Hiệu ứng nảy: gỡ class, ép trình duyệt tính lại rồi gắn lại để chạy lại animation
-        button.classList.remove('is-popping');
-        void button.offsetWidth;
-        button.classList.add('is-popping');
-
-        var meta = item.querySelector('[data-ms-meta]');
-        if (meta) meta.textContent = done ? 'Đã hoàn thành' : (item.getAttribute('data-open-text') || '');
-
-        updateMilestoneProgress(item.closest('[data-ms-scope]'));
-
-        var titleEl = item.querySelector('.ms-title, .ms-node__title');
-        var title = titleEl ? titleEl.textContent.trim() : 'cột mốc';
-        toast((done ? 'Đã hoàn thành cột mốc "' : 'Đã mở lại cột mốc "') + title + '"' + NOTE, 'success');
-    });
 })();

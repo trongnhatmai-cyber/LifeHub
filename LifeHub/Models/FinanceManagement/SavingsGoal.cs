@@ -9,6 +9,7 @@ public class SavingsGoal
     public int UserId { get; set; }
     public int? GoalId { get; set; }
     public string Title { get; set; } = string.Empty;
+    public string? Color { get; set; }
     public decimal TargetAmount { get; set; }
     public decimal? CurrentAmount { get; set; } = 0;
     public DateOnly? Deadline { get; set; }

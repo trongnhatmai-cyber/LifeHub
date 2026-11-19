@@ -35,6 +35,6 @@ public class TransactionCreateViewModel
     public DateOnly TransactionDate { get; set; }
         = DateOnly.FromDateTime(DateTime.Today);
 
-    [StringLength(500, ErrorMessage = "Ghi chú không được vượt quá 500 ký tự.")]
+    [StringLength(255, ErrorMessage = "Ghi chú không được vượt quá 255 ký tự.")]
     public string? Note { get; set; }
 }

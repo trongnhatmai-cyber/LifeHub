@@ -88,10 +88,9 @@
                 <button type="button" class="study-modal-close" data-close aria-label="Đóng">&times;</button>
             </div>
             <p class="study-note">Môn: <strong data-text="name"></strong></p>
-            <form asp-action="SetTargetScore" method="post" data-simulate>
+            <form asp-action="SetTargetScore" method="post">
                 <input type="hidden" name="CourseId" />
                 <div class="field"><label for="tScore">Điểm mục tiêu (thang 10)</label><input id="tScore" name="TargetScore" type="number" min="0" max="10" step="0.1" required /></div>
-                <p class="study-note">Bản mô phỏng giao diện: dữ liệu chưa được lưu.</p>
                 <div class="study-modal-foot">
                     <button type="button" class="study-btn" data-close>Hủy</button>
                     <button type="submit" class="study-btn primary">Lưu mục tiêu</button>

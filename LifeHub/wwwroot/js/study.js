@@ -75,21 +75,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     if (kindSelect) kindSelect.addEventListener("change", syncExamFields);
 
-    // ---------- Gửi form (MÔ PHỎNG, chưa lưu dữ liệu) ----------
-    // BACK-END: khi action POST trong StudyController đã làm xong, xóa toàn bộ khối này
-    // để form gửi thẳng lên server theo asp-action đã khai báo.
-    document.querySelectorAll(".study-modal form").forEach(function (form) {
-        form.addEventListener("submit", function (e) {
-            e.preventDefault();
-            if (!form.reportValidity()) return;
-
-            closeModal(form.closest(".study-modal"));
-            form.reset();
-            syncExamFields();
-            showToast("Bản mô phỏng giao diện: dữ liệu chưa được lưu.");
-        });
-    });
-
     // ---------- Bộ lọc bảng bài tập (lọc hàng đã render sẵn) ----------
     const chips = document.querySelectorAll(".study-chip");
     const rows = document.querySelectorAll("#assignmentBody tr[data-status]");

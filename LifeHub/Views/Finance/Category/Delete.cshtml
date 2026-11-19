@@ -67,6 +67,7 @@
               asp-action="Delete"
               asp-route-id="@Model.Id"
               method="post">
+            @Html.AntiForgeryToken()
 
             <input type="hidden" asp-for="Id" />
 

@@ -19,7 +19,7 @@
 }
 
 <div class="project-page" id="projectDetail"
-     data-user-id="@d.CurrentUserId" data-user-name="@d.CurrentUserName"
+     data-project-id="@d.Id" data-user-id="@d.CurrentUserId" data-user-name="@d.CurrentUserName"
      data-can-manage="@canManageText" data-can-edit="@canEditText">
 
     <partial name="_Flash" />
@@ -124,19 +124,25 @@
                             <span class="summary-badge">@inv.Role</span>
                             <small>Mời bởi @inv.InvitedByName · @inv.TimeText</small>
                         </div>
-                        @if (d.CanManage)
+                        @if (inv.CanAccept || d.CanManage)
                         {
                             <div class="invite-actions">
-                                <form method="post" asp-action="AcceptInvitation">
-                                    <input type="hidden" name="projectId" value="@d.Id" />
-                                    <input type="hidden" name="invitationId" value="@inv.Id" />
-                                    <button type="submit" class="proj-btn sm" title="Giả lập người được mời bấm chấp nhận (chưa có đăng nhập)">Giả lập chấp nhận</button>
-                                </form>
-                                <form method="post" asp-action="CancelInvitation">
-                                    <input type="hidden" name="projectId" value="@d.Id" />
-                                    <input type="hidden" name="invitationId" value="@inv.Id" />
-                                    <button type="submit" class="proj-btn sm danger">Hủy</button>
-                                </form>
+                                @if (inv.CanAccept)
+                                {
+                                    <form method="post" asp-action="AcceptInvitation">
+                                        <input type="hidden" name="projectId" value="@d.Id" />
+                                        <input type="hidden" name="invitationId" value="@inv.Id" />
+                                        <button type="submit" class="proj-btn sm">Chấp nhận lời mời</button>
+                                    </form>
+                                }
+                                @if (d.CanManage)
+                                {
+                                    <form method="post" asp-action="CancelInvitation">
+                                        <input type="hidden" name="projectId" value="@d.Id" />
+                                        <input type="hidden" name="invitationId" value="@inv.Id" />
+                                        <button type="submit" class="proj-btn sm danger">Hủy</button>
+                                    </form>
+                                }
                             </div>
                         }
                     </div>
@@ -249,7 +255,7 @@
                     <li class="@nodeClass" data-ms-item data-past-due="@pastDue" data-open-text="@ms.OpenDueText">
                         @if (ms.CanToggle)
                         {
-                            <form method="post" asp-action="ToggleMilestone" data-sim-milestone>
+                                <form method="post" asp-action="ToggleMilestone">
                                 <input type="hidden" name="milestoneId" value="@ms.Id" />
                                 <input type="hidden" name="projectId" value="@d.Id" />
                                 <input type="hidden" name="returnTo" value="details" />
@@ -361,7 +367,7 @@
                                 <div class="@subRow">
                                     @if (d.CanEdit)
                                     {
-                                        <button type="button" class="ms-toggle" data-sub-toggle title="@subLabel" aria-label="@subLabel">@(s.IsDone ? "✓" : "○")</button>
+                                        <button type="button" class="ms-toggle" data-sub-toggle data-subtask-id="@s.Id" title="@subLabel" aria-label="@subLabel">@(s.IsDone ? "✓" : "○")</button>
                                     }
                                     else
                                     {
@@ -419,10 +425,12 @@
 
                             @if (d.CanEdit)
                             {
-                                <form class="comment-form" data-comment-form novalidate>
+                                <form class="comment-form" data-comment-form asp-action="AddTaskComment" method="post" novalidate>
+                                    <input type="hidden" name="projectId" value="@d.Id" />
+                                    <input type="hidden" name="taskId" value="@t.Id" />
                                     <span class="comment-avatar">@d.CurrentUserName.Substring(0, 1)</span>
                                     <div class="comment-form__body">
-                                        <textarea class="proj-input" rows="2" maxlength="500" placeholder="Viết bình luận..." aria-label="Bình luận"></textarea>
+                                        <textarea class="proj-input" name="content" rows="2" maxlength="500" placeholder="Viết bình luận..." aria-label="Bình luận"></textarea>
                                         <button type="submit" class="proj-btn sm primary">Bình luận</button>
                                     </div>
                                 </form>

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 
 namespace LifeHub.Controllers;
@@ -44,10 +45,7 @@ public class AuthController : Controller
 
         if (!registered)
         {
-            ModelState.AddModelError(
-                nameof(model.Email),
-                "Email này đã được sử dụng."
-            );
+            ModelState.AddModelError(string.Empty, "Không thể tạo tài khoản với thông tin đã cung cấp.");
 
             return View(model);
         }
@@ -70,6 +68,7 @@ public class AuthController : Controller
     [AllowAnonymous]
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [EnableRateLimiting("login")]
     public async Task<IActionResult> Login(
         LoginViewModel model,
         string? returnUrl = null)

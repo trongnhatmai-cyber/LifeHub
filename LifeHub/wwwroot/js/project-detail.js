@@ -1,9 +1,7 @@
 /* =====================================================================
-   LIFEHUB - PROJECT DETAIL (KANBAN KIỂU JIRA) - MÔ PHỎNG PHÍA TRÌNH DUYỆT
+   LIFEHUB - PROJECT DETAIL (KANBAN KIỂU JIRA)
    Kéo thả nhiệm vụ, giao việc, gửi duyệt / duyệt / yêu cầu làm lại,
    bình luận, lịch sử, tick việc con, lọc bảng.
-   Chưa có Database: mọi thay đổi chỉ hiển thị trong phiên xem, tải lại trang
-   sẽ về dữ liệu mẫu. Khi có DB, thay phần "applyXxx" bằng lời gọi lên Controller.
    ===================================================================== */
 (function () {
     'use strict';
@@ -19,7 +17,7 @@
     };
 
     var LABELS = { todo: 'Cần làm', in_progress: 'Đang làm', review: 'Chờ duyệt', done: 'Hoàn thành' };
-    var NOTE = (window.ProjectUI && window.ProjectUI.note) || ' (mô phỏng, chưa lưu)';
+    var PROJECT_ID = page.dataset.projectId;
 
     var dragging = null;     // { type: 'task' | 'member', id }
     var reworkPending = null; // { id, to }
@@ -28,6 +26,17 @@
     /* ---------- Tiện ích ---------- */
     function toast(message, type) {
         if (window.ProjectUI && window.ProjectUI.toast) window.ProjectUI.toast(message, type);
+    }
+
+    async function postAction(action, values) {
+        var token = document.querySelector('input[name="__RequestVerificationToken"]');
+        var body = new URLSearchParams();
+        Object.keys(values).forEach(function (key) { body.set(key, values[key] == null ? "" : values[key]); });
+        if (token) body.set("__RequestVerificationToken", token.value);
+        var response = await fetch(action.startsWith("/") ? action : "/Project/" + action, {
+            method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded", "X-Requested-With": "XMLHttpRequest" }, body: body
+        });
+        return response.ok;
     }
 
     function normalize(text) {
@@ -206,7 +215,7 @@
         return ME.canManage && (from === 'review' || from === 'done') && (to === 'todo' || to === 'in_progress');
     }
 
-    function requestMove(id, to) {
+    async function requestMove(id, to, reason) {
         var card = cardById(id);
         if (!card) return false;
 
@@ -219,12 +228,15 @@
             return false;
         }
 
-        if (needsReason(from, to)) {
+        if (!reason && needsReason(from, to)) {
             openRework(id, to);
             return false;
         }
-
-        applyMove(id, to, '');
+        try {
+            var ok = await postAction("MoveTask", { projectId: PROJECT_ID, taskId: id, status: to, openTask: id, reason: reason || "" });
+            if (!ok) throw new Error("Request rejected");
+        } catch (_) { toast("Không thể cập nhật nhiệm vụ. Vui lòng thử lại.", "error"); return false; }
+        applyMove(id, to, reason || '');
         return true;
     }
 
@@ -261,8 +273,8 @@
         }
 
         toast(reason
-            ? 'Đã trả ' + keyOf(card) + ' về "' + LABELS[to] + '" kèm lý do' + NOTE
-            : 'Đã chuyển ' + keyOf(card) + ' sang "' + LABELS[to] + '"' + NOTE, 'success');
+            ? 'Đã trả ' + keyOf(card) + ' về "' + LABELS[to] + '" kèm lý do'
+            : 'Đã chuyển ' + keyOf(card) + ' sang "' + LABELS[to] + '"', 'success');
     }
 
     /* ---------- Hộp thoại "Yêu cầu làm lại" ---------- */
@@ -301,13 +313,13 @@
             var pending = reworkPending;
             reworkPending = null;
 
-            applyMove(pending.id, document.getElementById('reworkTarget').value, reason);
-            closeById('reworkModal');
+            var target = document.getElementById('reworkTarget').value;
+            requestMove(pending.id, target, reason).then(function (saved) { if (saved) closeById('reworkModal'); });
         });
     }
 
     /* ---------- Giao việc ---------- */
-    function assignTask(id, userId) {
+    async function assignTask(id, userId) {
         var card = cardById(id);
         if (!card) return;
 
@@ -315,6 +327,10 @@
             toast('Chỉ trưởng nhóm mới giao việc được.', 'error');
             return;
         }
+        try {
+            var ok = await postAction("AssignTask", { projectId: PROJECT_ID, taskId: id, assigneeId: userId || "", openTask: id });
+            if (!ok) throw new Error("Request rejected");
+        } catch (_) { toast("Không thể giao nhiệm vụ. Vui lòng thử lại.", "error"); return false; }
 
         var name = '';
         if (userId) {
@@ -341,8 +357,9 @@
         syncMembers();
         applyBoardFilter();
         toast(name
-            ? 'Đã giao ' + keyOf(card) + ' cho ' + name + NOTE
-            : 'Đã bỏ người thực hiện của ' + keyOf(card) + NOTE, 'success');
+            ? 'Đã giao ' + keyOf(card) + ' cho ' + name
+            : 'Đã bỏ người thực hiện của ' + keyOf(card), 'success');
+        return true;
     }
 
     /* ---------- Lọc bảng ---------- */
@@ -419,6 +436,9 @@
         if (subBtn) {
             var row = subBtn.closest('.sub-row');
             var m = subBtn.closest('[data-task-modal]');
+            var subtaskId = subBtn.dataset.subtaskId;
+            postAction("ToggleSubtask", { projectId: PROJECT_ID, taskId: subtaskId, openTask: m.dataset.taskId }).then(function (ok) {
+                if (!ok) { toast("Không thể cập nhật việc con.", "error"); return; }
             var done = row.classList.toggle('is-done');
             subBtn.textContent = done ? '✓' : '○';
             subBtn.title = done ? 'Mở lại' : 'Đánh dấu xong';
@@ -433,7 +453,8 @@
             var cardSub = card ? card.querySelector('[data-card-sub]') : null;
             if (cardSub) cardSub.textContent = '☑ ' + finished + '/' + total + ' việc con';
 
-            toast((done ? 'Đã hoàn thành việc con' : 'Đã mở lại việc con') + NOTE, 'success');
+            toast(done ? 'Đã hoàn thành việc con' : 'Đã mở lại việc con', 'success');
+            });
         }
     });
 
@@ -442,15 +463,15 @@
         if (statusSelect) {
             var id = statusSelect.closest('[data-task-modal]').dataset.taskId;
             var card = cardById(id);
-            if (!requestMove(id, statusSelect.value) && card) {
-                statusSelect.value = card.dataset.status; // không đổi được thì trả về giá trị cũ
-            }
+            requestMove(id, statusSelect.value).then(function (saved) { if (!saved && card) statusSelect.value = card.dataset.status; });
             return;
         }
 
         var assignSelect = e.target.closest ? e.target.closest('[data-assign-select]') : null;
         if (assignSelect) {
-            assignTask(assignSelect.closest('[data-task-modal]').dataset.taskId, assignSelect.value);
+            var taskId = assignSelect.closest('[data-task-modal]').dataset.taskId;
+            var previousAssignee = cardById(taskId)?.dataset.assignee || "";
+            assignTask(taskId, assignSelect.value).then(function (saved) { if (!saved) assignSelect.value = previousAssignee; });
         }
     });
 
@@ -467,9 +488,13 @@
             return;
         }
 
-        addComment(form.closest('[data-task-modal]'), text, false);
-        textarea.value = '';
-        toast('Đã thêm bình luận' + NOTE, 'success');
+        var formData = new FormData(form);
+        postAction(form.action, Object.fromEntries(formData.entries())).then(function (saved) {
+            if (!saved) { toast("Không thể lưu bình luận.", "error"); return; }
+            addComment(form.closest('[data-task-modal]'), text, false);
+            textarea.value = '';
+            toast('Đã thêm bình luận', 'success');
+        });
     });
 
     /* ---------- Kéo thả ---------- */

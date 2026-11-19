@@ -93,7 +93,7 @@
                 <h3 id="courseModalTitle" data-modal-title>Thêm môn học</h3>
                 <button type="button" class="study-modal-close" data-close aria-label="Đóng">&times;</button>
             </div>
-            <form asp-action="CreateCourse" method="post" data-simulate>
+            <form asp-action="CreateCourse" method="post">
                 <input type="hidden" name="Id" disabled />
                 <div class="study-form-grid">
                     <div class="field"><label for="cCode">Mã môn</label><input id="cCode" name="Code" maxlength="20" required /></div>
@@ -108,7 +108,6 @@
                         <select id="cStatus" name="Status"><option value="Đang học">Đang học</option><option value="Đã hoàn thành">Đã hoàn thành</option></select>
                     </div>
                 </div>
-                <p class="study-note">Bản mô phỏng giao diện: dữ liệu chưa được lưu.</p>
                 <div class="study-modal-foot">
                     <button type="button" class="study-btn" data-close>Hủy</button>
                     <button type="submit" class="study-btn primary">Lưu môn học</button>

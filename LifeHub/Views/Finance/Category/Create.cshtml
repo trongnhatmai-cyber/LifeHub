@@ -33,6 +33,7 @@
         <form asp-controller="Category"
               asp-action="Create"
               method="post">
+            @Html.AntiForgeryToken()
 
             <div asp-validation-summary="ModelOnly"
                  class="validation-summary">

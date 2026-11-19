@@ -15,7 +15,7 @@ public class HomeController : Controller
                 "Dashboard"
             );
         }
-        return View();
+        return View("~/Views/Home/Index.cshtml");
     }
 
     public IActionResult Features() => View();

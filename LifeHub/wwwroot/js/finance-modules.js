@@ -7,7 +7,7 @@
    - Tự gửi form lọc (GET) khi đổi lựa chọn.
 
    Không có dữ liệu tài chính trong file này. Lọc, tổng thu/chi, số dư, tiến độ, so sánh ngân sách
-   đều do C# (Controller + ViewModel) tính. Form thêm/sửa/xóa hiện CHỈ MÔ PHỎNG giao diện, chưa lưu.
+   đều do C# (Controller + ViewModel) tính. Các form được gửi tới action MVC để lưu trong SQL.
 ============================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -15,23 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const page = document.querySelector(".finance-page[data-module]");
     if (!page) return;
-
-    // ---------- Thông báo nhỏ ----------
-    let toastEl = null;
-    let toastTimer = null;
-
-    function toast(message) {
-        if (!toastEl) {
-            toastEl = document.createElement("div");
-            toastEl.className = "finance-toast";
-            toastEl.setAttribute("role", "status");
-            page.appendChild(toastEl);
-        }
-        toastEl.textContent = message;
-        toastEl.hidden = false;
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => { toastEl.hidden = true; }, 3800);
-    }
 
     // ---------- Hộp thoại ----------
     function openModal(modal) {
@@ -126,13 +109,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ---------- Danh mục theo loại giao dịch ----------
     function syncCategoryOptions(form) {
-        const type = form.querySelector('[name="Type"]');
+        const type = form.querySelector('[name="TransactionType"], [name="Type"]');
         const category = form.querySelector('[name="CategoryId"]');
         if (!type || !category) return;
 
+        const transactionType = type.value.trim().toLowerCase();
+        const supportsCategories = transactionType === "income" || transactionType === "expense";
+
         Array.from(category.options).forEach(option => {
             if (!option.value) return;
-            const match = option.dataset.type === type.value;
+            const match = supportsCategories && (option.dataset.type || "").trim().toLowerCase() === transactionType;
             option.hidden = !match;
             option.disabled = !match;
         });
@@ -140,8 +126,14 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!selected || selected.disabled) category.value = "";
     }
 
-    document.querySelectorAll('.finance-modal form [name="Type"]').forEach(select => {
-        select.addEventListener("change", () => syncCategoryOptions(select.form));
+    document.querySelectorAll("form").forEach(form => {
+        const type = form.querySelector('[name="TransactionType"], [name="Type"]');
+        const category = form.querySelector('[name="CategoryId"]');
+        const hasTypedCategories = category && Array.from(category.options).some(option => option.value && option.dataset.type);
+        if (!type || !hasTypedCategories) return;
+
+        type.addEventListener("change", () => syncCategoryOptions(form));
+        syncCategoryOptions(form);
     });
 
     // ---------- Kiểm tra form phía trình duyệt ----------
@@ -169,27 +161,17 @@ document.addEventListener("DOMContentLoaded", () => {
         return "";
     }
 
-    // ---------- Gửi form (MÔ PHỎNG, chưa lưu dữ liệu) ----------
-    // BACK-END: khi action POST tương ứng đã làm xong, xóa khối này để form gửi thẳng lên server theo asp-action.
-    document.querySelectorAll(".finance-modal form[data-simulate]").forEach(form => {
+    // ---------- Kiểm tra bổ sung trước khi gửi form tới MVC ----------
+    document.querySelectorAll("form[data-validate]").forEach(form => {
         form.addEventListener("submit", event => {
-            event.preventDefault();
-
-            if (!form.checkValidity()) {
-                form.reportValidity();
-                return;
-            }
-
             const message = validate(form);
             const error = form.querySelector(".form-error");
             if (message) {
+                event.preventDefault();
                 if (error) { error.textContent = message; error.hidden = false; }
                 return;
             }
             if (error) error.hidden = true;
-
-            closeModal(form.closest(".finance-modal"));
-            toast("Bản mô phỏng giao diện: dữ liệu chưa được lưu.");
         });
     });
 

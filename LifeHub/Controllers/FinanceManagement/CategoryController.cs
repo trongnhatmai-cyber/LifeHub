@@ -56,7 +56,7 @@ public class CategoryController : Controller
     public async Task<IActionResult> Create(CategoryViewModel model)
     {
         if (!ModelState.IsValid)
-            return View(model);
+            return View("~/Views/Finance/Category/Create.cshtml", model);
 
         int userId = User.GetUserId();
 
@@ -76,7 +76,7 @@ public class CategoryController : Controller
                 "Không thể tạo danh mục. Vui lòng kiểm tra dữ liệu hoặc tên danh mục đã tồn tại."
             );
 
-            return View(model);
+            return View("~/Views/Finance/Category/Create.cshtml", model);
         }
 
         return RedirectToAction(nameof(Index));
@@ -107,7 +107,7 @@ public class CategoryController : Controller
             ParentId = category.ParentId
         };
 
-        return View("~/Views/Finance/Category/Create.cshtml",model);
+        return View("~/Views/Finance/Category/Edit.cshtml", model);
     }
 
     // POST: /Category/Edit
@@ -116,7 +116,7 @@ public class CategoryController : Controller
     public async Task<IActionResult> Edit(CategoryViewModel model)
     {
         if (!ModelState.IsValid)
-            return View(model);
+            return View("~/Views/Finance/Category/Edit.cshtml", model);
 
         int userId = User.GetUserId();
 
@@ -137,32 +137,33 @@ public class CategoryController : Controller
                 "Không thể cập nhật danh mục. Vui lòng kiểm tra dữ liệu."
             );
 
-            return View(model);
+            return View("~/Views/Finance/Category/Edit.cshtml", model);
         }
 
         return RedirectToAction(nameof(Index));
     }
 
     [HttpGet]
-    public IActionResult Delete(int id)
+    public async Task<IActionResult> Delete(int id, bool confirm = false)
     {
-        // Tạm thời kiểm tra route và ID
-        ViewBag.CategoryId = id;
-
-        return View("~/Views/Finance/Category/Delete.cshtml");
+        int userId = User.GetUserId();
+        var category = await _categoryService.GetByIdAsync(id, userId);
+        if (category == null || category.UserId != userId || category.IsDefault) return NotFound();
+        return View("~/Views/Finance/Category/Delete.cshtml", new CategoryViewModel { Id=category.Id, Name=category.Name,
+            Type=category.Type, Icon=category.Icon, Color=category.Color, ParentId=category.ParentId });
     }
 
     // POST: /Category/Delete/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int id)
+    public async Task<IActionResult> Delete(CategoryViewModel model)
     {
         int userId = User.GetUserId();
 
-        bool success = await _categoryService.DeleteAsync(id, userId);
+        bool success = await _categoryService.DeleteAsync(model.Id, userId);
 
         if (!success)
-            return BadRequest("Không thể xóa danh mục này.");
+            return NotFound();
 
         return RedirectToAction(nameof(Index));
     }

@@ -75,7 +75,6 @@
                 }
                 <div class="gh-empty" data-gh-empty hidden>Không tìm thấy dữ liệu phù hợp.</div>
             </div>
-            <p class="gh-demo-note">Dữ liệu minh họa từ C# MockData. Các thao tác trên trang chỉ phục vụ xem trước giao diện, chưa ghi hoặc lưu dữ liệu.</p>
         </section>
 
         <aside class="gh-side-column">
@@ -102,12 +101,8 @@
                         </div>
                     }
                 </div>
-                <div class="gh-chart-foot"><strong>68%</strong><span>Hiệu suất trung bình</span></div>
+                <div class="gh-chart-foot"><strong>@(Model.Chart.Count == 0 ? "—" : $"{Math.Round(Model.Chart.Average(p => p.Value))}%")</strong><span>Hiệu suất trung bình</span></div>
             </section>
         </aside>
     </div>
-</div>
-
-<div class="gh-toast" role="status" aria-live="polite" data-gh-toast hidden>
-    Đây là giao diện mô phỏng. Chức năng lưu dữ liệu chưa được triển khai.
 </div>

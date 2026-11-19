@@ -253,6 +253,7 @@ namespace LifeHub.Models.ViewModels.ProjectManagement
     public class ProjectInvitationItem
     {
         public int Id { get; set; }
+        public bool CanAccept { get; set; }
         public string Email { get; set; } = string.Empty;
         public string Role { get; set; } = "Member";
         public string InvitedByName { get; set; } = string.Empty;

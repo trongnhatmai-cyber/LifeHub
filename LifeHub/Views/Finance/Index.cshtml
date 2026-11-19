@@ -589,7 +589,7 @@
                         </select>
                     </div>
 
-                    <div id="targetWalletGroup" style="display:none;">
+                    <div id="targetWalletGroup">
                         <label for="targetWallet"
                                style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--finance-text);">
                             Ví nhận tiền
@@ -611,6 +611,7 @@
                             }
                         </select>
                     </div>
+        
                 </div>
 
                 <!-- Danh mục và mục tiêu tiết kiệm -->
@@ -627,7 +628,7 @@
                                 class="finance-select"
                                 style="width:100%;">
 
-                            <option value="">Chọn danh mục</option>
+                            <option value="">Không phân loại</option>
 
                             @if (Model.Categories != null)
                             {

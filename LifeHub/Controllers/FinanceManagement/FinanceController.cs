@@ -1,14 +1,15 @@
 using LifeHub.DataAccessLayer;
 using LifeHub.Extensions;
-using LifeHub.Models.MockData;
 using LifeHub.Models.ViewModels.FinanceManagement;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LifeHub.Controllers
 {
+    [Authorize]
     public class FinanceController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -28,6 +29,7 @@ namespace LifeHub.Controllers
 
             // Lấy giao dịch trong tháng hiện tại
             var transactions = await _context.Transactions
+                .AsNoTracking()
                 .Where(t =>
                     t.UserId == userId &&
                     t.TransactionDate.Month == currentMonth &&
@@ -38,11 +40,13 @@ namespace LifeHub.Controllers
 
             // Lấy danh mục mặc định và danh mục của người dùng
             var categories = await _context.Categories
+                .AsNoTracking()
                 .Where(c => c.UserId == null || c.UserId == userId)
                 .ToListAsync();
 
             // Lấy ngân sách tháng hiện tại
             var budgets = await _context.Budgets
+                .AsNoTracking()
                 .Where(b =>
                     b.UserId == userId &&
                     b.Month == currentMonth &&
@@ -52,6 +56,7 @@ namespace LifeHub.Controllers
 
             // Lấy mục tiêu tiết kiệm
             var savingGoals = await _context.SavingsGoals
+                .AsNoTracking()
                 .Where(g => g.UserId == userId)
                 .ToListAsync();
 
@@ -135,15 +140,14 @@ namespace LifeHub.Controllers
                 Transactions = transactionItems
             };
 
-            return View(model);
-        }
+            ViewBag.Wallets = await _context.Wallets.AsNoTracking()
+                .Where(w => w.UserId == userId && w.IsActive).OrderBy(w => w.Name)
+                .Select(w => new { w.Id, w.Name }).ToListAsync();
+            ViewBag.SavingsGoals = await _context.SavingsGoals.AsNoTracking()
+                .Where(g => g.UserId == userId && !g.IsAchieved).OrderBy(g => g.Title)
+                .Select(g => new { g.Id, Name = g.Title }).ToListAsync();
 
-        [HttpPost]
-        public IActionResult CreateTransaction(string title, string type, int categoryId, decimal amount, DateTime date)
-        {
-            // API Endpoint nhận form từ modal
-            // Trả về JSON để JavaScript phía Front-end xử lý mượt mà không reload đơ trang
-            return Json(new { success = true, message = "Đã lưu giao dịch thành công!" });
+            return View(model);
         }
     }
 }

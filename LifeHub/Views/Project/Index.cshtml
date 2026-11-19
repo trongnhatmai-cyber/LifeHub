@@ -112,7 +112,7 @@
         }
     </div>
 
-    <!-- CỘT MỐC SẮP TỚI (tick được, mô phỏng phía trình duyệt) -->
+    <!-- CỘT MỐC SẮP TỚI -->
     <section class="project-item-card proj-milestones" data-ms-scope>
         <div class="proj-top proj-milestones-head">
             <div>
@@ -136,7 +136,7 @@
                     <div class="ms-main">
                         @if (ms.CanToggle)
                         {
-                            <form method="post" asp-action="ToggleMilestone" data-sim-milestone>
+                            <form method="post" asp-action="ToggleMilestone">
                                 <input type="hidden" name="milestoneId" value="@ms.Id" />
                                 <input type="hidden" name="projectId" value="@ms.ProjectId" />
                                 <input type="hidden" name="returnTo" value="index" />

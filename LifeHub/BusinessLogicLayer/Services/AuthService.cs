@@ -3,6 +3,7 @@ using LifeHub.DataAccessLayer;
 using LifeHub.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 
 namespace LifeHub.BusinessLogicLayer.Services;
 
@@ -24,6 +25,9 @@ public class AuthService
         string fullName)
     {
         email = email.Trim().ToLowerInvariant();
+        fullName = fullName.Trim();
+        if (email.Length > 254 || fullName.Length is < 1 or > 150 || string.IsNullOrWhiteSpace(password))
+            return false;
 
         // Kiểm tra email đã tồn tại
         bool emailExists = await _context.Users
@@ -49,7 +53,14 @@ public class AuthService
 
         _context.Users.Add(user);
 
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex) when (ex.InnerException is SqlException { Number: 2601 or 2627 })
+        {
+            return false;
+        }
 
         return true;
     }

@@ -202,6 +202,12 @@ namespace LifeHub.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Color")
+                        .HasMaxLength(15)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(15)")
+                        .HasColumnName("color");
+
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")

@@ -13,7 +13,7 @@
    - Không khai báo MOCK_DATA trong JavaScript.
    - Không tự tạo nguồn dữ liệu tài chính.
    - Không tự tính lại tổng thu nhập, chi tiêu, ngân sách.
-   - Không lưu hoặc giả lập lưu giao dịch.
+   - Gửi việc lưu giao dịch tới action MVC; JavaScript chỉ xử lý giao diện.
    - Dữ liệu được cung cấp từ C# ViewModel.
 ============================================= */
 
@@ -83,7 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }));
     }
 
-    // Dữ liệu tháng do FinanceMockData và Razor cung cấp.
+    // Dữ liệu tháng được render từ SQL qua FinanceViewModel.
     const monthlyChartData = readChartPoints(
         $("monthlyChartData")
     );
@@ -440,6 +440,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const matches = optionType === selectedType;
 
             option.hidden = !matches;
+            option.disabled = !matches;
 
             if (matches && option.selected) {
                 selectedOptionIsValid = true;
@@ -496,38 +497,23 @@ document.addEventListener("DOMContentLoaded", () => {
         const amount = Number($("transactionAmount")?.value);
         const date = $("transactionDate")?.value || "";
 
-        if (
-            !name ||
-            !type ||
-            !categorySelect?.value ||
-            !Number.isFinite(amount) ||
-            amount < 1000 ||
-            !date
-        ) {
+        if (!name || !type || !Number.isFinite(amount) || amount < 1000 || !date) {
             getFormMessage().textContent =
                 "Vui lòng kiểm tra lại các thông tin đã nhập.";
 
             return;
         }
 
-        const selectedCategory =
-            categorySelect.options[categorySelect.selectedIndex];
-
-        if (
-            !selectedCategory ||
-            selectedCategory.dataset.type?.toLowerCase() !== type.toLowerCase()
-        ) {
-            getFormMessage().textContent =
-                "Danh mục không phù hợp với loại giao dịch.";
-
-            return;
+        if (categorySelect?.value) {
+            const selectedCategory = categorySelect.options[categorySelect.selectedIndex];
+            if (!selectedCategory || selectedCategory.dataset.type?.toLowerCase() !== type.toLowerCase()) {
+                categorySelect.value = "";
+                filterCategories();
+                getFormMessage().textContent = "Danh mục đã được bỏ vì không phù hợp với loại giao dịch.";
+            }
         }
 
-        // Chỉ kiểm tra dữ liệu. Không thêm vào danh sách,
-        // không cập nhật tổng thu/chi và không gửi lên server.
-        getFormMessage().textContent =
-            "Thông tin hợp lệ. Đây là giao diện mẫu nên giao dịch chưa được thêm hoặc lưu.";
-
+        // Dữ liệu hợp lệ sẽ được POST tới TransactionController.Create.
     });
 
     // =============================================
