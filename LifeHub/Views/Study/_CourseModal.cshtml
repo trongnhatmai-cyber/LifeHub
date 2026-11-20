@@ -1,0 +1,38 @@
+@model List<LifeHub.Models.ViewModels.StudyManagement.StudySemesterItem>
+
+@* Hộp thoại thêm/sửa môn học dùng chung cho trang Tổng quan và trang Môn học. Model là danh sách học kỳ cho ô chọn.
+   Tên input trùng thuộc tính của CreateCourseInput/UpdateCourseInput. *@
+<div class="study-modal" id="courseModal" role="dialog" aria-modal="true" aria-labelledby="courseModalTitle" hidden>
+    <div class="study-modal-box">
+        <div class="study-modal-head">
+            <h3 id="courseModalTitle" data-modal-title>Thêm môn học</h3>
+            <button type="button" class="study-modal-close" data-close aria-label="Đóng">&times;</button>
+        </div>
+        <form asp-controller="Study" asp-action="CreateCourse" method="post" data-simulate>
+            <input type="hidden" name="Id" disabled />
+            <div class="study-form-grid">
+                <div class="field"><label for="cCode">Mã môn</label><input id="cCode" name="Code" maxlength="20" required placeholder="VD: IT301" /></div>
+                <div class="field"><label for="cCredits">Số tín chỉ</label><input id="cCredits" name="Credits" type="number" min="1" max="10" value="3" required /></div>
+                <div class="field full"><label for="cName">Tên môn học</label><input id="cName" name="Name" maxlength="150" required placeholder="VD: Lập trình Web ASP.NET" /></div>
+                <div class="field"><label for="cInstructor">Giảng viên</label><input id="cInstructor" name="Instructor" /></div>
+                <div class="field"><label for="cRoom">Phòng học</label><input id="cRoom" name="Room" /></div>
+                <div class="field"><label for="cTarget">Điểm mục tiêu (thang 10)</label><input id="cTarget" name="TargetScore" type="number" min="0" max="10" step="0.1" /></div>
+                <div class="field"><label for="cColor">Màu hiển thị</label><input id="cColor" name="Color" type="color" value="#2563eb" /></div>
+                <div class="field full">
+                    <label for="cSemester">Học kỳ</label>
+                    <select id="cSemester" name="SemesterId">
+                        @foreach (var sem in Model) { <option value="@sem.Id" selected="@sem.IsCurrent">@sem.Name</option> }
+                    </select>
+                </div>
+                <div class="field full">
+                    <label for="cStatus">Trạng thái</label>
+                    <select id="cStatus" name="Status"><option value="Đang học">Đang học</option><option value="Đã hoàn thành">Đã hoàn thành</option></select>
+                </div>
+            </div>
+            <div class="study-modal-foot">
+                <button type="button" class="study-btn" data-close>Hủy</button>
+                <button type="submit" class="study-btn primary">Lưu môn học</button>
+            </div>
+        </form>
+    </div>
+</div>

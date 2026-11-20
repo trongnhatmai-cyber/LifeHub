@@ -17,6 +17,8 @@ namespace LifeHub.Models.ViewModels.StudyManagement
         public string NextExamName { get; set; } = string.Empty;
         public bool HasNextExam => !string.IsNullOrEmpty(NextExamName);   // [MỚI]
 
+        public List<StudySemesterItem> Semesters { get; set; } = new();   // [MỚI] cho ô chọn học kỳ trong form
+
         // Danh sách môn học
         public List<StudyCourseItem> Courses { get; set; } = new();
 
@@ -40,6 +42,7 @@ namespace LifeHub.Models.ViewModels.StudyManagement
         public string Status { get; set; } = "Đang học";
         public string Color { get; set; } = "#18181b";             // [MỚI] màu nhận diện môn
         public decimal? CurrentScore { get; set; }                  // [MỚI] điểm hiện tại, thang 10
+        public int? SemesterId { get; set; }                        // [MỚI] học kỳ của môn
     }
 
     public class StudyScheduleDay

@@ -2,16 +2,20 @@
 @{
     var active = ViewData["ActivePage"] as string;
 
+    //tác dụng dự phòng: nếu không có ActivePage thì thử lấy giá trị từ URL.
     if (string.IsNullOrWhiteSpace(active))
     {
         active = Context.Request.Query["section"].ToString();
     }
-
+    //Nếu tên người dùng trống → hiển thị Khách. Nếu có tên → hiển thị tên tài khoản.
     var userName = string.IsNullOrWhiteSpace(User.Identity?.Name)
         ? "Khách"
         : User.Identity!.Name!;
 
+    //Lấy ký tự đầu tiên của tên người dùng để hiển thị trong Avatar.
     var initial = userName.Trim()[0].ToString().ToUpperInvariant();
+
+    //Dùng để hiển thị ngày hiện tại bằng tiếng Việt.
     var today = DateTime.Now.ToString("dddd, dd/MM/yyyy", new CultureInfo("vi-VN"));
 
     // CẤU TRÚC MENU CHA
@@ -33,13 +37,12 @@
             new[] { "Finance", "Tài chính", "Finance", "finance", "₫" },
             new[] { "Goal", "Mục tiêu", "Goal", "goal", "◎" },
             new[] { "Habit", "Thói quen", "Habit", "habit", "↻" },
-            new[] { "Knowledge", "Kiến thức và tài liệu", "Knowledge", "knowledge", "❏" },
             new[] { "Lifestyle", "Sinh hoạt cá nhân", "Lifestyle", "lifestyle", "♡" }
         }),
 
         ("Tiện ích", new List<string[]> {
             new[] { "AI", "Trợ lý AI", "AI", "ai", "✦" },
-            new[] { "Report", "Thống kê và báo cáo", "Report", "time", "▤" }
+            new[] { "Report", "Thống kê", "Report", "time", "▤" }
         })
     };
 
@@ -49,74 +52,64 @@
     var children = new Dictionary<string, List<string[]>>
     {
         ["Study"] = new List<string[]> {
-            new[] { "StudyOverview", "Tổng quan học tập" },
-            new[] { "Course", "Môn học và khóa học" },
+            new[] { "StudyOverview", "Tổng quan" },
+            new[] { "Semester", "Học kỳ" },
+            new[] { "Course", "Môn học & Khóa học" },
             new[] { "Schedule", "Thời khóa biểu" },
-            new[] { "Assignment", "Bài tập và kỳ thi" },
+            new[] { "Assignment", "Bài tập & Kỳ thi" },
             new[] { "Grade", "Điểm số" },
-            new[] { "StudyDocument", "Tài liệu học tập" }
+            new[] { "StudyDocument", "Tài liệu" }
         },
 
         ["Task"] = new List<string[]> {
-            new[] { "TaskOverview", "Tổng quan công việc" },
-            new[] { "TaskList", "Tất cả công việc" },
+            new[] { "TaskOverview", "Tổng quan" },
+            new[] { "TaskList", "Danh sách công việc" },
             new[] { "TaskCategory", "Danh mục công việc" },
-            new[] { "TaskPriority", "Mức độ ưu tiên" },
-            new[] { "TaskTag", "Thẻ công việc" }
         },
 
         ["Project"] = new List<string[]> {
-            new[] { "ProjectOverview", "Tổng quan dự án" },
-            new[] { "ProjectList", "Danh sách dự án" },
-            new[] { "ProjectMember", "Thành viên dự án" },
-            new[] { "ProjectMilestone", "Cột mốc dự án" },
-            new[] { "ProjectActivity", "Hoạt động dự án" }
+            new[] { "ProjectOverview", "Tổng quan" },
+            new[] { "ProjectList", "Danh sách dự án" }
         },
 
         ["Time"] = new List<string[]> {
             new[] { "TimeOverview", "Tổng quan thời gian" },
             new[] { "Calendar", "Lịch cá nhân" },
-            new[] { "CombinedCalendar", "Lịch tổng hợp" },
-            new[] { "Event", "Sự kiện" },
-            new[] { "Pomodoro", "Pomodoro" }
+            new[] { "CombinedCalendar", "Lịch tổng hợp" }
         },
 
         ["Finance"] = new List<string[]> {
             new[] { "FinanceOverview", "Tổng quan tài chính" },
             new[] { "Transaction", "Giao dịch" },
-            new[] { "Category", "Danh mục và ngân sách" },
+            new[] { "Category", "Danh mục & Ngân sách" },
             new[] { "Wallet", "Ví và tài khoản" },
             new[] { "SavingGoal", "Mục tiêu tiết kiệm" }
         },
 
         ["Goal"] = new List<string[]> {
             new[] { "GoalOverview", "Tổng quan mục tiêu" },
-            new[] { "GoalList", "Mục tiêu cá nhân" },
-            new[] { "KeyResult", "Kết quả then chốt (KR)" },
-            new[] { "GoalProgress", "Tiến độ mục tiêu" },
-            new[] { "GoalReview", "Đánh giá kết quả" }
+            new[] { "GoalList", "Danh sách mục tiêu" },
+            new[] { "Category", "Danh mục" },
         },
 
         ["Habit"] = new List<string[]> {
             new[] { "HabitOverview", "Tổng quan thói quen" },
             new[] { "HabitList", "Danh sách thói quen" },
-            new[] { "HabitTracking", "Theo dõi hằng ngày" },
-            new[] { "HabitStreak", "Chuỗi Streak" },
-            new[] { "HabitStatistics", "Thống kê thói quen" }
+            new[] { "Category", "Danh mục" },
+            new[] { "Habittatistics", "Thống kê" }
         },
 
         ["Knowledge"] = new List<string[]> {
             new[] { "KnowledgeOverview", "Tổng quan kiến thức" },
-            new[] { "Note", "Ghi chú" },
+            new[] { "NoteList", "Danh sách ghi chú" },
             new[] { "NoteCategory", "Danh mục ghi chú" },
-            new[] { "Document", "Tài liệu" },
-            new[] { "KnowledgeSearch", "Tìm kiếm kiến thức" }
+            new[] { "Document", "Tài liệu" }
         },
 
         ["Lifestyle"] = new List<string[]> {
             new[] { "LifestyleOverview", "Tổng quan sinh hoạt" },
             new[] { "LifestyleLog", "Nhật ký sinh hoạt" },
-            new[] { "SleepActivity", "Giấc ngủ và vận động" },
+            new[] { "HealthMonitor", "Theo dõi sức khỏe" },
             new[] { "LifestyleStatistics", "Thống kê sinh hoạt" }
         }
     };
@@ -128,6 +121,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+    <!-- Tiêu đề tab -->
     <title>@ViewData["Title"] | LifeHub</title>
 
     <script>
@@ -180,6 +174,7 @@
 
                 @foreach (var item in g.Items)
                 {
+                    <!-- Tìm danh sách menu con của menu cha hiện tại. -->
                     var kids = children.TryGetValue(item[0], out var childList)
                         ? childList
                         : null;
@@ -217,7 +212,7 @@
                                         "Category" => "Category",
                                         "Wallet" => "Wallet",
                                         "SavingGoal" => "SavingGoal",
-                                        "Course" or "Schedule" or "Assignment" or "Grade" or "StudyDocument" => "Study",
+                                        "Semester" or "Course" or "Schedule" or "Assignment" or "Grade" or "StudyDocument" => "Study",
                                         _ => item[2]
                                     };
 
@@ -232,6 +227,7 @@
                                         "HabitTracking" => "HabitTracking",
                                         "HabitStreak" => "HabitStreak",
                                         "HabitStatistics" => "HabitStatistics",
+                                        "Semester" => "Semesters",
                                         "Course" => "Courses",
                                         "Schedule" => "Schedule",
                                         "Assignment" => "Assignments",

@@ -75,7 +75,7 @@
                                 <div class="row-actions">
                                     @if (!a.IsExam && !a.Score.HasValue)
                                     {
-                                        <form asp-action="ToggleSubmitted" method="post">
+                                        <form asp-action="ToggleSubmitted" method="post" data-simulate>
                                             <input type="hidden" name="Id" value="@a.Id" />
                                             <button type="submit" class="row-btn">@(a.IsSubmitted ? "Hoàn tác nộp" : "Đã nộp")</button>
                                         </form>
@@ -97,43 +97,7 @@
         @if (!Model.Items.Any()) { <div class="study-empty">Không có bài tập phù hợp.</div> }
     </section>
 
-    <div class="study-modal" id="assignmentModal" role="dialog" aria-modal="true" aria-labelledby="assignmentModalTitle" hidden>
-        <div class="study-modal-box">
-            <div class="study-modal-head">
-                <h3 id="assignmentModalTitle" data-modal-title>Thêm bài tập</h3>
-                <button type="button" class="study-modal-close" data-close aria-label="Đóng">&times;</button>
-            </div>
-            <form asp-action="CreateAssignment" method="post">
-                <input type="hidden" name="Id" disabled />
-                <div class="study-form-grid">
-                    <div class="field full"><label for="aTitle">Tên bài tập</label><input id="aTitle" name="Title" maxlength="200" required /></div>
-                    <div class="field">
-                        <label for="aCourse">Môn học</label>
-                        <select id="aCourse" name="CourseId" required>
-                            <option value="" disabled selected>Chọn môn học</option>
-                            @foreach (var c in Model.Courses) { <option value="@c.Id">@c.Code - @c.Name</option> }
-                        </select>
-                    </div>
-                    <div class="field">
-                        <label for="aKind">Loại</label>
-                        <select id="aKind" name="Kind" required>
-                            <option value="assignment">Bài tập</option><option value="quiz">Kiểm tra nhanh</option><option value="project">Đồ án</option>
-                            <option value="midterm">Thi giữa kỳ</option><option value="final">Thi cuối kỳ</option>
-                        </select>
-                    </div>
-                    <div class="field"><label for="aDue">Hạn nộp / ngày thi</label><input id="aDue" name="DueDate" type="datetime-local" required /></div>
-                    <div class="field"><label for="aWeight">Trọng số (%)</label><input id="aWeight" name="WeightPercent" type="number" min="0" max="100" value="10" required /></div>
-                    <div class="field"><label for="aMax">Điểm tối đa</label><input id="aMax" name="MaxScore" type="number" min="1" step="0.5" value="10" required /></div>
-                    <div class="field" data-exam-only hidden><label for="aDuration">Thời lượng thi (phút)</label><input id="aDuration" name="DurationMinutes" type="number" min="1" /></div>
-                    <div class="field full" data-exam-only hidden><label for="aLocation">Phòng thi</label><input id="aLocation" name="Location" /></div>
-                </div>
-                <div class="study-modal-foot">
-                    <button type="button" class="study-btn" data-close>Hủy</button>
-                    <button type="submit" class="study-btn primary">Lưu bài tập</button>
-                </div>
-            </form>
-        </div>
-    </div>
+    <partial name="_AssignmentModal" model="Model.Courses" />
 
     <div class="study-modal" id="scoreModal" role="dialog" aria-modal="true" aria-labelledby="scoreModalTitle" hidden>
         <div class="study-modal-box">
@@ -142,9 +106,10 @@
                 <button type="button" class="study-modal-close" data-close aria-label="Đóng">&times;</button>
             </div>
             <p class="study-note">Bài: <strong data-text="name"></strong></p>
-            <form asp-action="RecordScore" method="post">
+            <form asp-action="RecordScore" method="post" data-simulate>
                 <input type="hidden" name="Id" />
                 <div class="field"><label for="scoreValue">Điểm đạt được</label><input id="scoreValue" name="Score" type="number" min="0" step="0.1" required /></div>
+                <p class="study-note">Bản mô phỏng giao diện: dữ liệu chưa được lưu.</p>
                 <div class="study-modal-foot">
                     <button type="button" class="study-btn" data-close>Hủy</button>
                     <button type="submit" class="study-btn primary">Lưu điểm</button>
@@ -157,5 +122,5 @@
 </div>
 
 @section Scripts {
-    <script src="~/js/study-pages.js" asp-append-version="true"></script>
+    <script src="~/js/study.js" asp-append-version="true"></script>
 }
