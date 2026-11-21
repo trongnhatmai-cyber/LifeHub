@@ -1,0 +1,28 @@
+@* =====================================================================
+   HỘP THOẠI XÁC NHẬN XÓA - DÙNG CHUNG cho Giao dịch, Ví, Mục tiêu tiết kiệm, Danh mục.
+   Nút mở (trong View) truyền:
+       data-open="deleteModal" data-mode="delete"
+       data-action="@Url.Action("Delete", "<Controller>")"   url POST xóa của từng phân hệ
+       data-id="<id>"  data-name="<tên hiển thị>"
+       data-note="<lưu ý thêm, không bắt buộc>"
+   finance.js gán action cho form, điền Id vào ô ẩn và tên vào <strong data-text="name">.
+   Action mặc định bên dưới (Transaction/Delete) chỉ là giá trị dự phòng khi nút mở quên data-action.
+   Đặt partial này là con trực tiếp của <div class="finance-page"> (xem LƯU Ý ở finance.css mục 0).
+   ===================================================================== *@
+<div class="finance-modal" id="deleteModal" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle" hidden>
+    <div class="finance-modal-box narrow">
+        <div class="finance-modal-head">
+            <h3 id="deleteModalTitle">Xác nhận xóa</h3>
+            <button type="button" class="finance-modal-close" data-close aria-label="Đóng">&times;</button>
+        </div>
+        <p class="finance-note">Bạn có chắc muốn xóa <strong data-text="name"></strong>? Thao tác này không thể hoàn tác.</p>
+        <p class="finance-note warn" data-text="note"></p>
+        <form asp-controller="Transaction" asp-action="Delete" method="post">
+            <input type="hidden" name="Id" disabled />
+            <div class="finance-modal-foot">
+                <button type="button" class="finance-btn" data-close>Hủy</button>
+                <button type="submit" class="finance-btn danger">Xóa</button>
+            </div>
+        </form>
+    </div>
+</div>

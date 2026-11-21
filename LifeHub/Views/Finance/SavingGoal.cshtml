@@ -1,0 +1,192 @@
+@model LifeHub.Models.ViewModels.FinanceModules.SavingGoalPageViewModel
+@using LifeHub.Models.ViewModels.FinanceModules
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Mục tiêu tiết kiệm";
+    ViewData["ActivePage"] = "SavingGoal";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/finance.css" asp-append-version="true" />
+}
+
+<div class="finance-page" data-module="saving-goals">
+    <partial name="~/Views/Finance/_FinanceFlash.cshtml" />
+
+    <header class="finance-heading">
+        <div>
+            <span class="finance-label">QUẢN LÝ TÀI CHÍNH</span>
+            <h1>Mục tiêu tiết kiệm</h1>
+            <p>Lập kế hoạch cho những điều quan trọng và theo dõi hành trình tích lũy.</p>
+        </div>
+        <div class="heading-actions">
+            <a class="finance-btn" asp-controller="Finance" asp-action="Index">← Tổng quan</a>
+            <button type="button" class="finance-btn primary" data-open="goalModal" data-mode="create" data-title="Tạo mục tiêu tiết kiệm">+ Tạo mục tiêu</button>
+        </div>
+    </header>
+
+    <section class="finance-summary">
+        <article class="summary-card income-card"><div class="summary-top"><span>Đã tích lũy</span><span class="summary-badge">SAVED</span></div><h2>@FinanceFormat.Money(Model.TotalSaved)</h2><p>Tổng tiền của các mục tiêu</p></article>
+        <article class="summary-card balance-card"><div class="summary-top"><span>Mục tiêu tổng</span><span class="summary-badge">TARGET</span></div><h2>@FinanceFormat.Money(Model.TotalTarget)</h2><p>Tổng số tiền cần đạt</p></article>
+        <article class="summary-card saving-card"><div class="summary-top"><span>Đang thực hiện</span><span class="summary-badge">ACTIVE</span></div><h2>@Model.ActiveCount</h2><p>Mục tiêu chưa hoàn thành</p></article>
+        <article class="summary-card expense-card"><div class="summary-top"><span>Đã hoàn thành</span><span class="summary-badge">ACHIEVED</span></div><h2>@Model.AchievedCount</h2><p>Mục tiêu đạt đích</p></article>
+    </section>
+
+    <section class="finance-card overall-goal">
+        <div class="section-heading">
+            <div><h3>Hành trình tiết kiệm</h3><p>Tổng tiến độ trên tất cả mục tiêu.</p></div>
+            <strong class="goal-overall-percent">@Model.OverallPercent.ToString("0")%</strong>
+        </div>
+        <div class="progress-track tall"><i style="width:@FinanceFormat.Css(Model.OverallPercent)%"></i></div>
+        <div class="overall-meta">
+            <span>@FinanceFormat.Money(Model.TotalSaved) đã tích lũy</span>
+            <span>Còn @FinanceFormat.Money(Math.Max(0, Model.TotalTarget - Model.TotalSaved))</span>
+        </div>
+    </section>
+
+    <div class="section-heading goal-filter-heading">
+        <div><h3>Danh sách mục tiêu</h3><p>Mỗi mục tiêu có tiến độ và thời hạn riêng.</p></div>
+        <nav class="finance-chips" aria-label="Lọc mục tiêu">
+            <a class="finance-chip @(Model.Status == "active" ? "active" : "")" asp-action="Index" asp-route-status="active">Đang thực hiện</a>
+            <a class="finance-chip @(Model.Status == "achieved" ? "active" : "")" asp-action="Index" asp-route-status="achieved">Đã hoàn thành</a>
+            <a class="finance-chip @(Model.Status == "all" ? "active" : "")" asp-action="Index" asp-route-status="all">Tất cả</a>
+        </nav>
+    </div>
+
+    <section class="goal-grid">
+        @foreach (var goal in Model.Goals)
+        {
+            <article class="goal-card" style="--goal-color:@goal.Color">
+                <div class="goal-head">
+                    <div class="goal-ring" style="--p:@FinanceFormat.Css(goal.Percent);--goal-color:@goal.Color"><div><strong>@goal.Percent.ToString("0")%</strong></div></div>
+                    <div class="goal-title-wrap">
+                        <h3>@goal.Title</h3>
+                        <span class="goal-state @goal.StateKey">@goal.StateLabel</span>
+                    </div>
+                </div>
+                <div class="goal-lines">
+                    <div><span>Đã tiết kiệm</span><strong>@FinanceFormat.Money(goal.CurrentAmount)</strong></div>
+                    <div><span>Mục tiêu</span><strong>@FinanceFormat.Money(goal.TargetAmount)</strong></div>
+                    <div><span>Còn cần</span><strong>@FinanceFormat.Money(goal.Remaining)</strong></div>
+                    <div><span>Thời hạn</span><strong>@(goal.Deadline.HasValue ? FinanceFormat.Date(goal.Deadline.Value) : "Không đặt")</strong></div>
+                </div>
+                <div class="progress-track"><i style="width:@FinanceFormat.Css(goal.Percent)%;background:@goal.Color"></i></div>
+                @if (goal.SuggestedMonthly.HasValue)
+                {
+                    <p class="goal-tip">Gợi ý tích lũy khoảng <strong>@FinanceFormat.Money(goal.SuggestedMonthly.Value)</strong> mỗi tháng để kịp thời hạn.</p>
+                }
+                else if (goal.IsAchieved)
+                {
+                    <p class="goal-tip">Bạn đã hoàn thành mục tiêu này. Hãy tiếp tục duy trì thói quen tốt!</p>
+                }
+                else if (goal.IsOverdue)
+                {
+                    <p class="goal-tip">Mục tiêu đã quá hạn. Bạn có thể điều chỉnh kế hoạch bằng nút Chỉnh sửa.</p>
+                }
+                <div class="card-actions">
+                    @if (!goal.IsAchieved)
+                    {
+                        <button type="button" class="finance-btn primary small" data-open="contributeModal" data-mode="create"
+                                data-goalid="@goal.Id" data-goalname="@goal.Title" data-remaining="@FinanceFormat.Money(goal.Remaining)">+ Nạp tiền</button>
+                    }
+                    <button type="button" class="row-btn" data-open="goalModal" data-mode="edit"
+                            data-action="@Url.Action("Edit", "SavingGoal")" data-title="Chỉnh sửa mục tiêu"
+                            data-id="@goal.Id" data-goaltitle="@goal.Title" data-targetamount="@FinanceFormat.Plain(goal.TargetAmount)"
+                            data-deadline="@(goal.Deadline?.ToString("yyyy-MM-dd"))" data-color="@goal.Color">Chỉnh sửa</button>
+                    <button type="button" class="row-btn danger" data-open="deleteModal" data-mode="delete"
+                            data-action="@Url.Action("Delete", "SavingGoal")" data-id="@goal.Id" data-name="@goal.Title"
+                            data-note="Mục tiêu đã có tiền đóng góp thì không xóa được.">Xóa</button>
+                </div>
+            </article>
+        }
+    </section>
+
+    @if (!Model.Goals.Any())
+    {
+        <div class="finance-card finance-empty">
+            <strong>Chưa có mục tiêu trong bộ lọc này</strong>
+            <p>Bấm "+ Tạo mục tiêu" để bắt đầu theo dõi một khoản tiết kiệm.</p>
+        </div>
+    }
+
+    @* ---------- THÊM / SỬA MỤC TIÊU (SavingGoal/Create, SavingGoal/Edit) ---------- *@
+    <div class="finance-modal" id="goalModal" role="dialog" aria-modal="true" aria-labelledby="goalModalTitle" hidden>
+        <div class="finance-modal-box">
+            <div class="finance-modal-head">
+                <h3 id="goalModalTitle" data-modal-title>Tạo mục tiêu tiết kiệm</h3>
+                <button type="button" class="finance-modal-close" data-close aria-label="Đóng">&times;</button>
+            </div>
+            <form asp-controller="SavingGoal" asp-action="Create" method="post">
+                <input type="hidden" name="Id" disabled />
+                <div class="finance-form-grid">
+                    <div class="field full">
+                        <label for="gTitle">Tên mục tiêu</label>
+                        <input id="gTitle" name="Title" maxlength="100" placeholder="Ví dụ: Mua laptop" required />
+                    </div>
+                    <div class="field">
+                        <label for="gTarget">Số tiền mục tiêu (₫)</label>
+                        <input id="gTarget" name="TargetAmount" type="number" min="1000" step="1" inputmode="numeric" required />
+                    </div>
+                    <div class="field">
+                        <label for="gDeadline">Thời hạn</label>
+                        <input id="gDeadline" name="Deadline" type="date" />
+                    </div>
+                    <div class="field">
+                        <label for="gColor">Màu nhận diện</label>
+                        <input id="gColor" name="Color" type="color" value="#e11d48" />
+                    </div>
+                </div>
+                <p class="form-error" role="alert" hidden></p>
+                <div class="finance-modal-foot">
+                    <button type="button" class="finance-btn" data-close>Hủy</button>
+                    <button type="submit" class="finance-btn primary">Lưu mục tiêu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @* ---------- NẠP TIỀN VÀO MỤC TIÊU (SavingGoal/Contribute) ---------- *@
+    <div class="finance-modal" id="contributeModal" role="dialog" aria-modal="true" aria-labelledby="contributeTitle" hidden>
+        <div class="finance-modal-box narrow">
+            <div class="finance-modal-head">
+                <h3 id="contributeTitle">Nạp tiền vào mục tiêu</h3>
+                <button type="button" class="finance-modal-close" data-close aria-label="Đóng">&times;</button>
+            </div>
+            <p class="finance-note">Mục tiêu: <strong data-text="goalname"></strong> · còn thiếu <strong data-text="remaining"></strong></p>
+            <form asp-controller="SavingGoal" asp-action="Contribute" method="post" data-validate="contribute">
+                <input type="hidden" name="GoalId" />
+                <div class="finance-form-grid">
+                    <div class="field full">
+                        <label for="cWallet">Ví nguồn</label>
+                        <select id="cWallet" name="WalletId" required>
+                            <option value="">Chọn ví để nạp tiền</option>
+                            @foreach (var wallet in Model.SourceWallets)
+                            {
+                                <option value="@wallet.Id" data-balance="@FinanceFormat.Plain(wallet.Balance)">@wallet.Name — @FinanceFormat.Money(wallet.Balance)</option>
+                            }
+                        </select>
+                        @if (!Model.SourceWallets.Any())
+                        {
+                            <small>Bạn cần có ví đang hoạt động (không phải quỹ tiết kiệm) để nạp tiền.</small>
+                        }
+                    </div>
+                    <div class="field full">
+                        <label for="cAmount">Số tiền muốn nạp (₫)</label>
+                        <input id="cAmount" name="Amount" type="number" min="1000" step="1" inputmode="numeric" required />
+                    </div>
+                </div>
+                <p class="form-error" role="alert" hidden></p>
+                <div class="finance-modal-foot">
+                    <button type="button" class="finance-btn" data-close>Hủy</button>
+                    <button type="submit" class="finance-btn primary" disabled="@(!Model.SourceWallets.Any())">Ghi nhận khoản nạp</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <partial name="~/Views/Finance/_FinanceDeleteModal.cshtml" />
+</div>
+
+@section Scripts {
+    <script src="~/js/finance.js" asp-append-version="true"></script>
+}

@@ -50,7 +50,7 @@ namespace LifeHub.Controllers
                 Id=p.Id, Name=p.Name, Members=_context.ProjectMembers.Where(pm => pm.ProjectId == p.Id).Select(pm => new TaskMemberOption {
                     UserId=pm.UserId, Name=_context.Users.Where(u => u.Id == pm.UserId).Select(u => u.FullName).FirstOrDefault() ?? "Thành viên",
                     Role=_context.ProjectRoles.Where(r => r.Id == pm.ProjectRoleId).Select(r => r.Name).FirstOrDefault() ?? "member" }).ToList() }).ToListAsync();
-            var model = new TaskViewModel { Tasks=tasks, Projects=projects };
+            var model = new TaskOverviewViewModel { Tasks=tasks, Projects=projects };
 
             return View(model);
         }
@@ -58,7 +58,7 @@ namespace LifeHub.Controllers
         // POST /Task/Create  (form "Thêm công việc")
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateTaskInput input)
+        public async Task<IActionResult> Create(TaskInputModels input)
         {
             var uid=User.GetUserId();input.Title=input.Title?.Trim()??"";
             if(!ModelState.IsValid||!AllowedStatus(input.Status)||!AllowedPriority(input.Priority)||input.Description?.Length>4000||input.Tags?.Length>500)
@@ -83,7 +83,7 @@ namespace LifeHub.Controllers
         // POST /Task/UpdateStatus  (kéo thả thẻ sang cột khác trên Kanban)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateStatus(UpdateTaskStatusInput input)
+        public async Task<IActionResult> UpdateStatus(TaskInputModels input)
         {
             var uid=User.GetUserId();if(!ModelState.IsValid||!AllowedStatus(input.Status))return BadRequest();
             var task=await _context.Tasks.FirstOrDefaultAsync(t=>t.Id==input.Id&&t.ProjectId==null&&t.UserId==uid);
@@ -102,7 +102,7 @@ namespace LifeHub.Controllers
         // Ghi bình luận và hoạt động dự án trong phạm vi task mà người dùng được phép truy cập.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddComment(AddCommentInput input)
+        public async Task<IActionResult> AddComment(TaskInputModels input)
         {
             var uid=User.GetUserId();input.Content=input.Content?.Trim()??"";if(!ModelState.IsValid||string.IsNullOrWhiteSpace(input.Content))return BadRequest();
             var task=await _context.Tasks.AsNoTracking().FirstOrDefaultAsync(t=>t.Id==input.TaskId);

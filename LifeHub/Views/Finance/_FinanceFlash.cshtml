@@ -1,0 +1,24 @@
+@* =====================================================================
+   THÔNG BÁO NHỎ (TOAST) SAU KHI THÊM / SỬA / XÓA
+   Controller đặt TempData["SuccessMessage"] (thành công) hoặc TempData["ErrorMessage"] (lỗi)
+   rồi RedirectToAction. Partial này in ra toast; finance.js tự ẩn sau vài giây (data-toast).
+   Cách dùng: đặt đúng một dòng bên trong <div class="finance-page"> của mỗi View:
+       <partial name="~/Views/Finance/_FinanceFlash.cshtml" />
+   ===================================================================== *@
+@{
+    var okMessage = TempData["SuccessMessage"] as string;
+    var errMessage = TempData["ErrorMessage"] as string;
+}
+@if (!string.IsNullOrWhiteSpace(okMessage) || !string.IsNullOrWhiteSpace(errMessage))
+{
+    <div class="finance-toast-stack">
+        @if (!string.IsNullOrWhiteSpace(okMessage))
+        {
+            <div class="finance-toast" role="status" data-toast>@okMessage</div>
+        }
+        @if (!string.IsNullOrWhiteSpace(errMessage))
+        {
+            <div class="finance-toast error" role="alert" data-toast>@errMessage</div>
+        }
+    </div>
+}

@@ -38,7 +38,7 @@ public class CategoryController : Controller
         }).ToList();
 
         return View(
-            "~/Views/Finance/Category/Index.cshtml",
+            "~/Views/Finance/Category.cshtml",
             categoryViewModels
         );
     }

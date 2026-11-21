@@ -20,6 +20,9 @@ public class CategoryViewModel
 
     public int? ParentId { get; set; }
 
+    // Danh mục mặc định của hệ thống: người dùng không sửa/xóa được (View dựa vào đây để ẩn nút)
+    public bool IsDefault { get; set; }
+
      public decimal Spent { get; set; }
     public decimal Limit { get; set; }
     

@@ -314,7 +314,7 @@ public class TransactionController : Controller
             Rows = rows
         };
 
-        return View("~/Views/Finance/Transaction/Index.cshtml", model);
+        return View("~/Views/Finance/Transaction.cshtml", model);
     }
 
     // GET: /Transaction/Create

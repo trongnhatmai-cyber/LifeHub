@@ -28,7 +28,7 @@ namespace LifeHub.Controllers
             var cards=wallets.Select(w=>new WalletCard {Id=w.Id,Name=w.Name,Kind=w.WalletType.ToLowerInvariant(),Color=w.Color??"#e11d48",Balance=w.InitialBalance,
                 MonthIncome=tx.Where(t=>t.WalletId==w.Id&&t.TransactionType=="Income").Sum(t=>t.Amount),MonthExpense=tx.Where(t=>t.WalletId==w.Id&&t.TransactionType=="Expense").Sum(t=>t.Amount),
                 Recent=tx.Where(t=>t.WalletId==w.Id).Take(5).Select(t=>new TransactionRow {Id=t.Id,Date=t.TransactionDate.ToDateTime(TimeOnly.MinValue),Name=t.Note??"Giao dịch",Type=t.TransactionType.ToLowerInvariant(),CategoryId=t.CategoryId??0,CategoryName=t.CategoryId.HasValue&&categories.TryGetValue(t.CategoryId.Value,out var c)?c.Name:"Chuyển tiền",CategoryColor=t.CategoryId.HasValue&&categories.TryGetValue(t.CategoryId.Value,out var c2)?c2.Color??"#e98ba5":"#e98ba5",WalletId=w.Id,WalletName=w.Name,Amount=t.Amount}).ToList() }).ToList();
-            return View("~/Views/Finance/Wallet/Index.cshtml", new WalletPageViewModel {Wallets=cards});
+            return View("~/Views/Finance/Wallet.cshtml", new WalletPageViewModel {Wallets=cards});
         }
 
         [HttpGet]

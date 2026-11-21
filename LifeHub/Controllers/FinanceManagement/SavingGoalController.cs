@@ -23,7 +23,7 @@ namespace LifeHub.Controllers
             var wallets=await _context.Wallets.AsNoTracking().Where(w=>w.UserId==userId&&w.IsActive).Select(w=>new WalletOption {Id=w.Id,Name=w.Name,Kind=w.WalletType.ToLowerInvariant(),Balance=w.InitialBalance}).ToListAsync();
             var key=(status??"active").ToLowerInvariant(); if(key is not ("active" or "achieved" or "all")) key="active";
             var cards=goals.Select(g=>new SavingGoalCard {Id=g.Id,Title=g.Title,TargetAmount=g.TargetAmount,CurrentAmount=g.CurrentAmount??0m,Deadline=g.Deadline?.ToDateTime(TimeOnly.MinValue),Color=g.Color??"#e11d48"}).ToList();
-            return View("~/Views/Finance/SavingGoal/Index.cshtml",new SavingGoalPageViewModel {Status=key,Goals=cards.Where(g=>key=="all"||(key=="achieved"?g.IsAchieved:!g.IsAchieved)).ToList(),SourceWallets=wallets.Where(w=>w.Kind!="savings").ToList(),TotalSaved=cards.Sum(g=>g.CurrentAmount),TotalTarget=cards.Sum(g=>g.TargetAmount),ActiveCount=cards.Count(g=>!g.IsAchieved),AchievedCount=cards.Count(g=>g.IsAchieved)});
+            return View("~/Views/Finance/SavingGoal.cshtml",new SavingGoalPageViewModel {Status=key,Goals=cards.Where(g=>key=="all"||(key=="achieved"?g.IsAchieved:!g.IsAchieved)).ToList(),SourceWallets=wallets.Where(w=>w.Kind!="savings").ToList(),TotalSaved=cards.Sum(g=>g.CurrentAmount),TotalTarget=cards.Sum(g=>g.TargetAmount),ActiveCount=cards.Count(g=>!g.IsAchieved),AchievedCount=cards.Count(g=>g.IsAchieved)});
         }
 
         [HttpGet]
