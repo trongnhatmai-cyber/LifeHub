@@ -86,6 +86,40 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ================================================================
+    // 2b. NHẮC NHỞ Ô BẮT BUỘC
+    // Ô nào có thuộc tính required thì tự thêm class "required" cho .field,
+    // CSS sẽ hiện dấu * đỏ sau nhãn. Không cần sửa View.
+    // ================================================================
+    document.querySelectorAll(".study-modal [required]").forEach(el => {
+        const field = el.closest(".field");
+        if (field) field.classList.add("required");
+    });
+
+    function clearInvalid(form) {
+        form.querySelectorAll(".field.invalid").forEach(f => f.classList.remove("invalid"));
+    }
+
+    // Lấy (hoặc tạo) dòng báo lỗi của form.
+    function errorBox(form) {
+        let box = form.querySelector(".form-error");
+        if (!box) {
+            box = document.createElement("p");
+            box.className = "form-error";
+            box.setAttribute("role", "alert");
+            box.hidden = true;
+            const foot = form.querySelector(".study-modal-foot");
+            form.insertBefore(box, foot || null);
+        }
+        return box;
+    }
+
+    // Khi gõ vào ô đang báo lỗi thì gỡ viền đỏ của ô đó.
+    document.addEventListener("input", event => {
+        const field = event.target.closest && event.target.closest(".field.invalid");
+        if (field) field.classList.remove("invalid");
+    });
+
+    // ================================================================
     // 3. CHUẨN BỊ FORM TRƯỚC KHI MỞ (thêm / sửa / xóa)
     // ================================================================
     // data-* dành riêng, không điền vào ô nhập.
@@ -129,6 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             syncExamFields(form);
+            clearInvalid(form);
             const error = form.querySelector(".form-error");
             if (error) error.hidden = true;
         }
@@ -205,18 +240,27 @@ document.addEventListener("DOMContentLoaded", () => {
         form.addEventListener("submit", event => {
             event.preventDefault();
 
+            const error = errorBox(form);
+            clearInvalid(form);
+
+            // Ô thiếu hoặc sai: tô viền đỏ và liệt kê TÊN từng ô để người dùng biết sửa chỗ nào.
             if (!form.checkValidity()) {
-                form.reportValidity();
+                const bad = Array.from(form.elements).filter(el => el.willValidate && !el.checkValidity());
+                const names = bad.map(el => {
+                    const field = el.closest(".field");
+                    if (field) field.classList.add("invalid");
+                    const label = field && field.querySelector("label");
+                    return label ? label.textContent.trim() : el.name;
+                });
+                error.textContent = "Chưa nhập đúng: " + names.join(", ") + ".";
+                error.hidden = false;
+                if (bad[0]) bad[0].focus();
                 return;
             }
 
             const message = validate(form);
-            const error = form.querySelector(".form-error");
-            if (message) {
-                if (error) { error.textContent = message; error.hidden = false; }
-                return;
-            }
-            if (error) error.hidden = true;
+            if (message) { error.textContent = message; error.hidden = false; return; }
+            error.hidden = true;
 
             const modal = form.closest(".study-modal");
             if (modal) closeModal(modal);

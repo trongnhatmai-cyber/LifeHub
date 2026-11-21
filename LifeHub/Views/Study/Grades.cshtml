@@ -47,6 +47,10 @@
     </section>
 
     <div class="grade-list">
+        @if (!Model.Rows.Any())
+        {
+            <div class="study-empty">Chưa có môn học đang học nên chưa có điểm để hiển thị. Hãy thêm môn học ở trang <a asp-action="Courses">Môn học</a>.</div>
+        }
         @foreach (var r in Model.Rows)
         {
             var c = r.Course;
@@ -88,9 +92,10 @@
                 <button type="button" class="study-modal-close" data-close aria-label="Đóng">&times;</button>
             </div>
             <p class="study-note">Môn: <strong data-text="name"></strong></p>
-            <form asp-action="SetTargetScore" method="post">
+            <form asp-action="SetTargetScore" method="post" data-simulate>
                 <input type="hidden" name="CourseId" />
                 <div class="field"><label for="tScore">Điểm mục tiêu (thang 10)</label><input id="tScore" name="TargetScore" type="number" min="0" max="10" step="0.1" required /></div>
+                <p class="study-note">Bản mô phỏng giao diện: dữ liệu chưa được lưu.</p>
                 <div class="study-modal-foot">
                     <button type="button" class="study-btn" data-close>Hủy</button>
                     <button type="submit" class="study-btn primary">Lưu mục tiêu</button>
@@ -101,5 +106,5 @@
 </div>
 
 @section Scripts {
-    <script src="~/js/study.js" asp-append-version="true"></script>
+    <script src="~/js/study-pages.js" asp-append-version="true"></script>
 }

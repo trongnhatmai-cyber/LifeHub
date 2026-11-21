@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
+using Microsoft.AspNetCore.Http;
 
 namespace LifeHub.Models.ViewModels.StudyManagement
 {
@@ -268,12 +269,32 @@ namespace LifeHub.Models.ViewModels.StudyManagement
         [Range(0, 10)] public decimal TargetScore { get; set; }
     }
 
-    public class CreateDocumentInput
+    /// <summary>Thêm tài liệu: chọn tệp từ máy (File) HOẶC nhập đường dẫn (Url), cần ít nhất một trong hai.</summary>
+    public class CreateDocumentInput : IValidatableObject
     {
         [Required, StringLength(200)] public string Title { get; set; } = string.Empty;
         [Required] public int CourseId { get; set; }
         [Required] public string Kind { get; set; } = "pdf";
-        [Required, StringLength(500)] public string Url { get; set; } = string.Empty;
+        public IFormFile? File { get; set; }                 // tệp chọn từ máy tính
+        [StringLength(500)] public string? Url { get; set; } // hoặc liên kết trực tuyến
+        [StringLength(500)] public string? Note { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext context)
+        {
+            if (File == null && string.IsNullOrWhiteSpace(Url))
+                yield return new ValidationResult("Hãy chọn tệp từ máy hoặc nhập đường dẫn.", new[] { nameof(File), nameof(Url) });
+        }
+    }
+
+    /// <summary>Sửa tài liệu: giữ tệp/đường dẫn cũ nếu không chọn mới.</summary>
+    public class UpdateDocumentInput
+    {
+        public int Id { get; set; }
+        [Required, StringLength(200)] public string Title { get; set; } = string.Empty;
+        [Required] public int CourseId { get; set; }
+        [Required] public string Kind { get; set; } = "pdf";
+        public IFormFile? File { get; set; }
+        [StringLength(500)] public string? Url { get; set; }
         [StringLength(500)] public string? Note { get; set; }
     }
 }

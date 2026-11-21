@@ -1,7 +1,11 @@
 /* =====================================================================
-   LIFEHUB - STUDY MANAGEMENT (HỌC TẬP) 
+   LIFEHUB - STUDY MANAGEMENT (HỌC TẬP)        wwwroot/css/study.css
+
+   FILE MẪU CHO CÁC PHÂN HỆ KHÁC. Đọc phần "CÁCH TÁI SỬ DỤNG" trước khi nhân bản.
+
    ---------------------------------------------------------------------
    MỤC LỤC
+     0. Cách tái sử dụng cho phân hệ mới
      1. Biến giao diện (theme sáng / tối)
      2. Nền tảng: reset, thuộc tính hidden
      3. Tiêu đề trang và nhóm nút hành động
@@ -21,6 +25,41 @@
     17. Thời khóa biểu dạng lưới theo giờ (trang Thời khóa biểu)
     18. Điểm số
     19. Responsive (gom hết ở cuối file)
+
+   ---------------------------------------------------------------------
+   0. CÁCH TÁI SỬ DỤNG CHO PHÂN HỆ MỚI (VD: Tài chính, Công việc...)
+     Bước 1  Chép file này thành finance.css (hoặc task.css...).
+     Bước 2  Tìm và thay toàn bộ:
+               .study-page  ->  .fin-page        (khung bao ngoài của View)
+               --study-     ->  --fin-           (biến màu)
+               .study-      ->  .fin-            (btn, card, modal, chip...)
+             Trong View, đặt <div class="fin-page"> làm phần tử bao ngoài.
+     Bước 3  Đổi màu nhận diện của phân hệ: chỉ sửa 8 biến ở mục 1
+             (accent, accent-dark, card, card-strong, soft, border, text, muted),
+             cho cả theme sáng lẫn tối. KHÔNG viết mã màu cứng vào các mục dưới.
+     Bước 4  Xóa các mục không dùng (VD: mục 17, 18 chỉ dành cho học tập),
+             giữ nguyên các mục dùng chung: 1 đến 6, 9 đến 15, 19.
+     Bước 5  Mỗi phân hệ nạp CSS riêng của mình trong @section Styles của View.
+
+   QUY TẮC BẮT BUỘC
+     - Mọi selector bắt đầu bằng .study-page để không ảnh hưởng phân hệ khác.
+     - Màu lấy từ biến --study-*. Chỉ được dùng màu cứng cho: màu trạng thái
+       (xanh, đỏ, cam), nút nguy hiểm, và màu nhận diện từng môn học
+       (truyền từ C# qua style="--course-color:...").
+     - Modal dùng position: fixed nên PHẢI là con trực tiếp của .study-page.
+       Không đặt trong .study-card hoặc .summary-card, vì hai thẻ này có hover
+       transform, sẽ làm modal bị lệch khỏi màn hình.
+     - Thuộc tính hidden luôn thắng (xem mục 2), nên JS chỉ cần bật tắt hidden.
+     - Phần CSS thêm mới nên đặt trong mục tương ứng, kèm comment, không thêm cuối file.
+     - Tên class đặt theo vai trò (summary-card, status, row-btn), không đặt theo
+       hình dạng (blue-box). Cùng một vai trò dùng chung một class ở mọi trang.
+
+   HƯỚNG PHÁT TRIỂN SAU NÀY (chưa làm ngay)
+     Khi đã có 3 đến 4 phân hệ dùng cùng bộ thẻ, nút, bảng, modal, nên tách phần
+     dùng chung (mục 2 đến 6, 9 đến 15) sang wwwroot/css/lifehub-ui.css với tiền tố
+     .lh-, mỗi phân hệ chỉ còn file CSS riêng cho phần đặc thù. Hiện giữ một file
+     cho mỗi phân hệ để dễ làm và dễ xóa.
+   ===================================================================== */
 
 
 /* =====================================================================
@@ -640,6 +679,15 @@ body.study-modal-open { overflow: hidden; }
     font-size: 12px;
     font-weight: 600;
 }
+
+
+/* Ô bắt buộc: JS tự thêm class "required" cho .field có input[required] (study.js mục 2b).
+   Khi gửi sai, JS thêm class "invalid" để viền đỏ ô cần sửa. */
+.study-page .field.required > label::after { content: " *"; color: #dc2626; }
+.study-page .field.invalid input,
+.study-page .field.invalid select,
+.study-page .field.invalid textarea { border-color: #dc2626; }
+.study-page .field small { display: block; margin-top: 4px; font-size: 11px; color: var(--study-muted); }
 
 
 /* =====================================================================

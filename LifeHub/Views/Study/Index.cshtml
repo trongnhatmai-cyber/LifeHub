@@ -23,8 +23,8 @@
         </div>
 
         <div class="heading-actions">
-            <button type="button" class="study-btn" id="addSubjectBtn">+ Thêm môn học</button>
-            <button type="button" class="study-btn primary" id="addAssignmentBtn">+ Thêm bài tập</button>
+            <button type="button" class="study-btn" data-open="courseModal" data-mode="create" data-title="Thêm môn học">+ Thêm môn học</button>
+            <button type="button" class="study-btn primary" data-open="assignmentModal" data-mode="create" data-title="Thêm bài tập">+ Thêm bài tập</button>
         </div>
     </header>
 
@@ -120,7 +120,7 @@
     <section class="study-card">
         <div class="section-heading">
             <div><h3>Bài tập và lịch thi</h3><p>Theo dõi hạn nộp bài và kết quả điểm số</p></div>
-            <button type="button" class="study-btn primary" id="addAssignmentBtn2">+ Thêm bài tập</button>
+            <button type="button" class="study-btn primary" data-open="assignmentModal" data-mode="create" data-title="Thêm bài tập">+ Thêm bài tập</button>
         </div>
 
         <div class="study-chips" role="group" aria-label="Lọc bài tập">
@@ -164,7 +164,7 @@
         </div>
     </section>
 
-    <!-- HỘP THOẠI -->
+    <!-- HỘP THOẠI (chỉ mô phỏng giao diện, chưa lưu dữ liệu) -->
     <partial name="_StudyModals" model="Model" />
     <div class="study-toast" id="studyToast" role="status" hidden></div>
 </div>
