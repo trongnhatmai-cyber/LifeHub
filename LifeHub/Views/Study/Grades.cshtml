@@ -25,7 +25,7 @@
     <section class="study-summary">
         <div class="summary-card"><div class="summary-top"><span>GPA học kỳ này</span><span class="summary-badge">THANG 4</span></div><h2>@(Model.Gpa?.ToString("0.00") ?? "—")</h2><p>Tính theo tín chỉ</p></div>
         <div class="summary-card"><div class="summary-top"><span>GPA mục tiêu</span><span class="summary-badge">MỤC TIÊU</span></div><h2>@(Model.TargetGpa?.ToString("0.0") ?? "—")</h2><p>@(Model.Gpa.HasValue && Model.TargetGpa.HasValue ? (Model.Gpa >= Model.TargetGpa ? "Đã đạt mục tiêu" : "Còn thiếu " + (Model.TargetGpa - Model.Gpa)!.Value.ToString("0.00") + " điểm") : "Chưa đặt mục tiêu")</p></div>
-        <div class="summary-card"><div class="summary-top"><span>Tín chỉ đã có điểm</span><span class="summary-badge">TÍN CHỈ</span></div><h2>@Model.ScoredCredits.ToString("00")</h2><p>Trên @Model.Rows.Count môn đang học</p></div>
+        <div class="summary-card"><div class="summary-top"><span>Tín chỉ đã có điểm</span><span class="summary-badge">TÍN CHỈ</span></div><h2>@Model.ScoredCredits.ToString("00")</h2><p>Trên @Model.Rows.Count môn</p></div>
         <div class="summary-card"><div class="summary-top"><span>Môn đạt mục tiêu</span><span class="summary-badge">KẾT QUẢ</span></div><h2>@Model.TargetMetCount.ToString("00")</h2><p>Điểm hiện tại không thấp hơn mục tiêu</p></div>
     </section>
 
@@ -54,7 +54,7 @@
                 <summary>
                     <span class="grade-name"><i class="course-dot" style="background:@c.Color"></i><strong>@c.Code - @c.Name</strong><small>@c.Credits tín chỉ</small></span>
                     <span class="grade-score">@Score(c.CurrentScore)<small>/ mục tiêu @Score(c.TargetScore)</small></span>
-                    <span class="status @(r.MetTarget ? "st-graded" : "st-upcoming")">@(c.CurrentScore.HasValue ? r.Letter + " · " + r.Gpa4!.Value.ToString("0.0") : "Chưa có điểm")</span>
+                    <span class="status @(c.CurrentScore.HasValue ? "st-graded" : "st-upcoming")">@(c.CurrentScore.HasValue ? "Đã có điểm · " + r.Letter : "Chưa có điểm")</span>
                 </summary>
 
                 <div class="grade-body">
