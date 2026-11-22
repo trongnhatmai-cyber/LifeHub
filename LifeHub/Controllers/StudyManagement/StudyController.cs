@@ -59,7 +59,80 @@ namespace LifeHub.Controllers
         }
 
         // GET /Study/Grades
-        public async Task<IActionResult> Grades() { Page("Điểm số", "Grade"); var uid=User.GetUserId(); var courses=await _context.Courses.AsNoTracking().Where(c=>c.UserId==uid).ToListAsync(); var ids=courses.Select(c=>c.Id).ToArray(); var assignments=await _context.Assignments.AsNoTracking().Where(a=>ids.Contains(a.CourseId)&&a.Score.HasValue).ToListAsync(); var rows=courses.Select(c=>{var graded=assignments.Where(a=>a.CourseId==c.Id).ToList();var w=graded.Sum(a=>a.WeightPercent);var avg=graded.Sum(a=>a.Score!.Value*a.WeightPercent)/Math.Max(1,w);return new StudyGradeRow {Course=CourseItem(c,assignments),Graded=graded.Select(a=>new StudyGradeItem {Title=a.Title,KindLabel=a.AssignmentType,Score=a.Score!.Value,MaxScore=a.MaxScore??10,WeightPercent=a.WeightPercent}).ToList(),GradedWeight=w,RemainingWeight=Math.Max(0,100-w),Gpa4=avg/10*4,Letter=avg>=9?"A":avg>=8?"B":avg>=7?"C":avg>=6?"D":"F",Gap=c.TargetScore.HasValue?avg-c.TargetScore.Value:null,RequiredLabel=c.TargetScore?.ToString("0.0")??""};}).ToList(); return View(new StudyGradesPageViewModel {Rows=rows,Gpa=rows.Where(r=>r.Gpa4.HasValue).Select(r=>r.Gpa4!.Value).DefaultIfEmpty().Average(),ScoredCredits=courses.Where(c=>assignments.Any(a=>a.CourseId==c.Id)).Sum(c=>c.Credits??0)}); }
+        public async Task<IActionResult> Grades()
+        {
+            Page("Điểm số", "Grade");
+            var userId = User.GetUserId();
+            var courses = await _context.Courses.AsNoTracking()
+                .Where(course => course.UserId == userId)
+                .OrderBy(course => course.CourseCode)
+                .ToListAsync();
+            var courseIds = courses.Select(course => course.Id).ToArray();
+            var assignments = await _context.Assignments.AsNoTracking()
+                .Where(assignment => courseIds.Contains(assignment.CourseId))
+                .OrderBy(assignment => assignment.DueDate)
+                .ToListAsync();
+
+            var rows = courses.Select(course =>
+            {
+                var graded = assignments
+                    .Where(assignment => assignment.CourseId == course.Id && assignment.Score.HasValue)
+                    .ToList();
+                var weighted = graded.Where(assignment => assignment.WeightPercent > 0).ToList();
+                var gradedWeight = weighted.Sum(assignment => assignment.WeightPercent);
+
+                decimal NormalizedScore(LifeHub.Models.StudyManagement.Assignment assignment)
+                {
+                    var maxScore = assignment.MaxScore.GetValueOrDefault(10m);
+                    if (maxScore <= 0) maxScore = 10m;
+                    return Math.Clamp(assignment.Score!.Value / maxScore * 10m, 0m, 10m);
+                }
+
+                decimal? assignmentAverage = graded.Count == 0
+                    ? null
+                    : gradedWeight > 0
+                        ? weighted.Sum(assignment => NormalizedScore(assignment) * assignment.WeightPercent) / gradedWeight
+                        : graded.Average(NormalizedScore);
+                var currentScore = course.FinalScore ?? assignmentAverage;
+                var courseItem = CourseItem(course, assignments);
+                courseItem.CurrentScore = currentScore;
+                var gpa4 = currentScore.HasValue ? currentScore.Value / 10m * 4m : (decimal?)null;
+                var average = currentScore ?? 0m;
+
+                return new StudyGradeRow
+                {
+                    Course = courseItem,
+                    Graded = graded.Select(assignment => new StudyGradeItem
+                    {
+                        Title = assignment.Title,
+                        KindLabel = assignment.AssignmentType,
+                        Score = assignment.Score!.Value,
+                        MaxScore = assignment.MaxScore ?? 10m,
+                        WeightPercent = assignment.WeightPercent
+                    }).ToList(),
+                    GradedWeight = gradedWeight,
+                    RemainingWeight = Math.Max(0, 100 - gradedWeight),
+                    Gpa4 = gpa4,
+                    Letter = !currentScore.HasValue ? "—" : average >= 9m ? "A" : average >= 8m ? "B" : average >= 7m ? "C" : average >= 6m ? "D" : "F",
+                    Gap = currentScore.HasValue && course.TargetScore.HasValue ? currentScore.Value - course.TargetScore.Value : null,
+                    RequiredLabel = course.TargetScore?.ToString("0.0") ?? ""
+                };
+            }).ToList();
+
+            var scoredRows = rows.Where(row => row.Course.CurrentScore.HasValue).ToList();
+            var scoredCredits = scoredRows.Sum(row => row.Course.Credits);
+            var gpa = scoredCredits > 0
+                ? scoredRows.Sum(row => row.Gpa4.GetValueOrDefault() * row.Course.Credits) / scoredCredits
+                : (decimal?)null;
+
+            return View(new StudyGradesPageViewModel
+            {
+                Rows = rows,
+                Gpa = gpa,
+                ScoredCredits = scoredCredits,
+                TargetMetCount = rows.Count(row => row.MetTarget)
+            });
+        }
 
         // GET /Study/Documents?courseId=1&kind=pdf&q=...
         public async Task<IActionResult> Documents(int? courseId, string? kind, string? q)
