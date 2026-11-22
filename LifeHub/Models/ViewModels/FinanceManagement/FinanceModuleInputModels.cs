@@ -25,7 +25,8 @@ namespace LifeHub.Models.ViewModels.FinanceModules
         [Required, StringLength(100)] public string Name { get; set; } = string.Empty;
         /// <summary>cash / bank / ewallet</summary>
         [Required] public string Kind { get; set; } = "cash";
-        public decimal OpeningBalance { get; set; }
+        /// <summary>Số dư ban đầu, chỉ dùng khi thêm ví. Khi sửa ví, controller giữ nguyên số dư.</summary>
+        [Range(0, 1_000_000_000_000)] public decimal OpeningBalance { get; set; }
         public string Color { get; set; } = "#e11d48";
     }
 

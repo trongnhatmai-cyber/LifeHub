@@ -309,6 +309,9 @@ body.task-modal-open {
     font-size: var(--fs-panel-sub);
 }
 
+.task-overview{
+    margin-top: 22px;
+}
 
 /* =========================================================
    05. SUMMARY CARDS
@@ -331,7 +334,7 @@ body.task-modal-open {
     border-radius: 18px;
     border: 1px solid var(--task-border);
 
-    background: var(--task-surface);
+    background: var(--task-accent);
     box-shadow: var(--task-shadow);
 
     transition:

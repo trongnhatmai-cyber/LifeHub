@@ -272,18 +272,18 @@
 
             </div>
         </section>
-
     </div>
 
     <!-- ATTENTION TASKS -->
-    <section class="task-panel">
-        <div class="task-panel-heading">
-            <div>
-                <h2>Công việc cần chú ý</h2>
-                <p>Các công việc quá hạn, sắp đến hạn hoặc có ưu tiên cao.</p>
+    <div class="task-overview">
+        <section class="task-panel">
+            <div class="task-panel-heading">
+                <div>
+                    <h2>Công việc cần chú ý</h2>
+                    <p>Các công việc quá hạn, sắp đến hạn hoặc có ưu tiên cao.</p>
+                </div>
             </div>
-        </div>
-
+    
         <div class="task-attention-list">
 
             @foreach (var task in Model.AttentionTasks)
@@ -345,7 +345,7 @@
             ["Categories"] = Model.Categories,
             ["Tasks"] = Model.Tasks
         })
-
+    </div>
 </div>
 
 @section Scripts {
