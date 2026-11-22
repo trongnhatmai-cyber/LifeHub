@@ -1,11 +1,105 @@
-@model LifeHub.Models.ViewModels.GoalManagement.GoalHabitPageViewModel
+@model LifeHub.Models.ViewModels.GoalManagement.GoalReviewViewModel
+@using LifeHub.Models.ViewModels.GoalManagement
 @{
     Layout = "_Layout";
+    ViewData["Title"] = "Đánh giá mục tiêu";
+    ViewData["ActivePage"] = "GoalReview";
+    var g = Model.Selected;
 }
 @section Styles {
-    <link rel="stylesheet" href="~/css/goal-habit.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/goal.css" asp-append-version="true" />
 }
-@await Html.PartialAsync("_GoalHabitPage", Model)
+
+<div class="goal-page" data-module="review">
+    <partial name="_GoalFlash" />
+
+    <header class="goal-heading">
+        <div>
+            <span class="goal-label">GOAL REVIEW</span>
+            <h1>Đánh giá mục tiêu</h1>
+            <p>Nhìn lại kết quả đã đạt được và những điều cần điều chỉnh.</p>
+        </div>
+        <div class="heading-actions"><span class="summary-badge">@Model.ReviewedCount / @Model.Goals.Count ĐÃ ĐÁNH GIÁ</span></div>
+    </header>
+
+    @if (g == null)
+    {
+        <div class="goal-empty">Chưa có mục tiêu nào để đánh giá. <br /><a class="goal-btn primary" asp-action="GoalList">Tạo mục tiêu đầu tiên</a></div>
+    }
+    else
+    {
+        <nav class="goal-chips" aria-label="Chọn mục tiêu cần đánh giá">
+            @foreach (var x in Model.Goals)
+            {
+                <a class="goal-chip @(x.Id == g.Id ? "active" : "")" asp-action="GoalReview" asp-route-id="@x.Id" aria-current="@(x.Id == g.Id ? "page" : null)">@x.Title</a>
+            }
+        </nav>
+
+        <section class="goal-card" style="margin-bottom:18px">
+            <div class="review-hero">
+                <div>
+                    <div class="goal-tags" style="margin-bottom:10px">
+                        <span class="goal-tag">@g.CategoryLabel</span><span class="goal-tag">@g.GoalTypeLabel</span>
+                        <span class="status st-@g.StatusCss">@g.StatusLabel</span>
+                    </div>
+                    <h2>@g.Title</h2>
+                    <div class="goal-meta">
+                        @(g.StartDate.HasValue ? "Bắt đầu " + g.StartDate.Value.ToString("dd/MM/yyyy") : "Chưa đặt ngày bắt đầu") ·
+                        @(g.TargetDate.HasValue ? "Hạn " + g.TargetDate.Value.ToString("dd/MM/yyyy") : "Chưa đặt hạn")
+                        @if (g.Status != "completed" && g.TargetDate.HasValue) { <span class="due-hint @(g.IsOverdue ? "overdue" : "")"> · @g.DueHint</span> }
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(g.Description)) { <p class="goal-note">@g.Description</p> }
+                </div>
+                <div class="review-final">
+                    <strong>@g.Progress%</strong>
+                    <span>@(g.Status == "completed" ? "Tiến độ cuối" : "Tiến độ hiện tại")</span>
+                    <div class="bar @(g.Status == "completed" ? "done" : g.IsOverdue ? "late" : "")" style="min-width:160px"><i style="width:@g.Progress%"></i></div>
+                </div>
+            </div>
+            @if (g.Status != "completed")
+            {
+                <form asp-action="SetGoalStatus" method="post" data-simulate style="margin-top:16px">
+                    <input type="hidden" name="id" value="@g.Id" /><input type="hidden" name="status" value="completed" /><input type="hidden" name="returnTo" value="GoalReview" />
+                    <button type="submit" class="goal-btn small">Đánh dấu hoàn thành</button>
+                </form>
+            }
+        </section>
+
+        <div class="goal-grid">
+            <section class="goal-card">
+                <div class="section-heading">
+                    <div><h3>Kết quả đạt được</h3><p>@g.KeyResultDone / @g.KeyResultCount Key Results hoàn thành</p></div>
+                    <a class="goal-btn small" asp-action="KeyResult" asp-route-goalId="@g.Id">Quản lý KR</a>
+                </div>
+                @foreach (var k in Model.KeyResults)
+                {
+                    <div class="goal-row">
+                        <div class="goal-row-info">
+                            <span class="goal-row-title">@k.Title</span>
+                            <div class="goal-meta">@k.Current.ToString("0.##") / @k.Target.ToString("0.##") @k.Unit</div>
+                        </div>
+                        <div class="goal-row-side">
+                            <div class="goal-row-side-top"><span class="status @(k.IsCompleted ? "st-graded" : "st-submitted")">@(k.IsCompleted ? "Hoàn thành" : "Đang làm")</span><strong>@k.Percent%</strong></div>
+                            <div class="bar @(k.IsCompleted ? "done" : "")"><i style="width:@k.Percent%"></i></div>
+                        </div>
+                    </div>
+                }
+                @if (!Model.KeyResults.Any()) { <div class="goal-empty">Mục tiêu này chưa có Key Result.</div> }
+            </section>
+
+            <section class="goal-card">
+                <div class="section-heading"><div><h3>Ghi chú đánh giá</h3><p>Điều gì đã làm tốt, điều gì cần cải thiện?</p></div></div>
+                <form asp-action="SaveReview" method="post" data-simulate class="review-form">
+                    <input type="hidden" name="Id" value="@g.Id" />
+                    <textarea name="ReviewNote" maxlength="4000" aria-label="Ghi chú đánh giá" placeholder="Điều gì đã làm tốt?&#10;Điều gì cần cải thiện?&#10;Bạn sẽ điều chỉnh gì ở lần tới?">@g.ReviewNote</textarea>
+                    <div class="goal-modal-foot"><button type="submit" class="goal-btn primary">Lưu đánh giá</button></div>
+                </form>
+                @if (string.IsNullOrWhiteSpace(g.ReviewNote)) { <p class="goal-note">Chưa có ghi chú đánh giá cho mục tiêu này.</p> }
+            </section>
+        </div>
+    }
+</div>
+
 @section Scripts {
-    <script src="~/js/goal-habit.js" asp-append-version="true"></script>
+    <script src="~/js/goal.js" asp-append-version="true"></script>
 }

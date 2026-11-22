@@ -1,11 +1,127 @@
-@model LifeHub.Models.ViewModels.GoalManagement.GoalHabitPageViewModel
+@model LifeHub.Models.ViewModels.GoalManagement.GoalKeyResultViewModel
+@using LifeHub.Models.ViewModels.GoalManagement
 @{
     Layout = "_Layout";
+    ViewData["Title"] = "Kết quả then chốt";
+    ViewData["ActivePage"] = "KeyResult";
+    var goalCount = Model.Groups.Count(x => x.Items.Any());
 }
 @section Styles {
-    <link rel="stylesheet" href="~/css/goal-habit.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/goal.css" asp-append-version="true" />
 }
-@await Html.PartialAsync("_GoalHabitPage", Model)
+
+<div class="goal-page" data-module="keyresult">
+    <partial name="_GoalFlash" />
+
+    <header class="goal-heading">
+        <div>
+            <span class="goal-label">GOAL MANAGEMENT / KEY RESULTS</span>
+            <h1>Kết quả then chốt</h1>
+            <p>Theo dõi giá trị hiện tại so với giá trị đích của từng kết quả.</p>
+        </div>
+        <div class="heading-actions">
+            @if (Model.Goals.Any())
+            {
+                <button type="button" class="goal-btn primary" data-open="krModal" data-mode="create" data-title="Thêm Key Result"
+                        data-goalid="@(Model.GoalId ?? Model.Goals.First().Id)">+ Thêm Key Result</button>
+            }
+            else
+            {
+                <a class="goal-btn primary" asp-action="GoalList">Tạo mục tiêu trước</a>
+            }
+        </div>
+    </header>
+
+    <section class="goal-summary">
+        <div class="summary-card">
+            <div class="summary-top"><span>Tổng KR</span><span class="summary-badge">TOTAL</span></div>
+            <h2>@Model.Total.ToString("00")</h2><p>Kết quả then chốt</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Đã hoàn thành</span><span class="summary-badge">DONE</span></div>
+            <h2>@Model.DoneCount.ToString("00")</h2><p>Đã đạt giá trị đích</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Đang thực hiện</span><span class="summary-badge">ACTIVE</span></div>
+            <h2>@Model.InProgressCount.ToString("00")</h2><p>Chưa đạt giá trị đích</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Mục tiêu liên quan</span><span class="summary-badge">GOALS</span></div>
+            <h2>@goalCount.ToString("00")</h2><p>Mục tiêu có Key Result</p>
+        </div>
+    </section>
+
+    <form method="get" asp-action="KeyResult" class="goal-toolbar">
+        <select name="goalId" data-autosubmit aria-label="Lọc theo mục tiêu">
+            <option value="" selected="@(!Model.GoalId.HasValue)">Tất cả mục tiêu</option>
+            @foreach (var g in Model.Goals) { <option value="@g.Id" selected="@(Model.GoalId == g.Id)">@g.Title</option> }
+        </select>
+    </form>
+
+    @foreach (var grp in Model.Groups)
+    {
+        var g = grp.Goal;
+        <section class="kr-group">
+            <div class="kr-group-head">
+                <div>
+                    <span class="kr-group-eyebrow">MỤC TIÊU · @g.CategoryLabel.ToUpperInvariant()</span>
+                    <h3>@g.Title</h3>
+                    <div class="goal-meta">Tiến độ mục tiêu @g.Progress% · @grp.Items.Count Key Results</div>
+                </div>
+                <button type="button" class="goal-btn small" data-open="krModal" data-mode="create" data-title="Thêm Key Result" data-goalid="@g.Id">+ Thêm KR</button>
+            </div>
+
+            @foreach (var k in grp.Items)
+            {
+                <article class="kr-row">
+                    <div class="kr-row-top">
+                        <span class="kr-title">@k.Title</span>
+                        <span class="status @(k.IsCompleted ? "st-graded" : "st-submitted")">@(k.IsCompleted ? "Hoàn thành" : "Đang thực hiện")</span>
+                    </div>
+                    <div class="kr-value">
+                        <strong>@k.Current.ToString("0.##")</strong><span>/ @k.Target.ToString("0.##") @k.Unit</span>
+                        <em>@k.PercentExact.ToString("0.#")%</em>
+                    </div>
+                    <div class="bar @(k.IsCompleted ? "done" : "")"><i style="width:@k.Percent%"></i></div>
+                    <div class="kr-meta">
+                        <span>Giá trị hiện tại: @k.Current.ToString("0.##")</span>
+                        <span>Mục tiêu: @k.Target.ToString("0.##")</span>
+                    </div>
+                    <div class="kr-quick">
+                        <form asp-action="UpdateKeyResultValue" method="post" data-simulate>
+                            <input type="hidden" name="Id" value="@k.Id" />
+                            <input type="number" name="CurrentValue" min="0" step="any" value="@k.Current.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)" aria-label="Giá trị hiện tại" />
+                            <button type="submit" class="row-btn">Cập nhật</button>
+                        </form>
+                        <span class="row-actions">
+                            <button type="button" class="row-btn" data-open="krModal" data-mode="edit" data-title="Chỉnh sửa Key Result"
+                                    data-action="@Url.Action("UpdateKeyResult", "Goal")" data-id="@k.Id" data-goalid="@k.GoalId"
+                                    data-targetvalue="@k.Target.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)"
+                                    data-currentvalue="@k.Current.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)" data-unit="@k.Unit"
+                                    data-krtitle="@k.Title">Sửa</button>
+                            <button type="button" class="row-btn danger" data-open="deleteModal" data-mode="delete"
+                                    data-action="@Url.Action("DeleteKeyResult", "Goal")" data-id="@k.Id" data-name="@k.Title">Xóa</button>
+                        </span>
+                    </div>
+                </article>
+            }
+            @if (!grp.Items.Any())
+            {
+                <div class="goal-empty">Mục tiêu này chưa có Key Result. Bấm "+ Thêm KR" để đo lường tiến độ.</div>
+            }
+        </section>
+    }
+
+    @if (!Model.Groups.Any())
+    {
+        <div class="goal-empty">Chưa có Key Result nào. Bấm "+ Thêm Key Result" để bắt đầu đo lường mục tiêu.</div>
+    }
+
+    <p class="goal-note">Key Result đạt hoặc vượt giá trị đích được xem là hoàn thành.</p>
+
+    <partial name="_GoalModals" model="Model.Goals" />
+</div>
+
 @section Scripts {
-    <script src="~/js/goal-habit.js" asp-append-version="true"></script>
+    <script src="~/js/goal.js" asp-append-version="true"></script>
 }

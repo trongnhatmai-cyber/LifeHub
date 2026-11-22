@@ -1,0 +1,93 @@
+@model List<LifeHub.Models.ViewModels.GoalManagement.GoalCardItem>
+@* Hộp thoại dùng chung: thêm/sửa mục tiêu (#goalModal), thêm/sửa Key Result (#krModal), xác nhận xóa (#deleteModal).
+   Model = danh sách mục tiêu cho ô chọn của Key Result (có thể rỗng).
+   Phải là con trực tiếp của .goal-page. Tên input trùng thuộc tính của SaveGoalInput / SaveKeyResultInput. *@
+
+<div class="goal-modal" id="goalModal" role="dialog" aria-modal="true" aria-labelledby="goalModalTitle" hidden>
+    <div class="goal-modal-box">
+        <div class="goal-modal-head">
+            <h3 id="goalModalTitle" data-modal-title>Tạo mục tiêu</h3>
+            <button type="button" class="goal-modal-close" data-close aria-label="Đóng">&times;</button>
+        </div>
+        <form asp-controller="Goal" asp-action="CreateGoal" method="post" data-simulate data-validate="goal" novalidate>
+            <input type="hidden" name="Id" disabled />
+            <div class="goal-form-grid">
+                <div class="field full"><label for="gTitle">Tên mục tiêu</label><input id="gTitle" name="Title" maxlength="200" required placeholder="VD: Hoàn thành chứng chỉ chuyên môn" /></div>
+                <div class="field full"><label for="gDesc">Mô tả</label><textarea id="gDesc" name="Description" maxlength="2000" placeholder="Kết quả bạn muốn đạt được"></textarea></div>
+                <div class="field">
+                    <label for="gCategory">Danh mục</label>
+                    <select id="gCategory" name="Category">
+                        <option value="study">Học tập</option><option value="career">Sự nghiệp</option><option value="health">Sức khỏe</option>
+                        <option value="finance">Tài chính</option><option value="personal" selected>Cá nhân</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="gType">Loại mục tiêu</label>
+                    <select id="gType" name="GoalType"><option value="short">Ngắn hạn</option><option value="long">Dài hạn</option></select>
+                </div>
+                <div class="field"><label for="gStart">Ngày bắt đầu</label><input id="gStart" name="StartDate" type="date" /></div>
+                <div class="field"><label for="gTarget">Ngày mục tiêu</label><input id="gTarget" name="TargetDate" type="date" /></div>
+                <div class="field">
+                    <label for="gStatus">Trạng thái</label>
+                    <select id="gStatus" name="Status"><option value="active">Đang thực hiện</option><option value="paused">Tạm dừng</option><option value="completed">Hoàn thành</option></select>
+                </div>
+                <div class="field" data-manual-progress>
+                    <label for="gProgress">Tiến độ hiện tại (%)</label>
+                    <input id="gProgress" name="ProgressPercent" type="number" min="0" max="100" value="0" />
+                    
+                </div>
+            </div>
+            <p class="form-error" hidden></p>
+            <div class="goal-modal-foot">
+                <button type="button" class="goal-btn" data-close>Hủy</button>
+                <button type="submit" class="goal-btn primary">Lưu mục tiêu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="goal-modal" id="krModal" role="dialog" aria-modal="true" aria-labelledby="krModalTitle" hidden>
+    <div class="goal-modal-box">
+        <div class="goal-modal-head">
+            <h3 id="krModalTitle" data-modal-title>Thêm Key Result</h3>
+            <button type="button" class="goal-modal-close" data-close aria-label="Đóng">&times;</button>
+        </div>
+        <form asp-controller="Goal" asp-action="CreateKeyResult" method="post" data-simulate data-validate="kr" novalidate>
+            <input type="hidden" name="Id" disabled />
+            <div class="goal-form-grid">
+                <div class="field full">
+                    <label for="kGoal">Thuộc mục tiêu</label>
+                    <select id="kGoal" name="GoalId" required>
+                        @foreach (var g in Model) { <option value="@g.Id">@g.Title</option> }
+                    </select>
+                </div>
+                <div class="field full"><label for="kTitle">Tên Key Result</label><input id="kTitle" name="Title" maxlength="200" required placeholder="VD: Hoàn thành 3 khóa học" /></div>
+                <div class="field"><label for="kTarget">Giá trị đích</label><input id="kTarget" name="TargetValue" type="number" min="0.01" step="any" required value="1" /></div>
+                <div class="field"><label for="kCurrent">Giá trị hiện tại</label><input id="kCurrent" name="CurrentValue" type="number" min="0" step="any" value="0" /></div>
+                <div class="field full"><label for="kUnit">Đơn vị</label><input id="kUnit" name="Unit" maxlength="30" placeholder="VD: khóa học, tài liệu, giờ" /></div>
+            </div>
+            <p class="form-error" hidden></p>
+            <div class="goal-modal-foot">
+                <button type="button" class="goal-btn" data-close>Hủy</button>
+                <button type="submit" class="goal-btn primary">Lưu Key Result</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="goal-modal" id="deleteModal" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle" hidden>
+    <div class="goal-modal-box">
+        <div class="goal-modal-head">
+            <h3 id="deleteModalTitle">Xác nhận xóa</h3>
+            <button type="button" class="goal-modal-close" data-close aria-label="Đóng">&times;</button>
+        </div>
+        <p class="goal-note">Bạn có chắc muốn xóa <strong data-text="name"></strong>? Thao tác này không thể hoàn tác.</p>
+        <form asp-controller="Goal" asp-action="DeleteGoal" method="post" data-simulate>
+            <input type="hidden" name="Id" />
+            <div class="goal-modal-foot">
+                <button type="button" class="goal-btn" data-close>Hủy</button>
+                <button type="submit" class="goal-btn danger">Xóa</button>
+            </div>
+        </form>
+    </div>
+</div>

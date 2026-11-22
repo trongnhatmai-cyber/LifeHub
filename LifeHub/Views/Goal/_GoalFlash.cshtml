@@ -1,0 +1,13 @@
+@* Toast sau khi thêm / sửa / xóa. Controller đặt TempData["SuccessMessage"] hoặc ["ErrorMessage"].
+   Đặt đúng một dòng bên trong <div class="goal-page">:  <partial name="_GoalFlash" /> *@
+@{
+    var ok = TempData["SuccessMessage"] as string;
+    var err = TempData["ErrorMessage"] as string;
+}
+@if (!string.IsNullOrWhiteSpace(ok) || !string.IsNullOrWhiteSpace(err))
+{
+    <div class="goal-toast-stack">
+        @if (!string.IsNullOrWhiteSpace(ok)) { <div class="goal-toast" role="status" data-toast>@ok</div> }
+        @if (!string.IsNullOrWhiteSpace(err)) { <div class="goal-toast error" role="alert" data-toast>@err</div> }
+    </div>
+}

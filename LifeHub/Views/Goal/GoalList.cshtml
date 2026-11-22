@@ -1,11 +1,131 @@
-@model LifeHub.Models.ViewModels.GoalManagement.GoalHabitPageViewModel
+@model LifeHub.Models.ViewModels.GoalManagement.GoalListViewModel
+@using LifeHub.Models.ViewModels.GoalManagement
 @{
     Layout = "_Layout";
+    var noGoals = new List<GoalCardItem>();
+    ViewData["Title"] = "Danh sách mục tiêu";
+    ViewData["ActivePage"] = "GoalList";
 }
 @section Styles {
-    <link rel="stylesheet" href="~/css/goal-habit.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/goal.css" asp-append-version="true" />
 }
-@await Html.PartialAsync("_GoalHabitPage", Model)
+
+<div class="goal-page" data-module="list">
+    <partial name="_GoalFlash" />
+
+    <header class="goal-heading">
+        <div>
+            <span class="goal-label">GOALS</span>
+            <h1>Danh sách mục tiêu</h1>
+            <p>Quản lý tất cả mục tiêu cá nhân: tìm kiếm, lọc và theo dõi tiến độ từng mục tiêu.</p>
+        </div>
+        <div class="heading-actions">
+            <button type="button" class="goal-btn primary" data-open="goalModal" data-mode="create" data-title="Tạo mục tiêu">+ Tạo mục tiêu</button>
+        </div>
+    </header>
+
+    <section class="goal-card">
+        <div class="goal-chips" role="group" aria-label="Lọc theo trạng thái">
+            <a class="goal-chip @(Model.Status == "all" ? "active" : "")" asp-action="GoalList" asp-route-category="@Model.Category" asp-route-type="@Model.Type" asp-route-sort="@Model.Sort" asp-route-q="@Model.Q">Tất cả <small>@Model.TotalCount</small></a>
+            <a class="goal-chip @(Model.Status == "active" ? "active" : "")" asp-action="GoalList" asp-route-status="active" asp-route-category="@Model.Category" asp-route-type="@Model.Type" asp-route-sort="@Model.Sort" asp-route-q="@Model.Q">Đang thực hiện <small>@Model.ActiveCount</small></a>
+            <a class="goal-chip @(Model.Status == "completed" ? "active" : "")" asp-action="GoalList" asp-route-status="completed" asp-route-category="@Model.Category" asp-route-type="@Model.Type" asp-route-sort="@Model.Sort" asp-route-q="@Model.Q">Hoàn thành <small>@Model.CompletedCount</small></a>
+            <a class="goal-chip @(Model.Status == "paused" ? "active" : "")" asp-action="GoalList" asp-route-status="paused" asp-route-category="@Model.Category" asp-route-type="@Model.Type" asp-route-sort="@Model.Sort" asp-route-q="@Model.Q">Tạm dừng <small>@Model.PausedCount</small></a>
+        </div>
+
+        <form method="get" asp-action="GoalList" class="goal-toolbar">
+            <input type="hidden" name="status" value="@Model.Status" />
+            <input type="search" name="q" value="@Model.Q" placeholder="Tìm kiếm mục tiêu..." aria-label="Tìm kiếm mục tiêu" />
+            <select name="category" data-autosubmit aria-label="Danh mục">
+                <option value="all" selected="@(Model.Category == "all")">Tất cả danh mục</option>
+                @foreach (var c in Model.Categories)
+                {
+                    <option value="@c" selected="@(Model.Category == c)">@GoalCategories.Label(c)</option>
+                }
+            </select>
+            <select name="type" data-autosubmit aria-label="Loại mục tiêu">
+                <option value="all" selected="@(Model.Type == "all")">Mọi loại</option>
+                <option value="short" selected="@(Model.Type == "short")">Ngắn hạn</option>
+                <option value="long" selected="@(Model.Type == "long")">Dài hạn</option>
+            </select>
+            <select name="sort" data-autosubmit aria-label="Sắp xếp">
+                <option value="due" selected="@(Model.Sort == "due")">Hạn gần nhất</option>
+                <option value="progress" selected="@(Model.Sort == "progress")">Tiến độ cao nhất</option>
+                <option value="newest" selected="@(Model.Sort == "newest")">Mới tạo</option>
+            </select>
+            <button type="submit" class="goal-btn">Tìm</button>
+        </form>
+
+        <p class="goal-count">Hiển thị @Model.Items.Count / @Model.TotalCount mục tiêu</p>
+
+        <div class="goal-list">
+            @foreach (var g in Model.Items)
+            {
+                var cls = g.Status == "completed" ? "is-done" : g.Status == "paused" ? "is-paused" : g.IsOverdue ? "is-late" : "";
+                var barCls = g.Status == "completed" ? "done" : g.IsOverdue ? "late" : "";
+                <article class="goal-item @cls">
+                    <div class="goal-item-top">
+                        <div class="goal-tags">
+                            <span class="goal-tag">@g.CategoryLabel</span>
+                            <span class="goal-tag">@g.GoalTypeLabel</span>
+                        </div>
+                        <span class="status st-@g.StatusCss">@g.StatusLabel</span>
+                    </div>
+                    <h3><a asp-action="GoalReview" asp-route-id="@g.Id">@g.Title</a></h3>
+                    @if (!string.IsNullOrWhiteSpace(g.Description)) { <p class="goal-item-desc">@g.Description</p> }
+
+                    <div class="goal-item-progress">
+                        <div class="goal-item-progress-top"><span>Tiến độ@(g.HasKeyResults ? "" : "")</span><strong>@g.Progress%</strong></div>
+                        <div class="bar @barCls"><i style="width:@g.Progress%"></i></div>
+                    </div>
+
+                    <div class="goal-item-foot">
+                        <span>@(g.TargetDate.HasValue ? "Hạn: " + g.TargetDate.Value.ToString("dd/MM/yyyy") : "Chưa đặt hạn")
+                            @if (g.Status != "completed" && g.TargetDate.HasValue) { <span class="due-hint @(g.IsOverdue ? "overdue" : "")"> (@g.DueHint)</span> }</span>
+                        <a asp-action="KeyResult" asp-route-goalId="@g.Id" style="color:inherit"><strong>@g.KeyResultCount Key Results</strong></a>
+                    </div>
+
+                    <div class="card-actions">
+                        <button type="button" class="row-btn"
+                                data-open="goalModal" data-mode="edit" data-title="Chỉnh sửa mục tiêu"
+                                data-action="@Url.Action("UpdateGoal", "Goal")"
+                                data-id="@g.Id" data-goaltitle="@g.Title" data-description="@g.Description"
+                                data-category="@g.Category" data-goaltype="@g.GoalType" data-status="@g.Status"
+                                data-startdate="@(g.StartDate?.ToString("yyyy-MM-dd"))" data-targetdate="@(g.TargetDate?.ToString("yyyy-MM-dd"))"
+                                data-progresspercent="@g.Progress" data-haskr="@(g.HasKeyResults ? "true" : "false")">Sửa</button>
+
+                        @if (g.Status == "active")
+                        {
+                            <form asp-action="SetGoalStatus" method="post" data-simulate><input type="hidden" name="id" value="@g.Id" /><input type="hidden" name="status" value="paused" /><button type="submit" class="row-btn">Tạm dừng</button></form>
+                            <form asp-action="SetGoalStatus" method="post" data-simulate><input type="hidden" name="id" value="@g.Id" /><input type="hidden" name="status" value="completed" /><button type="submit" class="row-btn">Hoàn thành</button></form>
+                        }
+                        else if (g.Status == "paused")
+                        {
+                            <form asp-action="SetGoalStatus" method="post" data-simulate><input type="hidden" name="id" value="@g.Id" /><input type="hidden" name="status" value="active" /><button type="submit" class="row-btn">Tiếp tục</button></form>
+                        }
+                        else
+                        {
+                            <form asp-action="SetGoalStatus" method="post" data-simulate><input type="hidden" name="id" value="@g.Id" /><input type="hidden" name="status" value="active" /><button type="submit" class="row-btn">Mở lại</button></form>
+                        }
+                        <a class="row-btn" asp-action="GoalReview" asp-route-id="@g.Id">Đánh giá</a>
+                        <button type="button" class="row-btn danger" data-open="deleteModal" data-mode="delete"
+                                data-action="@Url.Action("DeleteGoal", "Goal")" data-id="@g.Id" data-name="@g.Title">Xóa</button>
+                    </div>
+                </article>
+            }
+        </div>
+
+        @if (!Model.Items.Any())
+        {
+            <div class="goal-empty">
+                @if (Model.TotalCount == 0) { <text>Chưa có mục tiêu nào. Bấm "+ Tạo mục tiêu" để bắt đầu.</text> }
+                else { <text>Không có mục tiêu phù hợp với bộ lọc.</text><br /><a class="goal-btn small" asp-action="GoalList">Xóa bộ lọc</a> }
+            </div>
+        }
+    </section>
+
+    <partial name="_GoalModals" model="noGoals" />
+</div>
+
 @section Scripts {
-    <script src="~/js/goal-habit.js" asp-append-version="true"></script>
+    <script src="~/js/goal.js" asp-append-version="true"></script>
 }

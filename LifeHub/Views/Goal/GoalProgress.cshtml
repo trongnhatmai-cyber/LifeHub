@@ -1,11 +1,81 @@
-@model LifeHub.Models.ViewModels.GoalManagement.GoalHabitPageViewModel
+@model LifeHub.Models.ViewModels.GoalManagement.GoalProgressViewModel
+@using LifeHub.Models.ViewModels.GoalManagement
 @{
     Layout = "_Layout";
+    ViewData["Title"] = "Tiến độ mục tiêu";
+    ViewData["ActivePage"] = "GoalProgress";
+    var max = Math.Max(1, new[] { Model.LowCount, Model.MidCount, Model.HighCount, Model.DoneCount }.Max());
 }
 @section Styles {
-    <link rel="stylesheet" href="~/css/goal-habit.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/goal.css" asp-append-version="true" />
 }
-@await Html.PartialAsync("_GoalHabitPage", Model)
+
+<div class="goal-page" data-module="progress">
+    <header class="goal-heading">
+        <div>
+            <span class="goal-label">GOAL ANALYTICS</span>
+            <h1>Tiến độ mục tiêu</h1>
+            <p>Theo dõi mức hoàn thành và thời hạn của các mục tiêu.</p>
+        </div>
+        <div class="heading-actions">
+            <a class="goal-btn" asp-action="GoalList">Quản lý mục tiêu</a>
+        </div>
+    </header>
+
+    <section class="goal-summary">
+        <div class="summary-card">
+            <div class="summary-top"><span>Mức tiến độ chung</span><span class="summary-badge">AVG</span></div>
+            <h2>@Model.Average%</h2><p>Trung bình @Model.Total mục tiêu</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Tiến triển tốt</span><span class="summary-badge">ON TRACK</span></div>
+            <h2>@Model.Leading.Count.ToString("00")</h2><p>Từ 50% và đúng kế hoạch</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Cần theo dõi</span><span class="summary-badge">BEHIND</span></div>
+            <h2>@Model.Behind.Count.ToString("00")</h2><p>Chậm hoặc quá hạn</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Sắp đến hạn</span><span class="summary-badge">30 DAYS</span></div>
+            <h2>@Model.DueSoon.Count.ToString("00")</h2><p>Trong vòng 30 ngày tới</p>
+        </div>
+    </section>
+
+    <div class="goal-grid">
+        <section class="goal-card">
+            <div class="section-heading"><div><h3>Phân bố theo tiến độ</h3><p>Số mục tiêu ở từng mức hoàn thành</p></div></div>
+            <div class="band-list">
+                <div class="band"><span>Dưới 30%</span><div class="bar late"><i style="width:@(Model.LowCount * 100 / max)%"></i></div><strong>@Model.LowCount mục tiêu</strong></div>
+                <div class="band"><span>30–69%</span><div class="bar"><i style="width:@(Model.MidCount * 100 / max)%"></i></div><strong>@Model.MidCount mục tiêu</strong></div>
+                <div class="band"><span>70–99%</span><div class="bar"><i style="width:@(Model.HighCount * 100 / max)%"></i></div><strong>@Model.HighCount mục tiêu</strong></div>
+                <div class="band"><span>100%</span><div class="bar done"><i style="width:@(Model.DoneCount * 100 / max)%"></i></div><strong>@Model.DoneCount mục tiêu</strong></div>
+            </div>
+            
+        </section>
+
+        <section class="goal-card">
+            <div class="section-heading"><div><h3>Sắp đến hạn</h3><p>Hạn trong 30 ngày tới</p></div></div>
+            @foreach (var g in Model.DueSoon) { <partial name="_GoalRow" model="g" /> }
+            @if (!Model.DueSoon.Any()) { <div class="goal-empty">Không có mục tiêu nào sắp đến hạn.</div> }
+        </section>
+    </div>
+
+    <div class="goal-grid even">
+        <section class="goal-card">
+            <div class="section-heading"><div><h3>Đang tiến triển tốt</h3><p>Tiến độ cao và đúng kế hoạch</p></div></div>
+            @foreach (var g in Model.Leading) { <partial name="_GoalRow" model="g" /> }
+            @if (!Model.Leading.Any()) { <div class="goal-empty">Chưa có mục tiêu nào đạt từ 50% và đúng kế hoạch.</div> }
+        </section>
+
+        <section class="goal-card">
+            <div class="section-heading"><div><h3>Chưa đạt kỳ vọng</h3><p>Quá hạn hoặc chậm hơn thời gian đã trôi</p></div></div>
+            @foreach (var g in Model.Behind) { <partial name="_GoalRow" model="g" /> }
+            @if (!Model.Behind.Any()) { <div class="goal-empty">Không có mục tiêu nào đang chậm tiến độ.</div> }
+            <p class="goal-note">"Chậm" nghĩa là tiến độ thấp hơn phần thời gian đã trôi (từ ngày bắt đầu đến hạn) hơn 15 điểm phần trăm. Mục tiêu thiếu ngày bắt đầu hoặc ngày hạn chỉ được tính khi quá hạn.</p>
+        </section>
+    </div>
+</div>
+
 @section Scripts {
-    <script src="~/js/goal-habit.js" asp-append-version="true"></script>
+    <script src="~/js/goal.js" asp-append-version="true"></script>
 }

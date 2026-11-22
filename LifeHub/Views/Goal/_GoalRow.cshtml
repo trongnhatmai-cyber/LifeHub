@@ -1,0 +1,21 @@
+@model LifeHub.Models.ViewModels.GoalManagement.GoalCardItem
+@* Dòng rút gọn của một mục tiêu (Tổng quan, Tiến độ). Bấm tên để mở trang Đánh giá của mục tiêu đó. *@
+@{
+    var barClass = Model.Status == "completed" ? "done" : Model.IsOverdue ? "late" : "";
+}
+<div class="goal-row">
+    <div class="goal-row-info">
+        <a class="goal-row-title" asp-controller="Goal" asp-action="GoalReview" asp-route-id="@Model.Id">@Model.Title</a>
+        <div class="goal-meta">
+            @Model.CategoryLabel · @Model.GoalTypeLabel
+            @if (Model.TargetDate.HasValue) { <text> · Hạn @Model.TargetDate.Value.ToString("dd/MM/yyyy")</text> }
+        </div>
+        <div class="goal-meta"><span class="status st-@Model.StatusCss">@Model.StatusLabel</span>
+            @if (Model.Status != "completed") { <span class="due-hint @(Model.IsOverdue ? "overdue" : "")"> @Model.DueHint</span> }
+        </div>
+    </div>
+    <div class="goal-row-side">
+        <div class="goal-row-side-top"><span>Tiến độ</span><strong>@Model.Progress%</strong></div>
+        <div class="bar @barClass"><i style="width:@Model.Progress%"></i></div>
+    </div>
+</div>

@@ -1,12 +1,118 @@
-@model LifeHub.Models.ViewModels.GoalManagement.GoalHabitPageViewModel
+@model LifeHub.Models.ViewModels.GoalManagement.GoalOverviewViewModel
+@using LifeHub.Models.ViewModels.GoalManagement
 @{
     Layout = "_Layout";
+    var noGoals = new List<GoalCardItem>();
+    ViewData["Title"] = "Tổng quan mục tiêu";
     ViewData["ActivePage"] = "GoalOverview";
+    var maxCat = Model.ByCategory.Count == 0 ? 1 : Model.ByCategory.Values.Max();
 }
 @section Styles {
-    <link rel="stylesheet" href="~/css/goal-habit.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/goal.css" asp-append-version="true" />
 }
-@await Html.PartialAsync("_GoalHabitPage", Model)
+
+<div class="goal-page" data-module="overview">
+    <partial name="_GoalFlash" />
+
+    <header class="goal-heading">
+        <div>
+            <span class="goal-label">GOAL MANAGEMENT</span>
+            <h1>Mục tiêu của tôi</h1>
+            <p>Biến kế hoạch cá nhân thành những kết quả có thể theo dõi.</p>
+        </div>
+        <div class="heading-actions">
+            <a class="goal-btn" asp-action="GoalList">Xem danh sách</a>
+            <button type="button" class="goal-btn primary" data-open="goalModal" data-mode="create" data-title="Tạo mục tiêu">+ Tạo mục tiêu</button>
+        </div>
+    </header>
+
+    <section class="goal-summary">
+        <div class="summary-card">
+            <div class="summary-top"><span>Tổng mục tiêu</span><span class="summary-badge">TOTAL</span></div>
+            <h2>@Model.Total.ToString("00")</h2><p>Tất cả mục tiêu của bạn</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Đang thực hiện</span><span class="summary-badge">ACTIVE</span></div>
+            <h2>@Model.ActiveCount.ToString("00")</h2><p>Chưa hoàn thành, đang hoạt động</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Hoàn thành</span><span class="summary-badge">DONE</span></div>
+            <h2>@Model.CompletedCount.ToString("00")</h2><p>Mục tiêu đã đạt được</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Key Results</span><span class="summary-badge">KR</span></div>
+            <h2>@Model.KeyResultCount.ToString("00")</h2><p>Kết quả then chốt đang theo dõi</p>
+        </div>
+    </section>
+
+    <div class="goal-grid">
+        <section class="goal-card">
+            <div class="section-heading">
+                <div><h3>Gần hạn hoặc cần chú ý</h3><p>Sắp xếp theo ngày mục tiêu gần nhất</p></div>
+            </div>
+            @foreach (var g in Model.Attention) { <partial name="_GoalRow" model="g" /> }
+            @if (!Model.Attention.Any())
+            {
+                <div class="goal-empty">Chưa có mục tiêu nào cần theo dõi. Bấm "+ Tạo mục tiêu" để bắt đầu.</div>
+            }
+        </section>
+
+        <section class="goal-card">
+            <div class="section-heading">
+                <div><h3>Tiến độ tổng quan</h3><p>Trung bình tiến độ các mục tiêu</p></div>
+            </div>
+            <div class="big-number"><strong>@Model.AverageProgress%</strong><span>trung bình @Model.Total mục tiêu</span></div>
+            <div class="bar"><i style="width:@Model.AverageProgress%"></i></div>
+
+            <h3 style="margin:22px 0 12px;font-size:var(--fs-card-title);font-weight:800">Theo danh mục</h3>
+            <div class="band-list">
+                @foreach (var c in Model.ByCategory)
+                {
+                    <div class="band">
+                        <span>@GoalCategories.Label(c.Key)</span>
+                        <div class="bar"><i style="width:@(c.Value * 100 / maxCat)%"></i></div>
+                        <strong>@c.Value mục tiêu</strong>
+                    </div>
+                }
+                @if (!Model.ByCategory.Any()) { <div class="goal-empty">Chưa có dữ liệu để phân loại.</div> }
+            </div>
+        </section>
+    </div>
+
+    <div class="goal-grid even">
+        <section class="goal-card">
+            <div class="section-heading">
+                <div><h3>Mục tiêu mới tạo</h3><p>Mục tiêu chưa có ngày cập nhật nên xếp theo thời điểm tạo</p></div>
+            </div>
+            @foreach (var g in Model.Recent) { <partial name="_GoalRow" model="g" /> }
+            @if (!Model.Recent.Any()) { <div class="goal-empty">Chưa có mục tiêu nào.</div> }
+        </section>
+
+        <section class="goal-card">
+            <div class="section-heading">
+                <div><h3>Key Results nổi bật</h3><p>Các kết quả đang tiến gần đích nhất</p></div>
+                <a class="goal-btn small" asp-action="KeyResult">Xem tất cả</a>
+            </div>
+            @foreach (var k in Model.TopKeyResults)
+            {
+                <div class="goal-row">
+                    <div class="goal-row-info">
+                        <span class="goal-row-title">@k.Title</span>
+                        <div class="goal-meta">@k.Current.ToString("0.##") / @k.Target.ToString("0.##") @k.Unit</div>
+                    </div>
+                    <div class="goal-row-side">
+                        <div class="goal-row-side-top"><span>Tiến độ</span><strong>@k.Percent%</strong></div>
+                        <div class="bar"><i style="width:@k.Percent%"></i></div>
+                    </div>
+                </div>
+            }
+            @if (!Model.TopKeyResults.Any()) { <div class="goal-empty">Chưa có Key Result nào đang thực hiện.</div> }
+        </section>
+    </div>
+
+    <partial name="_GoalModals" model="noGoals" />
+</div>
+
 @section Scripts {
-    <script src="~/js/goal-habit.js" asp-append-version="true"></script>
+    <script src="~/js/goal.js" asp-append-version="true"></script>
 }
