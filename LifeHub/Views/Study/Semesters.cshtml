@@ -27,22 +27,22 @@
 
     <section class="study-summary">
         <div class="summary-card">
-            <div class="summary-top"><span>Tổng số học kỳ</span><span class="summary-badge">TẤT CẢ</span></div>
+            <div class="summary-top"><span>Tổng số học kỳ</span><span class="summary-badge">TOTAL</span></div>
             <h2>@Model.Rows.Count.ToString("00")</h2>
             <p>Đã kết thúc @Model.FinishedCount, sắp tới @Model.UpcomingCount</p>
         </div>
         <div class="summary-card">
-            <div class="summary-top"><span>Học kỳ hiện tại</span><span class="summary-badge">ĐANG HỌC</span></div>
+            <div class="summary-top"><span>Học kỳ hiện tại</span><span class="summary-badge">CURRENT</span></div>
             <h2>@(Model.Current?.Semester.Name ?? "—")</h2>
             <p>@(Model.Current?.DaysLeft is int left ? "Còn " + left + " ngày" : "Chưa chọn học kỳ hiện tại")</p>
         </div>
         <div class="summary-card">
-            <div class="summary-top"><span>Tín chỉ học kỳ này</span><span class="summary-badge">TÍN CHỈ</span></div>
+            <div class="summary-top"><span>Tín chỉ học kỳ này</span><span class="summary-badge">CREDITS</span></div>
             <h2>@((Model.Current?.Credits ?? 0).ToString("00"))</h2>
             <p>@((Model.Current?.CourseCount ?? 0)) môn học</p>
         </div>
         <div class="summary-card">
-            <div class="summary-top"><span>GPA tích lũy</span><span class="summary-badge">THANG 4</span></div>
+            <div class="summary-top"><span>GPA tích lũy</span><span class="summary-badge">SCALE 4</span></div>
             <h2>@Gpa(Model.CumulativeGpa)</h2>
             <p>Trên @Model.CumulativeCredits tín chỉ đã có điểm</p>
         </div>

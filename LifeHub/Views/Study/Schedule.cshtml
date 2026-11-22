@@ -23,10 +23,10 @@
     </header>
 
     <section class="study-summary">
-        <div class="summary-card"><div class="summary-top"><span>Buổi học mỗi tuần</span><span class="summary-badge">TỔNG</span></div><h2>@Model.Slots.Count.ToString("00")</h2><p>Lặp lại hằng tuần</p></div>
-        <div class="summary-card"><div class="summary-top"><span>Giờ học mỗi tuần</span><span class="summary-badge">GIỜ</span></div><h2>@Model.WeeklyHours.ToString("0.#")</h2><p>Không tính giờ tự học</p></div>
-        <div class="summary-card"><div class="summary-top"><span>Hôm nay</span><span class="summary-badge">LỊCH HÔM NAY</span></div><h2>@Model.TodayCount.ToString("00")</h2><p>@(Model.TodayCount == 0 ? "Hôm nay không có buổi học" : "buổi học")</p></div>
-        <div class="summary-card"><div class="summary-top"><span>Trùng lịch</span><span class="summary-badge">CẢNH BÁO</span></div><h2>@Model.ConflictCount.ToString("00")</h2><p>@(Model.ConflictCount == 0 ? "Không có buổi nào trùng giờ" : "Cần xử lý sớm")</p></div>
+        <div class="summary-card"><div class="summary-top"><span>Buổi học mỗi tuần</span><span class="summary-badge">TOTAL</span></div><h2>@Model.Slots.Count.ToString("00")</h2><p>Lặp lại hằng tuần</p></div>
+        <div class="summary-card"><div class="summary-top"><span>Giờ học mỗi tuần</span><span class="summary-badge">HOURS</span></div><h2>@Model.WeeklyHours.ToString("0.#")</h2><p>Không tính giờ tự học</p></div>
+        <div class="summary-card"><div class="summary-top"><span>Hôm nay</span><span class="summary-badge">TODAY</span></div><h2>@Model.TodayCount.ToString("00")</h2><p>@(Model.TodayCount == 0 ? "Hôm nay không có buổi học" : "buổi học")</p></div>
+        <div class="summary-card"><div class="summary-top"><span>Trùng lịch</span><span class="summary-badge">CONFLICT</span></div><h2>@Model.ConflictCount.ToString("00")</h2><p>@(Model.ConflictCount == 0 ? "Không có buổi nào trùng giờ" : "Cần xử lý sớm")</p></div>
     </section>
 
     <section class="study-card">

@@ -31,25 +31,25 @@
     <!-- 4 THẺ CHỈ SỐ -->
     <section class="study-summary">
         <div class="summary-card">
-            <div class="summary-top"><span>Điểm trung bình (GPA)</span><span class="summary-badge">HỌC KỲ NÀY</span></div>
+            <div class="summary-top"><span>Điểm trung bình (GPA)</span><span class="summary-badge">SEMESTER</span></div>
             <h2>@(Model.CurrentGpa?.ToString("0.00") ?? "—")</h2>
             <p>Thang điểm 4@(Model.TargetGpa.HasValue ? ", mục tiêu " + Model.TargetGpa.Value.ToString("0.0") : "")</p>
         </div>
 
         <div class="summary-card">
-            <div class="summary-top"><span>Môn đang học</span><span class="summary-badge">TÍN CHỈ</span></div>
+            <div class="summary-top"><span>Môn đang học</span><span class="summary-badge">CREDITS</span></div>
             <h2>@Model.ActiveCoursesCount.ToString("00")</h2>
             <p>Tổng cộng @Model.TotalCredits tín chỉ</p>
         </div>
 
         <div class="summary-card">
-            <div class="summary-top"><span>Bài tập chưa nộp</span><span class="summary-badge">HẠN NỘP</span></div>
+            <div class="summary-top"><span>Bài tập chưa nộp</span><span class="summary-badge">DUE</span></div>
             <h2>@Model.PendingAssignmentsCount</h2>
             <p>Cần hoàn thành sớm</p>
         </div>
 
         <div class="summary-card">
-            <div class="summary-top"><span>Kỳ thi gần nhất</span><span class="summary-badge">LỊCH THI</span></div>
+            <div class="summary-top"><span>Kỳ thi gần nhất</span><span class="summary-badge">EXAM</span></div>
             <h2>@(Model.HasNextExam ? Model.NextExamDays + " ngày" : "—")</h2>
             <p>@(Model.HasNextExam ? "Môn " + Model.NextExamName : "Chưa có lịch thi")</p>
         </div>

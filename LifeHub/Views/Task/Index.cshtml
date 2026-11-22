@@ -4,7 +4,7 @@
 @{
     Layout = "_Layout";
     ViewData["Title"] = "Tổng quan công việc";
-    ViewData["ActivePage"] = "Task";
+    ViewData["ActivePage"] = "TaskOverview";
 }
 
 @section Styles {
@@ -46,7 +46,7 @@
         <article class="task-summary-card">
             <div class="task-summary-card__top">
                 <span>Tổng công việc</span>
-                <span class="task-summary-icon">▤</span>
+                <span class="task-summary-badge">TOTAL</span>
             </div>
 
             <strong>@Model.TotalTasks</strong>
@@ -56,7 +56,7 @@
         <article class="task-summary-card">
             <div class="task-summary-card__top">
                 <span>Đang thực hiện</span>
-                <span class="task-summary-icon">◷</span>
+                <span class="task-summary-badge">IN PROGRESS</span>
             </div>
 
             <strong>@Model.InProgressTasksCount</strong>
@@ -66,7 +66,7 @@
         <article class="task-summary-card">
             <div class="task-summary-card__top">
                 <span>Đã hoàn thành</span>
-                <span class="task-summary-icon">✓</span>
+                <span class="task-summary-badge">DONE</span>
             </div>
 
             <strong>@Model.CompletedTasksCount</strong>
@@ -76,7 +76,7 @@
         <article class="task-summary-card">
             <div class="task-summary-card__top">
                 <span>Quá hạn</span>
-                <span class="task-summary-icon">!</span>
+                <span class="task-summary-badge">OVERDUE</span>
             </div>
 
             <strong>@Model.OverdueTasksCount</strong>

@@ -61,6 +61,9 @@ namespace LifeHub.Models.ViewModels.ProjectManagement
         public List<ProjectMilestoneItem> RecentMilestones { get; set; } = new();
         public List<ProjectFilterOption> StatusFilters { get; set; } = new();
 
+        /// <summary>Hoạt động mới nhất của các dự án (hiện ở trang Tổng quan, có link về Workspace).</summary>
+        public List<ProjectActivityItem> RecentActivities { get; set; } = new();
+
         /// <summary>Nhiệm vụ được giao cho người dùng hiện tại (gần nhất trước).</summary>
         public List<RecentTaskItem> AssignedToMe { get; set; } = new();
 
@@ -264,6 +267,8 @@ namespace LifeHub.Models.ViewModels.ProjectManagement
 
     public class ProjectActivityItem
     {
+        public int ProjectId { get; set; }
+        public string ProjectName { get; set; } = string.Empty;
         public string ActorName { get; set; } = string.Empty;
         public string Text { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }

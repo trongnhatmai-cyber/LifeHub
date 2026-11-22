@@ -27,19 +27,19 @@
 
     <section class="study-summary">
         <div class="summary-card">
-            <div class="summary-top"><span>Môn đang học</span><span class="summary-badge">HỌC KỲ NÀY</span></div>
+            <div class="summary-top"><span>Môn đang học</span><span class="summary-badge">CURRENT</span></div>
             <h2>@Model.CurrentCount.ToString("00")</h2><p>Tổng cộng @Model.CurrentCredits tín chỉ</p>
         </div>
         <div class="summary-card">
-            <div class="summary-top"><span>Điểm trung bình</span><span class="summary-badge">THANG 10</span></div>
+            <div class="summary-top"><span>Điểm trung bình</span><span class="summary-badge">SCALE 10</span></div>
             <h2>@(Model.AverageScore?.ToString("0.00") ?? "—")</h2><p>Các môn đã có điểm</p>
         </div>
         <div class="summary-card">
-            <div class="summary-top"><span>Đã hoàn thành</span><span class="summary-badge">CÁC KỲ TRƯỚC</span></div>
+            <div class="summary-top"><span>Đã hoàn thành</span><span class="summary-badge">PAST</span></div>
             <h2>@Model.CompletedCount.ToString("00")</h2><p>Môn đã học xong</p>
         </div>
         <div class="summary-card">
-            <div class="summary-top"><span>Đang hiển thị</span><span class="summary-badge">DANH SÁCH</span></div>
+            <div class="summary-top"><span>Đang hiển thị</span><span class="summary-badge">SHOWING</span></div>
             <h2>@Model.Rows.Count.ToString("00")</h2><p>Theo bộ lọc bên dưới</p>
         </div>
     </section>

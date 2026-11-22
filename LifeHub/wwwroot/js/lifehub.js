@@ -40,3 +40,22 @@
         });
     }
 })();
+
+/* Sidebar: bấm tên menu cha thì chuyển trang (không toggle); bấm mũi tên thì đóng/mở. */
+(function () {
+    "use strict";
+    document.querySelectorAll(".app .menu-parent").forEach(function (summary) {
+        summary.addEventListener("click", function (e) {
+            if (e.target.closest(".menu-parent-link")) {
+                e.stopPropagation();
+            }
+        });
+        var link = summary.querySelector(".menu-parent-link");
+        if (link) {
+            link.addEventListener("click", function (e) {
+                // chặn hành vi toggle mặc định của <summary>, vẫn cho thẻ <a> điều hướng
+                e.stopPropagation();
+            });
+        }
+    });
+})();

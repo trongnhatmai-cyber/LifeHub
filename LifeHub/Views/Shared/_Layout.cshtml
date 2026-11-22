@@ -191,13 +191,20 @@
                     {
                         <details class="menu-group" open="@(isOpen ? "open" : null)">
                             <summary class="menu-parent @(isOpen ? "is-open" : "")">
-                                <span class="menu-sym"
-                                    style="color:var(--pastel-@(item[3])-accent)"
-                                    aria-hidden="true">
-                                    @item[4]
-                                </span>
+                                <!-- Bấm vào tên mục cha: vào thẳng trang Tổng quan -->
+                                <a asp-controller="@item[2]"
+                                   asp-action="Index"
+                                   class="menu-parent-link">
+                                    <span class="menu-sym"
+                                          style="color:var(--pastel-@(item[3])-accent)"
+                                          aria-hidden="true">
+                                        @item[4]
+                                    </span>
 
-                                <span class="menu-text">@item[1]</span>
+                                    <span class="menu-text">@item[1]</span>
+                                </a>
+
+                                <!-- Chỉ mũi tên mới đóng/mở menu con -->
                                 <span class="menu-chevron" aria-hidden="true">›</span>
                             </summary>
 

@@ -23,10 +23,10 @@
     </header>
 
     <section class="study-summary">
-        <div class="summary-card"><div class="summary-top"><span>Tổng số bài</span><span class="summary-badge">TẤT CẢ</span></div><h2>@Model.TotalCount.ToString("00")</h2><p>Bài tập, đồ án và kỳ thi</p></div>
-        <div class="summary-card"><div class="summary-top"><span>Chưa nộp</span><span class="summary-badge">CÒN HẠN</span></div><h2>@Model.PendingCount.ToString("00")</h2><p>Cần hoàn thành sớm</p></div>
-        <div class="summary-card"><div class="summary-top"><span>Quá hạn</span><span class="summary-badge">CẢNH BÁO</span></div><h2>@Model.OverdueCount.ToString("00")</h2><p>Nộp càng sớm càng tốt</p></div>
-        <div class="summary-card"><div class="summary-top"><span>Đã nộp</span><span class="summary-badge">HOÀN THÀNH</span></div><h2>@Model.DoneCount.ToString("00")</h2><p>Gồm cả bài đã có điểm</p></div>
+        <div class="summary-card"><div class="summary-top"><span>Tổng số bài</span><span class="summary-badge">TOTAL</span></div><h2>@Model.TotalCount.ToString("00")</h2><p>Bài tập, đồ án và kỳ thi</p></div>
+        <div class="summary-card"><div class="summary-top"><span>Chưa nộp</span><span class="summary-badge">PENDING</span></div><h2>@Model.PendingCount.ToString("00")</h2><p>Cần hoàn thành sớm</p></div>
+        <div class="summary-card"><div class="summary-top"><span>Quá hạn</span><span class="summary-badge">OVERDUE</span></div><h2>@Model.OverdueCount.ToString("00")</h2><p>Nộp càng sớm càng tốt</p></div>
+        <div class="summary-card"><div class="summary-top"><span>Đã nộp</span><span class="summary-badge">DONE</span></div><h2>@Model.DoneCount.ToString("00")</h2><p>Gồm cả bài đã có điểm</p></div>
     </section>
 
     <section class="study-card">

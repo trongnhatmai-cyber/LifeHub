@@ -23,10 +23,10 @@
     </header>
 
     <section class="study-summary">
-        <div class="summary-card"><div class="summary-top"><span>GPA học kỳ này</span><span class="summary-badge">THANG 4</span></div><h2>@(Model.Gpa?.ToString("0.00") ?? "—")</h2><p>Tính theo tín chỉ</p></div>
-        <div class="summary-card"><div class="summary-top"><span>GPA mục tiêu</span><span class="summary-badge">MỤC TIÊU</span></div><h2>@(Model.TargetGpa?.ToString("0.0") ?? "—")</h2><p>@(Model.Gpa.HasValue && Model.TargetGpa.HasValue ? (Model.Gpa >= Model.TargetGpa ? "Đã đạt mục tiêu" : "Còn thiếu " + (Model.TargetGpa - Model.Gpa)!.Value.ToString("0.00") + " điểm") : "Chưa đặt mục tiêu")</p></div>
-        <div class="summary-card"><div class="summary-top"><span>Tín chỉ đã có điểm</span><span class="summary-badge">TÍN CHỈ</span></div><h2>@Model.ScoredCredits.ToString("00")</h2><p>Trên @Model.Rows.Count môn đang học</p></div>
-        <div class="summary-card"><div class="summary-top"><span>Môn đạt mục tiêu</span><span class="summary-badge">KẾT QUẢ</span></div><h2>@Model.TargetMetCount.ToString("00")</h2><p>Điểm hiện tại không thấp hơn mục tiêu</p></div>
+        <div class="summary-card"><div class="summary-top"><span>GPA học kỳ này</span><span class="summary-badge">SCALE 4</span></div><h2>@(Model.Gpa?.ToString("0.00") ?? "—")</h2><p>Tính theo tín chỉ</p></div>
+        <div class="summary-card"><div class="summary-top"><span>GPA mục tiêu</span><span class="summary-badge">TARGET</span></div><h2>@(Model.TargetGpa?.ToString("0.0") ?? "—")</h2><p>@(Model.Gpa.HasValue && Model.TargetGpa.HasValue ? (Model.Gpa >= Model.TargetGpa ? "Đã đạt mục tiêu" : "Còn thiếu " + (Model.TargetGpa - Model.Gpa)!.Value.ToString("0.00") + " điểm") : "Chưa đặt mục tiêu")</p></div>
+        <div class="summary-card"><div class="summary-top"><span>Tín chỉ đã có điểm</span><span class="summary-badge">CREDITS</span></div><h2>@Model.ScoredCredits.ToString("00")</h2><p>Trên @Model.Rows.Count môn đang học</p></div>
+        <div class="summary-card"><div class="summary-top"><span>Môn đạt mục tiêu</span><span class="summary-badge">RESULT</span></div><h2>@Model.TargetMetCount.ToString("00")</h2><p>Điểm hiện tại không thấp hơn mục tiêu</p></div>
     </section>
 
     <section class="study-card">

@@ -11,6 +11,16 @@
    - Tất cả selector nằm trong .task-page hoặc modal riêng.
    - Hỗ trợ Light / Dark theme.
    - Không ghi đè CSS của module khác.
+
+   Mục lục (số thứ tự khớp với tiêu đề từng mục bên dưới):
+     01 Base & theme          02 Page header        03 Buttons
+     04 Panel / card          05 Summary cards      06-09 Tổng quan
+     10 Priority / status     11 Empty state        12-15 Danh sách công việc
+     16-17 Trang Danh mục     18-23 Modal           24-25 Responsive
+
+   Cỡ chữ: KHÔNG viết số px cho tiêu đề, nút, thẻ thống kê, badge, modal.
+   Dùng biến var(--fs-...) định nghĩa trong layout.css (mục TYPOGRAPHY TOKENS).
+   CSS mới: thêm vào đúng mục, không thêm cuối file.
    ========================================================= */
 
 
@@ -97,8 +107,20 @@ html[data-theme="dark"] .task-page {
 }
 
 .task-page [hidden],
-.task-modal [hidden] {
+.task-modal [hidden],
+.task-modal[hidden] {
     display: none !important;
+}
+
+/* Khi mở modal: khóa cuộn trang phía sau */
+body.task-modal-open {
+    overflow: hidden;
+}
+
+/* Link trong trang Task không gạch chân */
+.task-page a,
+.task-modal a {
+    text-decoration: none;
 }
 
 
@@ -122,7 +144,7 @@ html[data-theme="dark"] .task-page {
     display: inline-block;
     margin-bottom: 8px;
     color: var(--task-primary);
-    font-size: 11px;
+    font-size: var(--fs-eyebrow);
     font-weight: 750;
     letter-spacing: 1.2px;
     text-transform: uppercase;
@@ -131,7 +153,7 @@ html[data-theme="dark"] .task-page {
 .task-page-header h1 {
     margin-bottom: 7px;
     color: var(--task-text);
-    font-size: 27px;
+    font-size: var(--fs-page-title);
     font-weight: 750;
     line-height: 1.3;
 }
@@ -139,8 +161,17 @@ html[data-theme="dark"] .task-page {
 .task-page-header p {
     margin-bottom: 0;
     color: var(--task-muted);
-    font-size: 14px;
+    font-size: var(--fs-page-sub);
     line-height: 1.6;
+}
+
+/* Nhóm nút thao tác ở đầu trang */
+.task-page-header__actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 /* =========================================================
@@ -162,7 +193,7 @@ html[data-theme="dark"] .task-page {
     background: var(--task-surface);
     color: var(--task-text);
 
-    font-size: 13px;
+    font-size: var(--fs-btn);
     font-weight: 650;
 
     cursor: pointer;
@@ -261,21 +292,21 @@ html[data-theme="dark"] .task-page {
 .task-panel-heading h2 {
     margin-bottom: 5px;
     color: var(--task-text);    
-    font-size: 16px;
+    font-size: var(--fs-panel-title);
     font-weight: 700;
 }
 
 .task-panel-heading a {
     margin-bottom: 5px;
     color: var(--task-text);    
-    font-size: 16px;
+    font-size: var(--fs-panel-title);
     font-weight: 700;
 }
 
 .task-panel-heading p {
     margin-bottom: 0;
     color: var(--task-muted);
-    font-size: 13px;
+    font-size: var(--fs-panel-sub);
 }
 
 
@@ -340,27 +371,21 @@ html[data-theme="dark"] .task-page {
     justify-content: space-between;
     gap: 12px;
 
-    font-size: 12px;
+    font-size: var(--fs-stat-label);
     font-weight: 600;
     color: var(--task-muted);
 }
 
-/* Biểu tượng thống kê */
-.task-page .task-summary-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    flex: 0 0 42px;
-    width: 42px;
-    height: 42px;
-
-    border-radius: 12px;
-
-    background: rgba(220, 38, 38, 0.08);
-    color: #ea580c;
-
-    font-size: 19px;
+/* Nhãn tiếng Anh của thẻ thống kê (TOTAL, DONE...) - cùng kiểu với Finance */
+.task-page .task-summary-badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    background: var(--task-primary-soft);
+    color: var(--task-primary-hover);
+    font-size: var(--fs-stat-badge);
+    font-weight: 800;
+    letter-spacing: .5px;
+    white-space: nowrap;
 }
 
 /* Số liệu */
@@ -372,7 +397,7 @@ html[data-theme="dark"] .task-page {
 
     margin: 14px 0 4px;
 
-    font-size: clamp(21px, 2.2vw, 28px);
+    font-size: var(--fs-stat-value);
     font-weight: 800;
     letter-spacing: -0.6px;
 
@@ -389,7 +414,7 @@ html[data-theme="dark"] .task-page {
     margin: 0;
 
     color: var(--task-muted);
-    font-size: 11px;
+    font-size: var(--fs-stat-note);
 }
 
 /* =========================================================
@@ -448,13 +473,13 @@ html[data-theme="dark"] .task-page {
 
 .task-scope-card__content strong {
     color: var(--task-text);
-    font-size: 14px;
+    font-size: var(--fs-card-title);
     font-weight: 700;
 }
 
 .task-scope-card__content small {
     color: var(--task-muted);
-    font-size: 12px;
+    font-size: var(--fs-card-text);
 }
 
 .task-scope-card > b {
@@ -672,7 +697,7 @@ html[data-theme="dark"] .task-page {
     padding: 4px 9px;
 
     border-radius: 99px;
-    font-size: 11px;
+    font-size: var(--fs-badge);
     font-weight: 700;
     line-height: 1.4;
     white-space: nowrap;
@@ -1026,7 +1051,7 @@ html[data-theme="dark"] .task-page {
 .task-card__scope {
     overflow: hidden;
     color: var(--task-muted);
-    font-size: 11px;
+    font-size: var(--fs-meta);
     text-overflow: ellipsis;
     white-space: nowrap;
 }
@@ -1034,7 +1059,7 @@ html[data-theme="dark"] .task-page {
 .task-card h3 {
     margin-bottom: 7px;
     color: var(--task-text);
-    font-size: 14px;
+    font-size: var(--fs-card-title);
     font-weight: 700;
     line-height: 1.5;
     overflow-wrap: anywhere;
@@ -1046,7 +1071,7 @@ html[data-theme="dark"] .task-page {
     margin-bottom: 11px;
 
     color: var(--task-muted);
-    font-size: 12px;
+    font-size: var(--fs-card-text);
     line-height: 1.55;
 
     -webkit-box-orient: vertical;
@@ -1356,15 +1381,15 @@ html[data-theme="dark"] .task-modal-dialog {
     align-items: center;
     justify-content: center;
 
-    flex: 0 0 36px;
-    width: 36px;
-    height: 36px;
+    flex: 0 0 30px;
+    width: 30px;
+    height: 30px;
 
     color: var(--text-secondary, #737b89);
     background: var(--bg-tertiary, #f3f4f6);
     border: 0;
     border-radius: 10px;
-    font-size: 23px;
+    font-size: 15px;
 
     transition: all var(--task-transition);
 }
@@ -1379,12 +1404,20 @@ html[data-theme="dark"] .task-modal-dialog {
     padding: 22px 24px;
 }
 
+/* Nút thao tác trong modal */
+.task-modal-footer .task-btn {
+    min-height: 40px;
+    padding: 0 16px;
+    border-radius: 12px;
+    font-size: var(--fs-btn);
+}
+
 .task-modal-footer {
     display: flex;
     align-items: center;
     justify-content: flex-end;
     flex-wrap: wrap;
-    gap: 9px;
+    gap: 7px;
 
     margin-top: 22px;
     padding-top: 17px;
@@ -1415,7 +1448,7 @@ html[data-theme="dark"] .task-modal-dialog {
 .task-detail-heading h3 {
     margin-bottom: 8px;
     color: var(--text-primary, #252a34);
-    font-size: 21px;
+    font-size: var(--fs-modal-title);
     font-weight: 750;
     overflow-wrap: anywhere;
 }
@@ -1450,12 +1483,13 @@ html[data-theme="dark"] .task-modal-dialog {
 
 .task-detail-field span {
     color: var(--text-secondary, #737b89);
-    font-size: 11px;
+    font-size: var(--fs-detail-label);
+    line-height: 1.4;
 }
 
 .task-detail-field strong {
     color: var(--text-primary, #252a34);
-    font-size: 13px;
+    font-size: var(--fs-detail-value);
     overflow-wrap: anywhere;
 }
 
@@ -1595,7 +1629,7 @@ html[data-theme="dark"] .task-modal-dialog {
 
 .task-form-field label {
     color: var(--text-primary, #252a34);
-    font-size: 12px;
+    font-size: var(--fs-field-label);
     font-weight: 650;
 }
 
@@ -1613,15 +1647,14 @@ html[data-theme="dark"] .task-modal-dialog {
     border-radius: 9px;
     outline: none;
 
-    font-size: 13px;
+    font-size: var(--fs-field-input);
     transition: border-color var(--task-transition);
 }
 
 .task-form-field textarea {
     min-height: 100px;
     resize: vertical;
-    line-height: 1.6;
-}
+    line-height: 1.6; font-size: var(--fs-field-input);}
 
 .task-form-field input:focus,
 .task-form-field select:focus,
@@ -1893,13 +1926,7 @@ html[data-theme="dark"] .task-modal-dialog {
     }
 
     .task-summary-card strong {
-        font-size: 24px;
-    }
-
-    .task-summary-icon {
-        width: 35px;
-        height: 35px;
-        font-size: 16px;
+        font-size: var(--fs-stat-value-mobile);
     }
 
     .task-filter-toolbar {
@@ -1957,6 +1984,11 @@ html[data-theme="dark"] .task-modal-dialog {
         grid-column: 1 / -1;
         margin-right: 0;
     }
+
+    .task-page-header__actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
 }
 
 @media (max-width: 380px) {
@@ -1975,63 +2007,4 @@ html[data-theme="dark"] .task-modal-dialog {
     .task-detail-information {
         grid-template-columns: 1fr;
     }
-}
-
-/* Modal đang đóng: ẩn toàn bộ modal */
-.task-modal[hidden] {
-    display: none !important;
-}
-
-/* Khi mở modal: khóa cuộn trang phía sau */
-body.task-modal-open {
-    overflow: hidden;
-}
-
-/* Thu nhỏ nhãn thông tin trong modal chi tiết */
-.task-detail-field span {
-    font-size: 10px;
-    line-height: 1.4;
-    color: var(--task-text-muted);
-}
-
-.task-detail-field strong {
-    font-size: 12px;
-}
-
-/* Thu nhỏ các nút thao tác trong modal */
-.task-modal-footer .task-btn {
-    min-height: 40px;
-    padding: 0px 16px;
-    font-size: 13px;
-    border-radius: 12px;
-}
-
-.task-modal-footer {
-    gap: 7px;
-}
-
-/* Nút đóng modal */
-.task-modal-close {
-    width: 30px;
-    height: 30px;
-    font-size: 15px;
-}
-
-/* Nhóm nút thao tác ở đầu trang tổng quan */
-.task-page-header__actions {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-@media (max-width: 576px) {
-    .task-page-header__actions {
-        width: 100%;
-        justify-content: flex-start;
-    }
-}
-a {
-    text-decoration: none;
 }

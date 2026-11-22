@@ -3,7 +3,7 @@
 @{
     Layout = "_Layout";
     ViewData["Title"] = "Tất cả dự án";
-    ViewData["ActivePage"] = "Project";
+    ViewData["ActivePage"] = "ProjectList";
 
     var m = Model;
 }
@@ -21,35 +21,24 @@
 
     <header class="project-heading">
         <div>
-            <span class="project-label">PROJECT MANAGEMENT · DANH SÁCH</span>
+            <span class="project-label">PROJECT MANAGEMENT</span>
             <h1>Tất cả dự án</h1>
-            <p>@m.TotalProjects dự án bạn đang tham gia. Tìm kiếm, lọc theo trạng thái hoặc vai trò, rồi bấm vào thẻ để mở dự án.</p>
+            <p>@m.TotalProjects dự án trong không gian của bạn.</p>
         </div>
 
         <div class="heading-actions">
-            <button type="button" class="proj-btn primary" data-modal-open="createProjectModal">+ Tạo dự án mới</button>
+            <button type="button" class="proj-btn primary" data-modal-open="createProjectModal">+ Tạo dự án</button>
         </div>
     </header>
 
-    <!-- THANH CÔNG CỤ: TÌM KIẾM / LỌC / SẮP XẾP (xử lý phía trình duyệt) -->
+    <!-- THANH CÔNG CỤ: TÌM KIẾM / LỌC / SẮP XẾP / CHẾ ĐỘ XEM (xử lý phía trình duyệt) -->
     <section class="project-toolbar" aria-label="Bộ lọc dự án">
         <input type="search" id="projectSearch" class="proj-input proj-search"
                placeholder="Tìm theo tên, mã hoặc mô tả dự án..." autocomplete="off" aria-label="Tìm dự án" />
 
-        <div class="proj-tabs" role="group" aria-label="Lọc theo trạng thái">
-            @foreach (var f in m.StatusFilters)
-            {
-                var tabClass = f.Key == "all" ? "proj-tab is-active" : "proj-tab";
-                <button type="button" class="@tabClass" data-filter="@f.Key"
-                        aria-pressed="@(f.Key == "all" ? "true" : "false")">
-                    @f.Label <span class="proj-tab-count">@f.Count</span>
-                </button>
-            }
-        </div>
-
         <select id="projectRole" class="proj-input proj-select" aria-label="Lọc theo vai trò">
             <option value="all">Mọi vai trò</option>
-            <option value="manager">Manager (trưởng nhóm)</option>
+            <option value="manager">Manager</option>
             <option value="member">Member</option>
             <option value="viewer">Viewer</option>
         </select>
@@ -60,7 +49,32 @@
             <option value="progress">Tiến độ cao nhất</option>
             <option value="name">Tên A → Z</option>
         </select>
+
+        <div class="proj-view-toggle" role="group" aria-label="Chế độ xem">
+            <button type="button" class="is-active" data-view="grid" aria-pressed="true">Lưới</button>
+            <button type="button" data-view="list" aria-pressed="false">Danh sách</button>
+        </div>
     </section>
+
+    <div class="proj-tabs" role="group" aria-label="Lọc theo trạng thái" style="margin-bottom:12px">
+        @foreach (var f in m.StatusFilters)
+        {
+            var tabClass = f.Key == "all" ? "proj-tab is-active" : "proj-tab";
+            <button type="button" class="@tabClass" data-filter="@f.Key"
+                    aria-pressed="@(f.Key == "all" ? "true" : "false")">
+                @f.Label <span class="proj-tab-count">@f.Count</span>
+            </button>
+        }
+    </div>
+
+    @if (m.TotalProjects == 0)
+    {
+        <div class="proj-empty">
+            <strong>Bạn chưa có dự án nào</strong>
+            Tạo dự án đầu tiên để bắt đầu giao việc và theo dõi tiến độ.
+            <div><button type="button" class="proj-btn primary" data-modal-open="createProjectModal">+ Tạo dự án</button></div>
+        </div>
+    }
 
     <p class="proj-result" id="projectResultCount" aria-live="polite"></p>
 
@@ -72,7 +86,9 @@
     </div>
 
     <div class="proj-empty" id="projectEmpty" hidden>
-        Không tìm thấy dự án phù hợp. Hãy thử đổi từ khóa hoặc bộ lọc.
+        <strong>Không tìm thấy dự án phù hợp</strong>
+        Hãy thử đổi từ khóa hoặc bỏ bớt bộ lọc.
+        <div><button type="button" class="proj-btn primary" id="projectClear">Xóa bộ lọc</button></div>
     </div>
 
     <nav class="proj-pager" id="projectPager" aria-label="Phân trang dự án" hidden></nav>

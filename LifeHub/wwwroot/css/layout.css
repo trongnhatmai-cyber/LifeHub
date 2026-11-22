@@ -48,6 +48,47 @@
     --pastel-ai-accent: #0284c7;
 }
 
+/* =====================================================================
+   TYPOGRAPHY TOKENS - NƠI DUY NHẤT QUY ĐỊNH CỠ CHỮ CỦA CÁC PHÂN HỆ
+   Muốn đổi cỡ chữ toàn hệ thống: chỉ sửa số ở đây.
+   Các file study / task / project / finance chỉ dùng var(--fs-...),
+   không viết số px cho các thành phần dưới đây.
+   ===================================================================== */
+:root {
+    /* Tiêu đề trang */
+    --fs-eyebrow: 12px;          /* dòng nhỏ in hoa phía trên tiêu đề */
+    --fs-page-title: 30px;       /* h1 */
+    --fs-page-sub: 15px;         /* mô tả dưới h1 */
+
+    /* Khối / panel */
+    --fs-panel-title: 18px;
+    --fs-panel-sub: 14px;
+
+    /* Nút bấm */
+    --fs-btn: 14px;
+    --fs-btn-sm: 13px;
+
+    /* Thẻ thống kê (4 thẻ đầu trang) */
+    --fs-stat-label: 13px;
+    --fs-stat-value: 30px;
+    --fs-stat-value-mobile: 24px;
+    --fs-stat-note: 12px;
+    --fs-stat-badge: 11px;       /* TOTAL, DONE... */
+
+    /* Thẻ danh sách */
+    --fs-card-title: 15px;
+    --fs-card-text: 13px;
+    --fs-meta: 12px;
+    --fs-badge: 12px;
+
+    /* Modal và form */
+    --fs-modal-title: 22px;
+    --fs-field-label: 13px;
+    --fs-field-input: 14px;
+    --fs-detail-label: 11px;
+    --fs-detail-value: 13px;
+}
+
 /* ================= DARK MODE ================= */
 
 :root[data-theme="dark"],
@@ -269,6 +310,20 @@ body {
     min-width: 0;
 }
 
+/* Tên menu cha là link vào Tổng quan; chỉ mũi tên (.menu-chevron) mới đóng/mở menu con */
+.app .menu-parent-link {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    flex: 1;
+    min-width: 0;
+    align-self: stretch;
+    margin: -10px 0 -10px -12px;
+    padding: 10px 0 10px 12px;
+    color: inherit;
+    text-decoration: none;
+}
+
 /* Menu con */
 
 .app .submenu {
@@ -348,7 +403,12 @@ body {
 /* Chevron */
 
 .app .menu-chevron {
-    margin-left: auto;
+    /* vùng bấm riêng của mũi tên: phủ hết chiều cao hàng menu */
+    display: flex;
+    align-items: center;
+    align-self: stretch;
+    margin: -10px -12px -10px auto;
+    padding: 10px 12px;
 
     font-size: 18px;
     line-height: 1;

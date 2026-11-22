@@ -27,6 +27,9 @@
     19. Responsive (gom hết ở cuối file)
 
    ---------------------------------------------------------------------
+   CỠ CHỮ: không viết số px cho tiêu đề, nút, thẻ chỉ số, badge, modal.
+   Dùng biến var(--fs-...) trong layout.css (mục TYPOGRAPHY TOKENS).
+
    0. CÁCH TÁI SỬ DỤNG CHO PHÂN HỆ MỚI (VD: Tài chính, Công việc...)
      Bước 1  Chép file này thành finance.css (hoặc task.css...).
      Bước 2  Tìm và thay toàn bộ:
@@ -144,13 +147,13 @@ html[data-theme="dark"] .study-page {
     display: inline-block;
     margin-bottom: 8px;
     color: var(--study-accent);
-    font-size: 11px;
+    font-size: var(--fs-eyebrow);
     font-weight: 800;
     letter-spacing: 1.5px;
 }
 .study-page .study-heading h1 {
     margin-bottom: 6px;
-    font-size: clamp(24px, 3vw, 32px);
+    font-size: var(--fs-page-title);
     font-weight: 800;
     letter-spacing: -.6px;
     color: var(--study-text);
@@ -158,7 +161,7 @@ html[data-theme="dark"] .study-page {
 .study-page .study-heading p {
     margin-bottom: 0;
     color: var(--study-muted);
-    font-size: 13px;
+    font-size: var(--fs-page-sub);
     line-height: 1.6;
 }
 .study-page .heading-actions {
@@ -188,7 +191,7 @@ html[data-theme="dark"] .study-page {
     border-radius: 12px;
     background: var(--study-card);
     color: var(--study-text);
-    font-size: 13px;
+    font-size: var(--fs-btn);
     font-weight: 650;
     cursor: pointer;
     text-decoration: none;
@@ -204,7 +207,7 @@ html[data-theme="dark"] .study-page {
     color: #ffffff;
     box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
 }
-.study-page .study-btn.small { min-height: 32px; padding: 0 12px; border-radius: 9px; font-size: 12px; }
+.study-page .study-btn.small { min-height: 32px; padding: 0 12px; border-radius: 9px; font-size: var(--fs-btn-sm); }
 .study-page .study-btn.danger { border-color: #dc2626; background: #dc2626; color: #fff; }
 
 
@@ -256,7 +259,7 @@ html[data-theme="dark"] .study-page {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 12px;
+    font-size: var(--fs-stat-label);
     font-weight: 600;
     color: var(--study-muted);
 }
@@ -264,7 +267,7 @@ html[data-theme="dark"] .study-page {
 .study-page .summary-badge {
     padding: 4px 8px;
     border-radius: 20px;
-    font-size: 9px;
+    font-size: var(--fs-stat-badge);
     font-weight: 800;
     letter-spacing: 0.5px;
     background: var(--study-card-strong);
@@ -274,7 +277,7 @@ html[data-theme="dark"] .study-page {
     position: relative;
     z-index: 1;
     margin: 14px 0 4px;
-    font-size: clamp(21px, 2.2vw, 28px);
+    font-size: var(--fs-stat-value);
     font-weight: 800;
     letter-spacing: -.6px;
     color: var(--study-text);
@@ -282,7 +285,7 @@ html[data-theme="dark"] .study-page {
 .study-page .summary-card p {
     margin: 0;
     color: var(--study-muted);
-    font-size: 11px;
+    font-size: var(--fs-stat-note);
 }
 
 
@@ -318,13 +321,13 @@ html[data-theme="dark"] .study-page {
 }
 .study-page .section-heading h3 {
     margin: 0 0 4px;
-    font-size: 16px;
+    font-size: var(--fs-panel-title);
     font-weight: 800;
     color: var(--study-text);
 }
 .study-page .section-heading p {
     margin: 0;
-    font-size: 11px;
+    font-size: var(--fs-panel-sub);
     color: var(--study-muted);
 }
 
@@ -605,7 +608,7 @@ body.study-modal-open { overflow: hidden; }
     justify-content: space-between;
     margin-bottom: 18px;
 }
-.study-page .study-modal-head h3 { margin: 0; font-size: 17px; font-weight: 800; }
+.study-page .study-modal-head h3 { margin: 0; font-size: var(--fs-modal-title); font-weight: 800; }
 .study-page .study-modal-close {
     width: 32px;
     height: 32px;
@@ -634,7 +637,7 @@ body.study-modal-open { overflow: hidden; }
 .study-page .field label {
     display: block;
     margin-bottom: 6px;
-    font-size: 12px;
+    font-size: var(--fs-field-label);
     font-weight: 700;
     color: var(--study-muted);
 }
@@ -647,7 +650,7 @@ body.study-modal-open { overflow: hidden; }
     border-radius: 10px;
     background: var(--study-card);
     color: var(--study-text);
-    font-size: 13px;
+    font-size: var(--fs-field-input);
 }
 .study-page .field input[type="color"] { padding: 3px; cursor: pointer; }
 .study-page .field textarea {
@@ -657,7 +660,7 @@ body.study-modal-open { overflow: hidden; }
     border-radius: 10px;
     background: var(--study-card);
     color: var(--study-text);
-    font-size: 13px;
+    font-size: var(--fs-field-input);
 }
 .study-page .field input:focus,
 .study-page .field select:focus {
@@ -780,7 +783,7 @@ body.study-modal-open { overflow: hidden; }
     box-shadow: var(--study-shadow);
 }
 .study-page .course-card h3,
-.study-page .doc-card h3 { margin: 10px 0 6px; font-size: 15px; font-weight: 800; }
+.study-page .doc-card h3 { margin: 10px 0 6px; font-size: var(--fs-card-title); font-weight: 800; }
 .study-page .course-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .study-page .course-card .bar {
     height: 6px;
@@ -935,4 +938,9 @@ body.study-modal-open { overflow: hidden; }
     .study-page .course-progress { width: 100%; }
     .study-page .study-toolbar select { flex: 1 1 100%; }
     .study-page .grade-card summary { padding: 14px; }
+}
+
+/* Thẻ chỉ số: số liệu nhỏ lại trên điện thoại */
+@media (max-width: 560px) {
+    .study-page .summary-card h2 { font-size: var(--fs-stat-value-mobile); }
 }
