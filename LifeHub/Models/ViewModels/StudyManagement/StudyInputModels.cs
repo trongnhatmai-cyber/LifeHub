@@ -15,6 +15,7 @@ namespace LifeHub.Models.ViewModels.StudyManagement
         public string? Room { get; set; }
         public string Color { get; set; } = "#2563eb";
         [Range(0, 10)] public decimal? TargetScore { get; set; }
+        public int? SemesterId { get; set; }   // [MỚI] học kỳ của môn (bảng semesters)
     }
 
     /// <summary>Form "Thêm bài tập / lịch thi" (bảng assignments).</summary>

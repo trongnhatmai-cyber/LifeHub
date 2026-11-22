@@ -1,0 +1,205 @@
+@model LifeHub.Models.ViewModels.FinanceModules.WalletPageViewModel
+@using LifeHub.Models.ViewModels.FinanceModules
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Ví và tài khoản";
+    ViewData["ActivePage"] = "Wallet";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/finance.css" asp-append-version="true" />
+}
+
+<div class="finance-page" data-module="wallets">
+    <partial name="~/Views/Finance/_FinanceFlash.cshtml" />
+
+    <header class="finance-heading">
+        <div>
+            <span class="finance-label">QUẢN LÝ TÀI CHÍNH</span>
+            <h1>Ví và tài khoản</h1>
+            <p>Quản lý các nguồn tiền, theo dõi số dư và dòng tiền qua từng tài khoản.</p>
+        </div>
+        <div class="heading-actions">
+            <a class="finance-btn" asp-controller="Finance" asp-action="Index">← Tổng quan</a>
+            <button type="button" class="finance-btn primary" data-open="walletModal" data-mode="create" data-title="Thêm ví / tài khoản">+ Thêm ví</button>
+        </div>
+    </header>
+
+    <section class="finance-summary">
+        <article class="summary-card balance-card">
+            <div class="summary-top"><span>Tổng tài sản</span><span class="summary-badge">TOTAL</span></div>
+            <h2>@FinanceFormat.Money(Model.TotalBalance)</h2>
+            <p>Tổng số dư tất cả ví</p>
+        </article>
+        <article class="summary-card income-card">
+            <div class="summary-top"><span>Có thể sử dụng</span><span class="summary-badge">AVAILABLE</span></div>
+            <h2>@FinanceFormat.Money(Model.SpendableBalance)</h2>
+            <p>Không bao gồm quỹ tiết kiệm</p>
+        </article>
+        <article class="summary-card saving-card">
+            <div class="summary-top"><span>Quỹ tiết kiệm</span><span class="summary-badge">SAVINGS</span></div>
+            <h2>@FinanceFormat.Money(Model.SavingsBalance)</h2>
+            <p>Đang dành cho các mục tiêu</p>
+        </article>
+        <article class="summary-card expense-card">
+            <div class="summary-top"><span>Số lượng ví</span><span class="summary-badge">WALLETS</span></div>
+            <h2>@Model.WalletCount</h2>
+            <p>Tài khoản đang theo dõi</p>
+        </article>
+    </section>
+
+    <div class="section-heading">
+        <div><h3>Tài khoản của bạn</h3><p>Số dư và biến động trong tháng hiện tại.</p></div>
+        <button type="button" class="finance-btn" data-open="transferModal" data-mode="create">⇄ Chuyển tiền</button>
+    </div>
+
+    <section class="wallet-grid">
+        @foreach (var wallet in Model.Wallets)
+        {
+            <article class="wallet-card" style="--wallet-color:@wallet.Color">
+                <div class="wallet-top">
+                    <span class="wallet-kind"><span class="dot" style="background:@wallet.Color"></span>@wallet.KindLabel</span>
+                    <span class="summary-badge">#@wallet.Id</span>
+                </div>
+                <h3>@wallet.Name</h3>
+                <div class="wallet-balance">@FinanceFormat.Money(wallet.Balance)</div>
+                <div class="wallet-flow">
+                    <div><span>Thu trong tháng</span><strong class="text-income">+@FinanceFormat.Money(wallet.MonthIncome)</strong></div>
+                    <div><span>Chi trong tháng</span><strong class="text-expense">-@FinanceFormat.Money(wallet.MonthExpense)</strong></div>
+                </div>
+                <div class="wallet-recent-title">Giao dịch gần đây</div>
+                <ul class="mini-list">
+                    @if (wallet.Recent.Any())
+                    {
+                        foreach (var tx in wallet.Recent)
+                        {
+                            <li><span>@tx.Name</span><b class="@(tx.IsIncome ? "text-income" : "text-expense")">@tx.AmountLabel</b></li>
+                        }
+                    }
+                    else
+                    {
+                        <li><span>Chưa có giao dịch</span><b>—</b></li>
+                    }
+                </ul>
+                <div class="card-actions">
+                    <button type="button" class="row-btn" data-open="walletModal" data-mode="edit"
+                            data-action="@Url.Action("Edit", "Wallet")" data-title="Chỉnh sửa ví"
+                            data-id="@wallet.Id" data-name="@wallet.Name" data-kind="@wallet.Kind" data-color="@wallet.Color">Chỉnh sửa</button>
+                    <button type="button" class="row-btn danger" data-open="deleteModal" data-mode="delete"
+                            data-action="@Url.Action("Delete", "Wallet")" data-id="@wallet.Id" data-name="@wallet.Name"
+                            data-note="Chỉ xóa được ví chưa có số dư và chưa phát sinh giao dịch.">Xóa ví</button>
+                </div>
+            </article>
+        }
+    </section>
+
+    @if (!Model.Wallets.Any())
+    {
+        <div class="finance-empty">Chưa có ví nào. Bấm "+ Thêm ví" để bắt đầu.</div>
+    }
+
+    <section class="finance-card wallet-guidance">
+        <div class="section-heading"><div><h3>Nguyên tắc quản lý ví</h3><p>Giữ số dư và giao dịch được tổ chức rõ ràng.</p></div></div>
+        <div class="guidance-grid">
+            <div><strong>Tiền mặt</strong><p>Theo dõi tiền mặt đang có và các khoản chi trực tiếp.</p></div>
+            <div><strong>Tài khoản ngân hàng</strong><p>Ghi nhận tiền lương, thanh toán và chuyển khoản.</p></div>
+            <div><strong>Ví điện tử</strong><p>Quản lý các khoản thanh toán qua ứng dụng.</p></div>
+            <div><strong>Quỹ tiết kiệm</strong><p>Tổng hợp số tiền đã dành cho các mục tiêu tiết kiệm.</p></div>
+        </div>
+    </section>
+
+    @* ---------- THÊM / SỬA VÍ (Wallet/Create, Wallet/Edit) ---------- *@
+    <div class="finance-modal" id="walletModal" role="dialog" aria-modal="true" aria-labelledby="walletModalTitle" hidden>
+        <div class="finance-modal-box">
+            <div class="finance-modal-head">
+                <h3 id="walletModalTitle" data-modal-title>Thêm ví / tài khoản</h3>
+                <button type="button" class="finance-modal-close" data-close aria-label="Đóng">&times;</button>
+            </div>
+            <form asp-controller="Wallet" asp-action="Create" method="post">
+                <input type="hidden" name="Id" disabled />
+                <div class="finance-form-grid">
+                    <div class="field full">
+                        <label for="wName">Tên ví</label>
+                        <input id="wName" name="Name" maxlength="100" placeholder="Ví dụ: Tiền mặt" required />
+                    </div>
+                    <div class="field">
+                        <label for="wKind">Loại ví</label>
+                        <select id="wKind" name="Kind" required>
+                            <option value="cash">Tiền mặt</option>
+                            <option value="bank">Ngân hàng</option>
+                            <option value="ewallet">Ví điện tử</option>
+                            <option value="savings">Quỹ tiết kiệm</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="wColor">Màu nhận diện</label>
+                        <input id="wColor" name="Color" type="color" value="#e11d48" />
+                    </div>
+                </div>
+                <p class="finance-note">Số dư của ví thay đổi theo giao dịch và chuyển tiền, không nhập trực tiếp ở đây.</p>
+                <p class="form-error" role="alert" hidden></p>
+                <div class="finance-modal-foot">
+                    <button type="button" class="finance-btn" data-close>Hủy</button>
+                    <button type="submit" class="finance-btn primary">Lưu ví</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @* ---------- CHUYỂN TIỀN GIỮA CÁC VÍ (Wallet/Transfer) ---------- *@
+    <div class="finance-modal" id="transferModal" role="dialog" aria-modal="true" aria-labelledby="transferModalTitle" hidden>
+        <div class="finance-modal-box">
+            <div class="finance-modal-head">
+                <h3 id="transferModalTitle" data-modal-title>Chuyển tiền giữa các ví</h3>
+                <button type="button" class="finance-modal-close" data-close aria-label="Đóng">&times;</button>
+            </div>
+            <form asp-controller="Wallet" asp-action="Transfer" method="post" data-validate="transfer">
+                <div class="finance-form-grid">
+                    <div class="field">
+                        <label for="trFrom">Ví nguồn</label>
+                        <select id="trFrom" name="FromWalletId" required>
+                            <option value="">Chọn ví nguồn</option>
+                            @foreach (var w in Model.Wallets)
+                            {
+                                <option value="@w.Id" data-balance="@FinanceFormat.Plain(w.Balance)">@w.Name — @FinanceFormat.Money(w.Balance)</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="trTo">Ví đích</label>
+                        <select id="trTo" name="ToWalletId" required>
+                            <option value="">Chọn ví đích</option>
+                            @foreach (var w in Model.Wallets)
+                            {
+                                <option value="@w.Id">@w.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="trAmount">Số tiền (₫)</label>
+                        <input id="trAmount" name="Amount" type="number" min="1000" step="1" inputmode="numeric" required />
+                    </div>
+                    <div class="field">
+                        <label for="trNote">Ghi chú</label>
+                        <input id="trNote" name="Note" maxlength="200" placeholder="Không bắt buộc" />
+                    </div>
+                </div>
+                @if (Model.Wallets.Count < 2)
+                {
+                    <p class="finance-note warn">Cần có ít nhất hai ví để chuyển tiền.</p>
+                }
+                <p class="form-error" role="alert" hidden></p>
+                <div class="finance-modal-foot">
+                    <button type="button" class="finance-btn" data-close>Hủy</button>
+                    <button type="submit" class="finance-btn primary" disabled="@(Model.Wallets.Count < 2)">Xác nhận chuyển</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <partial name="~/Views/Finance/_FinanceDeleteModal.cshtml" />
+</div>
+
+@section Scripts {
+    <script src="~/js/finance.js" asp-append-version="true"></script>
+}

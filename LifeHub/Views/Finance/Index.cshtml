@@ -1,12 +1,12 @@
-
 @model LifeHub.Models.ViewModels.FinanceManagement.FinanceViewModel
-
 @using System.Globalization
+@using LifeHub.Models.ViewModels.FinanceModules
 
 @{
     Layout = "_Layout";
     ViewData["Title"] = "Quản lý tài chính";
-    ViewData["ActivePage"] = "Finance";
+    // Khóa mục con trong _Layout.cshtml: để mục "Tổng quan tài chính" được tô sáng.
+    ViewData["ActivePage"] = "FinanceOverview";
 
     var balance = Model.TotalIncome - Model.TotalExpense;
 
@@ -15,112 +15,78 @@
         .ToList() ?? new List<LifeHub.Models.ViewModels.FinanceManagement.FinanceCategoryViewModel>();
 
     var monthlyBudget = Model.MonthlyBudgetDetails;
-    var budgetPercent = monthlyBudget != null && monthlyBudget.Limit > 0
-        ? Math.Min(100, monthlyBudget.Spent / monthlyBudget.Limit * 100)
+    var hasBudget = monthlyBudget != null && (monthlyBudget.Limit > 0 || monthlyBudget.CategoryBudgets.Any());
+    double budgetPercent = hasBudget && monthlyBudget!.Limit > 0
+        ? Math.Min(100, (double)(monthlyBudget.Spent / monthlyBudget.Limit * 100m))
         : 0;
+
+    // Màu thanh tiến độ: từ 80% cảnh báo, từ 100% vượt hạn mức (class warn / over trong finance.css mục 8)
+    string Bar(double pct) => pct >= 100 ? "over" : pct >= 80 ? "warn" : "";
+    string W(double pct) => pct.ToString("0.#", CultureInfo.InvariantCulture);
 }
 
 @section Styles {
     <link rel="stylesheet" href="~/css/finance.css" asp-append-version="true" />
 }
 
-@section Scripts {
-    <script src="~/js/finance.js" asp-append-version="true" defer></script>
-}
-
-<div class="finance-page">
+<div class="finance-page" data-module="overview">
+    <partial name="~/Views/Finance/_FinanceFlash.cshtml" />
 
     <!-- TIÊU ĐỀ -->
     <header class="finance-heading">
         <div>
-            <span class="finance-label">PERSONAL FINANCE MANAGEMENT</span>
+            <span class="finance-label">QUẢN LÝ TÀI CHÍNH</span>
             <h1>Tài chính của bạn</h1>
             <p>Theo dõi dòng tiền, kiểm soát chi tiêu và xây dựng tương lai tài chính.</p>
         </div>
-
         <div class="heading-actions">
-            <select class="finance-select" id="monthFilter"
-                    aria-label="Chọn tháng xem báo cáo">
+            <select class="finance-select" id="monthFilter" aria-label="Chọn tháng xem lịch sử giao dịch">
                 <option value="all">Tất cả giao dịch</option>
             </select>
-
-            <button type="button" class="finance-btn primary" id="openTransaction">
-                + Thêm giao dịch
-            </button>
+            <button type="button" class="finance-btn primary" data-open="transactionModal" data-mode="create" data-title="Thêm giao dịch">+ Thêm giao dịch</button>
         </div>
     </header>
 
-    <!-- TỔNG QUAN TÀI CHÍNH -->
+    <!-- 4 THẺ CHỈ SỐ -->
     <section class="finance-summary">
-
         <div class="summary-card income-card">
-            <div class="summary-top">
-                <span>Tổng thu nhập</span>
-                <span class="summary-badge">THU VÀO</span>
-            </div>
-            <h2 id="totalIncome">@Model.TotalIncome.ToString("N0") ₫</h2>
+            <div class="summary-top"><span>Tổng thu nhập</span><span class="summary-badge">THU VÀO</span></div>
+            <h2>@FinanceFormat.Money(Model.TotalIncome)</h2>
             <p>Thu nhập trong tháng</p>
         </div>
-
         <div class="summary-card expense-card">
-            <div class="summary-top">
-                <span>Tổng chi tiêu</span>
-                <span class="summary-badge">CHI RA</span>
-            </div>
-            <h2 id="totalExpense">@Model.TotalExpense.ToString("N0") ₫</h2>
+            <div class="summary-top"><span>Tổng chi tiêu</span><span class="summary-badge">CHI RA</span></div>
+            <h2>@FinanceFormat.Money(Model.TotalExpense)</h2>
             <p>Chi tiêu trong tháng</p>
         </div>
-
         <div class="summary-card balance-card">
-            <div class="summary-top">
-                <span>Số dư hiện tại</span>
-                <span class="summary-badge">BALANCE</span>
-            </div>
-            <h2 id="totalBalance">@balance.ToString("N0") ₫</h2>
+            <div class="summary-top"><span>Chênh lệch tháng</span><span class="summary-badge">BALANCE</span></div>
+            <h2 class="@(balance >= 0 ? "text-income" : "text-expense")">@FinanceFormat.Money(balance)</h2>
             <p>Thu nhập trừ chi tiêu</p>
         </div>
-
         <div class="summary-card saving-card">
-            <div class="summary-top">
-                <span>Tiết kiệm</span>
-                <span class="summary-badge">SAVING</span>
-            </div>
-            <h2 id="savingProgress">@Model.TotalSaving.ToString("N0") ₫</h2>
+            <div class="summary-top"><span>Tiết kiệm</span><span class="summary-badge">SAVING</span></div>
+            <h2>@FinanceFormat.Money(Model.TotalSaving)</h2>
             <p>Tổng tiền dành dụm</p>
         </div>
-
     </section>
 
-    <!-- BIỂU ĐỒ VÀ PHÂN BỔ CHI TIÊU -->
+    <!-- BIỂU ĐỒ DÒNG TIỀN VÀ PHÂN BỔ CHI TIÊU -->
     <div class="finance-grid">
-
-        <!-- BIỂU ĐỒ DÒNG TIỀN -->
         <div class="finance-card">
             <div class="section-heading">
-                <div>
-                    <h3>Dòng tiền của bạn</h3>
-                    <p>So sánh thu nhập và chi tiêu</p>
-                </div>
-
+                <div><h3>Dòng tiền của bạn</h3><p>So sánh thu nhập và chi tiêu</p></div>
                 <div class="heading-actions">
-                    <select class="finance-select" id="chartPeriod"
-                            aria-label="Khoảng thời gian biểu đồ">
+                    <select class="finance-select" id="chartPeriod" aria-label="Khoảng thời gian biểu đồ">
                         <option value="month" selected>6 tháng</option>
                         <option value="week">Theo tuần</option>
                     </select>
-
-                    <select class="finance-select" id="chartWeek"
-                            aria-label="Chọn tuần xem biểu đồ"
-                            style="display:none;">
+                    <select class="finance-select" id="chartWeek" aria-label="Chọn tuần xem biểu đồ" hidden>
                         @if (Model.CashFlow?.WeeklyData != null)
                         {
                             for (var i = 0; i < Model.CashFlow.WeeklyData.Count; i++)
                             {
-                                var week = Model.CashFlow.WeeklyData[i];
-
-                                <option value="@i">
-                                    @week.Label
-                                </option>
+                                <option value="@i">@Model.CashFlow.WeeklyData[i].Label</option>
                             }
                         }
                     </select>
@@ -133,59 +99,36 @@
             </div>
 
             <div class="money-chart">
-                <div class="chart-y-labels">
-                    <span>30tr</span>
-                    <span>20tr</span>
-                    <span>10tr</span>
-                    <span>0</span>
-                </div>
-
+                <div class="chart-y-labels" id="chartYLabels"><span>30tr</span><span>20tr</span><span>10tr</span><span>0</span></div>
                 <div class="chart-content">
-                    <div class="chart-grid-lines">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </div>
-
-                    <div class="chart-columns" id="chartColumns">
-                        <!-- finance.js sẽ vẽ biểu đồ từ dữ liệu bên dưới -->
-                    </div>
+                    <div class="chart-grid-lines"><span></span><span></span><span></span><span></span></div>
+                    <div class="chart-columns" id="chartColumns"><!-- finance.js vẽ cột từ dữ liệu bên dưới --></div>
                 </div>
             </div>
 
-            <!-- NGUỒN DỮ LIỆU BIỂU ĐỒ THÁNG -->
+            <!-- Nguồn dữ liệu biểu đồ: C# render, JS chỉ đọc để vẽ (không tự tính) -->
             <div id="monthlyChartData" hidden>
                 @if (Model.CashFlow?.MonthlyData != null)
                 {
                     foreach (var point in Model.CashFlow.MonthlyData)
                     {
-                        <span class="chart-point"
-                              data-label="@point.Label"
+                        <span class="chart-point" data-label="@point.Label"
                               data-income="@point.Income.ToString(CultureInfo.InvariantCulture)"
-                              data-expense="@point.Expense.ToString(CultureInfo.InvariantCulture)">
-                        </span>
+                              data-expense="@point.Expense.ToString(CultureInfo.InvariantCulture)"></span>
                     }
                 }
             </div>
-
-            <!-- NGUỒN DỮ LIỆU BIỂU ĐỒ TUẦN -->
             <div id="weeklyChartData" hidden>
                 @if (Model.CashFlow?.WeeklyData != null)
                 {
                     for (var i = 0; i < Model.CashFlow.WeeklyData.Count; i++)
                     {
-                        var week = Model.CashFlow.WeeklyData[i];
-
                         <div class="week-data" data-week-index="@i">
-                            @foreach (var day in week.Days)
+                            @foreach (var day in Model.CashFlow.WeeklyData[i].Days)
                             {
-                                <span class="chart-point"
-                                      data-label="@day.Label"
-                                      data-date="@day.Date.ToString("yyyy-MM-dd")"
+                                <span class="chart-point" data-label="@day.Label" data-date="@day.Date.ToString("yyyy-MM-dd")"
                                       data-income="@day.Income.ToString(CultureInfo.InvariantCulture)"
-                                      data-expense="@day.Expense.ToString(CultureInfo.InvariantCulture)">
-                                </span>
+                                      data-expense="@day.Expense.ToString(CultureInfo.InvariantCulture)"></span>
                             }
                         </div>
                     }
@@ -193,122 +136,81 @@
             </div>
         </div>
 
-        <!-- PHÂN BỔ CHI TIÊU -->
         <div class="finance-card">
             <div class="section-heading">
-                <div>
-                    <h3>Phân bổ chi tiêu</h3>
-                    <p>Các khoản chi theo danh mục</p>
-                </div>
-
-                <a asp-controller="Category"
-                   asp-action="Index"
-                   class="finance-btn"
-                   style="text-decoration:none;font-size:12px;padding:4px 10px;min-height:32px;">
-                    Quản lý chi tiêu
-                </a>
+                <div><h3>Phân bổ chi tiêu</h3><p>Các khoản chi theo danh mục</p></div>
+                <a asp-controller="Category" asp-action="Index" class="finance-btn small">Quản lý danh mục</a>
             </div>
 
             <div class="expense-total">
                 <span>Tổng chi tiêu</span>
-                <h2 id="expenseBreakdown">
-                    @Model.TotalExpense.ToString("N0") ₫
-                </h2>
+                <h2>@FinanceFormat.Money(Model.TotalExpense)</h2>
             </div>
 
             @if (expenseCategories.Any())
             {
-                <div class="category-list" id="categoryList">
+                <div class="category-list">
                     @foreach (var cat in expenseCategories)
                     {
-                        var pct = cat.Limit > 0
-                            ? Math.Min(100, Math.Round(cat.Spent / cat.Limit * 100))
-                            : 0;
-
-                        <div class="category-item" style="margin-bottom:14px;">
+                        double pct = cat.Limit > 0 ? Math.Min(100, Math.Round((double)(cat.Spent / cat.Limit * 100m))) : 0;
+                        <div class="category-item">
                             <div class="category-info">
                                 <span>@cat.Name</span>
-                                <strong>
-                                    @cat.Spent.ToString("N0") ₫ /
-                                    @cat.Limit.ToString("N0") ₫ (@pct%)
-                                </strong>
+                                @if (cat.Limit > 0)
+                                {
+                                    <strong>@FinanceFormat.Money(cat.Spent) / @FinanceFormat.Money(cat.Limit) (@W(pct)%)</strong>
+                                }
+                                else
+                                {
+                                    <strong>@FinanceFormat.Money(cat.Spent)</strong>
+                                }
                             </div>
-
-                            <div class="progress-track"
-                                 style="height:7px;border-radius:10px;overflow:hidden;background:var(--finance-soft);">
-                                <div style="width:@pct.ToString(CultureInfo.InvariantCulture)%;height:100%;border-radius:10px;background:var(--finance-accent);transition:width 0.4s ease;">
-                                </div>
-                            </div>
+                            @if (cat.Limit > 0)
+                            {
+                                <div class="progress-track"><i class="@Bar(pct)" style="width:@W(pct)%"></i></div>
+                            }
                         </div>
                     }
                 </div>
             }
             else
             {
-                <div id="emptyCategory"
-                     class="empty-state"
-                     style="text-align:center;padding:45px 15px;color:var(--finance-muted);font-size:13px;">
-                    Chưa có dữ liệu chi tiêu.
-                </div>
+                <div class="finance-empty">Chưa có dữ liệu chi tiêu.</div>
             }
         </div>
-
     </div>
 
     <!-- NGÂN SÁCH THÁNG -->
-    <section class="finance-card" style="margin-top:18px;">
+    <section class="finance-card finance-block">
         <div class="section-heading">
-            <div>
-                <h3>Ngân sách tháng</h3>
-                <p>Theo dõi giới hạn chi tiêu tổng thể</p>
-            </div>
-            <span class="summary-badge">
-                @(monthlyBudget?.Month ?? 0)/@(monthlyBudget?.Year ?? 0)
-            </span>
+            <div><h3>Ngân sách tháng</h3><p>Theo dõi giới hạn chi tiêu tổng thể</p></div>
+            <span class="summary-badge">@DateTime.Today.ToString("MM/yyyy")</span>
         </div>
 
-        @if (monthlyBudget != null)
+        @if (hasBudget)
         {
             <div class="expense-total">
                 <span>Đã sử dụng</span>
-                <h2>
-                    @monthlyBudget.Spent.ToString("N0") ₫ /
-                    @monthlyBudget.Limit.ToString("N0") ₫
-                </h2>
+                <h2>@FinanceFormat.Money(monthlyBudget!.Spent) / @FinanceFormat.Money(monthlyBudget.Limit)</h2>
             </div>
-
-            <div class="progress-track"
-                 style="height:10px;border-radius:10px;overflow:hidden;background:var(--finance-soft);">
-                <div style="width:@budgetPercent.ToString(CultureInfo.InvariantCulture)%;height:100%;border-radius:10px;background:var(--finance-accent);">
-                </div>
-            </div>
-
-            <div class="category-info" style="margin-top:12px;">
-                <span>Đã sử dụng: @budgetPercent.ToString("N1")%</span>
-                <strong>
-                    Còn lại: @monthlyBudget.Remaining.ToString("N0") ₫
-                </strong>
+            <div class="progress-track tall"><i class="@Bar(budgetPercent)" style="width:@W(budgetPercent)%"></i></div>
+            <div class="category-info spaced">
+                <span>Đã sử dụng: @W(budgetPercent)%</span>
+                <strong>Còn lại: @FinanceFormat.Money(monthlyBudget.Remaining)</strong>
             </div>
 
             @if (monthlyBudget.CategoryBudgets.Any())
             {
-                <div class="category-list" style="margin-top:20px;">
+                <div class="category-list roomy">
                     @foreach (var budget in monthlyBudget.CategoryBudgets)
                     {
-                        <div class="category-item" style="margin-bottom:14px;">
+                        double bp = Math.Min(100, (double)budget.UsagePercent);
+                        <div class="category-item">
                             <div class="category-info">
                                 <span>@budget.Category</span>
-                                <strong>
-                                    @budget.Spent.ToString("N0") ₫ /
-                                    @budget.Limit.ToString("N0") ₫
-                                </strong>
+                                <strong>@FinanceFormat.Money(budget.Spent) / @FinanceFormat.Money(budget.Limit)</strong>
                             </div>
-
-                            <div class="progress-track"
-                                 style="height:7px;border-radius:10px;overflow:hidden;background:var(--finance-soft);">
-                                <div style="width:@Math.Min(100, budget.UsagePercent).ToString(CultureInfo.InvariantCulture)%;height:100%;border-radius:10px;background:var(--finance-accent);">
-                                </div>
-                            </div>
+                            <div class="progress-track"><i class="@Bar(bp)" style="width:@W(bp)%"></i></div>
                         </div>
                     }
                 </div>
@@ -316,54 +218,32 @@
         }
         else
         {
-            <p>Chưa có dữ liệu ngân sách tháng.</p>
+            <div class="finance-empty">Chưa có dữ liệu ngân sách tháng.</div>
         }
     </section>
 
     <!-- MỤC TIÊU TIẾT KIỆM -->
-    <section class="finance-card" style="margin-top:18px;">
+    <section class="finance-card finance-block">
         <div class="section-heading">
-            <div>
-                <h3>Mục tiêu tiết kiệm</h3>
-                <p>Theo dõi tiến độ các mục tiêu của bạn</p>
-            </div>
+            <div><h3>Mục tiêu tiết kiệm</h3><p>Theo dõi tiến độ các mục tiêu của bạn</p></div>
+            <a asp-controller="SavingGoal" asp-action="Index" class="finance-btn small">Quản lý mục tiêu</a>
         </div>
 
         @if (Model.SavingGoals != null && Model.SavingGoals.Any())
         {
-            <div class="category-list">
+            <div class="category-list roomy">
                 @foreach (var goal in Model.SavingGoals)
                 {
-                    <div class="category-item" style="margin-bottom:20px;">
+                    double gp = (double)goal.ProgressPercent;
+                    <div class="category-item">
                         <div class="category-info">
                             <span>@goal.Title</span>
-                            <strong>
-                                @goal.CurrentAmount.ToString("N0") ₫ /
-                                @goal.TargetAmount.ToString("N0") ₫
-                            </strong>
+                            <strong>@FinanceFormat.Money(goal.CurrentAmount) / @FinanceFormat.Money(goal.TargetAmount)</strong>
                         </div>
-
-                        <div class="progress-track"
-                             style="height:8px;border-radius:10px;overflow:hidden;background:var(--finance-soft);">
-                            <div style="width:@goal.ProgressPercent.ToString(CultureInfo.InvariantCulture)%;height:100%;border-radius:10px;background:var(--finance-accent);">
-                            </div>
-                        </div>
-
-                        <div class="category-info" style="margin-top:7px;">
-                            <span>
-                                Tiến độ: @goal.ProgressPercent.ToString("N1")%
-                            </span>
-
-                            <span>
-                                @if (goal.Deadline.HasValue)
-                                {
-                                    <text>Hạn: @goal.Deadline.Value.ToString("dd/MM/yyyy")</text>
-                                }
-                                else
-                                {
-                                    <text>Chưa đặt thời hạn</text>
-                                }
-                            </span>
+                        <div class="progress-track"><i style="width:@W(gp)%"></i></div>
+                        <div class="category-info spaced">
+                            <span>Tiến độ: @W(gp)%</span>
+                            <span>@(goal.Deadline.HasValue ? "Hạn: " + goal.Deadline.Value.ToString("dd/MM/yyyy") : "Chưa đặt thời hạn")</span>
                         </div>
                     </div>
                 }
@@ -371,96 +251,50 @@
         }
         else
         {
-            <p>Chưa có mục tiêu tiết kiệm nào.</p>
+            <div class="finance-empty">Chưa có mục tiêu tiết kiệm nào.</div>
         }
     </section>
 
-    <!-- LỊCH SỬ GIAO DỊCH -->
-    <section class="finance-card" style="margin-top:18px;">
+    <!-- LỊCH SỬ GIAO DỊCH (lọc nhanh phía trình duyệt trên các hàng Razor đã render sẵn) -->
+    <section class="finance-card finance-block">
         <div class="section-heading">
-            <div>
-                <h3>Lịch sử giao dịch</h3>
-                <p>Danh sách giao dịch được cung cấp từ ViewModel</p>
-            </div>
-
-            <div class="transaction-filters">
-                <select class="finance-select"
-                        id="transactionFilter"
-                        aria-label="Lọc loại giao dịch">
+            <div><h3>Lịch sử giao dịch</h3><p>Giao dịch trong tháng hiện tại</p></div>
+            <div class="heading-actions">
+                <select class="finance-select" id="transactionFilter" aria-label="Lọc loại giao dịch">
                     <option value="all" selected>Tất cả giao dịch</option>
                     <option value="income">Khoản thu</option>
                     <option value="expense">Khoản chi</option>
                 </select>
-
-                <button type="button"
-                        class="finance-btn primary"
-                        id="openTransaction2">
-                    + Thêm giao dịch
-                </button>
+                <a asp-controller="Transaction" asp-action="Index" class="finance-btn">Xem tất cả</a>
+                <button type="button" class="finance-btn primary" data-open="transactionModal" data-mode="create" data-title="Thêm giao dịch">+ Thêm giao dịch</button>
             </div>
         </div>
 
-        <!-- LỌC THEO KHOẢNG NGÀY -->
-        <div class="transaction-filters" style="margin:12px 0 16px;">
-            <div>
-                <label for="startDateFilter">Từ ngày</label>
-                <input type="date"
-                       class="finance-select"
-                       id="startDateFilter" />
-            </div>
-
-            <div>
-                <label for="endDateFilter">Đến ngày</label>
-                <input type="date"
-                       class="finance-select"
-                       id="endDateFilter" />
-            </div>
-
-            <button type="button" class="finance-btn" id="clearDateFilter">
-                Xóa lọc ngày
-            </button>
+        <div class="filter-row inline">
+            <div><label for="startDateFilter">Từ ngày</label><input type="date" class="finance-select" id="startDateFilter" /></div>
+            <div><label for="endDateFilter">Đến ngày</label><input type="date" class="finance-select" id="endDateFilter" /></div>
+            <button type="button" class="finance-btn" id="clearDateFilter">Xóa lọc ngày</button>
         </div>
 
-        <div style="overflow-x:auto;">
-            <table class="finance-table"
-                   style="width:100%;border-collapse:collapse;font-size:13px;">
+        <div class="table-wrap">
+            <table class="finance-table">
                 <thead>
-                    <tr style="border-bottom:1px solid var(--finance-border);color:var(--finance-muted);text-align:left;">
-                        <th style="padding:12px 10px;">NỘI DUNG</th>
-                        <th style="padding:12px 10px;">DANH MỤC</th>
-                        <th style="padding:12px 10px;">NGÀY</th>
-                        <th style="padding:12px 10px;text-align:right;">SỐ TIỀN</th>
-                    </tr>
+                    <tr><th>Nội dung</th><th>Danh mục</th><th>Ngày</th><th class="right">Số tiền</th></tr>
                 </thead>
-
                 <tbody id="transactionBody">
-                    @if (Model.Transactions != null && Model.Transactions.Any())
+                    @if (Model.Transactions != null)
                     {
-                        @foreach (var t in Model.Transactions)
+                        foreach (var t in Model.Transactions)
                         {
-                            var normalizedType = (t.Type ?? "").ToLowerInvariant();
-
-                            <tr data-type="@normalizedType"
-                                data-date="@t.Date.ToString("yyyy-MM-dd")"
-                                data-month="@t.Date.ToString("yyyy-MM")"
-                                style="border-bottom:1px solid var(--finance-border);transition:background 0.15s ease;">
-
-                                <td style="padding:12px 10px;font-weight:600;">
-                                    @t.Name
-                                </td>
-
-                                <td style="padding:12px 10px;">
-                                    <span class="summary-badge" style="font-size:10px;">
-                                        @t.Category
-                                    </span>
-                                </td>
-
-                                <td style="padding:12px 10px;color:var(--finance-muted);">
-                                    @t.Date.ToString("dd/MM/yyyy")
-                                </td>
-
-                                <td style="padding:12px 10px;text-align:right;font-weight:700;color:@(normalizedType == "income" ? "var(--finance-income)" : "var(--finance-expense)");">
-                                    @(normalizedType == "income" ? "+" : "-")@t.Amount.ToString("N0") ₫
+                            var kind = (t.Type ?? "").ToLowerInvariant();
+                            <tr data-type="@kind" data-date="@t.Date.ToString("yyyy-MM-dd")" data-month="@t.Date.ToString("yyyy-MM")">
+                                <td><strong>@t.Name</strong></td>
+                                <td><span class="summary-badge">@t.Category</span></td>
+                                <td class="muted">@t.Date.ToString("dd/MM/yyyy")</td>
+                                <td class="right">
+                                    <strong class="@(kind == "income" ? "text-income" : kind == "transfer" ? "" : "text-expense")">
+                                        @(kind == "income" ? "+" : kind == "transfer" ? "↔ " : "-")@FinanceFormat.Money(t.Amount)
+                                    </strong>
                                 </td>
                             </tr>
                         }
@@ -469,235 +303,14 @@
             </table>
         </div>
 
-        <div id="emptyTransactions"
-             style="display:@(Model.Transactions != null && Model.Transactions.Any() ? "none" : "block");text-align:center;padding:35px 20px;color:var(--finance-muted);font-size:13px;">
-            Chưa có giao dịch nào được ghi nhận.
+        <div class="finance-empty" id="emptyTransactions" hidden="@(Model.Transactions != null && Model.Transactions.Any() ? "hidden" : null)">
+            Chưa có giao dịch nào được ghi nhận. Bấm "+ Thêm giao dịch" để bắt đầu.
         </div>
     </section>
 
-    <!-- MODAL NHẬP GIAO DỊCH MẪU -->
-    
-    <div class="finance-modal"
-         id="transactionModal"
-         aria-hidden="true"
-         style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99;align-items:center;justify-content:center;padding:20px;">
-
-        <div class="finance-modal-content"
-             style="background:var(--finance-bg);color:var(--finance-text);border:1px solid var(--finance-border);border-radius:18px;max-width:480px;width:100%;padding:24px;box-shadow:var(--finance-shadow);">
-
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
-                <h3 style="margin:0;font-size:17px;font-weight:750;">
-                    Nhập giao dịch
-                </h3>
-
-                <button type="button"
-                        id="closeModal"
-                        style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--finance-muted);">
-                    &times;
-                </button>
-            </div>
-
-            <p style="font-size:12px;color:var(--finance-muted);margin-bottom:16px;">
-                Điền thông tin bên dưới để ghi nhận giao dịch của bạn.
-            </p>
-
-            <form id="transactionForm"
-                  asp-controller="Transaction"
-                  asp-action="Create"
-                  method="post">
-
-                @Html.AntiForgeryToken()
-
-                <!-- Nội dung giao dịch -->
-                <div style="margin-bottom:14px;">
-                    <label for="transactionName"
-                           style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--finance-text);">
-                        Nội dung giao dịch
-                    </label>
-
-                    <input type="text"
-                           asp-for="CreateTransaction.Note"
-                           id="transactionName"
-                           class="finance-select"
-                           style="width:100%;"
-                           placeholder="VD: Mua sách, Tiền lương..."
-                           maxlength="500" />
-                </div>
-
-                <!-- Loại giao dịch và số tiền -->
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
-
-                    <div>
-                        <label for="transactionType"
-                               style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--finance-text);">
-                            Loại giao dịch
-                        </label>
-
-                        <select id="transactionType"
-                                class="finance-select"
-                                style="width:100%;"
-                                asp-for="CreateTransaction.TransactionType">
-
-                            <option value="Expense">Chi tiêu</option>
-                            <option value="Income">Thu nhập</option>
-                            <option value="Transfer">Chuyển tiền</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label for="transactionAmount"
-                               style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--finance-text);">
-                            Số tiền (VNĐ)
-                        </label>
-
-                        <input type="number"
-                               asp-for="CreateTransaction.Amount"
-                               id="transactionAmount"   
-                               min="0"
-                               step="1000"
-                               class="finance-select"
-                               style="width:100%;"
-                               placeholder="VD: 50000"
-                               required />
-                    </div>
-                </div>
-
-                <!-- Ví giao dịch và ví nhận -->
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
-
-                    <div>
-                        <label for="transactionWallet"
-                               style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--finance-text);">
-                            Ví giao dịch
-                        </label>
-
-                        <select asp-for="CreateTransaction.WalletId"
-                                id="transactionWallet"
-                                class="finance-select"
-                                style="width:100%;"
-                                required>
-
-                            <option value="">Chọn ví</option>
-
-                            @if (ViewBag.Wallets != null)
-                            {
-                                foreach (var wallet in ViewBag.Wallets)
-                                {
-                                    <option value="@wallet.Id">@wallet.Name</option>
-                                }
-                            }
-                        </select>
-                    </div>
-
-                    <div id="targetWalletGroup">
-                        <label for="targetWallet"
-                               style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--finance-text);">
-                            Ví nhận tiền
-                        </label>
-
-                        <select asp-for="CreateTransaction.ToWalletId"
-                                id="targetWallet"
-                                class="finance-select"
-                                style="width:100%;">
-
-                            <option value="">Chọn ví nhận</option>
-
-                            @if (ViewBag.Wallets != null)
-                            {
-                                foreach (var wallet in ViewBag.Wallets)
-                                {
-                                    <option value="@wallet.Id">@wallet.Name</option>
-                                }
-                            }
-                        </select>
-                    </div>
-        
-                </div>
-
-                <!-- Danh mục và mục tiêu tiết kiệm -->
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
-
-                    <div id="categoryGroup">
-                        <label for="transactionCategory"
-                               style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--finance-text);">
-                            Danh mục
-                        </label>
-
-                        <select id="transactionCategory"
-                                asp-for="CreateTransaction.CategoryId"
-                                class="finance-select"
-                                style="width:100%;">
-
-                            <option value="">Không phân loại</option>
-
-                            @if (Model.Categories != null)
-                            {
-                                foreach (var c in Model.Categories)
-                                {
-                                    <option value="@c.Id"
-                                            data-type="@c.Type.ToLowerInvariant()">
-                                        @c.Name
-                                    </option>
-                                }
-                            }
-                        </select>
-                    </div>
-
-                    <div>
-                        <label for="transactionSavingGoal"
-                               style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--finance-text);">
-                            Mục tiêu tiết kiệm
-                        </label>
-
-                        <select asp-for="CreateTransaction.SavingsGoalId"
-                                id="transactionSavingGoal"
-                                class="finance-select"
-                                style="width:100%;">
-
-                            <option value="">Không liên kết</option>
-
-                            @if (ViewBag.SavingsGoals != null)
-                            {
-                                foreach (var goal in ViewBag.SavingsGoals)
-                                {
-                                    <option value="@goal.Id">@goal.Name</option>
-                                }
-                            }
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Ngày giao dịch -->
-                <div style="margin-bottom:20px;">
-                    <label for="transactionDate"
-                           style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--finance-text);">
-                        Ngày giao dịch
-                    </label>
-
-                    <input type="date"
-                           asp-for="CreateTransaction.TransactionDate"
-                           id="transactionDate"
-                           class="finance-select"
-                           style="width:100%;"
-                           required />
-                </div>
-
-                <!-- Nút thao tác -->
-                <div style="display:flex;justify-content:flex-end;gap:10px;">
-                    <button type="button"
-                            class="finance-btn"
-                            id="cancelTransaction">
-                        Đóng
-                    </button>
-
-                    <button type="submit"
-                            class="finance-btn primary">
-                        Lưu giao dịch
-                    </button>
-                </div>
-
-            </form>
-        </div>
-    </div>
-
+    <partial name="~/Views/Finance/_TransactionModals.cshtml" model='"overview"' />
 </div>
+
+@section Scripts {
+    <script src="~/js/finance.js" asp-append-version="true"></script>
+}

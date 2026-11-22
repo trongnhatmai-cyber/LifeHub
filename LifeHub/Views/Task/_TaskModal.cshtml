@@ -1,0 +1,435 @@
+
+@model LifeHub.Models.ViewModels.TaskManagement.TaskInputModels
+
+@using LifeHub.Models.ViewModels.TaskManagement
+
+@{
+    var projects = ViewData["Projects"] as List<TaskProjectOption>
+        ?? new List<TaskProjectOption>();
+
+    var categories = ViewData["Categories"] as List<TaskCategoryOption>
+        ?? new List<TaskCategoryOption>();
+
+    var tasks = ViewData["Tasks"] as List<TaskItemViewModel>
+        ?? new List<TaskItemViewModel>();
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/task.css"
+          asp-append-version="true" />
+}
+
+<div class="task-modal" id="taskModal" hidden
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="taskModalTitle">
+
+    <div class="task-modal-backdrop" data-close-task-modal></div>
+
+    <div class="task-modal-dialog">
+
+        <!-- MODAL HEADER -->
+        <header class="task-modal-header">
+            <div>
+                <span class="task-eyebrow">WORK MANAGEMENT</span>
+                <h2 id="taskModalTitle">Chi tiết công việc</h2>
+            </div>
+
+            <button type="button"
+                    class="task-modal-close"
+                    data-close-task-modal
+                    aria-label="Đóng">
+                &times;
+            </button>
+        </header>
+
+        <!-- =================================== -->
+        <!-- DETAIL MODE                        -->
+        <!-- =================================== -->
+        <section data-task-modal-section="detail" hidden>
+
+            <div class="task-detail-heading">
+                <div>
+                    <span data-detail-status class="task-status-label"></span>
+                    <span data-detail-priority class="task-priority"></span>
+                </div>
+
+                <h3 data-detail-title></h3>
+
+                <p data-detail-description></p>
+            </div>
+
+            <div class="task-detail-information">
+
+                <div class="task-detail-field">
+                    <span>Loại công việc</span>
+                    <strong data-detail-scope></strong>
+                </div>
+
+                <div class="task-detail-field">
+                    <span>Danh mục</span>
+                    <strong data-detail-category></strong>
+                </div>
+
+                <div class="task-detail-field">
+                    <span>Dự án</span>
+                    <strong data-detail-project></strong>
+                </div>
+
+                <div class="task-detail-field">
+                    <span>Người thực hiện</span>
+                    <strong data-detail-assignee></strong>
+                </div>
+
+                <div class="task-detail-field">
+                    <span>Người giao</span>
+                    <strong data-detail-assigner></strong>
+                </div>
+
+                <div class="task-detail-field">
+                    <span>Hạn hoàn thành</span>
+                    <strong data-detail-deadline></strong>
+                </div>
+
+                <div class="task-detail-field">
+                    <span>Thời gian ước tính</span>
+                    <strong data-detail-estimate></strong>
+                </div>
+
+            </div>
+
+            <section class="task-detail-section">
+                <h3>Nhãn công việc</h3>
+                <div data-detail-tags>
+                    <span>Chưa có nhãn</span>
+                </div>
+            </section>
+
+            <section class="task-detail-section">
+                <h3>Công việc con</h3>
+                <div data-detail-subtasks>
+                    <p>Chưa có công việc con.</p>
+                </div>
+            </section>
+
+            <section class="task-detail-section">
+                <h3>Bình luận</h3>
+
+                <div data-detail-comments>
+                    <p>Chưa có bình luận.</p>
+                </div>
+            </section>
+
+            <footer class="task-modal-footer">
+                <button type="button"
+                        class="task-btn task-btn-danger-outline"
+                        data-task-modal-mode="delete">
+                    Xóa
+                </button>
+
+                <button type="button"
+                        class="task-btn task-btn-secondary"
+                        data-close-task-modal>
+                    Đóng
+                </button>
+
+                <button type="button"
+                        class="task-btn task-btn-primary"
+                        data-task-modal-mode="edit">
+                    Chỉnh sửa
+                </button>
+            </footer>
+
+        </section>
+
+        <!-- =================================== -->
+        <!-- CREATE / EDIT MODE                  -->
+        <!-- =================================== -->
+        <section data-task-modal-section="form" hidden>
+
+            <div class="task-type-selector">
+                <span>Loại công việc</span>
+
+                <div class="task-type-tabs">
+                    <button type="button"
+                            class="active"
+                            data-task-type="personal"
+                            aria-pressed="true">
+                        Cá nhân
+                    </button>
+
+                    <button type="button"
+                            data-task-type="project"
+                            aria-pressed="false">
+                        Dự án
+                    </button>
+                </div>
+            </div>
+
+            <form id="taskForm">
+
+                <input type="hidden"
+                       asp-for="Id"
+                       data-task-field="id" />
+
+                <input type="hidden"
+                       asp-for="TaskType"
+                       data-task-field="type"
+                       value="personal" />
+
+                <div class="task-form-grid">
+
+                    <!-- COMMON FIELDS -->
+                    <div class="task-form-field full">
+                        <label asp-for="Title">Tên công việc</label>
+
+                        <input asp-for="Title"
+                               data-task-field="title"
+                               placeholder="Nhập tên công việc..."
+                               required />
+
+                        <span asp-validation-for="Title"></span>
+                    </div>
+
+                    <div class="task-form-field full">
+                        <label asp-for="Description">Mô tả</label>
+
+                        <textarea asp-for="Description"
+                                  data-task-field="description"
+                                  rows="4"
+                                  placeholder="Mô tả nội dung công việc...">
+                        </textarea>
+                    </div>
+
+                    <div class="task-form-field">
+                        <label asp-for="Priority">Mức ưu tiên</label>
+
+                        <select asp-for="Priority"
+                                data-task-field="priority">
+                            <option value="low">Thấp</option>
+                            <option value="medium">Trung bình</option>
+                            <option value="high">Cao</option>
+                            <option value="urgent">Khẩn cấp</option>
+                        </select>
+                    </div>
+
+                    <div class="task-form-field">
+                        <label asp-for="Status">Trạng thái</label>
+
+                        <select asp-for="Status"
+                                data-task-field="status">
+                            <option value="todo">Cần làm</option>
+                            <option value="in_progress">Đang làm</option>
+                            <option value="review">Chờ duyệt</option>
+                            <option value="done">Đã hoàn thành</option>
+                        </select>
+                    </div>
+
+                    <div class="task-form-field">
+                        <label asp-for="Deadline">Hạn hoàn thành</label>
+
+                        <input asp-for="Deadline"
+                               type="date"
+                               data-task-field="deadline" />
+                    </div>
+
+                    <div class="task-form-field">
+                        <label asp-for="EstimatedMinutes">
+                            Thời gian ước tính (phút)
+                        </label>
+
+                        <input asp-for="EstimatedMinutes"
+                               type="number"
+                               min="1"
+                               data-task-field="estimate"
+                               placeholder="Ví dụ: 60" />
+                    </div>
+
+                    <!-- PERSONAL FIELDS -->
+                    <div class="task-form-field full"
+                         data-personal-fields>
+
+                        <label asp-for="CategoryId">
+                            Danh mục cá nhân
+                        </label>
+
+                        <select asp-for="CategoryId"
+                                data-task-field="category">
+                            <option value="">Chưa phân loại</option>
+
+                            @foreach (var category in categories)
+                            {
+                                <option value="@category.Id">
+                                    @category.Name
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- PROJECT FIELDS -->
+                    <div class="task-form-field full"
+                         data-project-fields
+                         hidden>
+
+                        <label asp-for="ProjectId">Dự án</label>
+
+                        <select asp-for="ProjectId"
+                                data-task-field="project">
+                            <option value="">Chọn dự án</option>
+
+                            @foreach (var project in projects)
+                            {
+                                <option value="@project.Id">
+                                    @project.Name
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="task-form-field full"
+                         data-project-fields
+                         hidden>
+
+                        <label asp-for="AssignedTo">
+                            Người thực hiện
+                        </label>
+
+                        <select asp-for="AssignedTo"
+                                data-task-field="assignee">
+                            <option value="">Chọn thành viên</option>
+
+                            @foreach (var project in projects)
+                            {
+                                foreach (var member in project.Members)
+                                {
+                                    <option value="@member.UserId"
+                                            data-project-id="@project.Id">
+                                        @member.Name
+                                    </option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <!-- TAGS -->
+                    <div class="task-form-field full">
+                        <label asp-for="Tags">Nhãn công việc</label>
+
+                        <input asp-for="Tags"
+                               data-task-field="tags"
+                               placeholder="Ví dụ: học tập, deadline, quan trọng" />
+
+                        <small>
+                            Nhập các nhãn, phân cách bằng dấu phẩy.
+                        </small>
+                    </div>
+
+                </div>
+
+                <footer class="task-modal-footer">
+                    <button type="button"
+                            class="task-btn task-btn-secondary"
+                            data-close-task-modal>
+                        Hủy
+                    </button>
+
+                    <button type="button"
+                            class="task-btn task-btn-primary"
+                            data-task-form-submit>
+                        Lưu công việc
+                    </button>
+                </footer>
+
+            </form>
+        </section>
+
+        <!-- =================================== -->
+        <!-- DELETE MODE                         -->
+        <!-- =================================== -->
+        <section data-task-modal-section="delete" hidden>
+
+            <div class="task-delete-content">
+                <span class="task-delete-icon">!</span>
+
+                <h3>Xóa công việc?</h3>
+
+                <p>
+                    Bạn có chắc chắn muốn xóa
+                    <strong data-delete-task-title></strong>?
+                </p>
+
+                <p>
+                    Hãy kiểm tra lại thông tin trước khi xác nhận.
+                </p>
+            </div>
+
+            <footer class="task-modal-footer">
+                <button type="button"
+                        class="task-btn task-btn-secondary"
+                        data-task-modal-mode="detail">
+                    Quay lại
+                </button>
+
+                <button type="button"
+                        class="task-btn task-btn-danger"
+                        data-task-delete-confirm>
+                    Xác nhận xóa
+                </button>
+            </footer>
+
+        </section>
+
+    </div>
+
+    <!-- TASK DATA FOR DETAIL / EDIT -->
+    <div class="task-modal-data" hidden>
+
+        @foreach (var task in tasks)
+        {
+            <article data-task-record
+                     data-id="@task.Id"
+                     data-title="@task.Title"
+                     data-description="@task.Description"
+                     data-status="@task.Status"
+                     data-priority="@task.Priority"
+                     data-project-id="@(task.ProjectId?.ToString() ?? "")"
+                     data-project-name="@task.ProjectName"
+                     data-category-id="@(task.CategoryId?.ToString() ?? "")"
+                     data-category-name="@task.CategoryName"
+                     data-assignee="@task.AssignedTo"
+                     data-assigner="@task.AssignedBy"
+                     data-deadline="@(task.Deadline?.ToString("yyyy-MM-dd") ?? "")"
+                     data-estimate="@(task.EstimatedMinutes?.ToString() ?? "")"
+                     data-scope="@(task.IsProjectTask ? "project" : task.IsAssignedToMe ? "assigned" : "personal")"
+                     data-priority-label="@task.PriorityLabel"
+                     data-status-label="@task.StatusLabel"
+                     data-subtask-total="@task.SubtaskTotal"
+                     data-subtask-done="@task.SubtaskDone">
+
+                <div data-record-tags>
+                    @foreach (var tag in task.Tags)
+                    {
+                        <span data-tag-name="@tag.Name"
+                              data-tag-color="@tag.Color">
+                        </span>
+                    }
+                </div>
+
+                <div data-record-comments>
+                    @foreach (var comment in task.Comments)
+                    {
+                        <article data-comment
+                                 data-author="@comment.AuthorName"
+                                 data-content="@comment.Content"
+                                 data-created="@comment.CreatedAt.ToString("dd/MM/yyyy HH:mm")">
+                        </article>
+                    }
+                </div>
+
+            </article>
+        }
+
+    </div>
+
+</div>

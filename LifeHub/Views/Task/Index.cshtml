@@ -1,179 +1,351 @@
-@model LifeHub.Models.ViewModels.TaskManagement.TaskViewModel
+
+@model LifeHub.Models.ViewModels.TaskManagement.TaskOverviewViewModel
 
 @{
     Layout = "_Layout";
-    ViewData["Title"] = "Quản lý công việc";
-    ViewData["ActivePage"] = "Task";
-
-    var columns = new[]
-    {
-        (Key: "todo", Icon: "📋", Label: "Cần làm"),
-        (Key: "in_progress", Icon: "⚡", Label: "Đang làm"),
-        (Key: "review", Icon: "🔍", Label: "Chờ duyệt"),
-        (Key: "done", Icon: "✓", Label: "Đã xong")
-    };
+    ViewData["Title"] = "Tổng quan công việc";
+    ViewData["ActivePage"] = "TaskOverview";
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/task.css" asp-append-version="true" />
+    <link rel="stylesheet"
+          href="~/css/task.css"
+          asp-append-version="true" />
 }
 
-<div class="task-page">
-    <!-- TIÊU ĐỀ PHÂN HỆ CÔNG VIỆC -->
-    <header class="task-heading">
+<div class="task-page task-overview-page">
+
+    <!-- PAGE HEADER -->
+    <header class="task-page-header">
         <div>
-            <span class="task-label">WORK HUB · KANBAN & PRODUCTIVITY</span>
-            <h1>Công việc của bạn</h1>
-            <p>Sắp xếp việc cá nhân và việc được giao, kéo thả trạng thái và trao đổi ngay trên từng công việc.</p>
+            <span class="task-eyebrow">WORK MANAGEMENT</span>
+            <h1>Tổng quan công việc</h1>
+            <p>Theo dõi tiến độ và tình hình công việc của bạn.</p>
         </div>
 
-        <div class="heading-actions">
-            <button type="button" class="task-btn primary" id="createTaskBtn">+ Thêm công việc</button>
+        <div class="task-page-header__actions">
+            <button type="button"
+                    class="task-btn task-btn-primary"
+                    data-open-task-modal
+                    data-modal-mode="create">
+                <i class="bi bi-plus-lg"></i>
+                + Thêm công việc
+            </button>
+
+            <a asp-controller="Task"
+            asp-action="Task"
+            class="task-btn task-btn-secondary">
+                Xem danh sách công việc
+            </a>
         </div>
     </header>
 
-    <!-- 4 THẺ CHỈ SỐ -->
-    <section class="task-summary">
-        <div class="summary-card">
-            <div class="summary-top"><span>Tổng số việc</span><span class="summary-badge">TỔNG CỘNG</span></div>
-            <h2 data-summary="total">@Model.TotalTasks</h2>
-            <p>Nhiệm vụ trên hệ thống</p>
+    <!-- SUMMARY -->
+    <section class="task-summary-grid">
+
+        <article class="task-summary-card">
+            <div class="task-summary-card__top">
+                <span>Tổng công việc</span>
+                <span class="task-summary-badge">TOTAL</span>
+            </div>
+
+            <strong>@Model.TotalTasks</strong>
+            <small>Tất cả công việc</small>
+        </article>
+
+        <article class="task-summary-card">
+            <div class="task-summary-card__top">
+                <span>Đang thực hiện</span>
+                <span class="task-summary-badge">IN PROGRESS</span>
+            </div>
+
+            <strong>@Model.InProgressTasksCount</strong>
+            <small>Công việc đang xử lý</small>
+        </article>
+
+        <article class="task-summary-card">
+            <div class="task-summary-card__top">
+                <span>Đã hoàn thành</span>
+                <span class="task-summary-badge">DONE</span>
+            </div>
+
+            <strong>@Model.CompletedTasksCount</strong>
+            <small>Công việc đã hoàn tất</small>
+        </article>
+
+        <article class="task-summary-card">
+            <div class="task-summary-card__top">
+                <span>Quá hạn</span>
+                <span class="task-summary-badge">OVERDUE</span>
+            </div>
+
+            <strong>@Model.OverdueTasksCount</strong>
+            <small>Cần được chú ý</small>
+        </article>
+
+    </section>
+
+    <!-- TASK SCOPE -->
+    <section class="task-panel">
+        <div class="task-panel-heading">
+            <div>
+                <h2>Phạm vi công việc</h2>
+                <p>Các nhóm công việc bạn đang quản lý.</p>
+            </div>
         </div>
 
-        <div class="summary-card">
-            <div class="summary-top"><span>Cần làm ngay</span><span class="summary-badge">CẦN LÀM</span></div>
-            <h2 data-summary="todo">@Model.TodoTasksCount.ToString("00")</h2>
-            <p>Chưa bắt đầu thực hiện</p>
-        </div>
+        <div class="task-scope-grid">
 
-        <div class="summary-card">
-            <div class="summary-top"><span>Đang thực hiện</span><span class="summary-badge">TIẾN HÀNH</span></div>
-            <h2 data-summary="in_progress">@Model.InProgressTasksCount.ToString("00")</h2>
-            <p>Đang trong quy trình</p>
-        </div>
+            <a asp-controller="Task"
+               asp-action="Task"
+               asp-route-scope="personal"
+               class="task-scope-card">
+                <span class="task-scope-card__icon">♧</span>
 
-        <div class="summary-card">
-            <div class="summary-top"><span>Đã hoàn thành</span><span class="summary-badge">XONG</span></div>
-            <h2 data-summary="done">@Model.CompletedTasksCount.ToString("00")</h2>
-            <p>Đã nghiệm thu kết quả</p>
+                <span class="task-scope-card__content">
+                    <strong>Cá nhân</strong>
+                    <small>Công việc do bạn quản lý</small>
+                </span>
+
+                <b>@Model.PersonalTasksCount</b>
+            </a>
+
+            <a asp-controller="Task"
+               asp-action="Task"
+               asp-route-scope="assigned"
+               class="task-scope-card">
+                <span class="task-scope-card__icon">↙</span>
+
+                <span class="task-scope-card__content">
+                    <strong>Được giao cho tôi</strong>
+                    <small>Công việc do người khác giao</small>
+                </span>
+
+                <b>@Model.AssignedToMeCount</b>
+            </a>
+
+            <a asp-controller="Task"
+               asp-action="Task"
+               asp-route-scope="project"
+               class="task-scope-card">
+                <span class="task-scope-card__icon">▦</span>
+
+                <span class="task-scope-card__content">
+                    <strong>Dự án</strong>
+                    <small>Công việc thuộc dự án</small>
+                </span>
+
+                <b>@Model.ProjectTasksCount</b>
+            </a>
+
         </div>
     </section>
 
-    <!-- TAB PHẠM VI: TẤT CẢ / CÁ NHÂN / ĐƯỢC GIAO / TRONG DỰ ÁN -->
-    <div class="task-scope" role="group" aria-label="Phạm vi công việc">
-        <button type="button" class="task-chip active" data-scope="all" aria-pressed="true">Tất cả <span>@Model.TotalTasks</span></button>
-        <button type="button" class="task-chip" data-scope="personal" aria-pressed="false">Cá nhân <span>@Model.PersonalTasksCount</span></button>
-        <button type="button" class="task-chip" data-scope="assigned" aria-pressed="false">Được giao cho tôi <span>@Model.AssignedToMeCount</span></button>
-        <button type="button" class="task-chip" data-scope="project" aria-pressed="false">Trong dự án <span>@Model.ProjectTasksCount</span></button>
-    </div>
+    <!-- OVERVIEW CONTENT -->
+    <div class="task-overview-grid">
 
-    <!-- THANH TÌM KIẾM VÀ BỘ LỌC -->
-    <section class="task-toolbar" aria-label="Tìm kiếm và lọc công việc">
-        <input type="search" id="taskSearch" placeholder="Tìm công việc, dự án, người thực hiện..." aria-label="Tìm công việc" autocomplete="off" />
+        <!-- PROGRESS -->
+        <section class="task-panel">
+            <div class="task-panel-heading">
+                <div>
+                    <h2>Tiến độ hoàn thành</h2>
+                    <p>Tình trạng các công việc hiện tại.</p>
+                </div>
+            </div>
 
-        <select id="taskPriorityFilter" aria-label="Lọc theo mức ưu tiên">
-            <option value="">Mọi mức ưu tiên</option>
-            <option value="urgent">Khẩn cấp</option>
-            <option value="high">Cao</option>
-            <option value="medium">Trung bình</option>
-            <option value="low">Thấp</option>
-        </select>
-
-        <select id="taskProjectFilter" aria-label="Lọc theo dự án">
-            <option value="">Mọi dự án</option>
-            @foreach (var project in Model.Projects)
-            {
-                <option value="@project.Id">@project.Name</option>
-            }
-        </select>
-    </section>
-
-    <!-- BẢNG KANBAN 4 CỘT -->
-    <div class="kanban-board">
-        @foreach (var col in columns)
-        {
-            var items = Model.Tasks.Where(t => t.Status == col.Key).ToList();
-
-            <section class="kanban-column" data-column="@col.Key" aria-label="@col.Label">
-                <div class="column-head">
-                    <span>@col.Icon @col.Label</span>
-                    <span class="summary-badge" data-column-count>@items.Count</span>
+            <div class="task-completion-overview">
+                <div class="task-completion-number">
+                    <strong>@Model.CompletionPercent%</strong>
+                    <span>Đã hoàn thành</span>
                 </div>
 
-                <div class="column-body" data-dropzone="@col.Key">
-                    @foreach (var t in items)
+                <div class="task-progress-track">
+                    <div class="task-progress-fill"
+                         style="width: @Model.CompletionPercent%">
+                    </div>
+                </div>
+            </div>
+
+            <div class="task-status-list">
+
+                @{
+                    var statuses = new[]
                     {
-                        var search = $"{t.Title} {t.Description} {t.ProjectName} {t.CourseCode} {t.AssignedTo} {t.AssignedBy}".ToLowerInvariant();
+                        new { Key = "todo", Label = "Cần làm" },
+                        new { Key = "in_progress", Label = "Đang làm" },
+                        new { Key = "review", Label = "Chờ duyệt" },
+                        new { Key = "done", Label = "Đã hoàn thành" }
+                    };
+                }
 
-                        <article class="task-card-item @(t.IsDone ? "is-done" : "")" draggable="true" tabindex="0" role="button"
-                                 aria-label="Xem chi tiết: @t.Title"
-                                 data-id="@t.Id" data-status="@t.Status" data-priority="@t.Priority"
-                                 data-project-id="@(t.ProjectId?.ToString() ?? "")" data-assigned="@(t.IsAssignedToMe ? "1" : "0")"
-                                 data-search="@search">
-                            <div class="task-card-top">
-                                @if (t.IsProjectTask)
-                                {
-                                    @* Liên kết sang phân hệ Quản lý dự án: ProjectController.Details(id) *@
-                                    <a class="task-project" asp-controller="Project" asp-action="Details" asp-route-id="@t.ProjectId" title="Mở dự án @t.ProjectName">@t.ProjectName</a>
-                                }
-                                else
-                                {
-                                    <span class="task-project">@(string.IsNullOrEmpty(t.CourseCode) ? "CÁ NHÂN" : t.CourseCode)</span>
-                                }
-                                <span class="badge-priority @t.Priority">@t.PriorityLabel</span>
+                @foreach (var status in statuses)
+                {
+                    var count = Model.Tasks.Count(
+                        t => t.Status == status.Key);
+
+                    var percent = Model.TotalTasks == 0
+                        ? 0
+                        : (int)Math.Round(
+                            count * 100.0 / Model.TotalTasks);
+
+                    <div class="task-status-item">
+                        <div class="task-status-item__heading">
+                            <span>@status.Label</span>
+                            <strong>@count</strong>
+                        </div>
+
+                        <div class="task-progress-track">
+                            <div class="task-progress-fill"
+                                 style="width: @percent%">
                             </div>
+                        </div>
+                    </div>
+                }
 
-                            <h4>@t.Title</h4>
-                            <p>@t.Description</p>
+            </div>
 
-                            @if (t.Tags.Any())
-                            {
-                                <div class="task-tags">
-                                    @foreach (var tag in t.Tags)
-                                    {
-                                        <span class="task-tag" style="--tag-color:@tag.Color">@tag.Name</span>
-                                    }
-                                </div>
-                            }
+            <div class="task-on-time-rate">
+                <span>Hoàn thành đúng hạn</span>
 
-                            @if (t.SubtaskTotal > 0)
-                            {
-                                <div class="task-progress" title="Việc con đã hoàn thành">
-                                    <div class="bar"><i style="width:@t.SubtaskPercent%"></i></div>
-                                    <span>@(t.SubtaskDone + "/" + t.SubtaskTotal)</span>
-                                </div>
-                            }
+                <strong>
+                    @(Model.OnTimeCompletionRate.HasValue
+                        ? $"{Model.OnTimeCompletionRate}%"
+                        : "Chưa có dữ liệu")
+                </strong>
+            </div>
+        </section>
 
-                            @if (t.IsProjectTask || t.IsAssignedToMe)
-                            {
-                                <div class="task-assign-line">
-                                    <span class="task-assignee" title="Người thực hiện">👤 @t.AssignedTo</span>
-                                    @if (t.IsAssignedToMe)
-                                    {
-                                        <span class="task-assigned-by">Giao bởi @t.AssignedBy</span>
-                                    }
-                                </div>
-                            }
-
-                            <div class="task-foot">
-                                <span class="task-meta">
-                                    @if (t.CommentCount > 0) { <span>💬 @t.CommentCount</span> }
-                                    @if (t.EstimatedMinutes.HasValue) { <span>⏱ @t.EstimateLabel</span> }
-                                    @if (t.IsProjectTask && !string.IsNullOrEmpty(t.CourseCode)) { <span>📘 @t.CourseCode</span> }
-                                </span>
-                                <span class="task-deadline @(t.IsOverdue ? "overdue" : "")">@(t.Deadline.HasValue ? t.Deadline.Value.ToString("dd/MM") : "—")</span>
-                            </div>
-                        </article>
-                    }
-
-                    <div class="column-empty" hidden="@items.Any()">Không có công việc</div>
+        <!-- RECENT TASKS -->
+        <section class="task-panel">
+            <div class="task-panel-heading">
+                <div>
+                    <h2>Công việc gần đây</h2>
+                    <p>Những công việc được tạo gần nhất.</p>
                 </div>
-            </section>
-        }
+
+                <a asp-controller="Task"
+                   asp-action="Task"
+                   class="task-text-link">
+                    Xem tất cả &#8594;
+                </a>
+            </div>
+
+            <div class="task-recent-list">
+
+                @foreach (var task in Model.RecentTasks)
+                {
+                    <button type="button"
+                            class="task-recent-item"
+                            data-open-task-modal
+                            data-modal-mode="detail"
+                            data-task-id="@task.Id">
+
+                        <span class="task-status-dot @task.Status"></span>
+
+                        <span class="task-recent-item__content">
+                            <strong>@task.Title</strong>
+
+                            <small>
+                                @task.StatusLabel
+
+                                @if (task.Deadline.HasValue)
+                                {
+                                    <span>
+                                        · Hạn @task.Deadline.Value.ToString("dd/MM/yyyy")
+                                    </span>
+                                }
+                            </small>
+                        </span>
+
+                        <span class="task-priority @task.Priority">
+                            @task.PriorityLabel
+                        </span>
+                    </button>
+                }
+
+                @if (!Model.RecentTasks.Any())
+                {
+                    <div class="task-empty-state">
+                        <p>Chưa có công việc gần đây.</p>
+                    </div>
+                }
+
+            </div>
+        </section>
+
     </div>
 
-    <partial name="_TaskModals" model="Model" />
-    <div class="task-toast" id="taskToast" role="status" hidden></div>
+    <!-- ATTENTION TASKS -->
+    <section class="task-panel">
+        <div class="task-panel-heading">
+            <div>
+                <h2>Công việc cần chú ý</h2>
+                <p>Các công việc quá hạn, sắp đến hạn hoặc có ưu tiên cao.</p>
+            </div>
+        </div>
+
+        <div class="task-attention-list">
+
+            @foreach (var task in Model.AttentionTasks)
+            {
+                <button type="button"
+                        class="task-attention-item"
+                        data-open-task-modal
+                        data-modal-mode="detail"
+                        data-task-id="@task.Id">
+
+                    <span class="task-attention-indicator
+                        @(task.IsOverdue ? "overdue" : "upcoming")">
+                    </span>
+
+                    <span class="task-attention-item__content">
+                        <strong>@task.Title</strong>
+
+                        <small>
+                            @if (task.IsOverdue)
+                            {
+                                <span>Đã quá hạn</span>
+                            }
+                            else if (task.Deadline.HasValue)
+                            {
+                                <span>
+                                    Hạn @task.Deadline.Value.ToString("dd/MM/yyyy")
+                                </span>
+                            }
+                            else
+                            {
+                                <span>Ưu tiên cao</span>
+                            }
+                        </small>
+                    </span>
+
+                    <span class="task-priority @task.Priority">
+                        @task.PriorityLabel
+                    </span>
+                </button>
+            }
+
+            @if (!Model.AttentionTasks.Any())
+            {
+                <div class="task-empty-state">
+                    <p>Hiện không có công việc cần chú ý.</p>
+                </div>
+            }
+
+        </div>
+    </section>
+
+    <!-- SHARED TASK MODAL -->
+    @await Html.PartialAsync(
+        "_TaskModal",
+        new LifeHub.Models.ViewModels.TaskManagement.TaskInputModels(),
+        new ViewDataDictionary(ViewData)
+        {
+            ["Projects"] = Model.Projects,
+            ["Categories"] = Model.Categories,
+            ["Tasks"] = Model.Tasks
+        })
+
 </div>
 
 @section Scripts {

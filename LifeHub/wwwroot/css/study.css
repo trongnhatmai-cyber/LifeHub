@@ -1,11 +1,86 @@
 /* =====================================================================
-   LIFEHUB - STUDY MANAGEMENT (HỌC TẬP)
-   Đồng bộ Vibe chuẩn với phân hệ Tài chính (Finance)
-   Chế độ Sáng (pastel xanh nhạt trên nền trắng) & Chế độ Tối (pastel xanh đậm trên nền đen)
-   Phần đánh dấu [MỚI] là bổ sung cho View hiện tại; phần còn lại giữ nguyên.
+   LIFEHUB - STUDY MANAGEMENT (HỌC TẬP)        wwwroot/css/study.css
+
+   FILE MẪU CHO CÁC PHÂN HỆ KHÁC. Đọc phần "CÁCH TÁI SỬ DỤNG" trước khi nhân bản.
+
+   ---------------------------------------------------------------------
+   MỤC LỤC
+     0. Cách tái sử dụng cho phân hệ mới
+     1. Biến giao diện (theme sáng / tối)
+     2. Nền tảng: reset, thuộc tính hidden
+     3. Tiêu đề trang và nhóm nút hành động
+     4. Nút bấm
+     5. Thẻ chỉ số (summary)
+     6. Khung nội dung (card, lưới 2 cột, tiêu đề khối)
+     7. Thời khóa biểu tuần dạng thẻ (trang Tổng quan)
+     8. Danh sách môn học và thanh tiến độ
+     9. Trạng thái rỗng
+    10. Bảng dữ liệu
+    11. Chip lọc
+    12. Nhãn trạng thái (status)
+    13. Hộp thoại (modal) và form
+    14. Thông báo nhỏ (toast)
+    15. Thanh lọc GET và nút thao tác trong bảng
+    16. Thẻ môn học và thẻ tài liệu
+    17. Thời khóa biểu dạng lưới theo giờ (trang Thời khóa biểu)
+    18. Điểm số
+    19. Responsive (gom hết ở cuối file)
+
+   ---------------------------------------------------------------------
+   CỠ CHỮ: không viết số px cho tiêu đề, nút, thẻ chỉ số, badge, modal.
+   Dùng biến var(--fs-...) trong layout.css (mục TYPOGRAPHY TOKENS).
+
+   0. CÁCH TÁI SỬ DỤNG CHO PHÂN HỆ MỚI (VD: Tài chính, Công việc...)
+     Bước 1  Chép file này thành finance.css (hoặc task.css...).
+     Bước 2  Tìm và thay toàn bộ:
+               .study-page  ->  .fin-page        (khung bao ngoài của View)
+               --study-     ->  --fin-           (biến màu)
+               .study-      ->  .fin-            (btn, card, modal, chip...)
+             Trong View, đặt <div class="fin-page"> làm phần tử bao ngoài.
+     Bước 3  Đổi màu nhận diện của phân hệ: chỉ sửa 8 biến ở mục 1
+             (accent, accent-dark, card, card-strong, soft, border, text, muted),
+             cho cả theme sáng lẫn tối. KHÔNG viết mã màu cứng vào các mục dưới.
+     Bước 4  Xóa các mục không dùng (VD: mục 17, 18 chỉ dành cho học tập),
+             giữ nguyên các mục dùng chung: 1 đến 6, 9 đến 15, 19.
+     Bước 5  Mỗi phân hệ nạp CSS riêng của mình trong @section Styles của View.
+
+   QUY TẮC BẮT BUỘC
+     - Mọi selector bắt đầu bằng .study-page để không ảnh hưởng phân hệ khác.
+     - Màu lấy từ biến --study-*. Chỉ được dùng màu cứng cho: màu trạng thái
+       (xanh, đỏ, cam), nút nguy hiểm, và màu nhận diện từng môn học
+       (truyền từ C# qua style="--course-color:...").
+     - Modal dùng position: fixed nên PHẢI là con trực tiếp của .study-page.
+       Không đặt trong .study-card hoặc .summary-card, vì hai thẻ này có hover
+       transform, sẽ làm modal bị lệch khỏi màn hình.
+     - Thuộc tính hidden luôn thắng (xem mục 2), nên JS chỉ cần bật tắt hidden.
+     - Phần CSS thêm mới nên đặt trong mục tương ứng, kèm comment, không thêm cuối file.
+     - Tên class đặt theo vai trò (summary-card, status, row-btn), không đặt theo
+       hình dạng (blue-box). Cùng một vai trò dùng chung một class ở mọi trang.
+
+   HƯỚNG PHÁT TRIỂN SAU NÀY (chưa làm ngay)
+     Khi đã có 3 đến 4 phân hệ dùng cùng bộ thẻ, nút, bảng, modal, nên tách phần
+     dùng chung (mục 2 đến 6, 9 đến 15) sang wwwroot/css/lifehub-ui.css với tiền tố
+     .lh-, mỗi phân hệ chỉ còn file CSS riêng cho phần đặc thù. Hiện giữ một file
+     cho mỗi phân hệ để dễ làm và dễ xóa.
    ===================================================================== */
 
-/* THEME LIGHT */
+
+/* =====================================================================
+   1. BIẾN GIAO DIỆN
+   Tất cả màu của phân hệ nằm ở đây. Đổi màu phân hệ = chỉ sửa khối này.
+     --study-bg           nền trang và nền thẻ nội dung
+     --study-card         nền thẻ nhạt (thẻ chỉ số, ô nhập, nút phụ)
+     --study-card-strong  nền nhấn mạnh (badge, thanh tiến độ, toast)
+     --study-soft         màu phụ cho cột "mục tiêu" ở biểu đồ
+     --study-border       viền
+     --study-text         chữ chính
+     --study-muted        chữ phụ
+     --study-accent       màu nhấn (nút chính, chip đang chọn, liên kết)
+     --study-accent-dark  màu nhấn đậm
+     --study-shadow       bóng đổ chuẩn của thẻ
+   ===================================================================== */
+
+/* Theme sáng */
 .study-page {
     --study-bg: #ffffff;
     --study-card: #eff6ff;
@@ -24,7 +99,8 @@
     transition: background 0.3s ease, color 0.3s ease;
 }
 
-/* THEME DARK */
+/* Theme tối: chỉ ghi đè giá trị biến, không viết lại rule nào khác.
+   Layout đặt data-theme="dark" lên <html>. Viết hai dạng selector để chắc chắn khớp. */
 :root[data-theme="dark"] .study-page,
 html[data-theme="dark"] .study-page {
     --study-bg: #080a0f;
@@ -39,12 +115,27 @@ html[data-theme="dark"] .study-page {
     --study-shadow: 0 8px 28px rgba(0, 0, 0, .4);
 }
 
+
+/* =====================================================================
+   2. NỀN TẢNG
+   ===================================================================== */
 .study-page * { box-sizing: border-box; }
 .study-page h1, .study-page h2, .study-page h3, .study-page p { margin-top: 0; }
 .study-page button, .study-page input, .study-page select { font: inherit; }
-.study-page [hidden] { display: none !important; }   /* [MỚI] đảm bảo thuộc tính hidden luôn có tác dụng */
 
-/* HEADER PHÂN HỆ */
+/* Đảm bảo thuộc tính hidden luôn có tác dụng, kể cả khi phần tử đã có display: flex/grid.
+   JS ẩn/hiện modal, toast, dòng bảng chỉ bằng element.hidden = true/false. */
+.study-page [hidden] { display: none !important; }
+
+
+/* =====================================================================
+   3. TIÊU ĐỀ TRANG VÀ NHÓM NÚT HÀNH ĐỘNG
+   Cấu trúc View:
+     <header class="study-heading">
+       <div><span class="study-label">…</span><h1>…</h1><p>…</p></div>
+       <div class="heading-actions"> các nút .study-btn </div>
+     </header>
+   ===================================================================== */
 .study-page .study-heading {
     display: flex;
     align-items: flex-end;
@@ -56,13 +147,13 @@ html[data-theme="dark"] .study-page {
     display: inline-block;
     margin-bottom: 8px;
     color: var(--study-accent);
-    font-size: 11px;
+    font-size: var(--fs-eyebrow);
     font-weight: 800;
     letter-spacing: 1.5px;
 }
 .study-page .study-heading h1 {
     margin-bottom: 6px;
-    font-size: clamp(24px, 3vw, 32px);
+    font-size: var(--fs-page-title);
     font-weight: 800;
     letter-spacing: -.6px;
     color: var(--study-text);
@@ -70,7 +161,7 @@ html[data-theme="dark"] .study-page {
 .study-page .study-heading p {
     margin-bottom: 0;
     color: var(--study-muted);
-    font-size: 13px;
+    font-size: var(--fs-page-sub);
     line-height: 1.6;
 }
 .study-page .heading-actions {
@@ -79,6 +170,16 @@ html[data-theme="dark"] .study-page {
     gap: 10px;
     flex-wrap: wrap;
 }
+
+
+/* =====================================================================
+   4. NÚT BẤM
+     .study-btn            nút phụ (nền nhạt)
+     .study-btn.primary    nút chính, mỗi khu vực chỉ nên có một
+     .study-btn.small      nút nhỏ trong thẻ
+     .study-btn.danger     nút xóa trong modal xác nhận
+   Dùng được cho cả <button> lẫn <a>.
+   ===================================================================== */
 .study-page .study-btn {
     display: inline-flex;
     min-height: 40px;
@@ -90,7 +191,7 @@ html[data-theme="dark"] .study-page {
     border-radius: 12px;
     background: var(--study-card);
     color: var(--study-text);
-    font-size: 13px;
+    font-size: var(--fs-btn);
     font-weight: 650;
     cursor: pointer;
     text-decoration: none;
@@ -106,8 +207,22 @@ html[data-theme="dark"] .study-page {
     color: #ffffff;
     box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
 }
+.study-page .study-btn.small { min-height: 32px; padding: 0 12px; border-radius: 9px; font-size: var(--fs-btn-sm); }
+.study-page .study-btn.danger { border-color: #dc2626; background: #dc2626; color: #fff; }
 
-/* 4 THẺ CHỈ SỐ */
+
+/* =====================================================================
+   5. THẺ CHỈ SỐ (4 thẻ ở đầu mỗi trang)
+   Cấu trúc View:
+     <section class="study-summary">
+       <div class="summary-card">
+         <div class="summary-top"><span>Tên chỉ số</span><span class="summary-badge">NHÃN</span></div>
+         <h2>Giá trị</h2>
+         <p>Mô tả ngắn</p>
+       </div>  ×4
+     </section>
+   Giá trị do C# tính sẵn, View chỉ in ra.
+   ===================================================================== */
 .study-page .study-summary {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -128,6 +243,7 @@ html[data-theme="dark"] .study-page {
     transform: translateY(-3px);
     box-shadow: 0 12px 26px -6px rgba(0, 0, 0, 0.08);
 }
+/* Hình tròn trang trí ở góc dưới bên phải */
 .study-page .summary-card::after {
     position: absolute;
     right: -24px;
@@ -143,14 +259,15 @@ html[data-theme="dark"] .study-page {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 12px;
+    font-size: var(--fs-stat-label);
     font-weight: 600;
     color: var(--study-muted);
 }
+/* Badge nhỏ. Cũng dùng làm nhãn mã môn, tên môn trong bảng. */
 .study-page .summary-badge {
     padding: 4px 8px;
     border-radius: 20px;
-    font-size: 9px;
+    font-size: var(--fs-stat-badge);
     font-weight: 800;
     letter-spacing: 0.5px;
     background: var(--study-card-strong);
@@ -160,7 +277,7 @@ html[data-theme="dark"] .study-page {
     position: relative;
     z-index: 1;
     margin: 14px 0 4px;
-    font-size: clamp(21px, 2.2vw, 28px);
+    font-size: var(--fs-stat-value);
     font-weight: 800;
     letter-spacing: -.6px;
     color: var(--study-text);
@@ -168,10 +285,16 @@ html[data-theme="dark"] .study-page {
 .study-page .summary-card p {
     margin: 0;
     color: var(--study-muted);
-    font-size: 11px;
+    font-size: var(--fs-stat-note);
 }
 
-/* KHỐI NỘI DUNG CHÍNH */
+
+/* =====================================================================
+   6. KHUNG NỘI DUNG
+     .study-grid      lưới 2 cột (cột trái rộng hơn), về 1 cột trên màn nhỏ
+     .study-card      thẻ nội dung chuẩn
+     .section-heading tiêu đề của một khối: <div><h3>…</h3><p>…</p></div> + nút (tuỳ chọn)
+   ===================================================================== */
 .study-page .study-grid {
     display: grid;
     grid-template-columns: minmax(0, 1.4fr) minmax(320px, 1fr);
@@ -198,17 +321,22 @@ html[data-theme="dark"] .study-page {
 }
 .study-page .section-heading h3 {
     margin: 0 0 4px;
-    font-size: 16px;
+    font-size: var(--fs-panel-title);
     font-weight: 800;
     color: var(--study-text);
 }
 .study-page .section-heading p {
     margin: 0;
-    font-size: 11px;
+    font-size: var(--fs-panel-sub);
     color: var(--study-muted);
 }
 
-/* THỜI KHÓA BIỂU THEO TUẦN */
+
+/* =====================================================================
+   7. THỜI KHÓA BIỂU TUẦN DẠNG THẺ (trang Tổng quan)
+     .timetable-grid > .timetable-day[.today] > .day-head + .timetable-event | .day-empty
+   Màu viền trái của .timetable-event truyền từ View: style="border-left-color:@ev.Color"
+   ===================================================================== */
 .study-page .timetable-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -223,7 +351,7 @@ html[data-theme="dark"] .study-page {
     display: flex;
     flex-direction: column;
 }
-.study-page .timetable-day.today {                       /* [MỚI] */
+.study-page .timetable-day.today {
     border-color: var(--study-accent);
     box-shadow: 0 0 0 1px var(--study-accent) inset;
 }
@@ -235,8 +363,8 @@ html[data-theme="dark"] .study-page {
     border-bottom: 1px solid var(--study-border);
     margin-bottom: 8px;
 }
-.study-page .timetable-day.today .day-head { color: var(--study-accent); }   /* [MỚI] */
-.study-page .day-empty {                                  /* [MỚI] */
+.study-page .timetable-day.today .day-head { color: var(--study-accent); }
+.study-page .day-empty {
     margin: auto;
     font-size: 11px;
     color: var(--study-muted);
@@ -260,7 +388,15 @@ html[data-theme="dark"] .study-page {
     margin-top: 3px;
 }
 
-/* DANH SÁCH MÔN HỌC & TIẾN ĐỘ */
+
+/* =====================================================================
+   8. DANH SÁCH MÔN HỌC VÀ THANH TIẾN ĐỘ
+   Cấu trúc một dòng:
+     .course-item
+       .course-info  > .course-code (có .course-dot màu môn) + .course-meta
+       .course-progress > .course-progress-top + .bar > i (style="width:@percent%")
+   .course-dot, .course-meta, .course-progress-top cũng được dùng lại ở thẻ môn học (mục 16).
+   ===================================================================== */
 .study-page .course-item {
     display: flex;
     align-items: center;
@@ -272,25 +408,25 @@ html[data-theme="dark"] .study-page {
     background: var(--study-card);
     border: 1px solid var(--study-border);
 }
-.study-page .course-info { min-width: 0; }                /* [MỚI] */
+.study-page .course-info { min-width: 0; }
 .study-page .course-code {
     font-weight: 750;
     font-size: 13px;
 }
-.study-page .course-dot {                                 /* [MỚI] */
+.study-page .course-dot {
     display: inline-block;
     width: 9px;
     height: 9px;
     margin-right: 8px;
     border-radius: 50%;
 }
-.study-page .course-meta {                                /* [MỚI] */
+.study-page .course-meta {
     margin-top: 3px;
     font-size: 11px;
     color: var(--study-muted);
 }
 .study-page .course-progress { width: 140px; flex-shrink: 0; }
-.study-page .course-progress-top {                        /* [MỚI] */
+.study-page .course-progress-top {
     display: flex;
     justify-content: space-between;
     font-size: 11px;
@@ -309,15 +445,28 @@ html[data-theme="dark"] .study-page {
     border-radius: 10px;
     background: var(--study-accent);
 }
-.study-page .study-empty {                                /* [MỚI] */
+
+
+/* =====================================================================
+   9. TRẠNG THÁI RỖNG
+   Luôn viết lời hướng dẫn hành động: "Chưa có … Bấm "+ Thêm …" để bắt đầu."
+   ===================================================================== */
+.study-page .study-empty {
     padding: 18px;
     text-align: center;
     font-size: 12px;
     color: var(--study-muted);
 }
 
-/* BẢNG BÀI TẬP VÀ LỊCH THI */
-.study-page .table-wrap { overflow-x: auto; }             /* [MỚI] */
+
+/* =====================================================================
+   10. BẢNG DỮ LIỆU
+     <div class="table-wrap"><table class="study-table"> … </table></div>
+   .table-wrap cho phép cuộn ngang trên màn nhỏ.
+     td.right  căn phải (điểm, thao tác)   td.muted  chữ phụ không xuống dòng
+     .row-sub  dòng phụ nhỏ dưới tên trong ô
+   ===================================================================== */
+.study-page .table-wrap { overflow-x: auto; }
 .study-page .study-table {
     width: 100%;
     border-collapse: collapse;
@@ -336,9 +485,9 @@ html[data-theme="dark"] .study-page {
     padding: 12px 10px;
     border-bottom: 1px solid var(--study-border);
 }
-.study-page .study-table .right { text-align: right; }    /* [MỚI] */
-.study-page .study-table .muted { color: var(--study-muted); white-space: nowrap; }   /* [MỚI] */
-.study-page .row-sub {                                    /* [MỚI] */
+.study-page .study-table .right { text-align: right; }
+.study-page .study-table .muted { color: var(--study-muted); white-space: nowrap; }
+.study-page .row-sub {
     display: block;
     margin-top: 2px;
     font-size: 11px;
@@ -346,7 +495,14 @@ html[data-theme="dark"] .study-page {
     color: var(--study-muted);
 }
 
-/* [MỚI] Bộ lọc bài tập */
+
+/* =====================================================================
+   11. CHIP LỌC
+   Hai cách dùng, cùng một giao diện:
+     - <a class="study-chip" asp-route-...>   lọc phía server (Controller lọc, tải lại trang)
+     - <button class="study-chip" data-filter="..."> lọc nhanh phía trình duyệt (xem study.js mục 8)
+   Chip đang chọn thêm class "active" (Razor tự gán khi render).
+   ===================================================================== */
 .study-page .study-chips {
     display: flex;
     flex-wrap: wrap;
@@ -364,16 +520,28 @@ html[data-theme="dark"] .study-page {
     cursor: pointer;
     transition: all 0.2s ease;
 }
+.study-page a.study-chip { display: inline-flex; align-items: center; text-decoration: none; }
 .study-page .study-chip:hover { color: var(--study-text); }
 .study-page .study-chip.active {
     border-color: var(--study-accent);
     background: var(--study-accent);
     color: #ffffff;
 }
+/* Theme tối: màu nhấn sáng hơn nên chữ chip đang chọn phải tối để đọc được */
 html[data-theme="dark"] .study-page .study-chip.active,
 :root[data-theme="dark"] .study-page .study-chip.active { color: #08111f; }
 
-/* [MỚI] Nhãn trạng thái */
+
+/* =====================================================================
+   12. NHÃN TRẠNG THÁI
+   Dùng: <span class="status st-@key">Nhãn</span>
+   Bốn trạng thái chuẩn, có thể dùng cho mọi phân hệ:
+     st-graded     xanh lá   hoàn thành / đã chấm / đã kết thúc
+     st-submitted  xanh dương đang diễn ra / đã nộp
+     st-overdue    đỏ        quá hạn / cảnh báo / trùng lịch
+     st-upcoming   cam       sắp tới / chưa làm
+   Key (graded, submitted, overdue, upcoming) do C# trả về từ ViewModel.
+   ===================================================================== */
 .study-page .status {
     display: inline-block;
     padding: 4px 10px;
@@ -386,13 +554,32 @@ html[data-theme="dark"] .study-page .study-chip.active,
 .study-page .st-submitted { background: rgba(37, 99, 235, .14);  color: #1d4ed8; }
 .study-page .st-overdue   { background: rgba(220, 38, 38, .14);  color: #b91c1c; }
 .study-page .st-upcoming  { background: rgba(217, 119, 6, .16);  color: #b45309; }
+/* Theme tối: chữ sáng hơn để đủ tương phản */
 html[data-theme="dark"] .study-page .st-graded,    :root[data-theme="dark"] .study-page .st-graded    { color: #4ade80; }
 html[data-theme="dark"] .study-page .st-submitted, :root[data-theme="dark"] .study-page .st-submitted { color: #93c5fd; }
 html[data-theme="dark"] .study-page .st-overdue,   :root[data-theme="dark"] .study-page .st-overdue   { color: #f87171; }
 html[data-theme="dark"] .study-page .st-upcoming,  :root[data-theme="dark"] .study-page .st-upcoming  { color: #fbbf24; }
 
-/* [MỚI] Hộp thoại */
+
+/* =====================================================================
+   13. HỘP THOẠI (MODAL) VÀ FORM
+   Cấu trúc chuẩn (xem partial _CourseModal.cshtml làm mẫu):
+     <div class="study-modal" id="…" hidden>
+       <div class="study-modal-box">
+         <div class="study-modal-head"><h3 data-modal-title>…</h3><button class="study-modal-close" data-close>&times;</button></div>
+         <form data-simulate>
+           <div class="study-form-grid"> <div class="field [full]"><label/><input/></div> … </div>
+           <p class="form-error" hidden></p>
+           <div class="study-modal-foot"> nút Hủy + nút Lưu </div>
+         </form>
+       </div>
+     </div>
+   .field.full chiếm cả hàng; không có thì chia hai cột.
+   body.study-modal-open do JS gắn để khóa cuộn trang phía sau.
+   LƯU Ý: modal là con trực tiếp của .study-page, không đặt trong thẻ có transform.
+   ===================================================================== */
 body.study-modal-open { overflow: hidden; }
+
 .study-page .study-modal {
     position: fixed;
     inset: 0;
@@ -421,7 +608,7 @@ body.study-modal-open { overflow: hidden; }
     justify-content: space-between;
     margin-bottom: 18px;
 }
-.study-page .study-modal-head h3 { margin: 0; font-size: 17px; font-weight: 800; }
+.study-page .study-modal-head h3 { margin: 0; font-size: var(--fs-modal-title); font-weight: 800; }
 .study-page .study-modal-close {
     width: 32px;
     height: 32px;
@@ -433,6 +620,14 @@ body.study-modal-open { overflow: hidden; }
     line-height: 1;
     cursor: pointer;
 }
+.study-page .study-modal-foot {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+/* Form */
 .study-page .study-form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -442,7 +637,7 @@ body.study-modal-open { overflow: hidden; }
 .study-page .field label {
     display: block;
     margin-bottom: 6px;
-    font-size: 12px;
+    font-size: var(--fs-field-label);
     font-weight: 700;
     color: var(--study-muted);
 }
@@ -455,9 +650,18 @@ body.study-modal-open { overflow: hidden; }
     border-radius: 10px;
     background: var(--study-card);
     color: var(--study-text);
-    font-size: 13px;
+    font-size: var(--fs-field-input);
 }
 .study-page .field input[type="color"] { padding: 3px; cursor: pointer; }
+.study-page .field textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--study-border);
+    border-radius: 10px;
+    background: var(--study-card);
+    color: var(--study-text);
+    font-size: var(--fs-field-input);
+}
 .study-page .field input:focus,
 .study-page .field select:focus {
     outline: 2px solid var(--study-accent);
@@ -468,14 +672,32 @@ body.study-modal-open { overflow: hidden; }
     font-size: 11px;
     color: var(--study-muted);
 }
-.study-page .study-modal-foot {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 18px;
+/* Lỗi kiểm tra form (JS hoặc server gán). Phần tử có thuộc tính hidden khi không có lỗi. */
+.study-page .form-error {
+    margin: 12px 0 0;
+    padding: 9px 11px;
+    border-radius: 9px;
+    background: rgba(220, 38, 38, .12);
+    color: #dc2626;
+    font-size: 12px;
+    font-weight: 600;
 }
 
-/* [MỚI] Thông báo nhỏ */
+
+/* Ô bắt buộc: JS tự thêm class "required" cho .field có input[required] (study.js mục 2b).
+   Khi gửi sai, JS thêm class "invalid" để viền đỏ ô cần sửa. */
+.study-page .field.required > label::after { content: " *"; color: #dc2626; }
+.study-page .field.invalid input,
+.study-page .field.invalid select,
+.study-page .field.invalid textarea { border-color: #dc2626; }
+.study-page .field small { display: block; margin-top: 4px; font-size: 11px; color: var(--study-muted); }
+
+
+/* =====================================================================
+   14. THÔNG BÁO NHỎ (TOAST)
+   JS tự tạo hoặc dùng sẵn <div class="study-toast" id="studyToast" hidden>.
+   Chỉ dùng cho thông báo thật. Form mô phỏng chỉ báo "chưa được lưu", không báo thành công giả.
+   ===================================================================== */
 .study-page .study-toast {
     position: fixed;
     right: 24px;
@@ -492,78 +714,178 @@ body.study-modal-open { overflow: hidden; }
     box-shadow: 0 12px 30px rgba(0, 0, 0, .18);
 }
 
-/* Responsive */
-@media (max-width: 1024px) {
-    .study-page .study-summary { grid-template-columns: repeat(2, 1fr); }
-    .study-page .study-grid { grid-template-columns: 1fr; }
-    .study-page .timetable-grid { grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width: 640px) {
-    .study-page .study-summary { grid-template-columns: 1fr; }
-    .study-page .study-heading { flex-direction: column; align-items: flex-start; }
-    .study-page .timetable-grid { grid-template-columns: 1fr; }
-    .study-page .study-form-grid { grid-template-columns: 1fr; }
-    .study-page .course-item { flex-direction: column; align-items: stretch; }
-    .study-page .course-progress { width: 100%; }
-}
 
 /* =====================================================================
-   [MỚI] CÁC TRANG CON: Môn học · Thời khóa biểu · Bài tập · Điểm số · Tài liệu
+   15. THANH LỌC GET VÀ NÚT THAO TÁC TRONG BẢNG
+   Thanh lọc: <form method="get" class="study-toolbar"> input tìm kiếm + select data-autosubmit
+   .study-count: dòng "Hiển thị x / y" dưới thanh lọc.
+   .row-actions + .row-btn: nút Sửa, Xóa, Nhập điểm trong cột thao tác.
+   .due-hint: dòng "Còn n ngày" / "Quá hạn n ngày" (thêm .overdue để tô đỏ).
    ===================================================================== */
-.study-page .study-btn.small { min-height: 32px; padding: 0 12px; border-radius: 9px; font-size: 12px; }
-.study-page .study-btn.danger { border-color: #dc2626; background: #dc2626; color: #fff; }
 .study-page .study-count { margin: 0 0 12px; color: var(--study-muted); font-size: 12px; }
-.study-page a.study-chip { display: inline-flex; align-items: center; text-decoration: none; }
-.study-page .field textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--study-border); border-radius: 10px; background: var(--study-card); color: var(--study-text); font-size: 13px; }
-.study-page .form-error { margin: 12px 0 0; padding: 9px 11px; border-radius: 9px; background: rgba(220, 38, 38, .12); color: #dc2626; font-size: 12px; font-weight: 600; }
 
-/* Thanh lọc (GET) */
 .study-page .study-toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
-.study-page .study-toolbar input, .study-page .study-toolbar select { height: 40px; padding: 0 12px; border: 1px solid var(--study-border); border-radius: 12px; background: var(--study-card); color: var(--study-text); font-size: 13px; }
+.study-page .study-toolbar input,
+.study-page .study-toolbar select {
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--study-border);
+    border-radius: 12px;
+    background: var(--study-card);
+    color: var(--study-text);
+    font-size: 13px;
+}
 .study-page .study-toolbar input { flex: 1 1 220px; min-width: 0; }
 .study-page .study-toolbar select { flex: 0 1 190px; }
-.study-page .study-toolbar input:focus, .study-page .study-toolbar select:focus { outline: 2px solid var(--study-accent); outline-offset: 1px; }
+.study-page .study-toolbar input:focus,
+.study-page .study-toolbar select:focus { outline: 2px solid var(--study-accent); outline-offset: 1px; }
 
-/* Nút thao tác trong bảng */
 .study-page .row-actions { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
 .study-page .row-actions form { margin: 0; }
-.study-page .row-btn { padding: 6px 11px; border: 1px solid var(--study-border); border-radius: 8px; background: var(--study-card); color: var(--study-text); font-size: 11px; font-weight: 700; cursor: pointer; }
+.study-page .row-btn {
+    padding: 6px 11px;
+    border: 1px solid var(--study-border);
+    border-radius: 8px;
+    background: var(--study-card);
+    color: var(--study-text);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
 .study-page .row-btn:hover { border-color: var(--study-accent); color: var(--study-accent); }
 .study-page .due-hint.overdue { color: #dc2626; font-weight: 700; }
 
-/* Thẻ môn học và tài liệu */
-.study-page .course-grid, .study-page .doc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 16px; }
-.study-page .course-card, .study-page .doc-card { display: flex; flex-direction: column; min-width: 0; padding: 18px; border: 1px solid var(--study-border); border-left: 4px solid var(--course-color, var(--study-accent)); border-radius: 16px; background: var(--study-bg); box-shadow: var(--study-shadow); }
-.study-page .course-card h3, .study-page .doc-card h3 { margin: 10px 0 6px; font-size: 15px; font-weight: 800; }
+
+/* =====================================================================
+   16. THẺ MÔN HỌC VÀ THẺ TÀI LIỆU (dạng lưới thẻ)
+   Màu nhận diện của từng thẻ truyền từ View bằng biến:
+     <article class="course-card" style="--course-color:@c.Color">
+   Mẫu này dùng được cho mọi danh sách dạng thẻ (dự án, mục tiêu...): đổi tên biến thành --item-color.
+   Cấu trúc thẻ: .course-card-top (badge + status) > h3 > .course-meta > tiến độ > .course-score > .card-actions
+   .card-actions luôn dính đáy thẻ (margin-top: auto).
+   ===================================================================== */
+.study-page .course-grid,
+.study-page .doc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 16px;
+}
+.study-page .course-card,
+.study-page .doc-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 18px;
+    border: 1px solid var(--study-border);
+    border-left: 4px solid var(--course-color, var(--study-accent));
+    border-radius: 16px;
+    background: var(--study-bg);
+    box-shadow: var(--study-shadow);
+}
+.study-page .course-card h3,
+.study-page .doc-card h3 { margin: 10px 0 6px; font-size: var(--fs-card-title); font-weight: 800; }
 .study-page .course-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.study-page .course-card .bar { height: 6px; margin: 4px 0 12px; overflow: hidden; border-radius: 10px; background: var(--study-card-strong); }
-.study-page .course-card .bar i { display: block; height: 100%; border-radius: 10px; background: var(--course-color, var(--study-accent)); }
-.study-page .course-score { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 14px; padding: 9px 11px; border-radius: 10px; background: var(--study-card); color: var(--study-muted); font-size: 12px; }
+.study-page .course-card .bar {
+    height: 6px;
+    margin: 4px 0 12px;
+    overflow: hidden;
+    border-radius: 10px;
+    background: var(--study-card-strong);
+}
+.study-page .course-card .bar i {
+    display: block;
+    height: 100%;
+    border-radius: 10px;
+    background: var(--course-color, var(--study-accent));
+}
+.study-page .course-score {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 14px;
+    padding: 9px 11px;
+    border-radius: 10px;
+    background: var(--study-card);
+    color: var(--study-muted);
+    font-size: 12px;
+}
 .study-page .course-score strong { color: var(--study-text); }
 .study-page .card-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 12px; }
-.study-page .doc-kind { padding: 4px 9px; border-radius: 20px; background: var(--study-card-strong); color: var(--study-accent); font-size: 10px; font-weight: 800; }
+.study-page .card-actions form { margin: 0; }
+.study-page .doc-kind {
+    padding: 4px 9px;
+    border-radius: 20px;
+    background: var(--study-card-strong);
+    color: var(--study-accent);
+    font-size: 10px;
+    font-weight: 800;
+}
 
-/* Thời khóa biểu dạng lưới theo giờ */
+
+/* =====================================================================
+   17. THỜI KHÓA BIỂU DẠNG LƯỚI THEO GIỜ (trang Thời khóa biểu)
+   C# tính sẵn vị trí: top và height là phần trăm trong cột (style="top:..;height:..").
+   --tt-hours  số giờ hiển thị (View gán)      --tt-row  chiều cao mỗi giờ
+   --block-color  màu môn (View gán)
+   Cấu trúc: .tt-wrap > .tt > .tt-col(.tt-hours | .today) > .tt-head + .tt-body > .tt-block
+   .tt-block.conflict  viền đỏ khi trùng giờ
+   ===================================================================== */
 .study-page .tt-wrap { overflow-x: auto; }
 .study-page .tt { display: grid; grid-template-columns: 52px repeat(7, minmax(104px, 1fr)); min-width: 800px; --tt-row: 56px; }
 .study-page .tt-col { min-width: 0; border-left: 1px solid var(--study-border); }
 .study-page .tt-col.tt-hours { border-left: 0; }
-.study-page .tt-head { display: flex; height: 36px; align-items: center; justify-content: center; border-bottom: 1px solid var(--study-border); font-size: 12px; font-weight: 750; }
+.study-page .tt-head {
+    display: flex;
+    height: 36px;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid var(--study-border);
+    font-size: 12px;
+    font-weight: 750;
+}
 .study-page .tt-col.today .tt-head { color: var(--study-accent); }
 .study-page .tt-col.today { background: color-mix(in srgb, var(--study-accent) 6%, transparent); }
-.study-page .tt-body { position: relative; height: calc(var(--tt-hours) * var(--tt-row)); background: repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--tt-row) - 1px), var(--study-border) calc(var(--tt-row) - 1px), var(--study-border) var(--tt-row)); }
+.study-page .tt-body {
+    position: relative;
+    height: calc(var(--tt-hours) * var(--tt-row));
+    background: repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--tt-row) - 1px), var(--study-border) calc(var(--tt-row) - 1px), var(--study-border) var(--tt-row));
+}
 .study-page .tt-hours .tt-body { background: none; }
 .study-page .tt-hours .tt-body span { display: block; height: var(--tt-row); padding: 2px 6px 0 0; text-align: right; color: var(--study-muted); font-size: 10px; }
-.study-page .tt-block { position: absolute; left: 3px; right: 3px; display: flex; flex-direction: column; gap: 1px; overflow: hidden; padding: 5px 7px; border: 1px solid color-mix(in srgb, var(--block-color) 35%, transparent); border-left: 4px solid var(--block-color); border-radius: 8px; background: color-mix(in srgb, var(--block-color) 14%, var(--study-bg)); color: var(--study-text); font-size: 10px; text-align: left; cursor: pointer; }
+.study-page .tt-block {
+    position: absolute;
+    left: 3px;
+    right: 3px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    overflow: hidden;
+    padding: 5px 7px;
+    border: 1px solid color-mix(in srgb, var(--block-color) 35%, transparent);
+    border-left: 4px solid var(--block-color);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--block-color) 14%, var(--study-bg));
+    color: var(--study-text);
+    font-size: 10px;
+    text-align: left;
+    cursor: pointer;
+}
 .study-page .tt-block strong { font-size: 11px; }
 .study-page .tt-block:hover { filter: brightness(.97); }
 .study-page .tt-block.conflict { border-color: #dc2626; box-shadow: 0 0 0 1px #dc2626 inset; }
 
-/* Điểm số */
-.study-page .legend-now, .study-page .legend-target { display: inline-block; width: 9px; height: 9px; margin-right: 6px; border-radius: 3px; }
+
+/* =====================================================================
+   18. ĐIỂM SỐ
+   Biểu đồ cột thuần CSS: chiều cao cột = style="height:@percent%" do View in từ giá trị C# tính.
+   Danh sách từng môn dùng <details class="study-card grade-card"> (mở/đóng không cần JS).
+   ===================================================================== */
+.study-page .legend-now,
+.study-page .legend-target { display: inline-block; width: 9px; height: 9px; margin-right: 6px; border-radius: 3px; }
 .study-page .legend-now { background: var(--study-accent); }
 .study-page .legend-target { background: var(--study-soft); }
 .study-page .chart-legend { display: flex; gap: 16px; margin-bottom: 12px; color: var(--study-muted); font-size: 11px; }
+
 .study-page .grade-chart { display: flex; height: 200px; align-items: flex-end; gap: 12px; }
 .study-page .grade-group { display: flex; min-width: 0; flex: 1; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; }
 .study-page .grade-bars { display: flex; width: 100%; max-width: 54px; height: calc(100% - 20px); align-items: flex-end; justify-content: center; gap: 5px; }
@@ -571,19 +893,54 @@ body.study-modal-open { overflow: hidden; }
 .study-page .grade-bar.now { background: var(--study-accent); }
 .study-page .grade-bar.target { background: var(--study-soft); }
 .study-page .grade-group small { color: var(--study-muted); font-size: 10px; }
+
 .study-page .grade-list { display: grid; gap: 12px; margin-top: 18px; }
 .study-page .grade-card { padding: 0; }
-.study-page .grade-card summary { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; cursor: pointer; list-style: none; }
+.study-page .grade-card summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 20px;
+    cursor: pointer;
+    list-style: none;
+}
 .study-page .grade-card summary::-webkit-details-marker { display: none; }
 .study-page .grade-name { display: flex; align-items: center; gap: 8px; min-width: 0; }
-.study-page .grade-name small, .study-page .grade-score small { margin-left: 6px; color: var(--study-muted); font-size: 11px; font-weight: 400; }
+.study-page .grade-name small,
+.study-page .grade-score small { margin-left: 6px; color: var(--study-muted); font-size: 11px; font-weight: 400; }
 .study-page .grade-score { font-size: 18px; font-weight: 800; }
 .study-page .grade-body { padding: 0 20px 18px; }
 .study-page .grade-need { margin: 0 0 12px; padding: 9px 12px; border-radius: 10px; background: var(--study-card); color: var(--study-muted); font-size: 12px; }
 .study-page .grade-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; color: var(--study-muted); font-size: 12px; }
 .study-page .grade-foot strong { color: var(--study-text); }
 
+
+/* =====================================================================
+   19. RESPONSIVE
+   Gom hết ở cuối file để luôn ghi đè đúng các rule gốc ở trên.
+   Mốc chuẩn của LIFEHUB: 1024px (tablet) và 640px (điện thoại).
+   Các phân hệ khác dùng cùng hai mốc này để giao diện đồng bộ.
+   ===================================================================== */
+@media (max-width: 1024px) {
+    .study-page .study-summary { grid-template-columns: repeat(2, 1fr); }
+    .study-page .study-grid { grid-template-columns: 1fr; }
+    .study-page .timetable-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
 @media (max-width: 640px) {
+    .study-page .study-summary { grid-template-columns: 1fr; }
+    .study-page .study-heading { flex-direction: column; align-items: flex-start; }
+    .study-page .timetable-grid { grid-template-columns: 1fr; }
+    .study-page .study-form-grid { grid-template-columns: 1fr; }
+    .study-page .course-item { flex-direction: column; align-items: stretch; }
+    .study-page .course-progress { width: 100%; }
     .study-page .study-toolbar select { flex: 1 1 100%; }
     .study-page .grade-card summary { padding: 14px; }
+}
+
+/* Thẻ chỉ số: số liệu nhỏ lại trên điện thoại */
+@media (max-width: 560px) {
+    .study-page .summary-card h2 { font-size: var(--fs-stat-value-mobile); }
 }

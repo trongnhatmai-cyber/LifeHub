@@ -1,0 +1,41 @@
+@model List<LifeHub.Models.ViewModels.StudyManagement.StudyCourseItem>
+
+@* Hộp thoại thêm/sửa bài tập và lịch thi dùng chung cho trang Tổng quan và trang Bài tập. Model là danh sách môn học cho ô chọn.
+   Tên input trùng thuộc tính của CreateAssignmentInput/UpdateAssignmentInput. *@
+<div class="study-modal" id="assignmentModal" role="dialog" aria-modal="true" aria-labelledby="assignmentModalTitle" hidden>
+    <div class="study-modal-box">
+        <div class="study-modal-head">
+            <h3 id="assignmentModalTitle" data-modal-title>Thêm bài tập</h3>
+            <button type="button" class="study-modal-close" data-close aria-label="Đóng">&times;</button>
+        </div>
+        <form asp-controller="Study" asp-action="CreateAssignment" method="post" data-simulate>
+            <input type="hidden" name="Id" disabled />
+            <div class="study-form-grid">
+                <div class="field full"><label for="asgTitle">Tên bài tập</label><input id="asgTitle" name="Title" maxlength="200" required /></div>
+                <div class="field">
+                    <label for="asgCourse">Môn học</label>
+                    <select id="asgCourse" name="CourseId" required>
+                        <option value="" disabled selected>Chọn môn học</option>
+                        @foreach (var c in Model) { <option value="@c.Id">@c.Code - @c.Name</option> }
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="asgKind">Loại</label>
+                    <select id="asgKind" name="Kind" required>
+                        <option value="assignment">Bài tập</option><option value="quiz">Kiểm tra nhanh</option><option value="project">Đồ án</option>
+                        <option value="midterm">Thi giữa kỳ</option><option value="final">Thi cuối kỳ</option>
+                    </select>
+                </div>
+                <div class="field"><label for="asgDue">Hạn nộp / ngày thi</label><input id="asgDue" name="DueDate" type="datetime-local" required /></div>
+                <div class="field"><label for="asgWeight">Trọng số (%)</label><input id="asgWeight" name="WeightPercent" type="number" min="0" max="100" value="10" required /></div>
+                <div class="field"><label for="asgMax">Điểm tối đa</label><input id="asgMax" name="MaxScore" type="number" min="1" step="0.5" value="10" required /></div>
+                <div class="field" data-exam-only hidden><label for="asgDuration">Thời lượng thi (phút)</label><input id="asgDuration" name="DurationMinutes" type="number" min="1" /></div>
+                <div class="field full" data-exam-only hidden><label for="asgLocation">Phòng thi</label><input id="asgLocation" name="Location" /></div>
+            </div>
+            <div class="study-modal-foot">
+                <button type="button" class="study-btn" data-close>Hủy</button>
+                <button type="submit" class="study-btn primary">Lưu bài tập</button>
+            </div>
+        </form>
+    </div>
+</div>

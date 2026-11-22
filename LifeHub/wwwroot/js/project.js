@@ -146,7 +146,7 @@
             card.hidden = visible.indexOf(card) === -1;
         });
 
-        if (emptyBox) emptyBox.hidden = matches.length !== 0;
+        if (emptyBox) emptyBox.hidden = matches.length !== 0 || cards.length === 0;
 
         if (counter) {
             counter.textContent = matches.length === 0
@@ -193,6 +193,42 @@
             state.page = 1;
             applySort();
             applyFilter();
+        });
+    }
+
+    // Chuyển chế độ xem Lưới / Danh sách (nhớ lựa chọn của người dùng)
+    var viewButtons = Array.prototype.slice.call(page.querySelectorAll('[data-view]'));
+    function setView(mode) {
+        if (!grid) return;
+        grid.classList.toggle('is-list', mode === 'list');
+        viewButtons.forEach(function (b) {
+            var on = b.getAttribute('data-view') === mode;
+            b.classList.toggle('is-active', on);
+            b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+        try { localStorage.setItem('lifehub.project.view', mode); } catch (e) { /* bỏ qua */ }
+    }
+    viewButtons.forEach(function (b) {
+        b.addEventListener('click', function () { setView(b.getAttribute('data-view')); });
+    });
+    try { setView(localStorage.getItem('lifehub.project.view') === 'list' ? 'list' : 'grid'); } catch (e) { setView('grid'); }
+
+    // Nút "Xóa bộ lọc" ở trạng thái không có kết quả
+    var clearBtn = document.getElementById('projectClear');
+    if (clearBtn) {
+        clearBtn.addEventListener('click', function () {
+            state.filter = 'all'; state.role = 'all'; state.query = ''; state.sort = 'default'; state.page = 1;
+            if (searchInput) searchInput.value = '';
+            if (roleSelect) roleSelect.value = 'all';
+            if (sortSelect) sortSelect.value = 'default';
+            tabs.forEach(function (t) {
+                var on = t.getAttribute('data-filter') === 'all';
+                t.classList.toggle('is-active', on);
+                t.setAttribute('aria-pressed', on ? 'true' : 'false');
+            });
+            applySort();
+            applyFilter();
+            if (searchInput) searchInput.focus();
         });
     }
 

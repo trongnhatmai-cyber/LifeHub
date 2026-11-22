@@ -1,0 +1,118 @@
+@model LifeHub.Models.ViewModels.StudyManagement.StudySemestersPageViewModel
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Học kỳ";
+    ViewData["ActivePage"] = "Semester";
+
+    string Gpa(decimal? v) => v.HasValue ? v.Value.ToString("0.00") : "—";
+    string Iso(DateOnly? d) => d.HasValue ? d.Value.ToString("yyyy-MM-dd") : string.Empty;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/study.css" asp-append-version="true" />
+}
+
+<div class="study-page" data-module="semesters">
+    <header class="study-heading">
+        <div>
+            <span class="study-label">HỌC KỲ</span>
+            <h1>Học kỳ của bạn</h1>
+            <p>Chia môn học theo từng học kỳ và theo dõi tín chỉ, GPA của mỗi kỳ.</p>
+        </div>
+        <div class="heading-actions">
+            <button type="button" class="study-btn primary" data-open="semesterModal" data-mode="create" data-title="Thêm học kỳ">+ Thêm học kỳ</button>
+        </div>
+    </header>
+
+    <section class="study-summary">
+        <div class="summary-card">
+            <div class="summary-top"><span>Tổng số học kỳ</span><span class="summary-badge">TOTAL</span></div>
+            <h2>@Model.Rows.Count.ToString("00")</h2>
+            <p>Đã kết thúc @Model.FinishedCount, sắp tới @Model.UpcomingCount</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Học kỳ hiện tại</span><span class="summary-badge">CURRENT</span></div>
+            <h2>@(Model.Current?.Semester.Name ?? "—")</h2>
+            <p>@(Model.Current?.DaysLeft is int left ? "Còn " + left + " ngày" : "Chưa chọn học kỳ hiện tại")</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Tín chỉ học kỳ này</span><span class="summary-badge">CREDITS</span></div>
+            <h2>@((Model.Current?.Credits ?? 0).ToString("00"))</h2>
+            <p>@((Model.Current?.CourseCount ?? 0)) môn học</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>GPA tích lũy</span><span class="summary-badge">SCALE 4</span></div>
+            <h2>@Gpa(Model.CumulativeGpa)</h2>
+            <p>Trên @Model.CumulativeCredits tín chỉ đã có điểm</p>
+        </div>
+    </section>
+
+    <div class="course-grid">
+        @foreach (var r in Model.Rows)
+        {
+            var s = r.Semester;
+            <article class="course-card" style="--course-color:@(r.IsCurrent ? "#16a34a" : "#94a3b8")">
+                <div class="course-card-top">
+                    <span class="summary-badge">@r.CourseCount môn</span>
+                    <span class="status @(r.StatusKey == "current" ? "st-submitted" : r.StatusKey == "finished" ? "st-graded" : "st-upcoming")">@r.StatusLabel</span>
+                </div>
+                <h3>@s.Name</h3>
+                <p class="course-meta">@s.DateRange</p>
+                <p class="course-meta">@r.Credits tín chỉ · GPA @Gpa(r.Gpa4)</p>
+                <p class="course-meta">@(r.Courses.Any() ? string.Join(", ", r.Courses.Select(c => c.Code)) : "Chưa có môn học")</p>
+
+                <div class="course-progress-top"><span>Thời gian học kỳ</span><span>@r.TimeProgressPercent%</span></div>
+                <div class="bar"><i style="width:@r.TimeProgressPercent%"></i></div>
+
+                <div class="card-actions">
+                    <a asp-action="Courses" asp-route-semesterId="@s.Id" class="study-btn small">Xem môn học</a>
+                    <button type="button" class="study-btn small" data-open="semesterModal" data-mode="edit" data-action="@Url.Action("UpdateSemester")"
+                            data-title="Chỉnh sửa học kỳ" data-id="@s.Id" data-name="@s.Name" data-startdate="@Iso(s.StartDate)" data-enddate="@Iso(s.EndDate)">Sửa</button>
+                    <button type="button" class="study-btn small" data-open="deleteModal" data-mode="delete" data-id="@s.Id" data-name="@s.Name">Xóa</button>
+                    @if (!r.IsCurrent)
+                    {
+                        <form asp-action="SetCurrentSemester" method="post" data-simulate>
+                            <input type="hidden" name="Id" value="@s.Id" />
+                            <button type="submit" class="study-btn small">Đặt làm hiện tại</button>
+                        </form>
+                    }
+                </div>
+            </article>
+        }
+    </div>
+
+    @if (!Model.Rows.Any())
+    {
+        <div class="study-empty">Chưa có học kỳ nào. Bấm "+ Thêm học kỳ" để bắt đầu.</div>
+    }
+
+    <div class="study-modal" id="semesterModal" role="dialog" aria-modal="true" aria-labelledby="semesterModalTitle" hidden>
+        <div class="study-modal-box">
+            <div class="study-modal-head">
+                <h3 id="semesterModalTitle" data-modal-title>Thêm học kỳ</h3>
+                <button type="button" class="study-modal-close" data-close aria-label="Đóng">&times;</button>
+            </div>
+            <form asp-action="CreateSemester" method="post" data-simulate data-validate="semester">
+                <input type="hidden" name="Id" disabled />
+                <div class="study-form-grid">
+                    <div class="field full"><label for="semName">Tên học kỳ</label><input id="semName" name="Name" maxlength="100" required placeholder="VD: HK1 2026-2027" /></div>
+                    <div class="field"><label for="semStart">Ngày bắt đầu</label><input id="semStart" name="StartDate" type="date" required /></div>
+                    <div class="field"><label for="semEnd">Ngày kết thúc</label><input id="semEnd" name="EndDate" type="date" required /></div>
+                </div>
+                <p class="form-error" role="alert" hidden></p>
+                <p class="study-note">Bản mô phỏng giao diện: dữ liệu chưa được lưu. Khi làm back-end cần đảm bảo mỗi người dùng chỉ có một học kỳ hiện tại.</p>
+                <div class="study-modal-foot">
+                    <button type="button" class="study-btn" data-close>Hủy</button>
+                    <button type="submit" class="study-btn primary">Lưu học kỳ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <partial name="_StudyDeleteModal" model='"DeleteSemester"' />
+</div>
+
+@section Scripts {
+    <script src="~/js/study.js" asp-append-version="true"></script>
+}

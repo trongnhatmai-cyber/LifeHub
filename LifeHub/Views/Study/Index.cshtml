@@ -23,33 +23,33 @@
         </div>
 
         <div class="heading-actions">
-            <button type="button" class="study-btn" id="addSubjectBtn">+ Thêm môn học</button>
-            <button type="button" class="study-btn primary" id="addAssignmentBtn">+ Thêm bài tập</button>
+            <button type="button" class="study-btn" data-open="courseModal" data-mode="create" data-title="Thêm môn học">+ Thêm môn học</button>
+            <button type="button" class="study-btn primary" data-open="assignmentModal" data-mode="create" data-title="Thêm bài tập">+ Thêm bài tập</button>
         </div>
     </header>
 
     <!-- 4 THẺ CHỈ SỐ -->
     <section class="study-summary">
         <div class="summary-card">
-            <div class="summary-top"><span>Điểm trung bình (GPA)</span><span class="summary-badge">HỌC KỲ NÀY</span></div>
+            <div class="summary-top"><span>Điểm trung bình (GPA)</span><span class="summary-badge">SEMESTER</span></div>
             <h2>@(Model.CurrentGpa?.ToString("0.00") ?? "—")</h2>
             <p>Thang điểm 4@(Model.TargetGpa.HasValue ? ", mục tiêu " + Model.TargetGpa.Value.ToString("0.0") : "")</p>
         </div>
 
         <div class="summary-card">
-            <div class="summary-top"><span>Môn đang học</span><span class="summary-badge">TÍN CHỈ</span></div>
+            <div class="summary-top"><span>Môn đang học</span><span class="summary-badge">CREDITS</span></div>
             <h2>@Model.ActiveCoursesCount.ToString("00")</h2>
             <p>Tổng cộng @Model.TotalCredits tín chỉ</p>
         </div>
 
         <div class="summary-card">
-            <div class="summary-top"><span>Bài tập chưa nộp</span><span class="summary-badge">HẠN NỘP</span></div>
+            <div class="summary-top"><span>Bài tập chưa nộp</span><span class="summary-badge">DUE</span></div>
             <h2>@Model.PendingAssignmentsCount</h2>
             <p>Cần hoàn thành sớm</p>
         </div>
 
         <div class="summary-card">
-            <div class="summary-top"><span>Kỳ thi gần nhất</span><span class="summary-badge">LỊCH THI</span></div>
+            <div class="summary-top"><span>Kỳ thi gần nhất</span><span class="summary-badge">EXAM</span></div>
             <h2>@(Model.HasNextExam ? Model.NextExamDays + " ngày" : "—")</h2>
             <p>@(Model.HasNextExam ? "Môn " + Model.NextExamName : "Chưa có lịch thi")</p>
         </div>
@@ -120,7 +120,7 @@
     <section class="study-card">
         <div class="section-heading">
             <div><h3>Bài tập và lịch thi</h3><p>Theo dõi hạn nộp bài và kết quả điểm số</p></div>
-            <button type="button" class="study-btn primary" id="addAssignmentBtn2">+ Thêm bài tập</button>
+            <button type="button" class="study-btn primary" data-open="assignmentModal" data-mode="create" data-title="Thêm bài tập">+ Thêm bài tập</button>
         </div>
 
         <div class="study-chips" role="group" aria-label="Lọc bài tập">
@@ -164,7 +164,7 @@
         </div>
     </section>
 
-    <!-- HỘP THOẠI -->
+    <!-- HỘP THOẠI (chỉ mô phỏng giao diện, chưa lưu dữ liệu) -->
     <partial name="_StudyModals" model="Model" />
     <div class="study-toast" id="studyToast" role="status" hidden></div>
 </div>

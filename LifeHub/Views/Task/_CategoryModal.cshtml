@@ -1,0 +1,248 @@
+
+@model LifeHub.Models.ViewModels.TaskManagement.TaskCategoryInputViewModel
+
+@using LifeHub.Models.ViewModels.TaskManagement
+
+@{
+    var categories = ViewData["Categories"]
+        as List<TaskCategoryItemViewModel>
+        ?? new List<TaskCategoryItemViewModel>();
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/task.css"
+          asp-append-version="true" />
+}
+
+<div class="task-modal task-category-modal"
+     id="taskCategoryModal"
+     hidden
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="categoryModalTitle">
+
+    <div class="task-modal-backdrop"
+         data-close-category-modal>
+    </div>
+
+    <div class="task-modal-dialog">
+
+        <!-- MODAL HEADER -->
+        <header class="task-modal-header">
+            <div>
+                <span class="task-eyebrow">TASK CATEGORIES</span>
+                <h2 id="categoryModalTitle">Chi tiết danh mục</h2>
+            </div>
+
+            <button type="button"
+                    class="task-modal-close"
+                    data-close-category-modal
+                    aria-label="Đóng">
+                &times;
+            </button>
+        </header>
+
+        <!-- =================================== -->
+        <!-- DETAIL MODE                        -->
+        <!-- =================================== -->
+        <section data-category-modal-section="detail" hidden>
+
+            <div class="category-detail-visual">
+                <span data-category-detail-icon
+                      class="category-detail-icon">
+                    ▧
+                </span>
+
+                <span data-category-detail-color
+                      class="category-detail-color">
+                </span>
+            </div>
+
+            <div class="category-detail-main">
+                <span>TÊN DANH MỤC</span>
+                <h3 data-category-detail-name></h3>
+            </div>
+
+            <div class="category-detail-description">
+                <h4>Mô tả</h4>
+                <p data-category-detail-description></p>
+            </div>
+
+            <div class="category-detail-information">
+
+                <div>
+                    <span>Số công việc</span>
+                    <strong data-category-detail-count>0</strong>
+                </div>
+
+                <div>
+                    <span>Mã màu</span>
+                    <strong data-category-detail-color-name></strong>
+                </div>
+
+                <div>
+                    <span>Biểu tượng</span>
+                    <strong data-category-detail-icon-name></strong>
+                </div>
+
+            </div>
+
+            <footer class="task-modal-footer">
+                <button type="button"
+                        class="task-btn task-btn-danger-outline"
+                        data-category-modal-mode="delete">
+                    Xóa danh mục
+                </button>
+
+                <button type="button"
+                        class="task-btn task-btn-secondary"
+                        data-close-category-modal>
+                    Đóng
+                </button>
+
+                <button type="button"
+                        class="task-btn task-btn-primary"
+                        data-category-modal-mode="edit">
+                    Chỉnh sửa
+                </button>
+            </footer>
+
+        </section>
+
+        <!-- =================================== -->
+        <!-- CREATE / EDIT MODE                  -->
+        <!-- =================================== -->
+        <section data-category-modal-section="form" hidden>
+
+            <form id="taskCategoryForm">
+
+                <input type="hidden"
+                       asp-for="Id"
+                       data-category-field="id" />
+
+                <div class="task-form-grid">
+
+                    <div class="task-form-field full">
+                        <label asp-for="Name">Tên danh mục</label>
+
+                        <input asp-for="Name"
+                               data-category-field="name"
+                               placeholder="Ví dụ: Học tập, Công việc..."
+                               required />
+
+                        <span asp-validation-for="Name"></span>
+                    </div>
+
+                    <div class="task-form-field full">
+                        <label asp-for="Description">Mô tả</label>
+
+                        <textarea asp-for="Description"
+                                  data-category-field="description"
+                                  rows="4"
+                                  maxlength="500"
+                                  placeholder="Mô tả mục đích sử dụng danh mục...">
+                        </textarea>
+
+                        <span asp-validation-for="Description"></span>
+                    </div>
+
+                    <div class="task-form-field">
+                        <label asp-for="Color">Màu sắc</label>
+
+                        <input asp-for="Color"
+                               type="color"
+                               data-category-field="color" />
+                    </div>
+
+                    <div class="task-form-field">
+                        <label asp-for="Icon">Biểu tượng</label>
+
+                        <select asp-for="Icon"
+                                data-category-field="icon">
+                            <option value="folder">Thư mục</option>
+                            <option value="book">Học tập</option>
+                            <option value="briefcase">Công việc</option>
+                            <option value="target">Mục tiêu</option>
+                            <option value="heart">Cá nhân</option>
+                            <option value="star">Quan trọng</option>
+                            <option value="calendar">Lịch trình</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <footer class="task-modal-footer">
+                    <button type="button"
+                            class="task-btn task-btn-secondary"
+                            data-close-category-modal>
+                        Hủy
+                    </button>
+
+                    <button type="button"
+                            class="task-btn task-btn-primary"
+                            data-category-form-submit>
+                        Lưu danh mục
+                    </button>
+                </footer>
+
+            </form>
+        </section>
+
+        <!-- =================================== -->
+        <!-- DELETE MODE                         -->
+        <!-- =================================== -->
+        <section data-category-modal-section="delete" hidden>
+
+            <div class="task-delete-content">
+                <span class="task-delete-icon">!</span>
+
+                <h3>Xóa danh mục?</h3>
+
+                <p>
+                    Bạn có chắc chắn muốn xóa danh mục
+                    <strong data-category-delete-name></strong>?
+                </p>
+
+                <p>
+                    Cần kiểm tra các công việc đang thuộc danh mục
+                    trước khi thực hiện thao tác này.
+                </p>
+            </div>
+
+            <footer class="task-modal-footer">
+                <button type="button"
+                        class="task-btn task-btn-secondary"
+                        data-category-modal-mode="detail">
+                    Quay lại
+                </button>
+
+                <button type="button"
+                        class="task-btn task-btn-danger"
+                        data-category-delete-confirm>
+                    Xác nhận xóa
+                </button>
+            </footer>
+
+        </section>
+
+    </div>
+
+    <!-- CATEGORY DATA FOR DETAIL / EDIT -->
+    <div class="category-modal-data" hidden>
+
+        @foreach (var category in categories)
+        {
+            <article data-category-record
+                     data-id="@category.Id"
+                     data-name="@category.Name"
+                     data-description="@category.Description"
+                     data-color="@category.Color"
+                     data-icon="@category.Icon"
+                     data-count="@category.TaskCount">
+            </article>
+        }
+
+    </div>
+
+</div>

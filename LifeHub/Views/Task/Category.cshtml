@@ -1,0 +1,160 @@
+
+@model LifeHub.Models.ViewModels.TaskManagement.TaskCategoryViewModel
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Danh mục công việc";
+    ViewData["ActivePage"] = "TaskCategory";
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/task.css"
+          asp-append-version="true" />
+}
+
+<div class="task-page task-category-page">
+
+    <!-- PAGE HEADER -->
+    <header class="task-page-header">
+        <div>
+            <span class="task-eyebrow">WORK MANAGEMENT</span>
+            <h1>Danh mục công việc</h1>
+            <p>Sắp xếp công việc cá nhân theo từng nhóm.</p>
+        </div>
+
+        <button type="button"
+                class="task-btn task-btn-primary"
+                data-open-category-modal
+                data-modal-mode="create">
+            + Thêm danh mục
+        </button>
+    </header>
+
+    <!-- CATEGORY SUMMARY -->
+    <section class="task-category-summary">
+
+        <article class="task-summary-card">
+            <span>Tổng danh mục</span>
+            <strong>@Model.TotalCategories</strong>
+        </article>
+
+        <article class="task-summary-card">
+            <span>Công việc đã phân loại</span>
+            <strong>@Model.TotalCategorizedTasks</strong>
+        </article>
+
+        <article class="task-summary-card">
+            <span>Chưa phân loại</span>
+            <strong>@Model.UncategorizedTasksCount</strong>
+        </article>
+
+    </section>
+
+    <!-- CATEGORY LIST -->
+    <section class="task-category-section">
+
+        <div class="task-panel-heading">
+            <div>
+                <h2>Tất cả danh mục</h2>
+                <p>Chọn một danh mục để xem thông tin chi tiết.</p>
+            </div>
+        </div>
+
+        <div class="task-category-grid">
+
+            @foreach (var category in Model.Categories)
+            {
+                <article class="task-category-card"
+                         data-category-id="@category.Id">
+
+                    <div class="task-category-card__header">
+
+                        <span class="task-category-icon"
+                              style="--category-color: @category.Color">
+                            @category.Icon
+                        </span>
+
+                        <div class="task-category-card__actions">
+
+                            <button type="button"
+                                    data-open-category-modal
+                                    data-modal-mode="detail"
+                                    data-category-id="@category.Id"
+                                    aria-label="Xem chi tiết @category.Name">
+                                Chi tiết
+                            </button>
+
+                            <button type="button"
+                                    data-open-category-modal
+                                    data-modal-mode="edit"
+                                    data-category-id="@category.Id"
+                                    aria-label="Sửa @category.Name">
+                                Sửa
+                            </button>
+
+                        </div>
+                    </div>
+
+                    <div class="task-category-card__body">
+                        <h3>@category.Name</h3>
+
+                        <p>
+                            @(string.IsNullOrWhiteSpace(category.Description)
+                                ? "Danh mục chưa có mô tả."
+                                : category.Description)
+                        </p>
+                    </div>
+
+                    <div class="task-category-card__footer">
+                        <span>@category.TaskCount công việc</span>
+
+                        <button type="button"
+                                data-open-category-modal
+                                data-modal-mode="delete"
+                                data-category-id="@category.Id">
+                            Xóa
+                        </button>
+                    </div>
+
+                </article>
+            }
+
+            @if (!Model.Categories.Any())
+            {
+                <div class="task-empty-state task-category-empty">
+                    <span class="task-empty-state__icon">▧</span>
+
+                    <h3>Chưa có danh mục</h3>
+
+                    <p>
+                        Tạo danh mục đầu tiên để bắt đầu sắp xếp
+                        công việc cá nhân.
+                    </p>
+
+                    <button type="button"
+                            class="task-btn task-btn-primary"
+                            data-open-category-modal
+                            data-modal-mode="create">
+                        + Tạo danh mục
+                    </button>
+                </div>
+            }
+
+        </div>
+    </section>
+
+    <!-- SHARED CATEGORY MODAL -->
+    @await Html.PartialAsync(
+        "_CategoryModal",
+        new LifeHub.Models.ViewModels.TaskManagement.TaskCategoryInputViewModel(),
+        new ViewDataDictionary(ViewData)
+        {
+            ["Categories"] = Model.Categories
+        })
+
+</div>
+
+@section Scripts {
+    <script src="~/js/task.js" asp-append-version="true"></script>
+}

@@ -568,6 +568,109 @@
 
     page.addEventListener('dragend', resetDrag);
 
+    /* ---------- Tab Workspace ---------- */
+    var wsTabs = Array.prototype.slice.call(page.querySelectorAll('[data-ws-tab]'));
+    var wsPanels = Array.prototype.slice.call(page.querySelectorAll('[data-ws-panel]'));
+    var TAB_KEY = 'lifehub.project.tab.' + PROJECT_ID;
+
+    // Đồng bộ trạng thái ở tab Danh sách với bảng Kanban (thẻ có thể vừa được kéo sang cột khác)
+    function syncList() {
+        Array.prototype.forEach.call(page.querySelectorAll('[data-list-row]'), function (row) {
+            var card = cardById(row.dataset.taskId);
+            if (!card) return;
+            row.dataset.status = card.dataset.status;
+            row.dataset.assignee = card.dataset.assignee || 'none';
+            var pill = row.querySelector('[data-list-status]');
+            if (pill) {
+                pill.dataset.status = card.dataset.status;
+                pill.textContent = LABELS[card.dataset.status] || pill.textContent;
+            }
+        });
+        applyListFilter();
+    }
+
+    function showTab(name, focus) {
+        var exists = wsPanels.some(function (p) { return p.dataset.wsPanel === name; });
+        if (!exists) name = 'overview';
+        wsTabs.forEach(function (t) {
+            var on = t.dataset.wsTab === name;
+            t.setAttribute('aria-selected', on ? 'true' : 'false');
+            t.tabIndex = on ? 0 : -1;
+            if (on && focus) t.focus();
+        });
+        wsPanels.forEach(function (p) { p.hidden = p.dataset.wsPanel !== name; });
+        if (name === 'list') syncList();
+        try { sessionStorage.setItem(TAB_KEY, name); } catch (e) { /* bỏ qua */ }
+    }
+
+    wsTabs.forEach(function (tab, i) {
+        tab.addEventListener('click', function () { showTab(tab.dataset.wsTab); });
+        tab.addEventListener('keydown', function (e) {
+            var next = null;
+            if (e.key === 'ArrowRight') next = wsTabs[(i + 1) % wsTabs.length];
+            else if (e.key === 'ArrowLeft') next = wsTabs[(i - 1 + wsTabs.length) % wsTabs.length];
+            else if (e.key === 'Home') next = wsTabs[0];
+            else if (e.key === 'End') next = wsTabs[wsTabs.length - 1];
+            if (next) { e.preventDefault(); showTab(next.dataset.wsTab, true); }
+        });
+    });
+
+    // Liên kết "Xem tất cả →" trong tab Tổng quan
+    page.addEventListener('click', function (e) {
+        var go = closest(e.target, '[data-ws-go]');
+        if (!go) return;
+        e.preventDefault();
+        showTab(go.dataset.wsGo);
+        page.scrollIntoView({ block: 'start' });
+    });
+
+    /* ---------- Bộ lọc tab Danh sách ---------- */
+    var listSearch = document.getElementById('listSearch');
+    var listStatus = document.getElementById('listStatus');
+    var listPriority = document.getElementById('listPriority');
+    var listAssignee = document.getElementById('listAssignee');
+    var listEmpty = document.getElementById('listEmpty');
+
+    function applyListFilter() {
+        var rows = page.querySelectorAll('[data-list-row]');
+        var q = normalize(listSearch ? listSearch.value : '');
+        var st = listStatus ? listStatus.value : '';
+        var pr = listPriority ? listPriority.value : '';
+        var as = listAssignee ? listAssignee.value : '';
+        var shown = 0;
+        Array.prototype.forEach.call(rows, function (row) {
+            var ok = (!st || row.dataset.status === st) &&
+                     (!pr || row.dataset.priority === pr) &&
+                     (!as || row.dataset.assignee === as) &&
+                     (!q || normalize(row.dataset.search).indexOf(q) !== -1);
+            row.hidden = !ok;
+            if (ok) shown++;
+        });
+        if (listEmpty) {
+            listEmpty.hidden = shown !== 0 || rows.length === 0;
+            if (rows.length > 0) listEmpty.querySelector('td').textContent = 'Không có nhiệm vụ khớp bộ lọc.';
+        }
+    }
+    [listSearch, listStatus, listPriority, listAssignee].forEach(function (el) {
+        if (el) el.addEventListener(el.tagName === 'INPUT' ? 'input' : 'change', applyListFilter);
+    });
+
+    // Dòng trong bảng mở được bằng bàn phím (Enter / Space)
+    page.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        var row = closest(e.target, '[data-list-row]');
+        if (row && e.target === row) { e.preventDefault(); row.click(); }
+    });
+
+    // Tab ban đầu: #task-123 mở tab Bảng; nếu không thì khôi phục tab đã dùng trước khi tải lại trang
+    var initial = 'overview';
+    if (/^#task-\d+$/.test(window.location.hash)) {
+        initial = 'board';
+    } else {
+        try { initial = sessionStorage.getItem(TAB_KEY) || 'overview'; } catch (e) { /* bỏ qua */ }
+    }
+    showTab(initial);
+
     /* ---------- Khởi tạo ---------- */
     Array.prototype.forEach.call(page.querySelectorAll('[data-task-modal]'), function (modal) {
         var card = cardById(modal.dataset.taskId);

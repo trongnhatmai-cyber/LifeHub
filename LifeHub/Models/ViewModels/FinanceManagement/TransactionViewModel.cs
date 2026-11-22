@@ -76,6 +76,14 @@ public class TransactionRowViewModel
 
     public string Name { get; set; } = string.Empty;
 
+    // Dùng để điền sẵn hộp thoại Sửa giao dịch (modal) ở View
+    public int? CategoryId { get; set; }
+
+    public int WalletId { get; set; }
+
+    // Giao dịch chuyển tiền giữa ví: không cho sửa, chỉ cho xóa
+    public bool IsTransfer { get; set; }
+
     public string CategoryName { get; set; } = string.Empty;
 
     public string? CategoryColor { get; set; }

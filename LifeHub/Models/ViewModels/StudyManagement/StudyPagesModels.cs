@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
+using Microsoft.AspNetCore.Http;
 
 namespace LifeHub.Models.ViewModels.StudyManagement
 {
@@ -11,6 +12,7 @@ namespace LifeHub.Models.ViewModels.StudyManagement
     {
         public StudyCourseItem Course { get; set; } = new();
         public string SemesterName { get; set; } = string.Empty;
+        public int? SemesterId { get; set; }   // [MỚI]
         public int AssignmentCount { get; set; }
         public int SubmittedCount { get; set; }
         public string ScheduleSummary { get; set; } = string.Empty;
@@ -26,6 +28,53 @@ namespace LifeHub.Models.ViewModels.StudyManagement
         public int CompletedCount { get; set; }
         public int CurrentCredits { get; set; }
         public decimal? AverageScore { get; set; }
+
+        // [MỚI] Lọc theo học kỳ và danh sách học kỳ cho ô chọn trong form
+        public int? SemesterId { get; set; }
+        public string SemesterFilterName { get; set; } = string.Empty;
+        public List<StudySemesterItem> Semesters { get; set; } = new();
+    }
+
+    // ===================== HỌC KỲ [MỚI] =====================
+    /// <summary>Một học kỳ (bảng semesters). Tên thuộc tính khớp entity Semester.</summary>
+    public class StudySemesterItem
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public DateOnly? StartDate { get; set; }
+        public DateOnly? EndDate { get; set; }
+        public bool IsCurrent { get; set; }
+
+        /// <summary>current / finished / upcoming</summary>
+        public string StatusKey(DateOnly today) =>
+            IsCurrent ? "current" : EndDate.HasValue && EndDate.Value < today ? "finished" : "upcoming";
+
+        public string DateRange =>
+            (StartDate?.ToString("dd/MM/yyyy") ?? "—") + " đến " + (EndDate?.ToString("dd/MM/yyyy") ?? "—");
+    }
+
+    public class StudySemesterRow
+    {
+        public StudySemesterItem Semester { get; set; } = new();
+        public string StatusKey { get; set; } = "upcoming";
+        public string StatusLabel { get; set; } = string.Empty;
+        public int CourseCount { get; set; }
+        public int Credits { get; set; }
+        public decimal? Gpa4 { get; set; }
+        public int TimeProgressPercent { get; set; }
+        public int? DaysLeft { get; set; }
+        public List<StudyCourseItem> Courses { get; set; } = new();
+        public bool IsCurrent => Semester.IsCurrent;
+    }
+
+    public class StudySemestersPageViewModel
+    {
+        public List<StudySemesterRow> Rows { get; set; } = new();
+        public StudySemesterRow? Current => Rows.FirstOrDefault(r => r.IsCurrent);
+        public decimal? CumulativeGpa { get; set; }
+        public int CumulativeCredits { get; set; }
+        public int FinishedCount => Rows.Count(r => r.StatusKey == "finished");
+        public int UpcomingCount => Rows.Count(r => r.StatusKey == "upcoming");
     }
 
     // ===================== THỜI KHÓA BIỂU =====================
@@ -194,6 +243,15 @@ namespace LifeHub.Models.ViewModels.StudyManagement
         public string? Room { get; set; }
     }
 
+    /// <summary>[MỚI] Thêm hoặc sửa học kỳ (bảng semesters). Id = 0 khi thêm.</summary>
+    public class SaveSemesterInput
+    {
+        public int Id { get; set; }
+        [Required, StringLength(100)] public string Name { get; set; } = string.Empty;
+        [Required] public DateOnly? StartDate { get; set; }
+        [Required] public DateOnly? EndDate { get; set; }
+    }
+
     public class UpdateAssignmentInput : CreateAssignmentInput
     {
         public int Id { get; set; }
@@ -211,12 +269,32 @@ namespace LifeHub.Models.ViewModels.StudyManagement
         [Range(0, 10)] public decimal TargetScore { get; set; }
     }
 
-    public class CreateDocumentInput
+    /// <summary>Thêm tài liệu: chọn tệp từ máy (File) HOẶC nhập đường dẫn (Url), cần ít nhất một trong hai.</summary>
+    public class CreateDocumentInput : IValidatableObject
     {
         [Required, StringLength(200)] public string Title { get; set; } = string.Empty;
         [Required] public int CourseId { get; set; }
         [Required] public string Kind { get; set; } = "pdf";
-        [Required, StringLength(500)] public string Url { get; set; } = string.Empty;
+        public IFormFile? File { get; set; }                 // tệp chọn từ máy tính
+        [StringLength(500)] public string? Url { get; set; } // hoặc liên kết trực tuyến
+        [StringLength(500)] public string? Note { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext context)
+        {
+            if (File == null && string.IsNullOrWhiteSpace(Url))
+                yield return new ValidationResult("Hãy chọn tệp từ máy hoặc nhập đường dẫn.", new[] { nameof(File), nameof(Url) });
+        }
+    }
+
+    /// <summary>Sửa tài liệu: giữ tệp/đường dẫn cũ nếu không chọn mới.</summary>
+    public class UpdateDocumentInput
+    {
+        public int Id { get; set; }
+        [Required, StringLength(200)] public string Title { get; set; } = string.Empty;
+        [Required] public int CourseId { get; set; }
+        [Required] public string Kind { get; set; } = "pdf";
+        public IFormFile? File { get; set; }
+        [StringLength(500)] public string? Url { get; set; }
         [StringLength(500)] public string? Note { get; set; }
     }
 }

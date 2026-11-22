@@ -3,7 +3,7 @@
 @{
     Layout = "_Layout";
     ViewData["Title"] = Model.Name;
-    ViewData["ActivePage"] = "Project";
+    ViewData["ActivePage"] = "ProjectList";
 
     var d = Model;
     var assignable = d.Members.Where(x => x.Role != "Viewer").ToList();
@@ -12,6 +12,10 @@
     var dragTask = d.CanEdit ? "true" : "false";
     var canEditText = d.CanEdit ? "true" : "false";
     var canManageText = d.CanManage ? "true" : "false";
+    var nextMilestone = d.Milestones.Where(x => !x.IsCompleted).OrderBy(x => x.DueDate).FirstOrDefault();
+    var attentionTasks = allTasks.Where(t => t.StatusKey != "done" && (t.IsOverdue || t.PriorityKey == "urgent")).Take(5).ToList();
+    var msDoneCount = d.Milestones.Count(x => x.IsCompleted);
+    var timeAgo = new Func<DateTime, string>(LifeHub.Models.ViewModels.ProjectManagement.ProjectDisplay.TimeAgo);
 }
 
 @section Styles {
@@ -31,7 +35,7 @@
     <!-- TIÊU ĐỀ -->
     <header class="project-heading">
         <div>
-            <span class="project-label">@d.Key · VAI TRÒ: @d.CurrentRole.ToUpperInvariant()</span>
+            <span class="project-label">@d.Key · Vai trò @d.CurrentRole</span>
             <h1>@d.Name</h1>
             <p>@d.Description</p>
         </div>
@@ -65,19 +69,347 @@
             <div class="proj-progress"><div class="bar"><i id="statProgressBar" style="width:@d.ProgressPercent%;"></i></div></div>
         </div>
         <div class="summary-card">
-            <div class="summary-top"><span>Nhiệm vụ hoàn thành</span><span class="summary-badge">VIỆC</span></div>
+            <div class="summary-top"><span>Nhiệm vụ hoàn thành</span><span class="summary-badge">TASKS</span></div>
             <h2><span id="statDone">@d.CompletedTasks</span>/<span id="statTotal">@d.TotalTasks</span></h2>
             <p>Nhiệm vụ cấp cao nhất</p>
         </div>
         <div class="summary-card">
-            <div class="summary-top"><span>Hạn chót</span><span class="summary-badge">THỜI GIAN</span></div>
+            <div class="summary-top"><span>Hạn chót</span><span class="summary-badge">DEADLINE</span></div>
             <h2>@d.DueDate.ToString("dd/MM/yyyy")</h2>
             <p>@d.DueText</p>
         </div>
     </section>
 
+    <!-- TAB WORKSPACE -->
+    <div class="ws-tabs" role="tablist" aria-label="Khu vực làm việc của dự án">
+        <button type="button" role="tab" class="ws-tab" id="tab-overview" aria-controls="panel-overview" aria-selected="true" data-ws-tab="overview">Tổng quan</button>
+        <button type="button" role="tab" class="ws-tab" id="tab-board" aria-controls="panel-board" aria-selected="false" tabindex="-1" data-ws-tab="board">Bảng</button>
+        <button type="button" role="tab" class="ws-tab" id="tab-list" aria-controls="panel-list" aria-selected="false" tabindex="-1" data-ws-tab="list">Danh sách <span class="proj-tab-count">@allTasks.Count</span></button>
+        <button type="button" role="tab" class="ws-tab" id="tab-milestones" aria-controls="panel-milestones" aria-selected="false" tabindex="-1" data-ws-tab="milestones">Cột mốc <span class="proj-tab-count">@msDoneCount/@d.Milestones.Count</span></button>
+        <button type="button" role="tab" class="ws-tab" id="tab-members" aria-controls="panel-members" aria-selected="false" tabindex="-1" data-ws-tab="members">Thành viên <span class="proj-tab-count">@d.Members.Count</span></button>
+        <button type="button" role="tab" class="ws-tab" id="tab-activity" aria-controls="panel-activity" aria-selected="false" tabindex="-1" data-ws-tab="activity">Hoạt động</button>
+    </div>
+
+    <div class="ws-panel" role="tabpanel" id="panel-overview" aria-labelledby="tab-overview" data-ws-panel="overview">
+        <div class="proj-overview-grid">
+            <section class="proj-panel">
+                <div class="proj-panel-head">
+                    <div>
+                        <h2>Tiến độ công việc</h2>
+                        <p>@d.CompletedTasks/@d.TotalTasks nhiệm vụ đã hoàn thành.</p>
+                    </div>
+                    <a href="#" class="proj-link" data-ws-go="board">Mở bảng →</a>
+                </div>
+                <div class="proj-progress-head"><span>Tiến độ dự án</span><span class="proj-progress-value">@d.ProgressPercent%</span></div>
+                <div class="bar"><i style="width:@d.ProgressPercent%;"></i></div>
+
+                <div class="proj-meta-pair">
+                    <div><strong>@d.StartDate.ToString("dd/MM/yyyy")</strong>Ngày bắt đầu</div>
+                    <div><strong>@d.DueDate.ToString("dd/MM/yyyy")</strong>Hạn chót · @d.DueText</div>
+                </div>
+
+                <h3 class="proj-subhead">Nhiệm vụ cần chú ý</h3>
+                @if (attentionTasks.Count == 0)
+                {
+                    <p class="proj-attn-empty">Không có nhiệm vụ quá hạn hoặc khẩn cấp.</p>
+                }
+                else
+                {
+                    <ul class="proj-feed">
+                        @foreach (var t in attentionTasks)
+                        {
+                            <li>
+                                <a href="#" data-modal-open="taskModal-@t.Id"><strong>@t.Title</strong><div class="proj-sub">@t.Key · @t.AssigneeName</div></a>
+                                <small class="@(t.IsOverdue ? "is-overdue" : "")">@(t.IsOverdue ? "Quá hạn" : t.PriorityLabel)</small>
+                            </li>
+                        }
+                    </ul>
+                }
+            </section>
+
+            <div class="proj-stack">
+                <section class="proj-panel">
+                    <div class="proj-panel-head">
+                        <div><h2>Milestone tiếp theo</h2></div>
+                        <a href="#" class="proj-link" data-ws-go="milestones">Xem tất cả →</a>
+                    </div>
+                    @if (nextMilestone == null)
+                    {
+                        <p class="proj-attn-empty">Chưa có milestone nào đang chờ.</p>
+                    }
+                    else
+                    {
+                        <div class="proj-meta-pair" style="margin:0">
+                            <div><strong>@nextMilestone.Title</strong>@nextMilestone.DueDate.ToString("dd/MM/yyyy") · @nextMilestone.DueText</div>
+                        </div>
+                    }
+                </section>
+
+                <section class="proj-panel">
+                    <div class="proj-panel-head">
+                        <div><h2>Thành viên</h2><p>@d.Members.Count thành viên trong dự án</p></div>
+                        <a href="#" class="proj-link" data-ws-go="members">Xem tất cả →</a>
+                    </div>
+                    <div class="proj-avatars">
+                        @foreach (var mb in d.Members.Take(5))
+                        {
+                            <span title="@mb.Name">@mb.Initial</span>
+                        }
+                        @if (d.Members.Count > 5)
+                        {
+                            <span class="proj-avatars-more">+@(d.Members.Count - 5)</span>
+                        }
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <div class="ws-panel" role="tabpanel" id="panel-board" aria-labelledby="tab-board" data-ws-panel="board" hidden>
+    @if (d.CanManage)
+    {
+        <section class="proj-panel proj-block" aria-label="Giao việc bằng kéo thả">
+            <div class="proj-panel-head">
+                <div>
+                    <h2>Giao việc</h2>
+                    <p>Kéo thành viên thả vào thẻ nhiệm vụ để giao việc.</p>
+                </div>
+            </div>
+            <div class="member-chips">
+                @foreach (var mb in assignable)
+                {
+                    <div class="member-chip" data-member-chip data-user-id="@mb.UserId" data-name="@mb.Name" draggable="true" title="@mb.Email">
+                        <span class="member-chip__avatar">@mb.Initial</span>
+                        <span class="member-chip__info">
+                            <strong>@mb.Name@(mb.IsCurrentUser ? " (bạn)" : "")</strong>
+                            <small>@mb.Role · <span data-open-count>@mb.OpenTaskCount</span> việc đang mở</small>
+                        </span>
+                    </div>
+                }
+            </div>
+        </section>
+    }
+
+    <!-- THANH LỌC BẢNG KANBAN -->
+    <section class="board-toolbar" aria-label="Bộ lọc bảng nhiệm vụ">
+        <input type="search" id="boardSearch" class="proj-input board-search" placeholder="Tìm nhiệm vụ..." autocomplete="off" aria-label="Tìm nhiệm vụ" />
+        <div class="board-avatars" role="group" aria-label="Lọc theo người thực hiện">
+            @foreach (var mb in assignable)
+            {
+                <button type="button" class="filter-avatar" data-filter-user="@mb.UserId" title="@mb.Name" aria-pressed="false">@mb.Initial</button>
+            }
+        </div>
+        <button type="button" class="proj-btn sm" id="boardClear" hidden>Xóa bộ lọc</button>
+    </section>
+
+    <!-- BẢNG KANBAN -->
+    <section class="kanban" id="kanbanBoard" aria-label="Bảng nhiệm vụ">
+        @foreach (var col in d.Columns)
+        {
+            <div class="kanban-col" data-column data-status="@col.Key">
+                <div class="kanban-col__head">
+                    <h3>
+                        <span>
+                            @col.Title
+                            @if (col.Key == "review")
+                            {
+                                <small class="kanban-hint">Chờ trưởng nhóm duyệt</small>
+                            }
+                        </span>
+                        <span class="proj-tab-count">@col.Tasks.Count</span>
+                    </h3>
+                    @if (d.CanEdit)
+                    {
+                        <button type="button" class="proj-btn sm" data-modal-open="createTaskModal" data-prefill-status="@col.Key" aria-label="Thêm nhiệm vụ vào cột @col.Title">+</button>
+                    }
+                </div>
+
+                <div class="kanban-col__body">
+                    @foreach (var t in col.Tasks)
+                    {
+                        var dueClass = t.IsOverdue ? "task-due is-overdue" : "task-due";
+                        var assigneeAttr = t.AssigneeId?.ToString() ?? "";
+                        var searchAttr = t.Key + " " + t.Title;
+                        var assigneeClass = string.IsNullOrEmpty(t.AssigneeInitial) ? "task-assignee task-assignee--empty" : "task-assignee";
+
+                        <article class="task-card" data-task-card data-task-id="@t.Id" data-status="@t.StatusKey"
+                                 data-assignee="@assigneeAttr" data-search="@searchAttr" draggable="@dragTask"
+                                 data-modal-open="taskModal-@t.Id" tabindex="0">
+                            <div class="task-card__top">
+                                <span class="task-key">@t.Key</span>
+                                <span class="task-prio task-prio--@t.PriorityKey">@t.PriorityLabel</span>
+                            </div>
+                            <h4>@t.Title</h4>
+                            @if (t.SubTasks.Count > 0)
+                            {
+                                <div class="task-sub" data-card-sub>☑ @t.SubTaskDone/@t.SubTasks.Count việc con</div>
+                            }
+                            <div class="task-card__foot">
+                                <div class="task-meta-group">
+                                    <span class="@dueClass">@(t.IsOverdue ? "Quá hạn · " : "")@(t.DueDate.HasValue ? t.DueDate.Value.ToString("dd/MM") : "Không hạn")</span>
+                                    <span class="task-meta" data-comment-count hidden="@(t.Comments.Count == 0)">💬 @t.Comments.Count</span>
+                                </div>
+                                <span class="@assigneeClass" title="@(string.IsNullOrEmpty(t.AssigneeName) ? "Chưa giao" : t.AssigneeName)">@(string.IsNullOrEmpty(t.AssigneeInitial) ? "?" : t.AssigneeInitial)</span>
+                            </div>
+                        </article>
+                    }
+
+                    @if (col.Tasks.Count == 0)
+                    {
+                        <p class="kanban-empty">Chưa có nhiệm vụ</p>
+                    }
+                </div>
+            </div>
+        }
+    </section>
+
+    </div>
+
+    <div class="ws-panel" role="tabpanel" id="panel-list" aria-labelledby="tab-list" data-ws-panel="list" hidden>
+        <div class="proj-list-toolbar" aria-label="Bộ lọc danh sách nhiệm vụ">
+            <input type="search" id="listSearch" class="proj-input proj-search" placeholder="Tìm nhiệm vụ..." autocomplete="off" aria-label="Tìm nhiệm vụ" />
+            <select id="listStatus" class="proj-input proj-select" aria-label="Lọc theo trạng thái">
+                <option value="">Mọi trạng thái</option>
+                @foreach (var col in d.Columns)
+                {
+                    <option value="@col.Key">@col.Title</option>
+                }
+            </select>
+            <select id="listPriority" class="proj-input proj-select" aria-label="Lọc theo mức ưu tiên">
+                <option value="">Mọi mức ưu tiên</option>
+                @foreach (var pr in priorities)
+                {
+                    <option value="@pr.Item1">@pr.Item2</option>
+                }
+            </select>
+            <select id="listAssignee" class="proj-input proj-select" aria-label="Lọc theo người thực hiện">
+                <option value="">Mọi người thực hiện</option>
+                <option value="none">Chưa giao</option>
+                @foreach (var mb in assignable)
+                {
+                    <option value="@mb.UserId">@mb.Name</option>
+                }
+            </select>
+        </div>
+
+        <div class="proj-table-wrap">
+            <table class="proj-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Nhiệm vụ</th>
+                        <th scope="col">Trạng thái</th>
+                        <th scope="col">Ưu tiên</th>
+                        <th scope="col">Người thực hiện</th>
+                        <th scope="col">Hạn chót</th>
+                        <th scope="col">Cập nhật</th>
+                    </tr>
+                </thead>
+                <tbody id="listBody">
+                    @foreach (var t in allTasks)
+                    {
+                        var rowAssignee = t.AssigneeId?.ToString() ?? "none";
+                        <tr data-list-row data-task-id="@t.Id" data-status="@t.StatusKey" data-priority="@t.PriorityKey"
+                            data-assignee="@rowAssignee" data-search="@(t.Key + " " + t.Title)"
+                            data-modal-open="taskModal-@t.Id" tabindex="0">
+                            <td class="cell-title"><strong>@t.Title</strong><small>@t.Key</small></td>
+                            <td><span class="proj-pill" data-status="@t.StatusKey" data-list-status>@t.StatusLabel</span></td>
+                            <td><span class="task-prio task-prio--@t.PriorityKey">@t.PriorityLabel</span></td>
+                            <td>
+                                @if (string.IsNullOrEmpty(t.AssigneeInitial))
+                                {
+                                    <span class="proj-muted-text">Chưa giao</span>
+                                }
+                                else
+                                {
+                                    <span class="proj-who"><span class="task-assignee">@t.AssigneeInitial</span>@t.AssigneeName</span>
+                                }
+                            </td>
+                            <td>
+                                @if (t.DueDate.HasValue)
+                                {
+                                    <span class="@(t.IsOverdue ? "task-due is-overdue" : "task-due")">@(t.IsOverdue ? "Quá hạn · " : "")@t.DueDate.Value.ToString("dd/MM/yyyy")</span>
+                                }
+                                else
+                                {
+                                    <span class="proj-muted-text">Không hạn</span>
+                                }
+                            </td>
+                            <td class="proj-muted-text">@timeAgo(t.UpdatedAt)</td>
+                        </tr>
+                    }
+                    <tr class="proj-list-empty" id="listEmpty" @(allTasks.Count == 0 ? "" : "hidden")>
+                        <td colspan="6">@(allTasks.Count == 0 ? "Dự án chưa có nhiệm vụ nào." : "Không có nhiệm vụ khớp bộ lọc.")</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="proj-sub">Bấm vào một dòng để mở chi tiết và cập nhật nhiệm vụ.</p>
+    </div>
+
+    <div class="ws-panel" role="tabpanel" id="panel-milestones" aria-labelledby="tab-milestones" data-ws-panel="milestones" hidden>
+        <section class="proj-panel proj-milestones" data-ms-scope>
+            @{
+                var msDone = d.Milestones.Count(x => x.IsCompleted);
+                var msPct = d.Milestones.Count == 0 ? 0 : (int)Math.Round(msDone * 100.0 / d.Milestones.Count);
+            }
+
+            <div class="proj-top proj-milestones-head">
+                <div>
+                    <h3>Cột mốc dự án</h3>
+                    <p class="proj-sub"><strong data-ms-progress>@msDone/@d.Milestones.Count</strong> cột mốc đã hoàn thành. Bấm vào vòng tròn để đánh dấu.</p>
+                </div>
+                @if (d.CanManage)
+                {
+                    <button type="button" class="proj-btn sm" data-modal-open="createMilestoneModal">+ Cột mốc</button>
+                }
+            </div>
+
+            <div class="proj-progress ms-progress"><div class="bar"><i data-ms-bar style="width:@msPct%;"></i></div></div>
+
+            <ol class="ms-timeline">
+                @foreach (var ms in d.Milestones)
+                {
+                    var nodeClass = "ms-node" + (ms.IsCompleted ? " is-done" : "") + (ms.IsOverdue ? " is-overdue" : "");
+                    var pastDue = ms.DueDate.Date < DateTime.Today ? "true" : "false";
+                    var toggleLabel = ms.IsCompleted ? "Mở lại cột mốc" : "Đánh dấu hoàn thành";
+
+                    <li class="@nodeClass" data-ms-item data-past-due="@pastDue" data-open-text="@ms.OpenDueText">
+                        @if (ms.CanToggle)
+                        {
+                                <form method="post" asp-action="ToggleMilestone">
+                                <input type="hidden" name="milestoneId" value="@ms.Id" />
+                                <input type="hidden" name="projectId" value="@d.Id" />
+                                <input type="hidden" name="returnTo" value="details" />
+                                <button type="submit" class="ms-toggle" title="@toggleLabel" aria-label="@toggleLabel">@(ms.IsCompleted ? "✓" : "○")</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <span class="ms-toggle ms-toggle--static">@(ms.IsCompleted ? "✓" : "○")</span>
+                        }
+
+                        <div class="ms-node__body">
+                            <div class="ms-node__top">
+                                <span class="ms-node__title">@ms.Title</span>
+                                <span class="ms-date">@ms.DueDate.ToString("dd/MM/yyyy")</span>
+                            </div>
+                            <small class="ms-node__meta" data-ms-meta>@ms.DueText</small>
+                        </div>
+                    </li>
+                }
+            </ol>
+
+            @if (d.Milestones.Count == 0)
+            {
+                <p class="proj-sub">Chưa có cột mốc nào.</p>
+            }
+        </section>
+
+    </div>
+
+    <div class="ws-panel" role="tabpanel" id="panel-members" aria-labelledby="tab-members" data-ws-panel="members" hidden>
     <!-- THÀNH VIÊN: trưởng nhóm kéo chip thả vào thẻ nhiệm vụ để giao việc -->
-    <section class="project-item-card detail-members">
+    <section class="proj-panel detail-members">
         <div class="proj-top">
             <div>
                 <h3>Thành viên (@d.Members.Count)</h3>
@@ -151,140 +483,10 @@
         }
     </section>
 
-    <!-- THANH LỌC BẢNG KANBAN -->
-    <section class="board-toolbar" aria-label="Bộ lọc bảng nhiệm vụ">
-        <input type="search" id="boardSearch" class="proj-input board-search" placeholder="Tìm nhiệm vụ..." autocomplete="off" aria-label="Tìm nhiệm vụ" />
-        <div class="board-avatars" role="group" aria-label="Lọc theo người thực hiện">
-            @foreach (var mb in assignable)
-            {
-                <button type="button" class="filter-avatar" data-filter-user="@mb.UserId" title="@mb.Name" aria-pressed="false">@mb.Initial</button>
-            }
-        </div>
-        <button type="button" class="proj-btn sm" id="boardClear" hidden>Xóa bộ lọc</button>
-    </section>
+    </div>
 
-    <!-- BẢNG KANBAN -->
-    <section class="kanban" id="kanbanBoard" aria-label="Bảng nhiệm vụ">
-        @foreach (var col in d.Columns)
-        {
-            <div class="kanban-col" data-column data-status="@col.Key">
-                <div class="kanban-col__head">
-                    <h3>
-                        <span>
-                            @col.Title
-                            @if (col.Key == "review")
-                            {
-                                <small class="kanban-hint">Chờ trưởng nhóm duyệt</small>
-                            }
-                        </span>
-                        <span class="proj-tab-count">@col.Tasks.Count</span>
-                    </h3>
-                    @if (d.CanEdit)
-                    {
-                        <button type="button" class="proj-btn sm" data-modal-open="createTaskModal" data-prefill-status="@col.Key" aria-label="Thêm nhiệm vụ vào cột @col.Title">+</button>
-                    }
-                </div>
-
-                <div class="kanban-col__body">
-                    @foreach (var t in col.Tasks)
-                    {
-                        var dueClass = t.IsOverdue ? "task-due is-overdue" : "task-due";
-                        var assigneeAttr = t.AssigneeId?.ToString() ?? "";
-                        var searchAttr = t.Key + " " + t.Title;
-                        var assigneeClass = string.IsNullOrEmpty(t.AssigneeInitial) ? "task-assignee task-assignee--empty" : "task-assignee";
-
-                        <article class="task-card" data-task-card data-task-id="@t.Id" data-status="@t.StatusKey"
-                                 data-assignee="@assigneeAttr" data-search="@searchAttr" draggable="@dragTask"
-                                 data-modal-open="taskModal-@t.Id" tabindex="0">
-                            <div class="task-card__top">
-                                <span class="task-key">@t.Key</span>
-                                <span class="task-prio task-prio--@t.PriorityKey">@t.PriorityLabel</span>
-                            </div>
-                            <h4>@t.Title</h4>
-                            @if (t.SubTasks.Count > 0)
-                            {
-                                <div class="task-sub" data-card-sub>☑ @t.SubTaskDone/@t.SubTasks.Count việc con</div>
-                            }
-                            <div class="task-card__foot">
-                                <div class="task-meta-group">
-                                    <span class="@dueClass">@(t.DueDate.HasValue ? t.DueDate.Value.ToString("dd/MM") : "Không hạn")</span>
-                                    <span class="task-meta" data-comment-count hidden="@(t.Comments.Count == 0)">💬 @t.Comments.Count</span>
-                                </div>
-                                <span class="@assigneeClass" title="@(string.IsNullOrEmpty(t.AssigneeName) ? "Chưa giao" : t.AssigneeName)">@(string.IsNullOrEmpty(t.AssigneeInitial) ? "?" : t.AssigneeInitial)</span>
-                            </div>
-                        </article>
-                    }
-
-                    @if (col.Tasks.Count == 0)
-                    {
-                        <p class="kanban-empty">Chưa có nhiệm vụ</p>
-                    }
-                </div>
-            </div>
-        }
-    </section>
-
-    <!-- CỘT MỐC + HOẠT ĐỘNG -->
-    <div class="detail-grid">
-        <section class="project-item-card proj-milestones" data-ms-scope>
-            @{
-                var msDone = d.Milestones.Count(x => x.IsCompleted);
-                var msPct = d.Milestones.Count == 0 ? 0 : (int)Math.Round(msDone * 100.0 / d.Milestones.Count);
-            }
-
-            <div class="proj-top proj-milestones-head">
-                <div>
-                    <h3>Cột mốc dự án</h3>
-                    <p class="proj-sub"><strong data-ms-progress>@msDone/@d.Milestones.Count</strong> cột mốc đã hoàn thành. Bấm vào vòng tròn để đánh dấu.</p>
-                </div>
-                @if (d.CanManage)
-                {
-                    <button type="button" class="proj-btn sm" data-modal-open="createMilestoneModal">+ Cột mốc</button>
-                }
-            </div>
-
-            <div class="proj-progress ms-progress"><div class="bar"><i data-ms-bar style="width:@msPct%;"></i></div></div>
-
-            <ol class="ms-timeline">
-                @foreach (var ms in d.Milestones)
-                {
-                    var nodeClass = "ms-node" + (ms.IsCompleted ? " is-done" : "") + (ms.IsOverdue ? " is-overdue" : "");
-                    var pastDue = ms.DueDate.Date < DateTime.Today ? "true" : "false";
-                    var toggleLabel = ms.IsCompleted ? "Mở lại cột mốc" : "Đánh dấu hoàn thành";
-
-                    <li class="@nodeClass" data-ms-item data-past-due="@pastDue" data-open-text="@ms.OpenDueText">
-                        @if (ms.CanToggle)
-                        {
-                                <form method="post" asp-action="ToggleMilestone">
-                                <input type="hidden" name="milestoneId" value="@ms.Id" />
-                                <input type="hidden" name="projectId" value="@d.Id" />
-                                <input type="hidden" name="returnTo" value="details" />
-                                <button type="submit" class="ms-toggle" title="@toggleLabel" aria-label="@toggleLabel">@(ms.IsCompleted ? "✓" : "○")</button>
-                            </form>
-                        }
-                        else
-                        {
-                            <span class="ms-toggle ms-toggle--static">@(ms.IsCompleted ? "✓" : "○")</span>
-                        }
-
-                        <div class="ms-node__body">
-                            <div class="ms-node__top">
-                                <span class="ms-node__title">@ms.Title</span>
-                                <span class="ms-date">@ms.DueDate.ToString("dd/MM/yyyy")</span>
-                            </div>
-                            <small class="ms-node__meta" data-ms-meta>@ms.DueText</small>
-                        </div>
-                    </li>
-                }
-            </ol>
-
-            @if (d.Milestones.Count == 0)
-            {
-                <p class="proj-sub">Chưa có cột mốc nào.</p>
-            }
-        </section>
-
-        <section class="project-item-card">
+    <div class="ws-panel" role="tabpanel" id="panel-activity" aria-labelledby="tab-activity" data-ws-panel="activity" hidden>
+        <section class="proj-panel">
             <div class="proj-top"><div><h3>Hoạt động gần đây</h3></div></div>
             <ul class="act-list">
                 @foreach (var a in d.Activities)
@@ -298,6 +500,10 @@
                     </li>
                 }
             </ul>
+            @if (d.Activities.Count == 0)
+            {
+                <p class="proj-attn-empty">Chưa có hoạt động nào trong dự án.</p>
+            }
         </section>
     </div>
 

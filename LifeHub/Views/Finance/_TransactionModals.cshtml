@@ -1,0 +1,179 @@
+@model string
+@using LifeHub.Models.ViewModels.FinanceModules
+@* =====================================================================
+   HỘP THOẠI THÊM / SỬA GIAO DỊCH - dùng chung cho trang Tổng quan tài chính và trang Giao dịch.
+   Model = nơi quay về sau khi lưu: "overview" (trang Tổng quan) hoặc "list" (trang Giao dịch).
+   Truyền như sau:  <partial name="~/Views/Finance/_TransactionModals.cshtml" model='"overview"' />
+
+   DỮ LIỆU CÁC Ô CHỌN do Controller đặt vào ViewBag (Finance/Index và Transaction/Index đều đặt):
+       ViewBag.Wallets      { Id, Name, Balance }   ví đang hoạt động
+       ViewBag.Categories   { Id, Name, Type }      Type = Income / Expense
+       ViewBag.SavingsGoals { Id, Name }            mục tiêu chưa hoàn thành
+
+   HAI MODAL, VÌ HAI ACTION NHẬN TÊN Ô KHÁC NHAU (không đổi backend):
+       transactionModal      -> Transaction/Create  : Note, TransactionType, TransactionDate, ToWalletId, SavingsGoalId...
+       transactionEditModal  -> Transaction/Edit    : Id, Name, Type, Date...  (không có "Chuyển tiền": giao dịch
+                                chuyển tiền chỉ xóa, không sửa)
+   Ô nào chỉ dùng cho một loại giao dịch thì có data-show-for="expense" | "transfer" | "income expense";
+   finance.js tự ẩn và vô hiệu hóa ô đó khi loại giao dịch không khớp (ô bị vô hiệu hóa không được gửi đi).
+   ===================================================================== *@
+
+@* ---------- THÊM GIAO DỊCH ---------- *@
+<div class="finance-modal" id="transactionModal" role="dialog" aria-modal="true" aria-labelledby="transactionModalTitle" hidden>
+    <div class="finance-modal-box">
+        <div class="finance-modal-head">
+            <h3 id="transactionModalTitle" data-modal-title>Thêm giao dịch</h3>
+            <button type="button" class="finance-modal-close" data-close aria-label="Đóng">&times;</button>
+        </div>
+        <form asp-controller="Transaction" asp-action="Create" method="post" data-tx-form data-validate="transaction">
+            <input type="hidden" name="ReturnTo" value="@Model" />
+            <div class="finance-form-grid">
+                <div class="field full">
+                    <label for="tcNote">Nội dung giao dịch</label>
+                    <input id="tcNote" name="Note" maxlength="255" placeholder="Ví dụ: Ăn trưa, Tiền lương..." />
+                </div>
+                <div class="field">
+                    <label for="tcType">Loại giao dịch</label>
+                    <select id="tcType" name="TransactionType" required>
+                        <option value="Expense">Chi tiêu</option>
+                        <option value="Income">Thu nhập</option>
+                        <option value="Transfer">Chuyển tiền</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="tcAmount">Số tiền (₫)</label>
+                    <input id="tcAmount" name="Amount" type="number" min="1" step="1" inputmode="numeric" placeholder="Ví dụ: 50000" required />
+                </div>
+                <div class="field">
+                    <label for="tcWallet">Ví giao dịch</label>
+                    <select id="tcWallet" name="WalletId" required>
+                        <option value="">Chọn ví</option>
+                        @if (ViewBag.Wallets != null)
+                        {
+                            foreach (var w in ViewBag.Wallets)
+                            {
+                                <option value="@w.Id" data-balance="@FinanceFormat.Plain((decimal)w.Balance)">@w.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="field" data-show-for="transfer">
+                    <label for="tcToWallet">Ví nhận tiền</label>
+                    <select id="tcToWallet" name="ToWalletId">
+                        <option value="">Chọn ví nhận</option>
+                        @if (ViewBag.Wallets != null)
+                        {
+                            foreach (var w in ViewBag.Wallets)
+                            {
+                                <option value="@w.Id">@w.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="field" data-show-for="income expense">
+                    <label for="tcCategory">Danh mục</label>
+                    <select id="tcCategory" name="CategoryId">
+                        <option value="">Không phân loại</option>
+                        @if (ViewBag.Categories != null)
+                        {
+                            foreach (var c in ViewBag.Categories)
+                            {
+                                <option value="@c.Id" data-type="@c.Type">@c.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="field" data-show-for="expense">
+                    <label for="tcGoal">Mục tiêu tiết kiệm</label>
+                    <select id="tcGoal" name="SavingsGoalId">
+                        <option value="">Không liên kết</option>
+                        @if (ViewBag.SavingsGoals != null)
+                        {
+                            foreach (var g in ViewBag.SavingsGoals)
+                            {
+                                <option value="@g.Id">@g.Name</option>
+                            }
+                        }
+                    </select>
+                    <small>Chọn mục tiêu nếu khoản chi này là tiền nạp vào mục tiêu đó.</small>
+                </div>
+                <div class="field full">
+                    <label for="tcDate">Ngày giao dịch</label>
+                    <input id="tcDate" name="TransactionDate" type="date" data-default="today" required />
+                </div>
+            </div>
+            <p class="form-error" role="alert" hidden></p>
+            <div class="finance-modal-foot">
+                <button type="button" class="finance-btn" data-close>Hủy</button>
+                <button type="submit" class="finance-btn primary">Lưu giao dịch</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@* ---------- SỬA GIAO DỊCH (chỉ Thu nhập / Chi tiêu) ---------- *@
+<div class="finance-modal" id="transactionEditModal" role="dialog" aria-modal="true" aria-labelledby="transactionEditTitle" hidden>
+    <div class="finance-modal-box">
+        <div class="finance-modal-head">
+            <h3 id="transactionEditTitle" data-modal-title>Chỉnh sửa giao dịch</h3>
+            <button type="button" class="finance-modal-close" data-close aria-label="Đóng">&times;</button>
+        </div>
+        <form asp-controller="Transaction" asp-action="Edit" method="post" data-tx-form>
+            <input type="hidden" name="ReturnTo" value="@Model" />
+            <input type="hidden" name="Id" disabled />
+            <div class="finance-form-grid">
+                <div class="field full">
+                    <label for="teName">Tên giao dịch</label>
+                    <input id="teName" name="Name" maxlength="200" required />
+                </div>
+                <div class="field">
+                    <label for="teType">Loại giao dịch</label>
+                    <select id="teType" name="Type" required>
+                        <option value="expense">Chi tiêu</option>
+                        <option value="income">Thu nhập</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="teAmount">Số tiền (₫)</label>
+                    <input id="teAmount" name="Amount" type="number" min="1000" step="1" inputmode="numeric" required />
+                </div>
+                <div class="field">
+                    <label for="teWallet">Ví giao dịch</label>
+                    <select id="teWallet" name="WalletId" required>
+                        <option value="">Chọn ví</option>
+                        @if (ViewBag.Wallets != null)
+                        {
+                            foreach (var w in ViewBag.Wallets)
+                            {
+                                <option value="@w.Id">@w.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="teCategory">Danh mục</label>
+                    <select id="teCategory" name="CategoryId">
+                        <option value="">Không phân loại</option>
+                        @if (ViewBag.Categories != null)
+                        {
+                            foreach (var c in ViewBag.Categories)
+                            {
+                                <option value="@c.Id" data-type="@c.Type">@c.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="field full">
+                    <label for="teDate">Ngày giao dịch</label>
+                    <input id="teDate" name="Date" type="date" required />
+                </div>
+            </div>
+            <p class="finance-note">Số dư ví và tiến độ mục tiêu tiết kiệm được cân đối lại tự động khi lưu.</p>
+            <p class="form-error" role="alert" hidden></p>
+            <div class="finance-modal-foot">
+                <button type="button" class="finance-btn" data-close>Hủy</button>
+                <button type="submit" class="finance-btn primary">Lưu thay đổi</button>
+            </div>
+        </form>
+    </div>
+</div>
