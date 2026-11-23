@@ -14,12 +14,12 @@
     function toast(message, type) {
         if (!wrap) {
             wrap = document.createElement('div');
-            wrap.className = 'proj-toast-wrap';
+            wrap.className = 'project-toast-stack';
             wrap.setAttribute('aria-live', 'polite');
             page.appendChild(wrap);
         }
         var el = document.createElement('div');
-        el.className = 'proj-toast proj-toast--' + (type || 'info');
+        el.className = 'project-toast project-toast-' + (type || 'info');
         el.textContent = message; // textContent: không chèn HTML từ người dùng
         wrap.appendChild(el);
         window.setTimeout(function () { el.remove(); }, 4200);
@@ -60,7 +60,7 @@
         var key = tab.getAttribute('data-recent-tab');
         Array.prototype.forEach.call(page.querySelectorAll('[data-recent-tab]'), function (t) {
             var active = t === tab;
-            t.classList.toggle('is-active', active);
+            t.classList.toggle('active', active);
             t.setAttribute('aria-pressed', active ? 'true' : 'false');
         });
         Array.prototype.forEach.call(page.querySelectorAll('[data-recent-panel]'), function (panel) {

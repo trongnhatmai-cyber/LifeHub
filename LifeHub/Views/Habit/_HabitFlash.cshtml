@@ -1,0 +1,12 @@
+@* Toast sau khi thêm / sửa / xóa (TempData SuccessMessage / ErrorMessage). Đặt một dòng trong <div class="habit-page">:  <partial name="_HabitFlash" /> *@
+@{
+    var ok = TempData["SuccessMessage"] as string;
+    var err = TempData["ErrorMessage"] as string;
+}
+@if (!string.IsNullOrWhiteSpace(ok) || !string.IsNullOrWhiteSpace(err))
+{
+    <div class="habit-toast-stack">
+        @if (!string.IsNullOrWhiteSpace(ok)) { <div class="habit-toast" role="status" data-toast>@ok</div> }
+        @if (!string.IsNullOrWhiteSpace(err)) { <div class="habit-toast error" role="alert" data-toast>@err</div> }
+    </div>
+}

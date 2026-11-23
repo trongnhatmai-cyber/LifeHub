@@ -15,7 +15,7 @@
 <div class="project-page">
     <partial name="_Flash" />
 
-    <nav class="proj-breadcrumb" aria-label="Điều hướng">
+    <nav class="project-breadcrumb" aria-label="Điều hướng">
         <a asp-action="Index">Dự án</a><span>/</span><span>Tất cả dự án</span>
     </nav>
 
@@ -27,56 +27,56 @@
         </div>
 
         <div class="heading-actions">
-            <button type="button" class="proj-btn primary" data-modal-open="createProjectModal">+ Tạo dự án</button>
+            <button type="button" class="project-btn primary" data-modal-open="createProjectModal">+ Tạo dự án</button>
         </div>
     </header>
 
     <!-- THANH CÔNG CỤ: TÌM KIẾM / LỌC / SẮP XẾP / CHẾ ĐỘ XEM (xử lý phía trình duyệt) -->
     <section class="project-toolbar" aria-label="Bộ lọc dự án">
-        <input type="search" id="projectSearch" class="proj-input proj-search"
+        <input type="search" id="projectSearch" class="project-input project-search"
                placeholder="Tìm theo tên, mã hoặc mô tả dự án..." autocomplete="off" aria-label="Tìm dự án" />
 
-        <select id="projectRole" class="proj-input proj-select" aria-label="Lọc theo vai trò">
+        <select id="projectRole" class="project-input project-select" aria-label="Lọc theo vai trò">
             <option value="all">Mọi vai trò</option>
             <option value="manager">Manager</option>
             <option value="member">Member</option>
             <option value="viewer">Viewer</option>
         </select>
 
-        <select id="projectSort" class="proj-input proj-select" aria-label="Sắp xếp dự án">
+        <select id="projectSort" class="project-input project-select" aria-label="Sắp xếp dự án">
             <option value="default">Hoạt động mới nhất</option>
             <option value="deadline">Hạn chót gần nhất</option>
             <option value="progress">Tiến độ cao nhất</option>
             <option value="name">Tên A → Z</option>
         </select>
 
-        <div class="proj-view-toggle" role="group" aria-label="Chế độ xem">
-            <button type="button" class="is-active" data-view="grid" aria-pressed="true">Lưới</button>
+        <div class="project-view-toggle" role="group" aria-label="Chế độ xem">
+            <button type="button" class="active" data-view="grid" aria-pressed="true">Lưới</button>
             <button type="button" data-view="list" aria-pressed="false">Danh sách</button>
         </div>
     </section>
 
-    <div class="proj-tabs" role="group" aria-label="Lọc theo trạng thái" style="margin-bottom:12px">
+    <div class="project-chips" role="group" aria-label="Lọc theo trạng thái" style="margin-bottom:12px">
         @foreach (var f in m.StatusFilters)
         {
-            var tabClass = f.Key == "all" ? "proj-tab is-active" : "proj-tab";
+            var tabClass = f.Key == "all" ? "project-chip active" : "project-chip";
             <button type="button" class="@tabClass" data-filter="@f.Key"
                     aria-pressed="@(f.Key == "all" ? "true" : "false")">
-                @f.Label <span class="proj-tab-count">@f.Count</span>
+                @f.Label <span class="chip-count">@f.Count</span>
             </button>
         }
     </div>
 
     @if (m.TotalProjects == 0)
     {
-        <div class="proj-empty">
+        <div class="project-empty">
             <strong>Bạn chưa có dự án nào</strong>
             Tạo dự án đầu tiên để bắt đầu giao việc và theo dõi tiến độ.
-            <div><button type="button" class="proj-btn primary" data-modal-open="createProjectModal">+ Tạo dự án</button></div>
+            <div><button type="button" class="project-btn primary" data-modal-open="createProjectModal">+ Tạo dự án</button></div>
         </div>
     }
 
-    <p class="proj-result" id="projectResultCount" aria-live="polite"></p>
+    <p class="project-count" id="projectResultCount" aria-live="polite"></p>
 
     <div class="project-grid" id="projectGrid" data-page-size="9">
         @foreach (var p in m.Projects)
@@ -85,13 +85,13 @@
         }
     </div>
 
-    <div class="proj-empty" id="projectEmpty" hidden>
+    <div class="project-empty" id="projectEmpty" hidden>
         <strong>Không tìm thấy dự án phù hợp</strong>
         Hãy thử đổi từ khóa hoặc bỏ bớt bộ lọc.
-        <div><button type="button" class="proj-btn primary" id="projectClear">Xóa bộ lọc</button></div>
+        <div><button type="button" class="project-btn primary" id="projectClear">Xóa bộ lọc</button></div>
     </div>
 
-    <nav class="proj-pager" id="projectPager" aria-label="Phân trang dự án" hidden></nav>
+    <nav class="project-pager" id="projectPager" aria-label="Phân trang dự án" hidden></nav>
 
     <partial name="_CreateProjectModal" />
 </div>

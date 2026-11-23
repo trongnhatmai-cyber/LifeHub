@@ -28,7 +28,7 @@
 
     <partial name="_Flash" />
 
-    <nav class="proj-breadcrumb" aria-label="Điều hướng">
+    <nav class="project-breadcrumb" aria-label="Điều hướng">
         <a asp-action="Index">Dự án</a><span>/</span><span>@d.Name</span>
     </nav>
 
@@ -45,18 +45,18 @@
             {
                 <form method="post" asp-action="UpdateStatus" class="inline-form">
                     <input type="hidden" name="projectId" value="@d.Id" />
-                    <select name="status" class="proj-input proj-select" aria-label="Trạng thái dự án" data-autosubmit>
+                    <select name="status" class="project-input project-select" aria-label="Trạng thái dự án" data-autosubmit>
                         @foreach (var st in new[] { "Đang chạy", "Lên kế hoạch", "Tạm dừng", "Hoàn thành" })
                         {
                             <option value="@st" selected="@(st == d.Status)">@st</option>
                         }
                     </select>
                 </form>
-                <button type="button" class="proj-btn" data-modal-open="inviteModal">+ Mời thành viên</button>
+                <button type="button" class="project-btn" data-modal-open="inviteModal">+ Mời thành viên</button>
             }
             @if (d.CanEdit)
             {
-                <button type="button" class="proj-btn primary" data-modal-open="createTaskModal" data-prefill-status="todo">+ Tạo nhiệm vụ</button>
+                <button type="button" class="project-btn primary" data-modal-open="createTaskModal" data-prefill-status="todo">+ Tạo nhiệm vụ</button>
             }
         </div>
     </header>
@@ -64,9 +64,9 @@
     <!-- TIẾN ĐỘ (tự cập nhật khi kéo thả) -->
     <section class="detail-stats">
         <div class="summary-card">
-            <div class="summary-top"><span>Tiến độ</span><span class="proj-status proj-status--@d.StatusKey">@d.Status</span></div>
+            <div class="summary-top"><span>Tiến độ</span><span class="status st-@d.StatusKey">@d.Status</span></div>
             <h2 id="statProgress">@d.ProgressPercent%</h2>
-            <div class="proj-progress"><div class="bar"><i id="statProgressBar" style="width:@d.ProgressPercent%;"></i></div></div>
+            <div class="project-progress"><div class="bar"><i id="statProgressBar" style="width:@d.ProgressPercent%;"></i></div></div>
         </div>
         <div class="summary-card">
             <div class="summary-top"><span>Nhiệm vụ hoàn thành</span><span class="summary-badge">TASKS</span></div>
@@ -84,42 +84,42 @@
     <div class="ws-tabs" role="tablist" aria-label="Khu vực làm việc của dự án">
         <button type="button" role="tab" class="ws-tab" id="tab-overview" aria-controls="panel-overview" aria-selected="true" data-ws-tab="overview">Tổng quan</button>
         <button type="button" role="tab" class="ws-tab" id="tab-board" aria-controls="panel-board" aria-selected="false" tabindex="-1" data-ws-tab="board">Bảng</button>
-        <button type="button" role="tab" class="ws-tab" id="tab-list" aria-controls="panel-list" aria-selected="false" tabindex="-1" data-ws-tab="list">Danh sách <span class="proj-tab-count">@allTasks.Count</span></button>
-        <button type="button" role="tab" class="ws-tab" id="tab-milestones" aria-controls="panel-milestones" aria-selected="false" tabindex="-1" data-ws-tab="milestones">Cột mốc <span class="proj-tab-count">@msDoneCount/@d.Milestones.Count</span></button>
-        <button type="button" role="tab" class="ws-tab" id="tab-members" aria-controls="panel-members" aria-selected="false" tabindex="-1" data-ws-tab="members">Thành viên <span class="proj-tab-count">@d.Members.Count</span></button>
+        <button type="button" role="tab" class="ws-tab" id="tab-list" aria-controls="panel-list" aria-selected="false" tabindex="-1" data-ws-tab="list">Danh sách <span class="chip-count">@allTasks.Count</span></button>
+        <button type="button" role="tab" class="ws-tab" id="tab-milestones" aria-controls="panel-milestones" aria-selected="false" tabindex="-1" data-ws-tab="milestones">Cột mốc <span class="chip-count">@msDoneCount/@d.Milestones.Count</span></button>
+        <button type="button" role="tab" class="ws-tab" id="tab-members" aria-controls="panel-members" aria-selected="false" tabindex="-1" data-ws-tab="members">Thành viên <span class="chip-count">@d.Members.Count</span></button>
         <button type="button" role="tab" class="ws-tab" id="tab-activity" aria-controls="panel-activity" aria-selected="false" tabindex="-1" data-ws-tab="activity">Hoạt động</button>
     </div>
 
     <div class="ws-panel" role="tabpanel" id="panel-overview" aria-labelledby="tab-overview" data-ws-panel="overview">
-        <div class="proj-overview-grid">
-            <section class="proj-panel">
-                <div class="proj-panel-head">
+        <div class="project-overview-grid">
+            <section class="project-card">
+                <div class="section-heading">
                     <div>
-                        <h2>Tiến độ công việc</h2>
+                        <h3>Tiến độ công việc</h3>
                         <p>@d.CompletedTasks/@d.TotalTasks nhiệm vụ đã hoàn thành.</p>
                     </div>
-                    <a href="#" class="proj-link" data-ws-go="board">Mở bảng →</a>
+                    <a href="#" class="project-link" data-ws-go="board">Mở bảng →</a>
                 </div>
-                <div class="proj-progress-head"><span>Tiến độ dự án</span><span class="proj-progress-value">@d.ProgressPercent%</span></div>
+                <div class="project-progress-head"><span>Tiến độ dự án</span><span class="project-progress-value">@d.ProgressPercent%</span></div>
                 <div class="bar"><i style="width:@d.ProgressPercent%;"></i></div>
 
-                <div class="proj-meta-pair">
+                <div class="project-meta-pair">
                     <div><strong>@d.StartDate.ToString("dd/MM/yyyy")</strong>Ngày bắt đầu</div>
                     <div><strong>@d.DueDate.ToString("dd/MM/yyyy")</strong>Hạn chót · @d.DueText</div>
                 </div>
 
-                <h3 class="proj-subhead">Nhiệm vụ cần chú ý</h3>
+                <h3 class="project-subhead">Nhiệm vụ cần chú ý</h3>
                 @if (attentionTasks.Count == 0)
                 {
-                    <p class="proj-attn-empty">Không có nhiệm vụ quá hạn hoặc khẩn cấp.</p>
+                    <p class="project-attn-empty">Không có nhiệm vụ quá hạn hoặc khẩn cấp.</p>
                 }
                 else
                 {
-                    <ul class="proj-feed">
+                    <ul class="project-feed">
                         @foreach (var t in attentionTasks)
                         {
                             <li>
-                                <a href="#" data-modal-open="taskModal-@t.Id"><strong>@t.Title</strong><div class="proj-sub">@t.Key · @t.AssigneeName</div></a>
+                                <a href="#" data-modal-open="taskModal-@t.Id"><strong>@t.Title</strong><div class="project-sub">@t.Key · @t.AssigneeName</div></a>
                                 <small class="@(t.IsOverdue ? "is-overdue" : "")">@(t.IsOverdue ? "Quá hạn" : t.PriorityLabel)</small>
                             </li>
                         }
@@ -127,37 +127,37 @@
                 }
             </section>
 
-            <div class="proj-stack">
-                <section class="proj-panel">
-                    <div class="proj-panel-head">
-                        <div><h2>Milestone tiếp theo</h2></div>
-                        <a href="#" class="proj-link" data-ws-go="milestones">Xem tất cả →</a>
+            <div class="project-stack">
+                <section class="project-card">
+                    <div class="section-heading">
+                        <div><h3>Milestone tiếp theo</h3></div>
+                        <a href="#" class="project-link" data-ws-go="milestones">Xem tất cả →</a>
                     </div>
                     @if (nextMilestone == null)
                     {
-                        <p class="proj-attn-empty">Chưa có milestone nào đang chờ.</p>
+                        <p class="project-attn-empty">Chưa có milestone nào đang chờ.</p>
                     }
                     else
                     {
-                        <div class="proj-meta-pair" style="margin:0">
+                        <div class="project-meta-pair" style="margin:0">
                             <div><strong>@nextMilestone.Title</strong>@nextMilestone.DueDate.ToString("dd/MM/yyyy") · @nextMilestone.DueText</div>
                         </div>
                     }
                 </section>
 
-                <section class="proj-panel">
-                    <div class="proj-panel-head">
-                        <div><h2>Thành viên</h2><p>@d.Members.Count thành viên trong dự án</p></div>
-                        <a href="#" class="proj-link" data-ws-go="members">Xem tất cả →</a>
+                <section class="project-card">
+                    <div class="section-heading">
+                        <div><h3>Thành viên</h3><p>@d.Members.Count thành viên trong dự án</p></div>
+                        <a href="#" class="project-link" data-ws-go="members">Xem tất cả →</a>
                     </div>
-                    <div class="proj-avatars">
+                    <div class="project-avatars">
                         @foreach (var mb in d.Members.Take(5))
                         {
                             <span title="@mb.Name">@mb.Initial</span>
                         }
                         @if (d.Members.Count > 5)
                         {
-                            <span class="proj-avatars-more">+@(d.Members.Count - 5)</span>
+                            <span class="project-avatars-more">+@(d.Members.Count - 5)</span>
                         }
                     </div>
                 </section>
@@ -168,10 +168,10 @@
     <div class="ws-panel" role="tabpanel" id="panel-board" aria-labelledby="tab-board" data-ws-panel="board" hidden>
     @if (d.CanManage)
     {
-        <section class="proj-panel proj-block" aria-label="Giao việc bằng kéo thả">
-            <div class="proj-panel-head">
+        <section class="project-card project-block" aria-label="Giao việc bằng kéo thả">
+            <div class="section-heading">
                 <div>
-                    <h2>Giao việc</h2>
+                    <h3>Giao việc</h3>
                     <p>Kéo thành viên thả vào thẻ nhiệm vụ để giao việc.</p>
                 </div>
             </div>
@@ -179,8 +179,8 @@
                 @foreach (var mb in assignable)
                 {
                     <div class="member-chip" data-member-chip data-user-id="@mb.UserId" data-name="@mb.Name" draggable="true" title="@mb.Email">
-                        <span class="member-chip__avatar">@mb.Initial</span>
-                        <span class="member-chip__info">
+                        <span class="member-chip-avatar">@mb.Initial</span>
+                        <span class="member-chip-info">
                             <strong>@mb.Name@(mb.IsCurrentUser ? " (bạn)" : "")</strong>
                             <small>@mb.Role · <span data-open-count>@mb.OpenTaskCount</span> việc đang mở</small>
                         </span>
@@ -192,14 +192,14 @@
 
     <!-- THANH LỌC BẢNG KANBAN -->
     <section class="board-toolbar" aria-label="Bộ lọc bảng nhiệm vụ">
-        <input type="search" id="boardSearch" class="proj-input board-search" placeholder="Tìm nhiệm vụ..." autocomplete="off" aria-label="Tìm nhiệm vụ" />
+        <input type="search" id="boardSearch" class="project-input board-search" placeholder="Tìm nhiệm vụ..." autocomplete="off" aria-label="Tìm nhiệm vụ" />
         <div class="board-avatars" role="group" aria-label="Lọc theo người thực hiện">
             @foreach (var mb in assignable)
             {
                 <button type="button" class="filter-avatar" data-filter-user="@mb.UserId" title="@mb.Name" aria-pressed="false">@mb.Initial</button>
             }
         </div>
-        <button type="button" class="proj-btn sm" id="boardClear" hidden>Xóa bộ lọc</button>
+        <button type="button" class="project-btn small" id="boardClear" hidden>Xóa bộ lọc</button>
     </section>
 
     <!-- BẢNG KANBAN -->
@@ -207,7 +207,7 @@
         @foreach (var col in d.Columns)
         {
             <div class="kanban-col" data-column data-status="@col.Key">
-                <div class="kanban-col__head">
+                <div class="kanban-col-head">
                     <h3>
                         <span>
                             @col.Title
@@ -216,35 +216,35 @@
                                 <small class="kanban-hint">Chờ trưởng nhóm duyệt</small>
                             }
                         </span>
-                        <span class="proj-tab-count">@col.Tasks.Count</span>
+                        <span class="chip-count">@col.Tasks.Count</span>
                     </h3>
                     @if (d.CanEdit)
                     {
-                        <button type="button" class="proj-btn sm" data-modal-open="createTaskModal" data-prefill-status="@col.Key" aria-label="Thêm nhiệm vụ vào cột @col.Title">+</button>
+                        <button type="button" class="project-btn small" data-modal-open="createTaskModal" data-prefill-status="@col.Key" aria-label="Thêm nhiệm vụ vào cột @col.Title">+</button>
                     }
                 </div>
 
-                <div class="kanban-col__body">
+                <div class="kanban-col-body">
                     @foreach (var t in col.Tasks)
                     {
                         var dueClass = t.IsOverdue ? "task-due is-overdue" : "task-due";
                         var assigneeAttr = t.AssigneeId?.ToString() ?? "";
                         var searchAttr = t.Key + " " + t.Title;
-                        var assigneeClass = string.IsNullOrEmpty(t.AssigneeInitial) ? "task-assignee task-assignee--empty" : "task-assignee";
+                        var assigneeClass = string.IsNullOrEmpty(t.AssigneeInitial) ? "task-assignee task-assignee-empty" : "task-assignee";
 
                         <article class="task-card" data-task-card data-task-id="@t.Id" data-status="@t.StatusKey"
                                  data-assignee="@assigneeAttr" data-search="@searchAttr" draggable="@dragTask"
                                  data-modal-open="taskModal-@t.Id" tabindex="0">
-                            <div class="task-card__top">
+                            <div class="task-card-top">
                                 <span class="task-key">@t.Key</span>
-                                <span class="task-prio task-prio--@t.PriorityKey">@t.PriorityLabel</span>
+                                <span class="task-prio task-prio-@t.PriorityKey">@t.PriorityLabel</span>
                             </div>
                             <h4>@t.Title</h4>
                             @if (t.SubTasks.Count > 0)
                             {
                                 <div class="task-sub" data-card-sub>☑ @t.SubTaskDone/@t.SubTasks.Count việc con</div>
                             }
-                            <div class="task-card__foot">
+                            <div class="task-card-foot">
                                 <div class="task-meta-group">
                                     <span class="@dueClass">@(t.IsOverdue ? "Quá hạn · " : "")@(t.DueDate.HasValue ? t.DueDate.Value.ToString("dd/MM") : "Không hạn")</span>
                                     <span class="task-meta" data-comment-count hidden="@(t.Comments.Count == 0)">💬 @t.Comments.Count</span>
@@ -266,23 +266,23 @@
     </div>
 
     <div class="ws-panel" role="tabpanel" id="panel-list" aria-labelledby="tab-list" data-ws-panel="list" hidden>
-        <div class="proj-list-toolbar" aria-label="Bộ lọc danh sách nhiệm vụ">
-            <input type="search" id="listSearch" class="proj-input proj-search" placeholder="Tìm nhiệm vụ..." autocomplete="off" aria-label="Tìm nhiệm vụ" />
-            <select id="listStatus" class="proj-input proj-select" aria-label="Lọc theo trạng thái">
+        <div class="project-list-toolbar" aria-label="Bộ lọc danh sách nhiệm vụ">
+            <input type="search" id="listSearch" class="project-input project-search" placeholder="Tìm nhiệm vụ..." autocomplete="off" aria-label="Tìm nhiệm vụ" />
+            <select id="listStatus" class="project-input project-select" aria-label="Lọc theo trạng thái">
                 <option value="">Mọi trạng thái</option>
                 @foreach (var col in d.Columns)
                 {
                     <option value="@col.Key">@col.Title</option>
                 }
             </select>
-            <select id="listPriority" class="proj-input proj-select" aria-label="Lọc theo mức ưu tiên">
+            <select id="listPriority" class="project-input project-select" aria-label="Lọc theo mức ưu tiên">
                 <option value="">Mọi mức ưu tiên</option>
                 @foreach (var pr in priorities)
                 {
                     <option value="@pr.Item1">@pr.Item2</option>
                 }
             </select>
-            <select id="listAssignee" class="proj-input proj-select" aria-label="Lọc theo người thực hiện">
+            <select id="listAssignee" class="project-input project-select" aria-label="Lọc theo người thực hiện">
                 <option value="">Mọi người thực hiện</option>
                 <option value="none">Chưa giao</option>
                 @foreach (var mb in assignable)
@@ -292,8 +292,8 @@
             </select>
         </div>
 
-        <div class="proj-table-wrap">
-            <table class="proj-table">
+        <div class="table-wrap">
+            <table class="project-table">
                 <thead>
                     <tr>
                         <th scope="col">Nhiệm vụ</th>
@@ -312,16 +312,16 @@
                             data-assignee="@rowAssignee" data-search="@(t.Key + " " + t.Title)"
                             data-modal-open="taskModal-@t.Id" tabindex="0">
                             <td class="cell-title"><strong>@t.Title</strong><small>@t.Key</small></td>
-                            <td><span class="proj-pill" data-status="@t.StatusKey" data-list-status>@t.StatusLabel</span></td>
-                            <td><span class="task-prio task-prio--@t.PriorityKey">@t.PriorityLabel</span></td>
+                            <td><span class="project-pill" data-status="@t.StatusKey" data-list-status>@t.StatusLabel</span></td>
+                            <td><span class="task-prio task-prio-@t.PriorityKey">@t.PriorityLabel</span></td>
                             <td>
                                 @if (string.IsNullOrEmpty(t.AssigneeInitial))
                                 {
-                                    <span class="proj-muted-text">Chưa giao</span>
+                                    <span class="project-muted-text">Chưa giao</span>
                                 }
                                 else
                                 {
-                                    <span class="proj-who"><span class="task-assignee">@t.AssigneeInitial</span>@t.AssigneeName</span>
+                                    <span class="project-who"><span class="task-assignee">@t.AssigneeInitial</span>@t.AssigneeName</span>
                                 }
                             </td>
                             <td>
@@ -331,40 +331,40 @@
                                 }
                                 else
                                 {
-                                    <span class="proj-muted-text">Không hạn</span>
+                                    <span class="project-muted-text">Không hạn</span>
                                 }
                             </td>
-                            <td class="proj-muted-text">@timeAgo(t.UpdatedAt)</td>
+                            <td class="project-muted-text">@timeAgo(t.UpdatedAt)</td>
                         </tr>
                     }
-                    <tr class="proj-list-empty" id="listEmpty" @(allTasks.Count == 0 ? "" : "hidden")>
+                    <tr class="project-list-empty" id="listEmpty" @(allTasks.Count == 0 ? "" : "hidden")>
                         <td colspan="6">@(allTasks.Count == 0 ? "Dự án chưa có nhiệm vụ nào." : "Không có nhiệm vụ khớp bộ lọc.")</td>
                     </tr>
                 </tbody>
             </table>
         </div>
-        <p class="proj-sub">Bấm vào một dòng để mở chi tiết và cập nhật nhiệm vụ.</p>
+        <p class="project-sub">Bấm vào một dòng để mở chi tiết và cập nhật nhiệm vụ.</p>
     </div>
 
     <div class="ws-panel" role="tabpanel" id="panel-milestones" aria-labelledby="tab-milestones" data-ws-panel="milestones" hidden>
-        <section class="proj-panel proj-milestones" data-ms-scope>
+        <section class="project-card project-milestones" data-ms-scope>
             @{
                 var msDone = d.Milestones.Count(x => x.IsCompleted);
                 var msPct = d.Milestones.Count == 0 ? 0 : (int)Math.Round(msDone * 100.0 / d.Milestones.Count);
             }
 
-            <div class="proj-top proj-milestones-head">
+            <div class="project-top project-milestones-head">
                 <div>
                     <h3>Cột mốc dự án</h3>
-                    <p class="proj-sub"><strong data-ms-progress>@msDone/@d.Milestones.Count</strong> cột mốc đã hoàn thành. Bấm vào vòng tròn để đánh dấu.</p>
+                    <p class="project-sub"><strong data-ms-progress>@msDone/@d.Milestones.Count</strong> cột mốc đã hoàn thành. Bấm vào vòng tròn để đánh dấu.</p>
                 </div>
                 @if (d.CanManage)
                 {
-                    <button type="button" class="proj-btn sm" data-modal-open="createMilestoneModal">+ Cột mốc</button>
+                    <button type="button" class="project-btn small" data-modal-open="createMilestoneModal">+ Cột mốc</button>
                 }
             </div>
 
-            <div class="proj-progress ms-progress"><div class="bar"><i data-ms-bar style="width:@msPct%;"></i></div></div>
+            <div class="project-progress ms-progress"><div class="bar"><i data-ms-bar style="width:@msPct%;"></i></div></div>
 
             <ol class="ms-timeline">
                 @foreach (var ms in d.Milestones)
@@ -385,15 +385,15 @@
                         }
                         else
                         {
-                            <span class="ms-toggle ms-toggle--static">@(ms.IsCompleted ? "✓" : "○")</span>
+                            <span class="ms-toggle ms-toggle-static">@(ms.IsCompleted ? "✓" : "○")</span>
                         }
 
-                        <div class="ms-node__body">
-                            <div class="ms-node__top">
-                                <span class="ms-node__title">@ms.Title</span>
+                        <div class="ms-node-body">
+                            <div class="ms-node-top">
+                                <span class="ms-node-title">@ms.Title</span>
                                 <span class="ms-date">@ms.DueDate.ToString("dd/MM/yyyy")</span>
                             </div>
-                            <small class="ms-node__meta" data-ms-meta>@ms.DueText</small>
+                            <small class="ms-node-meta" data-ms-meta>@ms.DueText</small>
                         </div>
                     </li>
                 }
@@ -401,7 +401,7 @@
 
             @if (d.Milestones.Count == 0)
             {
-                <p class="proj-sub">Chưa có cột mốc nào.</p>
+                <p class="project-sub">Chưa có cột mốc nào.</p>
             }
         </section>
 
@@ -409,13 +409,13 @@
 
     <div class="ws-panel" role="tabpanel" id="panel-members" aria-labelledby="tab-members" data-ws-panel="members" hidden>
     <!-- THÀNH VIÊN: trưởng nhóm kéo chip thả vào thẻ nhiệm vụ để giao việc -->
-    <section class="proj-panel detail-members">
-        <div class="proj-top">
+    <section class="project-card detail-members">
+        <div class="project-top">
             <div>
                 <h3>Thành viên (@d.Members.Count)</h3>
                 @if (d.CanManage)
                 {
-                    <p class="proj-sub">Kéo thành viên thả vào thẻ nhiệm vụ để giao việc. Hoặc mở nhiệm vụ rồi chọn người ở mục "Người thực hiện".</p>
+                    <p class="project-sub">Kéo thành viên thả vào thẻ nhiệm vụ để giao việc. Hoặc mở nhiệm vụ rồi chọn người ở mục "Người thực hiện".</p>
                 }
             </div>
         </div>
@@ -427,8 +427,8 @@
                 var dragChip = canDragChip ? "true" : "false";
 
                 <div class="member-chip" data-member-chip data-user-id="@mb.UserId" data-name="@mb.Name" draggable="@dragChip" title="@mb.Email">
-                    <span class="member-chip__avatar">@mb.Initial</span>
-                    <span class="member-chip__info">
+                    <span class="member-chip-avatar">@mb.Initial</span>
+                    <span class="member-chip-info">
                         <strong>@mb.Name@(mb.IsCurrentUser ? " (bạn)" : "")</strong>
                         <small>@mb.Role · <span data-open-count>@mb.OpenTaskCount</span> việc đang mở</small>
                     </span>
@@ -464,7 +464,7 @@
                                     <form method="post" asp-action="AcceptInvitation">
                                         <input type="hidden" name="projectId" value="@d.Id" />
                                         <input type="hidden" name="invitationId" value="@inv.Id" />
-                                        <button type="submit" class="proj-btn sm">Chấp nhận lời mời</button>
+                                        <button type="submit" class="project-btn small">Chấp nhận lời mời</button>
                                     </form>
                                 }
                                 @if (d.CanManage)
@@ -472,7 +472,7 @@
                                     <form method="post" asp-action="CancelInvitation">
                                         <input type="hidden" name="projectId" value="@d.Id" />
                                         <input type="hidden" name="invitationId" value="@inv.Id" />
-                                        <button type="submit" class="proj-btn sm danger">Hủy</button>
+                                        <button type="submit" class="project-btn small danger">Hủy</button>
                                     </form>
                                 }
                             </div>
@@ -486,8 +486,8 @@
     </div>
 
     <div class="ws-panel" role="tabpanel" id="panel-activity" aria-labelledby="tab-activity" data-ws-panel="activity" hidden>
-        <section class="proj-panel">
-            <div class="proj-top"><div><h3>Hoạt động gần đây</h3></div></div>
+        <section class="project-card">
+            <div class="project-top"><div><h3>Hoạt động gần đây</h3></div></div>
             <ul class="act-list">
                 @foreach (var a in d.Activities)
                 {
@@ -502,42 +502,42 @@
             </ul>
             @if (d.Activities.Count == 0)
             {
-                <p class="proj-attn-empty">Chưa có hoạt động nào trong dự án.</p>
+                <p class="project-attn-empty">Chưa có hoạt động nào trong dự án.</p>
             }
         </section>
     </div>
 
     <!-- MODAL: YÊU CẦU LÀM LẠI (đặt TRƯỚC các modal nhiệm vụ để phím Esc đóng nó trước) -->
-    <div class="proj-modal" id="reworkModal" role="dialog" aria-modal="true" aria-labelledby="reworkTitle" hidden>
-        <div class="proj-modal__dialog">
-            <div class="proj-modal__head">
+    <div class="project-modal" id="reworkModal" role="dialog" aria-modal="true" aria-labelledby="reworkTitle" hidden>
+        <div class="project-modal-box">
+            <div class="project-modal-head">
                 <div>
                     <h3 id="reworkTitle">Yêu cầu làm lại</h3>
-                    <p class="proj-sub" id="reworkTaskName"></p>
+                    <p class="project-sub" id="reworkTaskName"></p>
                 </div>
-                <button type="button" class="proj-modal__close" data-modal-close aria-label="Đóng">×</button>
+                <button type="button" class="project-modal-close" data-modal-close aria-label="Đóng">×</button>
             </div>
 
             <form data-rework-form data-reset-on-open novalidate>
-                <div class="proj-field">
+                <div class="field">
                     <label for="reworkReason">Lý do (bắt buộc) *</label>
-                    <textarea id="reworkReason" class="proj-input" rows="4" maxlength="500" required
+                    <textarea id="reworkReason" class="project-input" rows="4" maxlength="500" required
                               placeholder="VD: Chưa đạt: thiếu kiểm tra dữ liệu đầu vào, cần sửa lại phần..."></textarea>
                 </div>
 
-                <div class="proj-field">
+                <div class="field">
                     <label for="reworkTarget">Kéo về cột</label>
-                    <select id="reworkTarget" class="proj-input">
+                    <select id="reworkTarget" class="project-input">
                         <option value="in_progress">Đang làm</option>
                         <option value="todo">Cần làm</option>
                     </select>
                 </div>
 
-                <p class="proj-form-note" data-form-note hidden></p>
+                <p class="project-note" data-form-note hidden></p>
 
-                <div class="proj-modal__actions">
-                    <button type="button" class="proj-btn" data-modal-close>Hủy</button>
-                    <button type="submit" class="proj-btn danger">Gửi lý do và trả về</button>
+                <div class="project-modal-foot">
+                    <button type="button" class="project-btn" data-modal-close>Hủy</button>
+                    <button type="submit" class="project-btn danger">Gửi lý do và trả về</button>
                 </div>
             </form>
         </div>
@@ -548,11 +548,11 @@
     {
         var assigneeLabel = string.IsNullOrEmpty(t.AssigneeName) ? "Chưa giao" : t.AssigneeName;
 
-        <div class="proj-modal" id="taskModal-@t.Id" data-task-modal data-task-id="@t.Id" role="dialog" aria-modal="true" aria-labelledby="taskTitle-@t.Id" hidden>
-            <div class="proj-modal__dialog proj-modal__dialog--jira">
+        <div class="project-modal" id="taskModal-@t.Id" data-task-modal data-task-id="@t.Id" role="dialog" aria-modal="true" aria-labelledby="taskTitle-@t.Id" hidden>
+            <div class="project-modal-box project-modal-box-jira">
                 <div class="jira-top">
                     <span class="task-key">@d.Name / @t.Key</span>
-                    <button type="button" class="proj-modal__close" data-modal-close aria-label="Đóng">×</button>
+                    <button type="button" class="project-modal-close" data-modal-close aria-label="Đóng">×</button>
                 </div>
 
                 <div class="jira-layout">
@@ -585,21 +585,21 @@
                         </div>
                         @if (t.SubTasks.Count == 0)
                         {
-                            <p class="proj-sub">Chưa có việc con.</p>
+                            <p class="project-sub">Chưa có việc con.</p>
                         }
                         @if (d.CanEdit)
                         {
                             <form method="post" asp-action="CreateTask" class="task-inline-form">
                                 <input type="hidden" name="projectId" value="@d.Id" />
                                 <input type="hidden" name="parentTaskId" value="@t.Id" />
-                                <input type="text" name="title" class="proj-input" maxlength="120" required placeholder="Thêm việc con..." aria-label="Tên việc con" />
-                                <button type="submit" class="proj-btn sm">Thêm</button>
+                                <input type="text" name="title" class="project-input" maxlength="120" required placeholder="Thêm việc con..." aria-label="Tên việc con" />
+                                <button type="submit" class="project-btn small">Thêm</button>
                             </form>
                         }
 
                         <h4 class="jira-h">Hoạt động</h4>
                         <div class="jira-tabs" role="tablist">
-                            <button type="button" class="jira-tab is-active" data-activity-tab="comments">Bình luận <span data-comment-total>@t.Comments.Count</span></button>
+                            <button type="button" class="jira-tab active" data-activity-tab="comments">Bình luận <span data-comment-total>@t.Comments.Count</span></button>
                             <button type="button" class="jira-tab" data-activity-tab="history">Lịch sử</button>
                         </div>
 
@@ -611,7 +611,7 @@
                                 }
                                 @foreach (var c in t.Comments)
                                 {
-                                    var commentClass = c.IsRework ? "comment comment--rework" : "comment";
+                                    var commentClass = c.IsRework ? "comment comment-rework" : "comment";
 
                                     <li class="@commentClass">
                                         <span class="comment-avatar">@c.AuthorInitial</span>
@@ -635,9 +635,9 @@
                                     <input type="hidden" name="projectId" value="@d.Id" />
                                     <input type="hidden" name="taskId" value="@t.Id" />
                                     <span class="comment-avatar">@d.CurrentUserName.Substring(0, 1)</span>
-                                    <div class="comment-form__body">
-                                        <textarea class="proj-input" name="content" rows="2" maxlength="500" placeholder="Viết bình luận..." aria-label="Bình luận"></textarea>
-                                        <button type="submit" class="proj-btn sm primary">Bình luận</button>
+                                    <div class="comment-form-body">
+                                        <textarea class="project-input" name="content" rows="2" maxlength="500" placeholder="Viết bình luận..." aria-label="Bình luận"></textarea>
+                                        <button type="submit" class="project-btn small primary">Bình luận</button>
                                     </div>
                                 </form>
                             }
@@ -661,7 +661,7 @@
                     <aside class="jira-side">
                         <div class="jira-panel">
                             <label class="jira-label" for="status-@t.Id">Trạng thái</label>
-                            <select id="status-@t.Id" class="proj-input" data-status-select disabled="@(!d.CanEdit)">
+                            <select id="status-@t.Id" class="project-input" data-status-select disabled="@(!d.CanEdit)">
                                 @foreach (var c in d.Columns)
                                 {
                                     <option value="@c.Key" selected="@(c.Key == t.StatusKey)">@c.Title</option>
@@ -669,9 +669,9 @@
                             </select>
 
                             <div class="review-actions">
-                                <button type="button" class="proj-btn primary" data-review-action="submit" hidden>Gửi duyệt</button>
-                                <button type="button" class="proj-btn primary" data-review-action="approve" hidden>Duyệt hoàn thành</button>
-                                <button type="button" class="proj-btn danger" data-review-action="rework" hidden>Yêu cầu làm lại</button>
+                                <button type="button" class="project-btn primary" data-review-action="submit" hidden>Gửi duyệt</button>
+                                <button type="button" class="project-btn primary" data-review-action="approve" hidden>Duyệt hoàn thành</button>
+                                <button type="button" class="project-btn danger" data-review-action="rework" hidden>Yêu cầu làm lại</button>
                             </div>
                         </div>
 
@@ -683,7 +683,7 @@
                                     <dd>
                                         @if (d.CanManage)
                                         {
-                                            <select class="proj-input" data-assign-select aria-label="Người thực hiện">
+                                            <select class="project-input" data-assign-select aria-label="Người thực hiện">
                                                 <option value="" selected="@(!t.AssigneeId.HasValue)">Chưa giao</option>
                                                 @foreach (var mb in assignable)
                                                 {
@@ -698,7 +698,7 @@
                                     </dd>
                                 </div>
                                 <div><dt>Người báo cáo</dt><dd>@t.ReporterName</dd></div>
-                                <div><dt>Ưu tiên</dt><dd><span class="task-prio task-prio--@t.PriorityKey">@t.PriorityLabel</span></dd></div>
+                                <div><dt>Ưu tiên</dt><dd><span class="task-prio task-prio-@t.PriorityKey">@t.PriorityLabel</span></dd></div>
                                 <div><dt>Hạn chót</dt><dd>@(t.DueDate.HasValue ? t.DueDate.Value.ToString("dd/MM/yyyy") : "Chưa đặt")</dd></div>
                                 <div><dt>Ngày tạo</dt><dd>@t.CreatedAt.ToString("dd/MM/yyyy")</dd></div>
                                 <div><dt>Cập nhật</dt><dd data-updated>@t.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</dd></div>
@@ -711,7 +711,7 @@
                             <form method="post" asp-action="DeleteTask" data-confirm="Xóa nhiệm vụ này và các việc con của nó?">
                                 <input type="hidden" name="projectId" value="@d.Id" />
                                 <input type="hidden" name="taskId" value="@t.Id" />
-                                <button type="submit" class="proj-btn danger">Xóa nhiệm vụ</button>
+                                <button type="submit" class="project-btn danger">Xóa nhiệm vụ</button>
                             </form>
                         }
                     </aside>
@@ -723,42 +723,42 @@
     <!-- MODAL: TẠO NHIỆM VỤ -->
     @if (d.CanEdit)
     {
-        <div class="proj-modal" id="createTaskModal" role="dialog" aria-modal="true" aria-labelledby="createTaskTitle" hidden>
-            <div class="proj-modal__dialog">
-                <div class="proj-modal__head">
+        <div class="project-modal" id="createTaskModal" role="dialog" aria-modal="true" aria-labelledby="createTaskTitle" hidden>
+            <div class="project-modal-box">
+                <div class="project-modal-head">
                     <div>
                         <h3 id="createTaskTitle">Tạo nhiệm vụ</h3>
-                        <p class="proj-sub">Nhiệm vụ mới sẽ nhận mã @d.Key-n.</p>
+                        <p class="project-sub">Nhiệm vụ mới sẽ nhận mã @d.Key-n.</p>
                     </div>
-                    <button type="button" class="proj-modal__close" data-modal-close aria-label="Đóng">×</button>
+                    <button type="button" class="project-modal-close" data-modal-close aria-label="Đóng">×</button>
                 </div>
 
                 <form method="post" asp-action="CreateTask" data-reset-on-open>
                     <input type="hidden" name="projectId" value="@d.Id" />
 
-                    <div class="proj-field">
+                    <div class="field">
                         <label for="newTaskTitle">Tên nhiệm vụ *</label>
-                        <input type="text" id="newTaskTitle" name="title" class="proj-input" maxlength="120" required placeholder="VD: Làm trang đăng nhập" />
+                        <input type="text" id="newTaskTitle" name="title" class="project-input" maxlength="120" required placeholder="VD: Làm trang đăng nhập" />
                     </div>
 
-                    <div class="proj-field">
+                    <div class="field">
                         <label for="newTaskDesc">Mô tả</label>
-                        <textarea id="newTaskDesc" name="description" class="proj-input" rows="3" maxlength="500"></textarea>
+                        <textarea id="newTaskDesc" name="description" class="project-input" rows="3" maxlength="500"></textarea>
                     </div>
 
-                    <div class="proj-field-row">
-                        <div class="proj-field">
+                    <div class="project-form-row">
+                        <div class="field">
                             <label for="newTaskStatus">Cột</label>
-                            <select id="newTaskStatus" name="status" class="proj-input">
+                            <select id="newTaskStatus" name="status" class="project-input">
                                 @foreach (var c in d.Columns)
                                 {
                                     <option value="@c.Key">@c.Title</option>
                                 }
                             </select>
                         </div>
-                        <div class="proj-field">
+                        <div class="field">
                             <label for="newTaskPriority">Mức ưu tiên</label>
-                            <select id="newTaskPriority" name="priority" class="proj-input">
+                            <select id="newTaskPriority" name="priority" class="project-input">
                                 @foreach (var (value, label) in priorities)
                                 {
                                     <option value="@value" selected="@(value == "medium")">@label</option>
@@ -767,14 +767,14 @@
                         </div>
                     </div>
 
-                    <div class="proj-field-row">
-                        <div class="proj-field">
+                    <div class="project-form-row">
+                        <div class="field">
                             <label for="newTaskDue">Hạn chót</label>
-                            <input type="date" id="newTaskDue" name="dueDate" class="proj-input" />
+                            <input type="date" id="newTaskDue" name="dueDate" class="project-input" />
                         </div>
-                        <div class="proj-field">
+                        <div class="field">
                             <label for="newTaskAssignee">Giao cho</label>
-                            <select id="newTaskAssignee" name="assigneeId" class="proj-input">
+                            <select id="newTaskAssignee" name="assigneeId" class="project-input">
                                 <option value="">Chưa giao</option>
                                 @foreach (var mb in assignable)
                                 {
@@ -784,11 +784,11 @@
                         </div>
                     </div>
 
-                    <p class="proj-form-note" data-form-note hidden></p>
+                    <p class="project-note" data-form-note hidden></p>
 
-                    <div class="proj-modal__actions">
-                        <button type="button" class="proj-btn" data-modal-close>Hủy</button>
-                        <button type="submit" class="proj-btn primary">Tạo nhiệm vụ</button>
+                    <div class="project-modal-foot">
+                        <button type="button" class="project-btn" data-modal-close>Hủy</button>
+                        <button type="submit" class="project-btn primary">Tạo nhiệm vụ</button>
                     </div>
                 </form>
             </div>
@@ -798,72 +798,72 @@
     <!-- MODAL: MỜI THÀNH VIÊN + THÊM CỘT MỐC (chỉ trưởng nhóm) -->
     @if (d.CanManage)
     {
-        <div class="proj-modal" id="inviteModal" role="dialog" aria-modal="true" aria-labelledby="inviteTitle" hidden>
-            <div class="proj-modal__dialog">
-                <div class="proj-modal__head">
+        <div class="project-modal" id="inviteModal" role="dialog" aria-modal="true" aria-labelledby="inviteTitle" hidden>
+            <div class="project-modal-box">
+                <div class="project-modal-head">
                     <div>
                         <h3 id="inviteTitle">Mời thành viên</h3>
-                        <p class="proj-sub">Lời mời sẽ ở trạng thái "Chờ" cho đến khi người kia chấp nhận.</p>
+                        <p class="project-sub">Lời mời sẽ ở trạng thái "Chờ" cho đến khi người kia chấp nhận.</p>
                     </div>
-                    <button type="button" class="proj-modal__close" data-modal-close aria-label="Đóng">×</button>
+                    <button type="button" class="project-modal-close" data-modal-close aria-label="Đóng">×</button>
                 </div>
 
                 <form method="post" asp-action="InviteMember" data-reset-on-open>
                     <input type="hidden" name="projectId" value="@d.Id" />
 
-                    <div class="proj-field">
+                    <div class="field">
                         <label for="inviteEmail">Email *</label>
-                        <input type="email" id="inviteEmail" name="email" class="proj-input" required placeholder="ten@email.com" />
+                        <input type="email" id="inviteEmail" name="email" class="project-input" required placeholder="ten@email.com" />
                     </div>
 
-                    <div class="proj-field">
+                    <div class="field">
                         <label for="inviteRole">Vai trò</label>
-                        <select id="inviteRole" name="role" class="proj-input">
+                        <select id="inviteRole" name="role" class="project-input">
                             <option value="Member">Member: tạo và cập nhật nhiệm vụ</option>
                             <option value="Viewer">Viewer: chỉ xem</option>
                             <option value="Manager">Manager: trưởng nhóm, quản lý toàn bộ dự án</option>
                         </select>
                     </div>
 
-                    <p class="proj-form-note" data-form-note hidden></p>
+                    <p class="project-note" data-form-note hidden></p>
 
-                    <div class="proj-modal__actions">
-                        <button type="button" class="proj-btn" data-modal-close>Hủy</button>
-                        <button type="submit" class="proj-btn primary">Gửi lời mời</button>
+                    <div class="project-modal-foot">
+                        <button type="button" class="project-btn" data-modal-close>Hủy</button>
+                        <button type="submit" class="project-btn primary">Gửi lời mời</button>
                     </div>
                 </form>
             </div>
         </div>
 
-        <div class="proj-modal" id="createMilestoneModal" role="dialog" aria-modal="true" aria-labelledby="createMilestoneTitle" hidden>
-            <div class="proj-modal__dialog">
-                <div class="proj-modal__head">
+        <div class="project-modal" id="createMilestoneModal" role="dialog" aria-modal="true" aria-labelledby="createMilestoneTitle" hidden>
+            <div class="project-modal-box">
+                <div class="project-modal-head">
                     <div>
                         <h3 id="createMilestoneTitle">Thêm cột mốc</h3>
-                        <p class="proj-sub">Đánh dấu một giai đoạn quan trọng của dự án.</p>
+                        <p class="project-sub">Đánh dấu một giai đoạn quan trọng của dự án.</p>
                     </div>
-                    <button type="button" class="proj-modal__close" data-modal-close aria-label="Đóng">×</button>
+                    <button type="button" class="project-modal-close" data-modal-close aria-label="Đóng">×</button>
                 </div>
 
                 <form method="post" asp-action="AddMilestone" data-reset-on-open>
                     <input type="hidden" name="projectId" value="@d.Id" />
                     <input type="hidden" name="returnTo" value="details" />
 
-                    <div class="proj-field">
+                    <div class="field">
                         <label for="newMilestoneTitleInput">Tên cột mốc *</label>
-                        <input type="text" id="newMilestoneTitleInput" name="title" class="proj-input" maxlength="100" required />
+                        <input type="text" id="newMilestoneTitleInput" name="title" class="project-input" maxlength="100" required />
                     </div>
 
-                    <div class="proj-field">
+                    <div class="field">
                         <label for="newMilestoneDue">Hạn hoàn thành *</label>
-                        <input type="date" id="newMilestoneDue" name="dueDate" class="proj-input" required />
+                        <input type="date" id="newMilestoneDue" name="dueDate" class="project-input" required />
                     </div>
 
-                    <p class="proj-form-note" data-form-note hidden></p>
+                    <p class="project-note" data-form-note hidden></p>
 
-                    <div class="proj-modal__actions">
-                        <button type="button" class="proj-btn" data-modal-close>Hủy</button>
-                        <button type="submit" class="proj-btn primary">Thêm cột mốc</button>
+                    <div class="project-modal-foot">
+                        <button type="button" class="project-btn" data-modal-close>Hủy</button>
+                        <button type="submit" class="project-btn primary">Thêm cột mốc</button>
                     </div>
                 </form>
             </div>

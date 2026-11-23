@@ -27,12 +27,12 @@
 
     <div class="task-modal-backdrop" data-close-task-modal></div>
 
-    <div class="task-modal-dialog">
+    <div class="task-modal-box">
 
         <!-- MODAL HEADER -->
-        <header class="task-modal-header">
+        <header class="task-modal-head">
             <div>
-                <span class="task-eyebrow">WORK MANAGEMENT</span>
+                <span class="task-label">WORK MANAGEMENT</span>
                 <h2 id="taskModalTitle">Chi tiết công việc</h2>
             </div>
 
@@ -121,21 +121,21 @@
                 </div>
             </section>
 
-            <footer class="task-modal-footer">
+            <footer class="task-modal-foot">
                 <button type="button"
-                        class="task-btn task-btn-danger-outline"
+                        class="task-btn danger-outline"
                         data-task-modal-mode="delete">
                     Xóa
                 </button>
 
                 <button type="button"
-                        class="task-btn task-btn-secondary"
+                        class="task-btn"
                         data-close-task-modal>
                     Đóng
                 </button>
 
                 <button type="button"
-                        class="task-btn task-btn-primary"
+                        class="task-btn primary"
                         data-task-modal-mode="edit">
                     Chỉnh sửa
                 </button>
@@ -181,7 +181,7 @@
                 <div class="task-form-grid">
 
                     <!-- COMMON FIELDS -->
-                    <div class="task-form-field full">
+                    <div class="field full">
                         <label asp-for="Title">Tên công việc</label>
 
                         <input asp-for="Title"
@@ -192,7 +192,7 @@
                         <span asp-validation-for="Title"></span>
                     </div>
 
-                    <div class="task-form-field full">
+                    <div class="field full">
                         <label asp-for="Description">Mô tả</label>
 
                         <textarea asp-for="Description"
@@ -202,7 +202,7 @@
                         </textarea>
                     </div>
 
-                    <div class="task-form-field">
+                    <div class="field">
                         <label asp-for="Priority">Mức ưu tiên</label>
 
                         <select asp-for="Priority"
@@ -214,7 +214,7 @@
                         </select>
                     </div>
 
-                    <div class="task-form-field">
+                    <div class="field">
                         <label asp-for="Status">Trạng thái</label>
 
                         <select asp-for="Status"
@@ -226,7 +226,7 @@
                         </select>
                     </div>
 
-                    <div class="task-form-field">
+                    <div class="field">
                         <label asp-for="Deadline">Hạn hoàn thành</label>
 
                         <input asp-for="Deadline"
@@ -234,7 +234,7 @@
                                data-task-field="deadline" />
                     </div>
 
-                    <div class="task-form-field">
+                    <div class="field">
                         <label asp-for="EstimatedMinutes">
                             Thời gian ước tính (phút)
                         </label>
@@ -247,7 +247,7 @@
                     </div>
 
                     <!-- PERSONAL FIELDS -->
-                    <div class="task-form-field full"
+                    <div class="field full"
                          data-personal-fields>
 
                         <label asp-for="CategoryId">
@@ -268,7 +268,7 @@
                     </div>
 
                     <!-- PROJECT FIELDS -->
-                    <div class="task-form-field full"
+                    <div class="field full"
                          data-project-fields
                          hidden>
 
@@ -287,7 +287,7 @@
                         </select>
                     </div>
 
-                    <div class="task-form-field full"
+                    <div class="field full"
                          data-project-fields
                          hidden>
 
@@ -313,7 +313,7 @@
                     </div>
 
                     <!-- TAGS -->
-                    <div class="task-form-field full">
+                    <div class="field full">
                         <label asp-for="Tags">Nhãn công việc</label>
 
                         <input asp-for="Tags"
@@ -327,15 +327,15 @@
 
                 </div>
 
-                <footer class="task-modal-footer">
+                <footer class="task-modal-foot">
                     <button type="button"
-                            class="task-btn task-btn-secondary"
+                            class="task-btn"
                             data-close-task-modal>
                         Hủy
                     </button>
 
                     <button type="button"
-                            class="task-btn task-btn-primary"
+                            class="task-btn primary"
                             data-task-form-submit>
                         Lưu công việc
                     </button>
@@ -364,17 +364,26 @@
                 </p>
             </div>
 
+<<<<<<< HEAD
             <form asp-action="DeleteTask" method="post" data-task-delete-form>
                 <input type="hidden" name="id" data-task-delete-id />
             <footer class="task-modal-footer">
+=======
+            <footer class="task-modal-foot">
+>>>>>>> ea404f8d5b901b240bfbefea69d2afbef94ae6b3
                 <button type="button"
-                        class="task-btn task-btn-secondary"
+                        class="task-btn"
                         data-task-modal-mode="detail">
                     Quay lại
                 </button>
 
+<<<<<<< HEAD
                 <button type="submit"
                         class="task-btn task-btn-danger"
+=======
+                <button type="button"
+                        class="task-btn danger"
+>>>>>>> ea404f8d5b901b240bfbefea69d2afbef94ae6b3
                         data-task-delete-confirm>
                     Xác nhận xóa
                 </button>

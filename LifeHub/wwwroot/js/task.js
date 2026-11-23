@@ -747,7 +747,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const taskProjectFilter = $("#taskProjectFilter");
     const taskCategoryFilter = $("#taskCategoryFilter");
 
-    const kanbanCards = $$(".task-card[data-status]");
+    const kanbanCards = $$(".task-item[data-status]");
 
     function filterTasks() {
         if (kanbanCards.length === 0) return;
@@ -804,11 +804,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function refreshKanbanCounts() {
         $$(".task-kanban-column").forEach(column => {
-            const cards = $$(".task-card", column)
+            const cards = $$(".task-item", column)
                 .filter(card => !card.hidden);
 
             const countElement = $(
-                ".task-kanban-column__header > span",
+                ".task-kanban-column-header > span",
                 column
             );
 

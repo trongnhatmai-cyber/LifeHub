@@ -1,12 +1,97 @@
-@model LifeHub.Models.ViewModels.GoalManagement.GoalHabitPageViewModel
+@model LifeHub.Models.ViewModels.HabitManagement.HabitOverviewViewModel
+@using LifeHub.Models.ViewModels.HabitManagement
 @{
     Layout = "_Layout";
+    ViewData["Title"] = "Tổng quan thói quen";
     ViewData["ActivePage"] = "HabitOverview";
+    var noGoals = new List<HabitGoalOption>();
 }
 @section Styles {
-    <link rel="stylesheet" href="~/css/goal-habit.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/habit.css" asp-append-version="true" />
 }
-@await Html.PartialAsync("_GoalHabitPage", Model)
+
+<div class="habit-page" data-module="overview">
+    <partial name="_HabitFlash" />
+
+    <header class="habit-heading">
+        <div>
+            <span class="habit-label">HABIT MANAGEMENT</span>
+            <h1>Thói quen của tôi</h1>
+            <p>Từng hành động nhỏ tạo nên sự tiến bộ mỗi ngày. Hôm nay: @Model.DateLabel.</p>
+        </div>
+        <div class="heading-actions">
+            <a class="habit-btn" asp-action="HabitStatistics">Xem thống kê</a>
+            <button type="button" class="habit-btn primary" data-open="habitModal" data-mode="create" data-title="Tạo thói quen">+ Tạo thói quen</button>
+        </div>
+    </header>
+
+    <section class="habit-summary">
+        <div class="summary-card">
+            <div class="summary-top"><span>Thói quen đang bật</span><span class="summary-badge">ACTIVE</span></div>
+            <h2>@Model.ActiveCount.ToString("00")</h2><p>Đang được theo dõi</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Hoàn thành hôm nay</span><span class="summary-badge">TODAY</span></div>
+            <h2>@Model.DoneToday.ToString("00")</h2><p>Trên @Model.ActiveCount thói quen</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Tỷ lệ hôm nay</span><span class="summary-badge">RATE</span></div>
+            <h2>@Model.RateToday%</h2><p>Đã hoàn thành / đang bật</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Streak tốt nhất</span><span class="summary-badge">STREAK</span></div>
+            <h2>@Model.BestStreak</h2><p>ngày liên tiếp hiện tại</p>
+        </div>
+    </section>
+
+    <div class="habit-grid">
+        <section class="habit-card">
+            <div class="section-heading">
+                <div><h3>Hôm nay của bạn</h3><p>Chưa thực hiện xếp trước, theo giờ nhắc</p></div>
+                <span class="summary-badge">@Model.DoneToday / @Model.ActiveCount</span>
+            </div>
+            @foreach (var h in Model.Today) { <partial name="_HabitCheckRow" model="h" /> }
+            @if (!Model.Today.Any()) { <div class="habit-empty">Chưa có thói quen nào đang bật. Bấm "+ Tạo thói quen" để bắt đầu.</div> }
+        </section>
+
+        <div class="habit-stack">
+            <section class="habit-card">
+                <div class="section-heading"><div><h3>Streak tốt nhất</h3><p>Chuỗi đang duy trì dài nhất</p></div></div>
+                @foreach (var h in Model.TopStreaks)
+                {
+                    <div class="habit-row" style="--habit-color:@h.Color">
+                        <div class="habit-row-info"><span class="habit-row-title"><i class="habit-dot"></i>@h.Title</span><div class="habit-meta">Dài nhất @h.LongestStreak ngày</div></div>
+                        <span class="streak-chip">🔥 @h.CurrentStreak ngày</span>
+                    </div>
+                }
+                @if (!Model.TopStreaks.Any()) { <div class="habit-empty">Chưa có chuỗi nào. Check-in hôm nay để bắt đầu.</div> }
+            </section>
+
+            <section class="habit-card">
+                <div class="section-heading"><div><h3>Đang cần được quan tâm</h3><p>Có chuỗi đang chạy, hôm nay chưa check-in</p></div></div>
+                @foreach (var h in Model.Attention)
+                {
+                    <div class="habit-row" style="--habit-color:@h.Color">
+                        <div class="habit-row-info"><span class="habit-row-title"><i class="habit-dot"></i>@h.Title</span><div class="habit-meta">Đang giữ chuỗi @h.CurrentStreak ngày</div></div>
+                        <span class="status st-upcoming">Chưa check-in</span>
+                    </div>
+                }
+                @if (!Model.Attention.Any()) { <div class="habit-empty">Mọi chuỗi đang chạy đều đã được check-in hôm nay.</div> }
+            </section>
+        </div>
+    </div>
+
+    <section class="habit-card" style="margin-bottom:20px">
+        <div class="section-heading"><div><h3>Heatmap 30 ngày</h3><p>Màu đậm hơn = nhiều thói quen có check-in hơn. Ô viền đứt = chưa có thói quen ở ngày đó.</p></div></div>
+        <div class="heat-grid" role="img" aria-label="Heatmap hoàn thành 30 ngày gần nhất">
+            @foreach (var c in Model.Heatmap) { <div class="heat-cell l@(c.Level) @(c.Total == 0 ? "none" : "") @(c.IsToday ? "today" : "")" title="@c.Tip"></div> }
+        </div>
+        <div class="heat-legend"><span>Ít</span><i style="background:var(--habit-l0)"></i><i style="background:var(--habit-l1)"></i><i style="background:var(--habit-l2)"></i><i style="background:var(--habit-l3)"></i><i style="background:var(--habit-l4)"></i><span>Nhiều</span></div>
+    </section>
+
+    <partial name="_HabitModals" model="noGoals" />
+</div>
+
 @section Scripts {
-    <script src="~/js/goal-habit.js" asp-append-version="true"></script>
+    <script src="~/js/habit.js" asp-append-version="true"></script>
 }

@@ -26,15 +26,15 @@
 <div class="task-page task-list-page">
 
     <!-- PAGE HEADER -->
-    <header class="task-page-header">
+    <header class="task-heading">
         <div>
-            <span class="task-eyebrow">WORK MANAGEMENT</span>
+            <span class="task-label">WORK MANAGEMENT</span>
             <h1>Danh sách công việc</h1>
             <p>Quản lý, phân loại và theo dõi tiến độ từng công việc.</p>
         </div>
 
         <button type="button"
-                class="task-btn task-btn-primary"
+                class="task-btn primary"
                 data-open-task-modal
                 data-modal-mode="create">
             + Thêm công việc
@@ -46,28 +46,28 @@
 
         <a asp-action="Task"
            asp-route-scope=""
-           class="task-filter-chip @(string.IsNullOrEmpty(currentScope) ? "active" : "")">
+           class="task-chip @(string.IsNullOrEmpty(currentScope) ? "active" : "")">
             Tất cả
             <span>@Model.TotalTasks</span>
         </a>
 
         <a asp-action="Task"
            asp-route-scope="personal"
-           class="task-filter-chip @(currentScope == "personal" ? "active" : "")">
+           class="task-chip @(currentScope == "personal" ? "active" : "")">
             Cá nhân
             <span>@Model.PersonalTasksCount</span>
         </a>
 
         <a asp-action="Task"
            asp-route-scope="assigned"
-           class="task-filter-chip @(currentScope == "assigned" ? "active" : "")">
+           class="task-chip @(currentScope == "assigned" ? "active" : "")">
             Được giao
             <span>@Model.AssignedToMeCount</span>
         </a>
 
         <a asp-action="Task"
            asp-route-scope="project"
-           class="task-filter-chip @(currentScope == "project" ? "active" : "")">
+           class="task-chip @(currentScope == "project" ? "active" : "")">
             Dự án
             <span>@Model.ProjectTasksCount</span>
         </a>
@@ -75,7 +75,7 @@
     </section>
 
     <!-- FILTER TOOLBAR -->
-    <section class="task-filter-toolbar">
+    <section class="task-toolbar">
 
         <div class="task-search-box">
             <span>⌕</span>
@@ -138,17 +138,17 @@
             <div class="task-kanban-column"
                  data-column="@column.Key">
 
-                <div class="task-kanban-column__header">
+                <div class="task-kanban-column-header">
                     <h2>@column.Label</h2>
                     <span>@columnTasks.Count</span>
                 </div>
 
-                <div class="task-kanban-column__body"
+                <div class="task-kanban-column-body"
                      data-dropzone="@column.Key">
 
                     @foreach (var task in columnTasks)
                     {
-                        <article class="task-card"
+                        <article class="task-item"
                                  tabindex="0"
                                  role="button"
                                  data-open-task-modal
@@ -161,8 +161,8 @@
                                  data-scope="@(task.IsProjectTask ? "project" : task.IsAssignedToMe ? "assigned" : "personal")"
                                  data-search="@($"{task.Title} {task.Description} {task.ProjectName} {task.CategoryName}")">
 
-                            <div class="task-card__top">
-                                <span class="task-card__scope">
+                            <div class="task-item-top">
+                                <span class="task-item-scope">
                                     @if (task.IsProjectTask)
                                     {
                                         @task.ProjectName
@@ -191,14 +191,14 @@
 
                             @if (!string.IsNullOrWhiteSpace(task.CategoryName))
                             {
-                                <span class="task-card__category">
+                                <span class="task-item-category">
                                     @task.CategoryName
                                 </span>
                             }
 
                             @if (task.Tags.Any())
                             {
-                                <div class="task-card__tags">
+                                <div class="task-item-tags">
                                     @foreach (var tag in task.Tags)
                                     {
                                         <span style="--tag-color: @tag.Color">
@@ -210,7 +210,7 @@
 
                             @if (task.SubtaskTotal > 0)
                             {
-                                <div class="task-card__subtasks">
+                                <div class="task-item-subtasks">
                                     <div class="task-progress-track">
                                         <div class="task-progress-fill"
                                              style="width: @task.SubtaskPercent%">
@@ -223,7 +223,7 @@
                                 </div>
                             }
 
-                            <div class="task-card__footer">
+                            <div class="task-item-footer">
                                 <span>
                                     @if (task.CommentCount > 0)
                                     {
