@@ -41,7 +41,93 @@ namespace LifeHub.Controllers
         }
 
         // GET /Study/Courses?status=current|completed|all
-        public async Task<IActionResult> Courses(string? status) { Page("Môn học và khóa học", "Course"); var userId=User.GetUserId(); var cs=await _context.Courses.AsNoTracking().Where(c=>c.UserId==userId).ToListAsync(); var ids=cs.Select(c=>c.Id).ToArray(); var ass=await _context.Assignments.AsNoTracking().Where(a=>ids.Contains(a.CourseId)).ToListAsync(); var sem=await _context.Semesters.AsNoTracking().Where(s=>s.UserId==userId).ToDictionaryAsync(s=>s.Id,s=>s.Name); var sch=await _context.CourseSchedules.AsNoTracking().Where(s=>ids.Contains(s.CourseId)).ToListAsync(); var key=(status??"current").ToLowerInvariant(); if(key is not ("current" or "completed" or "all"))key="current"; var filtered=cs.Where(c=>key=="all"||(key=="completed"?c.Status=="completed":c.Status!="completed")).ToList(); return View(new StudyCoursesPageViewModel { Status=key, CurrentCount=cs.Count(c=>c.Status!="completed"), CompletedCount=cs.Count(c=>c.Status=="completed"), CurrentCredits=cs.Where(c=>c.Status!="completed").Sum(c=>c.Credits??0), Rows=filtered.Select(c=>new StudyCourseRow { Course=CourseItem(c,ass), SemesterName=c.SemesterId.HasValue&&sem.TryGetValue(c.SemesterId.Value,out var sn)?sn:"", AssignmentCount=ass.Count(a=>a.CourseId==c.Id), SubmittedCount=ass.Count(a=>a.CourseId==c.Id&&a.IsSubmitted), ScheduleSummary=string.Join(", ",sch.Where(s=>s.CourseId==c.Id).Select(s=>$"{DayLabel((DayOfWeek)s.DayOfWeek)} {s.StartTime:hh\\:mm}")) }).ToList() }); }
+        public async Task<IActionResult> Courses(string? status, int? semesterId)
+        {
+            Page("Môn học và khóa học", "Course");
+            var userId = User.GetUserId();
+            var courses = await _context.Courses.AsNoTracking().Where(c => c.UserId == userId).ToListAsync();
+            var courseIds = courses.Select(c => c.Id).ToArray();
+            var assignments = await _context.Assignments.AsNoTracking().Where(a => courseIds.Contains(a.CourseId)).ToListAsync();
+            var semesters = await _context.Semesters.AsNoTracking().Where(s => s.UserId == userId).OrderByDescending(s => s.IsCurrent).ThenBy(s => s.StartDate).ToListAsync();
+            var semesterNames = semesters.ToDictionary(s => s.Id, s => s.Name);
+            var schedules = await _context.CourseSchedules.AsNoTracking().Where(s => courseIds.Contains(s.CourseId)).ToListAsync();
+            var key = (status ?? "current").ToLowerInvariant();
+            if (key is not ("current" or "completed" or "all")) key = "current";
+            if (semesterId.HasValue && !semesters.Any(s => s.Id == semesterId.Value)) semesterId = null;
+
+            var filtered = courses.Where(c => key == "all" || (key == "completed" ? c.Status == "completed" : c.Status != "completed"));
+            if (semesterId.HasValue) filtered = filtered.Where(c => c.SemesterId == semesterId.Value);
+            var rows = filtered.Select(c => new StudyCourseRow
+            {
+                Course = CourseItem(c, assignments),
+                SemesterId = c.SemesterId,
+                SemesterName = c.SemesterId.HasValue && semesterNames.TryGetValue(c.SemesterId.Value, out var name) ? name : "",
+                AssignmentCount = assignments.Count(a => a.CourseId == c.Id),
+                SubmittedCount = assignments.Count(a => a.CourseId == c.Id && a.IsSubmitted),
+                ScheduleSummary = string.Join(", ", schedules.Where(s => s.CourseId == c.Id).Select(s => $"{DayLabel((DayOfWeek)s.DayOfWeek)} {s.StartTime:hh\\:mm}"))
+            }).ToList();
+            var scoredCourses = courses.Select(c => new { Course = c, Score = CourseScore(c, assignments) }).Where(x => x.Score.HasValue).ToList();
+
+            return View(new StudyCoursesPageViewModel
+            {
+                Status = key,
+                SemesterId = semesterId,
+                SemesterFilterName = semesterId.HasValue ? semesterNames[semesterId.Value] : "",
+                Semesters = semesters.Select(SemesterItem).ToList(),
+                CurrentCount = courses.Count(c => c.Status != "completed"),
+                CompletedCount = courses.Count(c => c.Status == "completed"),
+                CurrentCredits = courses.Where(c => c.Status != "completed").Sum(c => c.Credits ?? 0),
+                AverageScore = scoredCourses.Count == 0 ? null : scoredCourses.Average(x => x.Score!.Value),
+                Rows = rows
+            });
+        }
+
+        // GET /Study/Semesters
+        public async Task<IActionResult> Semesters()
+        {
+            Page("Học kỳ", "Semester");
+            var userId = User.GetUserId();
+            var semesters = await _context.Semesters.AsNoTracking().Where(s => s.UserId == userId).OrderBy(s => s.StartDate).ToListAsync();
+            var courses = await _context.Courses.AsNoTracking().Where(c => c.UserId == userId).ToListAsync();
+            var courseIds = courses.Select(c => c.Id).ToArray();
+            var assignments = await _context.Assignments.AsNoTracking().Where(a => courseIds.Contains(a.CourseId)).ToListAsync();
+            var today = DateOnly.FromDateTime(DateTime.Today);
+
+            var rows = semesters.Select(semester =>
+            {
+                var semesterCourses = courses.Where(c => c.SemesterId == semester.Id).ToList();
+                var scored = semesterCourses.Select(c => new { Course = c, Score = CourseScore(c, assignments) }).Where(x => x.Score.HasValue).ToList();
+                var scoredCredits = scored.Sum(x => x.Course.Credits ?? 0);
+                var startDay = semester.StartDate?.DayNumber;
+                var endDay = semester.EndDate?.DayNumber;
+                var span = startDay.HasValue && endDay.HasValue ? endDay.Value - startDay.Value : 0;
+                var elapsed = startDay.HasValue ? today.DayNumber - startDay.Value : 0;
+                var progress = span <= 0 ? 0 : Math.Clamp(elapsed * 100 / span, 0, 100);
+                var statusKey = SemesterItem(semester).StatusKey(today);
+
+                return new StudySemesterRow
+                {
+                    Semester = SemesterItem(semester),
+                    StatusKey = statusKey,
+                    StatusLabel = statusKey switch { "current" => "Đang học", "finished" => "Đã kết thúc", _ => "Sắp tới" },
+                    CourseCount = semesterCourses.Count,
+                    Credits = semesterCourses.Sum(c => c.Credits ?? 0),
+                    Gpa4 = scoredCredits == 0 ? null : scored.Sum(x => x.Score!.Value / 10m * 4m * (x.Course.Credits ?? 0)) / scoredCredits,
+                    TimeProgressPercent = progress,
+                    DaysLeft = endDay.HasValue ? Math.Max(0, endDay.Value - today.DayNumber) : null,
+                    Courses = semesterCourses.Select(c => CourseItem(c, assignments)).ToList()
+                };
+            }).ToList();
+
+            var allScored = courses.Select(c => new { Course = c, Score = CourseScore(c, assignments) }).Where(x => x.Score.HasValue && (x.Course.Credits ?? 0) > 0).ToList();
+            var totalCredits = allScored.Sum(x => x.Course.Credits ?? 0);
+            return View(new StudySemestersPageViewModel
+            {
+                Rows = rows,
+                CumulativeCredits = totalCredits,
+                CumulativeGpa = totalCredits == 0 ? null : allScored.Sum(x => x.Score!.Value / 10m * 4m * (x.Course.Credits ?? 0)) / totalCredits
+            });
+        }
 
         // GET /Study/Schedule
         public async Task<IActionResult> Schedule() { Page("Thời khóa biểu", "Schedule"); var userId=User.GetUserId(); var courses=await _context.Courses.AsNoTracking().Where(c=>c.UserId==userId).ToListAsync(); var ids=courses.Select(c=>c.Id).ToArray(); var slots=await _context.CourseSchedules.AsNoTracking().Where(s=>ids.Contains(s.CourseId)).ToListAsync(); var mapped=slots.Select(s=>new StudyScheduleSlot { Id=s.Id,CourseId=s.CourseId,Day=(DayOfWeek)s.DayOfWeek,Start=s.StartTime.ToString(@"hh\:mm"),End=s.EndTime.ToString(@"hh\:mm"),Room=s.RoomOrLink??"",CourseCode=courses.First(c=>c.Id==s.CourseId).CourseCode,CourseName=courses.First(c=>c.Id==s.CourseId).CourseName,Color=courses.First(c=>c.Id==s.CourseId).Color??"#2563eb" }).ToList(); var days=Enum.GetValues<DayOfWeek>().Select(d=>{var daySlots=mapped.Where(s=>s.Day==d).OrderBy(s=>s.StartMinutes).ToList(); for(int i=0;i<daySlots.Count;i++) for(int j=i+1;j<daySlots.Count;j++) if(daySlots[i].StartMinutes<daySlots[j].EndMinutes&&daySlots[j].StartMinutes<daySlots[i].EndMinutes){daySlots[i].HasConflict=true;daySlots[j].HasConflict=true;} return new StudyTimetableDay {DayName=DayLabel(d),IsToday=d==DateTime.Today.DayOfWeek,Blocks=daySlots.Select(s=>new StudyTimetableBlock { Slot=s,TopPercent=Math.Max(0,(s.StartMinutes-420)/6.6),HeightPercent=Math.Max(1,(s.EndMinutes-s.StartMinutes)/6.6)}).ToList()};}).ToList(); return View(new StudySchedulePageViewModel { Slots=mapped,Days=days,Courses=courses.Select(c=>CourseItem(c,new())).ToList(),TodayCount=mapped.Count(s=>s.Day==DateTime.Today.DayOfWeek),WeeklyHours=mapped.Sum(s=>s.EndMinutes-s.StartMinutes)/60d }); }
@@ -141,26 +227,122 @@ namespace LifeHub.Controllers
             var uid=User.GetUserId(); var courses=await _context.Courses.AsNoTracking().Where(c=>c.UserId==uid).ToListAsync(); var ids=courses.Select(c=>c.Id).ToArray(); var key=(kind??"all").ToLowerInvariant(); var documents=await _context.Documents.AsNoTracking().Where(d=>d.UserId==uid&&d.CourseId.HasValue&&ids.Contains(d.CourseId.Value)).ToListAsync(); var query=documents.AsEnumerable(); if(courseId.HasValue)query=query.Where(d=>d.CourseId==courseId); if(key!="all")query=query.Where(d=>(d.FileType??"").ToLower()==key); if(!string.IsNullOrWhiteSpace(q))query=query.Where(d=>d.FileName.Contains(q.Trim(),StringComparison.OrdinalIgnoreCase)); var items=query.OrderByDescending(d=>d.UploadedAt).Select(d=>new StudyDocumentItem {Id=d.Id,Title=d.FileName,CourseId=d.CourseId!.Value,CourseCode=courses.First(c=>c.Id==d.CourseId).CourseCode,CourseColor=courses.First(c=>c.Id==d.CourseId).Color??"#2563eb",Kind=d.FileType??"pdf",Url=d.FilePath,SizeLabel=d.FileSizeKb.HasValue?$"{d.FileSizeKb} KB":"",Note=d.Description??"",AddedAt=d.UploadedAt}).ToList(); return View(new StudyDocumentsPageViewModel {CourseId=courseId,Kind=key,Q=q,Items=items,Courses=courses.Select(c=>CourseItem(c,new())).ToList(),TotalCount=documents.Count});
         }
 
-        private static StudyCourseItem CourseItem(LifeHub.Models.StudyManagement.Course c, List<LifeHub.Models.StudyManagement.Assignment> assignments) => new() { Id=c.Id,Code=c.CourseCode,Name=c.CourseName,Credits=c.Credits??0,Instructor=c.InstructorName??"",Room=c.RoomLocation??"",Color=c.Color??"#2563eb",TargetScore=c.TargetScore,Status=c.Status=="completed"?"Đã hoàn thành":"Đang học",CurrentScore=c.FinalScore,AssignmentProgressPercent=assignments.Count(a=>a.CourseId==c.Id)==0?0:assignments.Count(a=>a.CourseId==c.Id&&a.IsSubmitted)*100/assignments.Count(a=>a.CourseId==c.Id) };
+        private static StudyCourseItem CourseItem(LifeHub.Models.StudyManagement.Course c, List<LifeHub.Models.StudyManagement.Assignment> assignments) => new() { Id=c.Id,Code=c.CourseCode,Name=c.CourseName,Credits=c.Credits??0,Instructor=c.InstructorName??"",Room=c.RoomLocation??"",Color=c.Color??"#2563eb",TargetScore=c.TargetScore,Status=c.Status=="completed"?"Đã hoàn thành":"Đang học",CurrentScore=CourseScore(c,assignments),AssignmentProgressPercent=assignments.Count(a=>a.CourseId==c.Id)==0?0:assignments.Count(a=>a.CourseId==c.Id&&a.IsSubmitted)*100/assignments.Count(a=>a.CourseId==c.Id) };
+        private static StudySemesterItem SemesterItem(LifeHub.Models.StudyManagement.Semester s) => new() { Id=s.Id,Name=s.Name,StartDate=s.StartDate,EndDate=s.EndDate,IsCurrent=s.IsCurrent };
+        private static decimal? CourseScore(LifeHub.Models.StudyManagement.Course course, List<LifeHub.Models.StudyManagement.Assignment> assignments)
+        {
+            if (course.FinalScore.HasValue) return course.FinalScore.Value;
+            var graded = assignments.Where(a => a.CourseId == course.Id && a.Score.HasValue).ToList();
+            if (graded.Count == 0) return null;
+            decimal Normalize(LifeHub.Models.StudyManagement.Assignment a)
+            {
+                var max = a.MaxScore.GetValueOrDefault(10m);
+                return max <= 0 ? 0 : Math.Clamp(a.Score!.Value / max * 10m, 0m, 10m);
+            }
+            var weighted = graded.Where(a => a.WeightPercent > 0).ToList();
+            var weight = weighted.Sum(a => a.WeightPercent);
+            return weight > 0
+                ? weighted.Sum(a => Normalize(a) * a.WeightPercent) / weight
+                : graded.Average(Normalize);
+        }
         private static StudyAssignmentItem AssignmentItem(LifeHub.Models.StudyManagement.Assignment a,List<LifeHub.Models.StudyManagement.Course> courses)=>new(){Id=a.Id,Title=a.Title,CourseId=a.CourseId,CourseName=courses.FirstOrDefault(c=>c.Id==a.CourseId)?.CourseName??"",CourseCode=courses.FirstOrDefault(c=>c.Id==a.CourseId)?.CourseCode??"",DueDate=a.DueDate,WeightPercent=a.WeightPercent,IsSubmitted=a.IsSubmitted,Score=a.Score,Kind=a.AssignmentType,MaxScore=a.MaxScore??10,DurationMinutes=a.DurationMinutes,Location=a.Location};
         private static string DayLabel(DayOfWeek d)=>d switch {DayOfWeek.Monday=>"T2",DayOfWeek.Tuesday=>"T3",DayOfWeek.Wednesday=>"T4",DayOfWeek.Thursday=>"T5",DayOfWeek.Friday=>"T6",DayOfWeek.Saturday=>"T7",_=>"CN"};
 
         // ------------------------------------------------------------------ POST: mọi bản ghi được giới hạn theo người dùng hiện tại.
 
+        // Học kỳ (bảng semesters)
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateSemester(SaveSemesterInput input)
+        {
+            var uid = User.GetUserId();
+            input.Name = input.Name?.Trim() ?? string.Empty;
+            if (!ValidSemester(input))
+            {
+                TempData["ErrorMessage"] = "Tên học kỳ và khoảng ngày không hợp lệ.";
+                return RedirectToAction(nameof(Semesters));
+            }
+
+            var isFirst = !await _context.Semesters.AnyAsync(s => s.UserId == uid && s.IsCurrent);
+            _context.Semesters.Add(new LifeHub.Models.StudyManagement.Semester
+            {
+                UserId = uid,
+                Name = input.Name,
+                StartDate = input.StartDate,
+                EndDate = input.EndDate,
+                IsCurrent = isFirst
+            });
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Đã thêm học kỳ.";
+            return RedirectToAction(nameof(Semesters));
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateSemester(SaveSemesterInput input)
+        {
+            var uid = User.GetUserId();
+            var semester = await _context.Semesters.FirstOrDefaultAsync(s => s.Id == input.Id && s.UserId == uid);
+            if (semester == null) return NotFound();
+            input.Name = input.Name?.Trim() ?? string.Empty;
+            if (!ValidSemester(input))
+            {
+                TempData["ErrorMessage"] = "Tên học kỳ và khoảng ngày không hợp lệ.";
+                return RedirectToAction(nameof(Semesters));
+            }
+
+            semester.Name = input.Name;
+            semester.StartDate = input.StartDate;
+            semester.EndDate = input.EndDate;
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Đã cập nhật học kỳ.";
+            return RedirectToAction(nameof(Semesters));
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetCurrentSemester(int id)
+        {
+            var uid = User.GetUserId();
+            var semesters = await _context.Semesters.Where(s => s.UserId == uid).ToListAsync();
+            var selected = semesters.FirstOrDefault(s => s.Id == id);
+            if (selected == null) return NotFound();
+            foreach (var semester in semesters) semester.IsCurrent = semester.Id == id;
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Đã đặt học kỳ hiện tại.";
+            return RedirectToAction(nameof(Semesters));
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteSemester(int id)
+        {
+            var uid = User.GetUserId();
+            var semester = await _context.Semesters.FirstOrDefaultAsync(s => s.Id == id && s.UserId == uid);
+            if (semester == null) return NotFound();
+
+            var affectedCourses = await _context.Courses.Where(c => c.UserId == uid && c.SemesterId == id).ToListAsync();
+            foreach (var course in affectedCourses) course.SemesterId = null;
+            _context.Semesters.Remove(semester);
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Đã xóa học kỳ. Các môn học đã được giữ lại và bỏ liên kết học kỳ.";
+            return RedirectToAction(nameof(Semesters));
+        }
+
+        private static bool ValidSemester(SaveSemesterInput input) =>
+            !string.IsNullOrWhiteSpace(input.Name) && input.Name.Length <= 100 &&
+            input.StartDate.HasValue && input.EndDate.HasValue && input.EndDate.Value > input.StartDate.Value;
+
         // Môn học (bảng courses)
         [HttpPost, ValidateAntiForgeryToken] public async Task<IActionResult> CreateCourse(CreateCourseInput input)
         {
             var uid=User.GetUserId();input.Code=input.Code?.Trim()??"";input.Name=input.Name?.Trim()??"";
-            if(!ModelState.IsValid||!ValidColor(input.Color)||await _context.Courses.AnyAsync(c=>c.UserId==uid&&c.CourseCode==input.Code)){ModelState.AddModelError(string.Empty,"Thông tin môn học không hợp lệ hoặc mã môn đã tồn tại.");return RedirectToAction(nameof(Courses));}
-            _context.Courses.Add(new LifeHub.Models.StudyManagement.Course{UserId=uid,CourseCode=input.Code,CourseName=input.Name,Credits=input.Credits,InstructorName=input.Instructor?.Trim(),RoomLocation=input.Room?.Trim(),Color=input.Color,TargetScore=input.TargetScore,Status="active",CreatedAt=DateTime.Now});
+            if(!ModelState.IsValid||!ValidColor(input.Color)||(input.SemesterId.HasValue&&!await _context.Semesters.AnyAsync(s=>s.Id==input.SemesterId&&s.UserId==uid))||await _context.Courses.AnyAsync(c=>c.UserId==uid&&c.CourseCode==input.Code)){ModelState.AddModelError(string.Empty,"Thông tin môn học không hợp lệ hoặc mã môn đã tồn tại.");return RedirectToAction(nameof(Courses));}
+            _context.Courses.Add(new LifeHub.Models.StudyManagement.Course{UserId=uid,SemesterId=input.SemesterId,CourseCode=input.Code,CourseName=input.Name,Credits=input.Credits,InstructorName=input.Instructor?.Trim(),RoomLocation=input.Room?.Trim(),Color=input.Color,TargetScore=input.TargetScore,Status="active",CreatedAt=DateTime.Now});
             await _context.SaveChangesAsync();TempData["SuccessMessage"]="Đã thêm môn học.";return RedirectToAction(nameof(Courses));
         }
         [HttpPost, ValidateAntiForgeryToken] public async Task<IActionResult> UpdateCourse(UpdateCourseInput input)
         {
-            var uid=User.GetUserId();if(!ModelState.IsValid||!ValidColor(input.Color)||input.Status is not ("Đang học" or "Đã hoàn thành")){TempData["ErrorMessage"]="Thông tin môn học không hợp lệ.";return RedirectToAction(nameof(Courses));}
+            var uid=User.GetUserId();if(!ModelState.IsValid||!ValidColor(input.Color)||input.Status is not ("Đang học" or "Đã hoàn thành")||(input.SemesterId.HasValue&&!await _context.Semesters.AnyAsync(s=>s.Id==input.SemesterId&&s.UserId==uid))){TempData["ErrorMessage"]="Thông tin môn học không hợp lệ.";return RedirectToAction(nameof(Courses));}
             var c=await _context.Courses.FirstOrDefaultAsync(x=>x.Id==input.Id&&x.UserId==uid);if(c==null)return NotFound();
             input.Code=input.Code?.Trim()??"";input.Name=input.Name?.Trim()??"";if(await _context.Courses.AnyAsync(x=>x.UserId==uid&&x.Id!=c.Id&&x.CourseCode==input.Code)){TempData["ErrorMessage"]="Mã môn đã được sử dụng.";return RedirectToAction(nameof(Courses));}
-            c.CourseCode=input.Code;c.CourseName=input.Name;c.Credits=input.Credits;c.InstructorName=input.Instructor?.Trim();c.RoomLocation=input.Room?.Trim();c.Color=input.Color;c.TargetScore=input.TargetScore;c.Status=input.Status=="Đã hoàn thành"?"completed":"active";await _context.SaveChangesAsync();return RedirectToAction(nameof(Courses));
+            c.SemesterId=input.SemesterId;c.CourseCode=input.Code;c.CourseName=input.Name;c.Credits=input.Credits;c.InstructorName=input.Instructor?.Trim();c.RoomLocation=input.Room?.Trim();c.Color=input.Color;c.TargetScore=input.TargetScore;c.Status=input.Status=="Đã hoàn thành"?"completed":"active";await _context.SaveChangesAsync();return RedirectToAction(nameof(Courses));
         }
         [HttpPost, ValidateAntiForgeryToken] public async Task<IActionResult> DeleteCourse(int id)
         {

@@ -66,7 +66,7 @@ namespace LifeHub.Controllers
             input.Name=input.Name?.Trim()??"";
             if(!ModelState.IsValid||!AllowedKind(input.Kind)){ModelState.AddModelError(nameof(input.Kind),"Loại ví không hợp lệ.");return View("~/Views/Finance/Wallet/Create.cshtml",input);}
             var userId=User.GetUserId();
-            _context.Wallets.Add(new Wallet {UserId=userId,Name=input.Name,WalletType=input.Kind,Currency="VND",Color=ValidColor(input.Color)?input.Color:"#e11d48",InitialBalance=0m,IsActive=true,CreatedAt=DateTime.Now});
+            _context.Wallets.Add(new Wallet {UserId=userId,Name=input.Name,WalletType=input.Kind,Currency="VND",Color=ValidColor(input.Color)?input.Color:"#e11d48",InitialBalance=input.OpeningBalance,IsActive=true,CreatedAt=DateTime.Now});
             await _context.SaveChangesAsync(); TempData["SuccessMessage"]="Đã tạo ví."; return RedirectToAction(nameof(Index));
         }
 

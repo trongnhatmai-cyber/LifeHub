@@ -17,10 +17,7 @@
    7. Mở / đóng modal danh mục
    8. Xem chi tiết / sửa / xóa danh mục
 
-   Lưu ý:
-   - Chưa tự gửi dữ liệu đến server.
-   - Các sự kiện submit được chặn để tránh tự tải lại trang.
-   - Cần nối với Controller khi triển khai CRUD thật.
+   Form công việc và danh mục gửi POST về TaskController; JS chỉ quản lý modal và lọc.
    ========================================================= */
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -572,6 +569,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         currentTaskId = taskId;
 
+        const deleteId = $(`[data-task-delete-id]`, taskModal);
+        if (deleteId) deleteId.value = taskId;
+
         setText(
             $("[data-delete-task-title]", taskModal),
             record.dataset.title
@@ -699,29 +699,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (taskForm) {
         taskForm.addEventListener("submit", function (event) {
-            event.preventDefault();
-
-            // Chỉ kiểm tra dữ liệu phía trình duyệt.
             if (!taskForm.reportValidity()) {
-                return;
+                event.preventDefault();
             }
-
-            // Chưa gửi dữ liệu lên server.
-            // Sự kiện tùy chỉnh để có thể kết nối Controller sau.
-            taskForm.dispatchEvent(
-                new CustomEvent("task:form-valid", {
-                    bubbles: true,
-                    detail: {
-                        mode: currentTaskId ? "edit" : "create",
-                        taskId: currentTaskId,
-                        form: taskForm
-                    }
-                })
-            );
-
-            console.info(
-                "Task form hợp lệ. Cần kết nối với action Controller để lưu dữ liệu."
-            );
         });
 
         const submitButton = $("[data-task-form-submit]", taskForm);
@@ -732,12 +712,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     return;
                 }
 
-                taskForm.dispatchEvent(
-                    new Event("submit", {
-                        bubbles: true,
-                        cancelable: true
-                    })
-                );
+                taskForm.requestSubmit();
             });
         }
     }
@@ -758,10 +733,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 })
             );
 
-            console.info(
-                "Yêu cầu xóa công việc:", currentTaskId,
-                "- Cần kết nối với action Controller."
-            );
         });
     }
 
@@ -1193,26 +1164,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (categoryForm) {
         categoryForm.addEventListener("submit", function (event) {
-            event.preventDefault();
-
             if (!categoryForm.reportValidity()) {
-                return;
+                event.preventDefault();
             }
-
-            categoryForm.dispatchEvent(
-                new CustomEvent("category:form-valid", {
-                    bubbles: true,
-                    detail: {
-                        mode: currentCategoryId ? "edit" : "create",
-                        categoryId: currentCategoryId,
-                        form: categoryForm
-                    }
-                })
-            );
-
-            console.info(
-                "Category form hợp lệ. Cần kết nối với action Controller để lưu dữ liệu."
-            );
         });
 
         const submitButton = $(
@@ -1226,12 +1180,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     return;
                 }
 
-                categoryForm.dispatchEvent(
-                    new Event("submit", {
-                        bubbles: true,
-                        cancelable: true
-                    })
-                );
+                categoryForm.requestSubmit();
             });
         }
     }
@@ -1246,6 +1195,9 @@ document.addEventListener("DOMContentLoaded", function () {
         categoryDeleteButton.addEventListener("click", function () {
             if (!currentCategoryId) return;
 
+            const deleteId = $(`[data-category-delete-id]`, categoryModal);
+            if (deleteId) deleteId.value = currentCategoryId;
+
             categoryModal.dispatchEvent(
                 new CustomEvent("category:delete-request", {
                     bubbles: true,
@@ -1255,10 +1207,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 })
             );
 
-            console.info(
-                "Yêu cầu xóa danh mục:", currentCategoryId,
-                "- Cần kết nối với action Controller."
-            );
         });
     }
 

@@ -88,7 +88,7 @@
                         <span>Mục tiêu: @k.Target.ToString("0.##")</span>
                     </div>
                     <div class="kr-quick">
-                        <form asp-action="UpdateKeyResultValue" method="post" data-simulate>
+                        <form asp-action="UpdateKeyResultValue" method="post">
                             <input type="hidden" name="Id" value="@k.Id" />
                             <input type="number" name="CurrentValue" min="0" step="any" value="@k.Current.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)" aria-label="Giá trị hiện tại" />
                             <button type="submit" class="row-btn">Cập nhật</button>

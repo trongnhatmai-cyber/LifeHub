@@ -2,6 +2,7 @@ using LifeHub.DataAccessLayer;
 using LifeHub.Extensions;
 using LifeHub.Models.ViewModels.ProjectManagement;
 using LifeHub.Models.TaskManagement;
+using LifeHub.Models.SystemManagement;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
@@ -88,7 +89,8 @@ namespace LifeHub.Controllers
             DateTime? startDate, DateTime? dueDate, string? status)
         {
             var uid=User.GetUserId(); name=name?.Trim()??""; description=description?.Trim();
-            if(name.Length is <1 or >100||description?.Length>1000||!startDate.HasValue||!dueDate.HasValue||startDate.Value.Date>dueDate.Value.Date||status is not ("Lên kế hoạch" or "Đang chạy")) return BadRequest();
+            if(!ModelState.IsValid||name.Length is <1 or >100||description?.Length>1000||!startDate.HasValue||!dueDate.HasValue||startDate.Value.Date>dueDate.Value.Date||status is not ("Lên kế hoạch" or "Đang chạy"))
+            {TempData["ErrorMessage"]="Hãy kiểm tra tên, ngày bắt đầu, hạn chót và trạng thái dự án.";return RedirectToAction(nameof(All));}
             var p=new LifeHub.Models.ProjectManagement.Project{CreatedBy=uid,Name=name,Description=description,StartDate=DateOnly.FromDateTime(startDate.Value),DueDate=DateOnly.FromDateTime(dueDate.Value),Status=status=="Lên kế hoạch"?"planning":"running",CreatedAt=DateTime.Now};
             _context.Projects.Add(p);_context.SaveChanges();AddActivity(p.Id,uid,"project_created","Đã tạo dự án.");_context.SaveChanges();return RedirectToAction(nameof(Details),new{id=p.Id});
         }
@@ -98,18 +100,52 @@ namespace LifeHub.Controllers
         {var uid=User.GetUserId();if(!IsManager(projectId,uid))return NotFound();var p=_context.Projects.FirstOrDefault(p=>p.Id==projectId);var mapped=NormalizeStatus(status);if(p==null)return NotFound();if(mapped==null)return BadRequest();p.Status=mapped;p.UpdatedAt=DateTime.Now;AddActivity(projectId,uid,"project_status",$"Đã đổi trạng thái dự án thành {DisplayStatus(mapped)}.");_context.SaveChanges();return RedirectToAction(nameof(Details),new{id=projectId});}
 
         [HttpPost]
-        public IActionResult InviteMember(int projectId, string email, string role)
+        public async Task<IActionResult> InviteMember(int projectId, string email, string role)
         {
             var uid=User.GetUserId();if(!IsManager(projectId,uid))return NotFound();email=email?.Trim().ToLowerInvariant()??"";role=role?.Trim()??"";
-            if(email.Length>254||!new System.ComponentModel.DataAnnotations.EmailAddressAttribute().IsValid(email)||role is not ("Member" or "Viewer" or "Manager"))return BadRequest();
-            var target=_context.Users.AsNoTracking().FirstOrDefault(u=>u.Email==email);var roleRow=_context.ProjectRoles.AsNoTracking().ToList().FirstOrDefault(r=>r.Name.Equals(role,StringComparison.OrdinalIgnoreCase));
-            if(roleRow==null||target!=null&&_context.ProjectMembers.Any(m=>m.ProjectId==projectId&&m.UserId==target.Id)||_context.ProjectInvitations.Any(i=>i.ProjectId==projectId&&i.InvitedEmail==email&&i.Status=="pending"))return BadRequest();
-            _context.ProjectInvitations.Add(new LifeHub.Models.ProjectManagement.ProjectInvitation{ProjectId=projectId,InvitedBy=uid,InvitedUserId=target?.Id,InvitedEmail=email,ProjectRoleId=roleRow.Id,Token=Convert.ToHexString(RandomNumberGenerator.GetBytes(32)),Status="pending",CreatedAt=DateTime.Now,ExpiresAt=DateTime.Now.AddDays(7)});AddActivity(projectId,uid,"member_invited",$"Đã mời {email}.");_context.SaveChanges();return RedirectToAction(nameof(Details),new{id=projectId});
+            if(email.Length>254||!new System.ComponentModel.DataAnnotations.EmailAddressAttribute().IsValid(email)||role is not ("Member" or "Viewer" or "Manager"))
+            {TempData["ProjectMessage"]="Email hoặc vai trò không hợp lệ.";TempData["ProjectMessageType"]="error";return RedirectToAction(nameof(Details),new{id=projectId});}
+            var target=await _context.Users.AsNoTracking().FirstOrDefaultAsync(u=>u.Email==email);
+            var roleRow=await _context.ProjectRoles.FirstOrDefaultAsync(r=>r.Name.ToLower()==role.ToLower());
+            if(target?.Id==uid||target!=null&&_context.Projects.Any(p=>p.Id==projectId&&p.CreatedBy==target.Id))
+            {TempData["ProjectMessage"]="Bạn không thể mời chính mình hoặc chủ dự án.";TempData["ProjectMessageType"]="error";return RedirectToAction(nameof(Details),new{id=projectId});}
+            if(roleRow==null)
+            {
+                roleRow=new LifeHub.Models.ProjectManagement.ProjectRole
+                {
+                    Name=role,
+                    Description=role switch { "Manager"=>"Quản lý toàn bộ dự án.", "Viewer"=>"Chỉ xem nội dung dự án.", _=>"Tạo và cập nhật nhiệm vụ." },
+                    IsDefault=role=="Member",
+                    CreatedAt=DateTime.Now
+                };
+                _context.ProjectRoles.Add(roleRow);
+                await _context.SaveChangesAsync();
+            }
+            if(target!=null&&_context.ProjectMembers.Any(m=>m.ProjectId==projectId&&m.UserId==target.Id))
+            {TempData["ProjectMessage"]="Người này đã là thành viên của dự án.";TempData["ProjectMessageType"]="error";return RedirectToAction(nameof(Details),new{id=projectId});}
+            if(_context.ProjectInvitations.Any(i=>i.ProjectId==projectId&&i.InvitedEmail==email&&i.Status=="pending"&&(!i.ExpiresAt.HasValue||i.ExpiresAt>DateTime.Now)))
+            {TempData["ProjectMessage"]="Đã có lời mời đang chờ cho email này.";TempData["ProjectMessageType"]="error";return RedirectToAction(nameof(Details),new{id=projectId});}
+            var project=_context.Projects.AsNoTracking().First(p=>p.Id==projectId);
+            var invitation=new LifeHub.Models.ProjectManagement.ProjectInvitation{ProjectId=projectId,InvitedBy=uid,InvitedUserId=target?.Id,InvitedEmail=email,ProjectRoleId=roleRow.Id,Token=Convert.ToHexString(RandomNumberGenerator.GetBytes(32)),Status="pending",CreatedAt=DateTime.Now,ExpiresAt=DateTime.Now.AddDays(7)};
+            _context.ProjectInvitations.Add(invitation);
+            AddActivity(projectId,uid,"member_invited",$"Đã mời {email}.");
+            await _context.SaveChangesAsync();
+            if(target!=null)
+            {
+                var inviter=await _context.Users.AsNoTracking().Where(u=>u.Id==uid).Select(u=>u.FullName).FirstOrDefaultAsync()??"Một thành viên";
+                _context.Notifications.Add(new Notification{UserId=target.Id,Title="Lời mời tham gia dự án",Message=$"{inviter} đã mời bạn tham gia dự án “{project.Name}” với vai trò {role}.",LinkUrl=$"/Project/Details/{projectId}",NotificationType="project_invitation",RefType="project_invitation",RefId=invitation.Id,CreatedAt=DateTime.Now});
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(Details),new{id=projectId});
         }
 
         [HttpPost]
-        public IActionResult AcceptInvitation(int projectId, int invitationId)
-        {var uid=User.GetUserId();var user=_context.Users.AsNoTracking().FirstOrDefault(u=>u.Id==uid);if(user==null)return NotFound();var invite=_context.ProjectInvitations.FirstOrDefault(i=>i.Id==invitationId&&i.ProjectId==projectId&&i.Status=="pending"&&(!i.ExpiresAt.HasValue||i.ExpiresAt>DateTime.Now)&&(i.InvitedUserId==uid||i.InvitedUserId==null&&i.InvitedEmail==user.Email));if(invite==null)return NotFound();if(!_context.ProjectMembers.Any(m=>m.ProjectId==projectId&&m.UserId==uid))_context.ProjectMembers.Add(new LifeHub.Models.ProjectManagement.ProjectMember{ProjectId=projectId,UserId=uid,ProjectRoleId=invite.ProjectRoleId,JoinedAt=DateTime.Now});invite.Status="accepted";invite.RespondedAt=DateTime.Now;AddActivity(projectId,uid,"invitation_accepted","Đã chấp nhận lời mời tham gia dự án.");_context.SaveChanges();return RedirectToAction(nameof(Details),new{id=projectId});}
+        public async Task<IActionResult> AcceptInvitation(int projectId, int invitationId)
+        {var uid=User.GetUserId();var user=await _context.Users.AsNoTracking().FirstOrDefaultAsync(u=>u.Id==uid);if(user==null)return NotFound();var invite=await _context.ProjectInvitations.FirstOrDefaultAsync(i=>i.Id==invitationId&&i.ProjectId==projectId&&i.Status=="pending"&&(!i.ExpiresAt.HasValue||i.ExpiresAt>DateTime.Now)&&(i.InvitedUserId==uid||i.InvitedUserId==null&&i.InvitedEmail==user.Email));if(invite==null)return NotFound();if(!await _context.ProjectMembers.AnyAsync(m=>m.ProjectId==projectId&&m.UserId==uid))_context.ProjectMembers.Add(new LifeHub.Models.ProjectManagement.ProjectMember{ProjectId=projectId,UserId=uid,ProjectRoleId=invite.ProjectRoleId,JoinedAt=DateTime.Now});invite.Status="accepted";invite.RespondedAt=DateTime.Now;var notification=await _context.Notifications.FirstOrDefaultAsync(n=>n.UserId==uid&&n.RefType=="project_invitation"&&n.RefId==invite.Id);if(notification!=null)notification.IsRead=true;AddActivity(projectId,uid,"invitation_accepted","Đã chấp nhận lời mời tham gia dự án.");_context.Notifications.Add(new Notification{UserId=invite.InvitedBy,Title="Lời mời đã được chấp nhận",Message=$"{user.FullName} đã tham gia dự án.",LinkUrl=$"/Project/Details/{projectId}",NotificationType="project_invitation_response",RefType="project_invitation",RefId=invite.Id,CreatedAt=DateTime.Now});await _context.SaveChangesAsync();return RedirectToAction(nameof(Details),new{id=projectId});}
+
+        [HttpPost]
+        public async Task<IActionResult> DeclineInvitation(int projectId, int invitationId)
+        {var uid=User.GetUserId();var user=await _context.Users.AsNoTracking().FirstOrDefaultAsync(u=>u.Id==uid);if(user==null)return NotFound();var invite=await _context.ProjectInvitations.FirstOrDefaultAsync(i=>i.Id==invitationId&&i.ProjectId==projectId&&i.Status=="pending"&&(!i.ExpiresAt.HasValue||i.ExpiresAt>DateTime.Now)&&(i.InvitedUserId==uid||i.InvitedUserId==null&&i.InvitedEmail==user.Email));if(invite==null)return NotFound();invite.Status="declined";invite.RespondedAt=DateTime.Now;var notification=await _context.Notifications.FirstOrDefaultAsync(n=>n.UserId==uid&&n.RefType=="project_invitation"&&n.RefId==invite.Id);if(notification!=null)notification.IsRead=true;AddActivity(projectId,uid,"invitation_declined","Đã từ chối lời mời tham gia dự án.");_context.Notifications.Add(new Notification{UserId=invite.InvitedBy,Title="Lời mời đã bị từ chối",Message=$"{user.FullName} đã từ chối lời mời tham gia dự án.",LinkUrl=$"/Project/Details/{projectId}",NotificationType="project_invitation_response",RefType="project_invitation",RefId=invite.Id,CreatedAt=DateTime.Now});await _context.SaveChangesAsync();return RedirectToAction("Index","Notification");}
 
         [HttpPost]
         public IActionResult CancelInvitation(int projectId, int invitationId)
@@ -124,8 +160,10 @@ namespace LifeHub.Controllers
             string? priority, DateTime? dueDate, int? assigneeId, int? parentTaskId)
         {
             var uid=User.GetUserId();if(!CanEdit(projectId,uid))return NotFound();title=title?.Trim()??"";status=status?.Trim()??"todo";priority=priority?.Trim()??"medium";
-            if(title.Length is <1 or >200||description?.Length>4000||status is not ("todo" or "in_progress" or "review" or "done")||priority is not ("urgent" or "high" or "medium" or "low"))return BadRequest();
-            if(assigneeId.HasValue&&!CanAssign(projectId,uid,assigneeId.Value))return BadRequest();
+            if(!ModelState.IsValid||title.Length is <1 or >200||description?.Length>4000||status is not ("todo" or "in_progress" or "review" or "done")||priority is not ("urgent" or "high" or "medium" or "low"))
+            {TempData["ProjectMessage"]="Hãy kiểm tra tiêu đề, mô tả, trạng thái, mức ưu tiên và hạn chót.";TempData["ProjectMessageType"]="error";return RedirectToAction(nameof(Details),new{id=projectId});}
+            if(assigneeId.HasValue&&!CanAssign(projectId,uid,assigneeId.Value))
+            {TempData["ProjectMessage"]="Người được giao phải là thành viên có quyền thực hiện nhiệm vụ trong dự án.";TempData["ProjectMessageType"]="error";return RedirectToAction(nameof(Details),new{id=projectId});}
             if(parentTaskId.HasValue&&!_context.Tasks.Any(t=>t.Id==parentTaskId&&t.ProjectId==projectId))return NotFound();
             var task=new LifeHub.Models.TaskManagement.Task{UserId=uid,ProjectId=projectId,ParentTaskId=parentTaskId,AssignedTo=assigneeId,Title=title,Description=description?.Trim(),Status=status,Priority=priority,Deadline=dueDate,CreatedAt=DateTime.Now,CompletedAt=status=="done"?DateTime.Now:null};
             _context.Tasks.Add(task);_context.SaveChanges();AddActivity(projectId,uid,"task_created",$"Đã tạo nhiệm vụ: {title}".Substring(0,Math.Min(255,$"Đã tạo nhiệm vụ: {title}".Length)),"task",task.Id);_context.SaveChanges();return RedirectToAction(nameof(Details),"Project",new{id=projectId},parentTaskId.HasValue?$"task-{parentTaskId}":null);

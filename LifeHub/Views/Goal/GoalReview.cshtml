@@ -58,7 +58,7 @@
             </div>
             @if (g.Status != "completed")
             {
-                <form asp-action="SetGoalStatus" method="post" data-simulate style="margin-top:16px">
+                <form asp-action="SetGoalStatus" method="post" style="margin-top:16px">
                     <input type="hidden" name="id" value="@g.Id" /><input type="hidden" name="status" value="completed" /><input type="hidden" name="returnTo" value="GoalReview" />
                     <button type="submit" class="goal-btn small">Đánh dấu hoàn thành</button>
                 </form>
@@ -89,7 +89,7 @@
 
             <section class="goal-card">
                 <div class="section-heading"><div><h3>Ghi chú đánh giá</h3><p>Điều gì đã làm tốt, điều gì cần cải thiện?</p></div></div>
-                <form asp-action="SaveReview" method="post" data-simulate class="review-form">
+                <form asp-action="SaveReview" method="post" class="review-form">
                     <input type="hidden" name="Id" value="@g.Id" />
                     <textarea name="ReviewNote" maxlength="4000" aria-label="Ghi chú đánh giá" placeholder="Điều gì đã làm tốt?&#10;Điều gì cần cải thiện?&#10;Bạn sẽ điều chỉnh gì ở lần tới?">@g.ReviewNote</textarea>
                     <div class="goal-modal-foot"><button type="submit" class="goal-btn primary">Lưu đánh giá</button></div>

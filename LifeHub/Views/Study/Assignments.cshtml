@@ -75,7 +75,7 @@
                                 <div class="row-actions">
                                     @if (!a.IsExam && !a.Score.HasValue)
                                     {
-                                        <form asp-action="ToggleSubmitted" method="post" data-simulate>
+                                        <form asp-action="ToggleSubmitted" method="post">
                                             <input type="hidden" name="Id" value="@a.Id" />
                                             <button type="submit" class="row-btn">@(a.IsSubmitted ? "Hoàn tác nộp" : "Đã nộp")</button>
                                         </form>
@@ -106,10 +106,9 @@
                 <button type="button" class="study-modal-close" data-close aria-label="Đóng">&times;</button>
             </div>
             <p class="study-note">Bài: <strong data-text="name"></strong></p>
-            <form asp-action="RecordScore" method="post" data-simulate>
+            <form asp-action="RecordScore" method="post">
                 <input type="hidden" name="Id" />
                 <div class="field"><label for="scoreValue">Điểm đạt được</label><input id="scoreValue" name="Score" type="number" min="0" step="0.1" required /></div>
-                <p class="study-note">Bản mô phỏng giao diện: dữ liệu chưa được lưu.</p>
                 <div class="study-modal-foot">
                     <button type="button" class="study-btn" data-close>Hủy</button>
                     <button type="submit" class="study-btn primary">Lưu điểm</button>

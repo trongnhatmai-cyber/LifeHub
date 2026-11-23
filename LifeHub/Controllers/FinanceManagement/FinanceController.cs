@@ -142,7 +142,7 @@ namespace LifeHub.Controllers
 
             ViewBag.Wallets = await _context.Wallets.AsNoTracking()
                 .Where(w => w.UserId == userId && w.IsActive).OrderBy(w => w.Name)
-                .Select(w => new { w.Id, w.Name }).ToListAsync();
+                .Select(w => new { w.Id, w.Name, Balance = w.InitialBalance }).ToListAsync();
             ViewBag.SavingsGoals = await _context.SavingsGoals.AsNoTracking()
                 .Where(g => g.UserId == userId && !g.IsAchieved).OrderBy(g => g.Title)
                 .Select(g => new { g.Id, Name = g.Title }).ToListAsync();

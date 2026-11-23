@@ -72,7 +72,7 @@
                     <button type="button" class="study-btn small" data-open="deleteModal" data-mode="delete" data-id="@s.Id" data-name="@s.Name">Xóa</button>
                     @if (!r.IsCurrent)
                     {
-                        <form asp-action="SetCurrentSemester" method="post" data-simulate>
+                        <form asp-action="SetCurrentSemester" method="post">
                             <input type="hidden" name="Id" value="@s.Id" />
                             <button type="submit" class="study-btn small">Đặt làm hiện tại</button>
                         </form>
@@ -93,7 +93,7 @@
                 <h3 id="semesterModalTitle" data-modal-title>Thêm học kỳ</h3>
                 <button type="button" class="study-modal-close" data-close aria-label="Đóng">&times;</button>
             </div>
-            <form asp-action="CreateSemester" method="post" data-simulate data-validate="semester">
+            <form asp-action="CreateSemester" method="post" data-validate="semester">
                 <input type="hidden" name="Id" disabled />
                 <div class="study-form-grid">
                     <div class="field full"><label for="semName">Tên học kỳ</label><input id="semName" name="Name" maxlength="100" required placeholder="VD: HK1 2026-2027" /></div>
@@ -101,7 +101,6 @@
                     <div class="field"><label for="semEnd">Ngày kết thúc</label><input id="semEnd" name="EndDate" type="date" required /></div>
                 </div>
                 <p class="form-error" role="alert" hidden></p>
-                <p class="study-note">Bản mô phỏng giao diện: dữ liệu chưa được lưu. Khi làm back-end cần đảm bảo mỗi người dùng chỉ có một học kỳ hiện tại.</p>
                 <div class="study-modal-foot">
                     <button type="button" class="study-btn" data-close>Hủy</button>
                     <button type="submit" class="study-btn primary">Lưu học kỳ</button>

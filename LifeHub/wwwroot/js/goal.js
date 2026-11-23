@@ -1,7 +1,7 @@
 /* =====================================================================
    LIFEHUB - GOAL MANAGEMENT  |  wwwroot/js/goal.js
    Chép từ study.js: JS chỉ xử lý tương tác giao diện, KHÔNG tính tiến độ hay đếm dữ liệu (việc của C#).
-   Form thêm / sửa / xóa hiện CHỈ MÔ PHỎNG (data-simulate), chưa có action POST.
+   Form thêm / sửa / xóa gửi trực tiếp về GoalController.
 
    QUY ƯỚC HTML
    - Nút mở modal:  data-open="<id modal>" data-mode="create|edit|delete" data-title="Tiêu đề modal"
@@ -106,54 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (e.key === "Escape") document.querySelectorAll(".goal-modal:not([hidden])").forEach(closeModal);
     });
 
-    // 3. GỬI FORM (MÔ PHỎNG, CHƯA LƯU DỮ LIỆU)
-    // BACK-END: khi có action POST, bỏ data-simulate khỏi form để gửi thật. Khối này không còn tác dụng.
-    function toast(message) {
-        let stack = page.querySelector(".goal-toast-stack");
-        if (!stack) { stack = document.createElement("div"); stack.className = "goal-toast-stack"; page.appendChild(stack); }
-        const el = document.createElement("div");
-        el.className = "goal-toast"; el.setAttribute("role", "status"); el.textContent = message;
-        stack.appendChild(el);
-        setTimeout(() => el.remove(), 3800);
-    }
-    document.addEventListener("submit", e => {
-        const form = e.target;
-        if (!form.hasAttribute || !form.hasAttribute("data-simulate")) return;
-        e.preventDefault();
-        let box = form.querySelector(".form-error");
-        clearInvalid(form);
-        if (form.matches("[data-validate]")) {
-            if (!box) {
-                box = document.createElement("p");
-                box.className = "form-error"; box.setAttribute("role", "alert"); box.hidden = true;
-                form.insertBefore(box, form.querySelector(".goal-modal-foot"));
-            }
-            if (!form.checkValidity()) {
-                const bad = Array.from(form.elements).filter(el => el.willValidate && !el.checkValidity());
-                const names = bad.map(el => {
-                    const field = el.closest(".field");
-                    if (field) field.classList.add("invalid");
-                    const label = field && field.querySelector("label");
-                    return label ? label.textContent.replace("*", "").trim() : el.name;
-                });
-                box.textContent = "Chưa nhập đúng: " + names.join(", ") + ".";
-                box.hidden = false;
-                if (bad[0]) bad[0].focus();
-                return;
-            }
-            if (form.dataset.validate === "goal") {
-                const s0 = form.querySelector('[name="StartDate"]').value;
-                const t0 = form.querySelector('[name="TargetDate"]').value;
-                if (s0 && t0 && t0 < s0) { box.textContent = "Ngày mục tiêu phải sau hoặc bằng ngày bắt đầu."; box.hidden = false; return; }
-            }
-            box.hidden = true;
-        }
-        const modal = form.closest(".goal-modal");
-        if (modal) closeModal(modal);
-        toast("Bản mô phỏng giao diện: dữ liệu chưa được lưu.");
-    });
-
-    // 4. FORM LỌC GET tự gửi khi đổi lựa chọn
+    // 3. FORM LỌC GET tự gửi khi đổi lựa chọn
     document.querySelectorAll("[data-autosubmit]").forEach(el => {
         el.addEventListener("change", () => { if (el.form) el.form.requestSubmit(); });
     });
