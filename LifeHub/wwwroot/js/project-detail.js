@@ -82,9 +82,9 @@
     /* ---------- Đồng bộ giao diện ---------- */
     function syncColumns() {
         Array.prototype.forEach.call(page.querySelectorAll('[data-column]'), function (col) {
-            var body = col.querySelector('.kanban-col__body');
+            var body = col.querySelector('.kanban-col-body');
             var count = body.querySelectorAll('[data-task-card]').length;
-            col.querySelector('.proj-tab-count').textContent = count;
+            col.querySelector('.chip-count').textContent = count;
 
             var empty = body.querySelector('.kanban-empty');
             if (count === 0 && !empty) {
@@ -158,7 +158,7 @@
         if (empty) empty.remove();
 
         var li = document.createElement('li');
-        li.className = 'comment' + (isRework ? ' comment--rework' : '');
+        li.className = 'comment' + (isRework ? ' comment-rework' : '');
         li.innerHTML =
             '<span class="comment-avatar"></span>' +
             '<div class="comment-body">' +
@@ -242,7 +242,7 @@
 
     function applyMove(id, to, reason) {
         var card = cardById(id);
-        var body = page.querySelector('[data-column][data-status="' + to + '"] .kanban-col__body');
+        var body = page.querySelector('[data-column][data-status="' + to + '"] .kanban-col-body');
         if (!card || !body) return;
 
         body.appendChild(card);
@@ -343,7 +343,7 @@
         if (avatar) {
             avatar.textContent = name ? name.charAt(0).toUpperCase() : '?';
             avatar.title = name || 'Chưa giao';
-            avatar.classList.toggle('task-assignee--empty', !name);
+            avatar.classList.toggle('task-assignee-empty', !name);
         }
 
         var modal = modalById(id);
@@ -383,7 +383,7 @@
             if (searchInput) searchInput.value = '';
             filterUser = '';
             Array.prototype.forEach.call(page.querySelectorAll('[data-filter-user]'), function (b) {
-                b.classList.remove('is-active');
+                b.classList.remove('active');
                 b.setAttribute('aria-pressed', 'false');
             });
             applyBoardFilter();
@@ -399,7 +399,7 @@
             filterUser = filterUser === uid ? '' : uid;
             Array.prototype.forEach.call(page.querySelectorAll('[data-filter-user]'), function (b) {
                 var active = b.getAttribute('data-filter-user') === filterUser;
-                b.classList.toggle('is-active', active);
+                b.classList.toggle('active', active);
                 b.setAttribute('aria-pressed', active ? 'true' : 'false');
             });
             applyBoardFilter();
@@ -412,7 +412,7 @@
             var modalEl = tab.closest('[data-task-modal]');
             var key = tab.getAttribute('data-activity-tab');
             Array.prototype.forEach.call(modalEl.querySelectorAll('[data-activity-tab]'), function (t) {
-                t.classList.toggle('is-active', t === tab);
+                t.classList.toggle('active', t === tab);
             });
             Array.prototype.forEach.call(modalEl.querySelectorAll('[data-activity-panel]'), function (p) {
                 p.hidden = p.getAttribute('data-activity-panel') !== key;

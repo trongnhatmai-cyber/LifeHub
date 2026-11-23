@@ -13,8 +13,8 @@
         </div>
         <div class="recent-meta">
             <span class="summary-badge">@Model.ProjectName</span>
-            <span class="proj-status proj-status--@Model.StatusKey">@Model.StatusLabel</span>
-            <span class="task-prio task-prio--@Model.PriorityKey">@Model.PriorityLabel</span>
+            <span class="status st-@Model.StatusKey">@Model.StatusLabel</span>
+            <span class="task-prio task-prio-@Model.PriorityKey">@Model.PriorityLabel</span>
             <span class="@dueClass">@(Model.DueDate.HasValue ? "Hạn " + Model.DueDate.Value.ToString("dd/MM") : "Không hạn")</span>
         </div>
     </div>
@@ -25,6 +25,6 @@
             <small>@Model.PersonLabel</small>
             <small>@Model.TimeText</small>
         </div>
-        <a asp-action="Details" asp-route-id="@Model.ProjectId" asp-fragment="@fragment" class="proj-btn sm">Xem chi tiết</a>
+        <a asp-action="Details" asp-route-id="@Model.ProjectId" asp-fragment="@fragment" class="project-btn small">Xem chi tiết</a>
     </div>
 </div>

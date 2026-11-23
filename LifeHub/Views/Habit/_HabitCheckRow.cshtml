@@ -1,0 +1,33 @@
+@model LifeHub.Models.ViewModels.HabitManagement.HabitCardItem
+@* Dòng check-in của một thói quen trong ngày Model.DateKey. ViewData["ShowNote"] = true để hiện nút ghi chú (trang Theo dõi). *@
+@{
+    var showNote = ViewData["ShowNote"] as bool? ?? false;
+    var dateLabel = DateOnly.Parse(Model.DateKey).ToString("dd/MM/yyyy");
+}
+<article class="check-row @(Model.State == "done" ? "is-done" : "")" style="--habit-color:@Model.Color">
+    <div class="check-info">
+        <span class="check-title"><i class="habit-dot"></i>@Model.Title</span>
+        <div class="habit-meta">
+            <span class="status st-@Model.StateCss">@Model.StateLabel</span>
+            <span> @Model.PeriodLabel</span><br />
+            @Model.FrequencyLabel
+            @if (!string.IsNullOrEmpty(Model.ReminderTime)) { <text> · Nhắc @Model.ReminderTime</text> }
+            @if (!string.IsNullOrEmpty(Model.GoalTitle)) { <text> · Mục tiêu: @Model.GoalTitle</text> }
+        </div>
+        @if (!string.IsNullOrEmpty(Model.NoteOnDate)) { <div class="habit-meta">Ghi chú: @Model.NoteOnDate</div> }
+    </div>
+    <div class="check-side">
+        @if (Model.CurrentStreak > 0) { <span class="streak-chip" title="Streak hiện tại">🔥 @Model.CurrentStreak ngày</span> }
+        @if (showNote)
+        {
+            <button type="button" class="row-btn" data-open="checkinModal" data-mode="create" data-habitid="@Model.Id" data-checkdate="@Model.DateKey"
+                    data-countvalue="@(Model.CountOnDate > 0 ? Model.CountOnDate : 1)" data-note="@Model.NoteOnDate" data-name="@Model.Title" data-datelabel="@dateLabel">Ghi chú</button>
+        }
+        <form method="post" data-simulate>
+            <input type="hidden" name="HabitId" value="@Model.Id" />
+            <input type="hidden" name="CheckDate" value="@Model.DateKey" />
+            <input type="hidden" name="IsCompleted" value="@(Model.DoneOnDate ? "false" : "true")" />
+            <button type="submit" class="check-btn @(Model.DoneOnDate ? "done" : "")" aria-pressed="@(Model.DoneOnDate ? "true" : "false")">@(Model.DoneOnDate ? "✓ Đã check-in" : Model.TargetPerPeriod > 1 && Model.Frequency == "daily" ? "+1" : "Check-in")</button>
+        </form>
+    </div>
+</article>

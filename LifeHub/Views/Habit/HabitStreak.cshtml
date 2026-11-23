@@ -1,11 +1,66 @@
-@model LifeHub.Models.ViewModels.GoalManagement.GoalHabitPageViewModel
+@model LifeHub.Models.ViewModels.HabitManagement.HabitStreakViewModel
 @{
     Layout = "_Layout";
+    ViewData["Title"] = "Chuỗi duy trì";
+    ViewData["ActivePage"] = "HabitStreak";
 }
 @section Styles {
-    <link rel="stylesheet" href="~/css/goal-habit.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/habit.css" asp-append-version="true" />
 }
-@await Html.PartialAsync("_GoalHabitPage", Model)
+
+<div class="habit-page" data-module="streak">
+    <header class="habit-heading">
+        <div>
+            <span class="habit-label">HABIT ANALYTICS / STREAK</span>
+            <h1>Chuỗi duy trì</h1>
+            <p>Mức độ liên tục của từng thói quen trong 30 ngày gần nhất.</p>
+        </div>
+        <div class="heading-actions"><a class="habit-btn" asp-action="HabitStatistics">← Về thống kê</a><a class="habit-btn primary" asp-action="HabitTracking">Check-in hôm nay</a></div>
+    </header>
+
+    <section class="habit-summary">
+        <div class="summary-card">
+            <div class="summary-top"><span>Streak hiện tại tốt nhất</span><span class="summary-badge">NOW</span></div>
+            <h2>@Model.BestCurrent</h2><p>ngày liên tiếp</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Streak dài nhất</span><span class="summary-badge">BEST</span></div>
+            <h2>@Model.BestEver</h2><p>kỷ lục mọi thời gian</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Đang có chuỗi</span><span class="summary-badge">ON</span></div>
+            <h2>@Model.Streaking.ToString("00")</h2><p>Thói quen streak từ 1 ngày</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Chưa có chuỗi</span><span class="summary-badge">RESET</span></div>
+            <h2>@Model.Broken.ToString("00")</h2><p>Sẵn sàng bắt đầu lại</p>
+        </div>
+    </section>
+
+    @foreach (var it in Model.Items)
+    {
+        var h = it.Habit;
+        <article class="streak-card" style="--habit-color:@h.Color">
+            <div class="streak-head">
+                <div>
+                    <strong class="habit-row-title"><i class="habit-dot"></i>@h.Title</strong>
+                    <div class="habit-meta">@h.TargetLabel · @it.Days.Count(d => d.Level == 4) / 30 ngày đã làm</div>
+                </div>
+                <div class="streak-numbers">
+                    <div><strong>@h.CurrentStreak</strong><span>Hiện tại</span></div>
+                    <div><strong>@h.LongestStreak</strong><span>Dài nhất</span></div>
+                </div>
+            </div>
+            <div class="streak-cal" role="img" aria-label="Lịch 30 ngày của @h.Title">
+                @foreach (var d in it.Days) { <i class="@(d.Level == 4 ? "l4" : "") @(d.IsToday ? "today" : "")" title="@d.Date.ToString("dd/MM"): @(d.Level == 4 ? "đã làm" : "chưa làm")"></i> }
+            </div>
+        </article>
+    }
+    @if (!Model.Items.Any()) { <div class="habit-empty">Chưa có thói quen nào đang bật để theo dõi chuỗi.<br /><a class="habit-btn small" asp-action="HabitList">Tạo thói quen</a></div> }
+
+    <div class="heat-legend"><i style="background:var(--habit-l0)"></i><span>Chưa làm</span><i style="background:var(--habit-l4)"></i><span>Đã làm (ô cuối là hôm nay, có viền)</span></div>
+</div>
+
 @section Scripts {
-    <script src="~/js/goal-habit.js" asp-append-version="true"></script>
+    <script src="~/js/habit.js" asp-append-version="true"></script>
 }

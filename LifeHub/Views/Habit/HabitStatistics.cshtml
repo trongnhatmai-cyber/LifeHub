@@ -1,11 +1,114 @@
-@model LifeHub.Models.ViewModels.GoalManagement.GoalHabitPageViewModel
+@model LifeHub.Models.ViewModels.HabitManagement.HabitStatisticsViewModel
 @{
     Layout = "_Layout";
+    ViewData["Title"] = "Thống kê thói quen";
+    ViewData["ActivePage"] = "HabitStatistics";
 }
 @section Styles {
-    <link rel="stylesheet" href="~/css/goal-habit.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/habit.css" asp-append-version="true" />
 }
-@await Html.PartialAsync("_GoalHabitPage", Model)
+
+<div class="habit-page" data-module="statistics">
+    <header class="habit-heading">
+        <div>
+            <span class="habit-label">HABIT ANALYTICS</span>
+            <h1>Thống kê thói quen</h1>
+            <p>Bạn đang duy trì thói quen tốt đến mức nào? Tỷ lệ tính theo số lần dự kiến của từng thói quen.</p>
+        </div>
+        <div class="heading-actions">
+            <a class="habit-btn" asp-action="HabitStreak">Xem chuỗi duy trì</a>
+            <div class="habit-chips" style="margin:0" role="group" aria-label="Khoảng thời gian">
+                <a class="habit-chip @(Model.Range == 7 ? "active" : "")" asp-action="HabitStatistics" asp-route-range="7">7 ngày</a>
+                <a class="habit-chip @(Model.Range == 30 ? "active" : "")" asp-action="HabitStatistics" asp-route-range="30">30 ngày</a>
+                <a class="habit-chip @(Model.Range == 90 ? "active" : "")" asp-action="HabitStatistics" asp-route-range="90">90 ngày</a>
+            </div>
+        </div>
+    </header>
+
+    <section class="habit-summary">
+        <div class="summary-card">
+            <div class="summary-top"><span>Tỷ lệ hoàn thành</span><span class="summary-badge">@Model.Range NGÀY</span></div>
+            <h2>@Model.OverallRate%</h2><p>Đã làm / số lần dự kiến</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Tổng số lần thực hiện</span><span class="summary-badge">DONE</span></div>
+            <h2>@Model.TotalCompletions</h2><p>Trong @Model.Range ngày qua</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Streak hiện tại tốt nhất</span><span class="summary-badge">NOW</span></div>
+            <h2>@Model.BestCurrent</h2><p>ngày liên tiếp</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Streak dài nhất</span><span class="summary-badge">BEST</span></div>
+            <h2>@Model.BestEver</h2><p>ngày liên tiếp</p>
+        </div>
+    </section>
+
+    <div class="habit-grid">
+        <section class="habit-card">
+            <div class="section-heading"><div><h3>Xu hướng hoàn thành</h3><p>Tỷ lệ theo từng mốc thời gian</p></div></div>
+            <div class="trend" role="img" aria-label="Xu hướng hoàn thành">
+                @foreach (var p in Model.Trend)
+                {
+                    <div class="trend-col">
+                        <strong>@p.Rate%</strong>
+                        <div class="trend-track"><i style="height:@p.Rate%"></i></div>
+                        <small>@p.Label</small>
+                    </div>
+                }
+            </div>
+            @if (!Model.Trend.Any()) { <div class="habit-empty">Chưa có dữ liệu.</div> }
+        </section>
+
+        <section class="habit-card">
+            <div class="section-heading"><div><h3>Nhận xét thói quen</h3><p>Tạo từ dữ liệu check-in thật của bạn</p></div></div>
+            @foreach (var t in Model.Insights) { <div class="insight">@t</div> }
+            @if (!Model.Insights.Any()) { <div class="habit-empty">Chưa đủ dữ liệu để đưa ra nhận xét. Hãy check-in thêm vài ngày.</div> }
+        </section>
+    </div>
+
+    <section class="habit-card" style="margin-bottom:20px">
+        <div class="section-heading"><div><h3>Phân tích từng thói quen</h3><p>Tỷ lệ, số lần thực hiện / dự kiến và streak</p></div></div>
+        @foreach (var r in Model.Rows)
+        {
+            <div class="stat-row" style="--habit-color:@r.Color">
+                <div>
+                    <span class="habit-row-title"><i class="habit-dot"></i>@r.Title</span>
+                    <div class="habit-meta">@r.FrequencyLabel · @r.Done / @r.Expected.ToString("0.#") lần dự kiến · Streak @r.CurrentStreak (dài nhất @r.LongestStreak)</div>
+                </div>
+                <div>
+                    <div class="habit-row-side-top"><span>Tỷ lệ</span><strong>@r.Rate%</strong></div>
+                    <div class="bar @(r.Rate >= 80 ? "done" : "")"><i style="width:@r.Rate%"></i></div>
+                </div>
+            </div>
+        }
+        @if (!Model.Rows.Any()) { <div class="habit-empty">Chưa có thói quen nào để phân tích.<br /><a class="habit-btn small" asp-action="HabitList">Tạo thói quen</a></div> }
+        <p class="habit-note">Số lần dự kiến: hằng ngày = số ngày × mục tiêu; hằng tuần = số ngày / 7 × mục tiêu; hằng tháng = số ngày / 30 × mục tiêu. Không tính các ngày trước khi thói quen được tạo. Hiện chưa có lịch chọn thứ cụ thể trong tuần nên chưa tách được ngày nghỉ theo lịch.</p>
+    </section>
+
+    <div class="habit-grid">
+        <section class="habit-card">
+            <div class="section-heading"><div><h3>Ngày hoạt động</h3><p>Màu đậm hơn = nhiều thói quen có check-in hơn. Ô viền đứt = chưa có thói quen.</p></div></div>
+            <div class="heat-grid" role="img" aria-label="Heatmap hoạt động">
+                @foreach (var c in Model.Heatmap) { <div class="heat-cell l@(c.Level) @(c.Total == 0 ? "none" : "") @(c.IsToday ? "today" : "")" title="@c.Tip"></div> }
+            </div>
+            <div class="heat-legend"><span>Ít</span><i style="background:var(--habit-l0)"></i><i style="background:var(--habit-l1)"></i><i style="background:var(--habit-l2)"></i><i style="background:var(--habit-l3)"></i><i style="background:var(--habit-l4)"></i><span>Nhiều</span></div>
+        </section>
+
+        <section class="habit-card">
+            <div class="section-heading"><div><h3>Ngày chưa check-in</h3><p>Thói quen hằng ngày, gần đây nhất (@Model.MissedDays ngày trong khoảng)</p></div></div>
+            @foreach (var m in Model.Missed)
+            {
+                <div class="habit-row" style="--habit-color:@m.Color">
+                    <div class="habit-row-info"><span class="habit-row-title"><i class="habit-dot"></i>@m.HabitTitle</span></div>
+                    <span class="status st-upcoming">@m.Date.ToString("dd/MM")</span>
+                </div>
+            }
+            @if (!Model.Missed.Any()) { <div class="habit-empty">Không có ngày nào chưa check-in. Làm tốt lắm!</div> }
+        </section>
+    </div>
+</div>
+
 @section Scripts {
-    <script src="~/js/goal-habit.js" asp-append-version="true"></script>
+    <script src="~/js/habit.js" asp-append-version="true"></script>
 }

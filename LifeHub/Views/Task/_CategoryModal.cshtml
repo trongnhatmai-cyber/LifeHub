@@ -26,12 +26,12 @@
          data-close-category-modal>
     </div>
 
-    <div class="task-modal-dialog">
+    <div class="task-modal-box">
 
         <!-- MODAL HEADER -->
-        <header class="task-modal-header">
+        <header class="task-modal-head">
             <div>
-                <span class="task-eyebrow">TASK CATEGORIES</span>
+                <span class="task-label">TASK CATEGORIES</span>
                 <h2 id="categoryModalTitle">Chi tiết danh mục</h2>
             </div>
 
@@ -88,21 +88,21 @@
 
             </div>
 
-            <footer class="task-modal-footer">
+            <footer class="task-modal-foot">
                 <button type="button"
-                        class="task-btn task-btn-danger-outline"
+                        class="task-btn danger-outline"
                         data-category-modal-mode="delete">
                     Xóa danh mục
                 </button>
 
                 <button type="button"
-                        class="task-btn task-btn-secondary"
+                        class="task-btn"
                         data-close-category-modal>
                     Đóng
                 </button>
 
                 <button type="button"
-                        class="task-btn task-btn-primary"
+                        class="task-btn primary"
                         data-category-modal-mode="edit">
                     Chỉnh sửa
                 </button>
@@ -123,7 +123,7 @@
 
                 <div class="task-form-grid">
 
-                    <div class="task-form-field full">
+                    <div class="field full">
                         <label asp-for="Name">Tên danh mục</label>
 
                         <input asp-for="Name"
@@ -134,7 +134,7 @@
                         <span asp-validation-for="Name"></span>
                     </div>
 
-                    <div class="task-form-field full">
+                    <div class="field full">
                         <label asp-for="Description">Mô tả</label>
 
                         <textarea asp-for="Description"
@@ -147,7 +147,7 @@
                         <span asp-validation-for="Description"></span>
                     </div>
 
-                    <div class="task-form-field">
+                    <div class="field">
                         <label asp-for="Color">Màu sắc</label>
 
                         <input asp-for="Color"
@@ -155,7 +155,7 @@
                                data-category-field="color" />
                     </div>
 
-                    <div class="task-form-field">
+                    <div class="field">
                         <label asp-for="Icon">Biểu tượng</label>
 
                         <select asp-for="Icon"
@@ -172,15 +172,15 @@
 
                 </div>
 
-                <footer class="task-modal-footer">
+                <footer class="task-modal-foot">
                     <button type="button"
-                            class="task-btn task-btn-secondary"
+                            class="task-btn"
                             data-close-category-modal>
                         Hủy
                     </button>
 
                     <button type="button"
-                            class="task-btn task-btn-primary"
+                            class="task-btn primary"
                             data-category-form-submit>
                         Lưu danh mục
                     </button>
@@ -210,15 +210,15 @@
                 </p>
             </div>
 
-            <footer class="task-modal-footer">
+            <footer class="task-modal-foot">
                 <button type="button"
-                        class="task-btn task-btn-secondary"
+                        class="task-btn"
                         data-category-modal-mode="detail">
                     Quay lại
                 </button>
 
                 <button type="button"
-                        class="task-btn task-btn-danger"
+                        class="task-btn danger"
                         data-category-delete-confirm>
                     Xác nhận xóa
                 </button>

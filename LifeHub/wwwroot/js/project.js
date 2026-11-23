@@ -28,7 +28,7 @@
     var emptyBox = document.getElementById('projectEmpty');
     var counter = document.getElementById('projectResultCount');
     var pager = document.getElementById('projectPager');
-    var tabs = Array.prototype.slice.call(page.querySelectorAll('.proj-tab[data-filter]'));
+    var tabs = Array.prototype.slice.call(page.querySelectorAll('.project-chip[data-filter]'));
     var cards = grid ? Array.prototype.slice.call(grid.querySelectorAll('[data-project-card]')) : [];
     var pageSize = grid ? parseInt(grid.getAttribute('data-page-size') || '0', 10) : 0;
 
@@ -90,7 +90,7 @@
         b.textContent = label;
         b.disabled = disabled;
         if (active) {
-            b.classList.add('is-active');
+            b.classList.add('active');
             b.setAttribute('aria-current', 'page');
         }
         b.addEventListener('click', function () {
@@ -114,7 +114,7 @@
         pageList(state.page, totalPages).forEach(function (n) {
             if (n === '…') {
                 var gap = document.createElement('span');
-                gap.className = 'proj-pager-gap';
+                gap.className = 'project-pager-gap';
                 gap.textContent = '…';
                 pager.appendChild(gap);
             } else {
@@ -164,7 +164,7 @@
             state.page = 1;
             tabs.forEach(function (t) {
                 var active = t === tab;
-                t.classList.toggle('is-active', active);
+                t.classList.toggle('active', active);
                 t.setAttribute('aria-pressed', active ? 'true' : 'false');
             });
             applyFilter();
@@ -203,7 +203,7 @@
         grid.classList.toggle('is-list', mode === 'list');
         viewButtons.forEach(function (b) {
             var on = b.getAttribute('data-view') === mode;
-            b.classList.toggle('is-active', on);
+            b.classList.toggle('active', on);
             b.setAttribute('aria-pressed', on ? 'true' : 'false');
         });
         try { localStorage.setItem('lifehub.project.view', mode); } catch (e) { /* bỏ qua */ }
@@ -223,7 +223,7 @@
             if (sortSelect) sortSelect.value = 'default';
             tabs.forEach(function (t) {
                 var on = t.getAttribute('data-filter') === 'all';
-                t.classList.toggle('is-active', on);
+                t.classList.toggle('active', on);
                 t.setAttribute('aria-pressed', on ? 'true' : 'false');
             });
             applySort();
@@ -270,18 +270,18 @@
         }
 
         modal.hidden = false;
-        document.body.classList.add('proj-modal-open');
+        document.body.classList.add('project-modal-open');
 
         var focusTarget = form
             ? form.querySelector('input:not([type="hidden"]), select, textarea')
-            : modal.querySelector('.proj-modal__close');
+            : modal.querySelector('.project-modal-close');
         if (focusTarget) focusTarget.focus();
     }
 
     function closeModal(modal) {
         if (!modal) return;
         modal.hidden = true;
-        document.body.classList.remove('proj-modal-open');
+        document.body.classList.remove('project-modal-open');
         if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
     }
 
@@ -295,19 +295,19 @@
 
         var closer = e.target.closest('[data-modal-close]');
         if (closer) {
-            closeModal(closer.closest('.proj-modal'));
+            closeModal(closer.closest('.project-modal'));
             return;
         }
 
         // Bấm vào nền mờ bên ngoài hộp thoại
-        if (e.target.classList && e.target.classList.contains('proj-modal')) {
+        if (e.target.classList && e.target.classList.contains('project-modal')) {
             closeModal(e.target);
         }
     });
 
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') {
-            closeModal(page.querySelector('.proj-modal:not([hidden])'));
+            closeModal(page.querySelector('.project-modal:not([hidden])'));
             return;
         }
 

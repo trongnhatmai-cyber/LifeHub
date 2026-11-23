@@ -1,11 +1,89 @@
-@model LifeHub.Models.ViewModels.GoalManagement.GoalHabitPageViewModel
+@model LifeHub.Models.ViewModels.HabitManagement.HabitTrackingViewModel
 @{
     Layout = "_Layout";
+    ViewData["Title"] = "Theo dõi thói quen";
+    ViewData["ActivePage"] = "HabitTracking";
+    var rate = Model.Total == 0 ? 0 : (int)Math.Round(Model.DoneCount * 100d / Model.Total);
+    ViewData["ShowNote"] = true;
 }
 @section Styles {
-    <link rel="stylesheet" href="~/css/goal-habit.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/habit.css" asp-append-version="true" />
 }
-@await Html.PartialAsync("_GoalHabitPage", Model)
+
+<div class="habit-page" data-module="tracking">
+    <partial name="_HabitFlash" />
+
+    <header class="habit-heading">
+        <div>
+            <span class="habit-label">DAILY TRACKING</span>
+            <h1>Theo dõi hằng ngày</h1>
+            <p>Check-in nhanh các thói quen đang bật. Đang xem ngày @Model.Date.ToString("dd/MM/yyyy").</p>
+        </div>
+        <div class="heading-actions">
+            @if (!Model.IsToday) { <a class="habit-btn small" asp-action="HabitTracking">Về hôm nay</a> }
+            <div class="date-nav">
+                <a class="habit-btn small" asp-action="HabitTracking" asp-route-date="@Model.PrevKey" aria-label="Ngày trước">‹</a>
+                <strong>@(Model.IsToday ? "Hôm nay, " : "")@Model.Date.ToString("dd/MM/yyyy")</strong>
+                @if (Model.NextKey != null) { <a class="habit-btn small" asp-action="HabitTracking" asp-route-date="@Model.NextKey" aria-label="Ngày sau">›</a> }
+                else { <span class="habit-btn small" aria-disabled="true" style="opacity:.4;cursor:default">›</span> }
+            </div>
+            <form method="get" asp-action="HabitTracking" class="habit-toolbar" style="margin:0">
+                <input type="date" name="date" value="@Model.Date.ToString("yyyy-MM-dd")" max="@DateTime.Today.ToString("yyyy-MM-dd")" data-autosubmit aria-label="Chọn ngày theo dõi" />
+            </form>
+        </div>
+    </header>
+
+    <section class="habit-summary">
+        <div class="summary-card">
+            <div class="summary-top"><span>Đã check-in</span><span class="summary-badge">DONE</span></div>
+            <h2>@Model.DoneCount.ToString("00")</h2><p>Thói quen đã xong trong ngày</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Còn lại</span><span class="summary-badge">TODO</span></div>
+            <h2>@((Model.Total - Model.DoneCount).ToString("00"))</h2><p>Chưa check-in</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Tỷ lệ trong ngày</span><span class="summary-badge">RATE</span></div>
+            <h2>@rate%</h2><p>@Model.DoneCount / @Model.Total thói quen</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Thói quen đang bật</span><span class="summary-badge">ACTIVE</span></div>
+            <h2>@Model.Total.ToString("00")</h2><p>Có hiệu lực ở ngày này</p>
+        </div>
+    </section>
+
+    <div class="day-progress">
+        <div class="day-progress-top"><span>Tiến độ @(Model.IsToday ? "hôm nay" : "ngày " + Model.Date.ToString("dd/MM"))</span><strong>@Model.DoneCount/@Model.Total</strong></div>
+        <div class="bar @(rate >= 100 ? "done" : "")"><i style="width:@rate%"></i></div>
+        <p class="habit-note" style="margin-top:8px">Đã hoàn thành @Model.DoneCount trên @Model.Total thói quen đang bật.</p>
+    </div>
+
+    <section class="habit-card" style="margin-bottom:18px">
+        <div class="section-heading"><div><h3>Danh sách ngày @Model.Date.ToString("dd/MM")</h3><p>Chưa làm xếp trước</p></div></div>
+        @foreach (var h in Model.Items) { <partial name="_HabitCheckRow" model="h" view-data="ViewData" /> }
+        @if (!Model.Items.Any()) { <div class="habit-empty">Không có thói quen nào đang bật ở ngày này.<br /><a class="habit-btn small" asp-action="HabitList">Quản lý thói quen</a></div> }
+        <p class="habit-note">Check-in hiện là bản mô phỏng giao diện, chưa lưu dữ liệu.</p>
+    </section>
+
+    <section class="habit-card">
+        <div class="section-heading"><div><h3>Lịch sử trong ngày</h3><p>Các lần ghi nhận của ngày @Model.Date.ToString("dd/MM/yyyy")</p></div></div>
+        @foreach (var h in Model.Items.Where(x => x.DoneOnDate))
+        {
+            <div class="habit-row" style="--habit-color:@h.Color">
+                <div class="habit-row-info">
+                    <span class="habit-row-title"><i class="habit-dot"></i>@h.Title</span>
+                    <div class="habit-meta">Giá trị thực hiện: @(h.CountOnDate + (string.IsNullOrEmpty(h.NoteOnDate) ? "" : " · " + h.NoteOnDate))</div>
+                </div>
+                <span class="status st-graded">Đã ghi nhận</span>
+            </div>
+        }
+        @if (!Model.Items.Any(x => x.DoneOnDate)) { <div class="habit-empty">Chưa có lần ghi nhận nào trong ngày này.</div> }
+        <p class="habit-note">Chưa hiển thị giờ check-in vì HabitLog hiện chỉ lưu ngày (CheckDate).</p>
+    </section>
+
+    <partial name="_HabitModals" model="Model.Goals" />
+</div>
+
 @section Scripts {
-    <script src="~/js/goal-habit.js" asp-append-version="true"></script>
+    <script src="~/js/habit.js" asp-append-version="true"></script>
 }

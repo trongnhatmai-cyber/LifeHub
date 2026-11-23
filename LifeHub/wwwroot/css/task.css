@@ -1,436 +1,368 @@
-/* =========================================================
-   LIFEHUB - TASK MANAGEMENT
-   Dùng chung cho:
-   - Tổng quan công việc (Index)
-   - Danh sách công việc (Task)
-   - Danh mục công việc (Category)
-   - Modal công việc
-   - Modal danh mục
+/* =====================================================================
+   LIFEHUB - TASK MANAGEMENT (CÔNG VIỆC)        wwwroot/css/task.css
 
-   Quy ước:
-   - Tất cả selector nằm trong .task-page hoặc modal riêng.
-   - Hỗ trợ Light / Dark theme.
-   - Không ghi đè CSS của module khác.
+   Cấu trúc, tên class và bảng cỡ chữ GIỐNG HỆT study.css (file mẫu của LIFEHUB).
+   Mục 1 chốt toàn bộ màu của phân hệ; mục 2 đến 6 là khối dùng chung (nền tảng, tiêu đề,
+   nút, thẻ chỉ số, card) sao chép từ study.css đổi tiền tố .study- thành .task-.
 
-   Mục lục (số thứ tự khớp với tiêu đề từng mục bên dưới):
-     01 Base & theme          02 Page header        03 Buttons
-     04 Panel / card          05 Summary cards      06-09 Tổng quan
-     10 Priority / status     11 Empty state        12-15 Danh sách công việc
-     16-17 Trang Danh mục     18-23 Modal           24-25 Responsive
+   MỤC LỤC
+     1. BIẾN GIAO DIỆN  (CHỐT MÀU TẠI ĐÂY - cùng cấu trúc với task.css)
+     2. NỀN TẢNG
+     3. TIÊU ĐỀ TRANG VÀ NHÓM NÚT HÀNH ĐỘNG
+     4. NÚT BẤM
+     5. THẺ CHỈ SỐ (4 thẻ ở đầu mỗi trang)
+     6. KHUNG NỘI DUNG
+     7. OVERVIEW - SCOPE CARDS
+     8. OVERVIEW - CONTENT GRID
+     9. OVERVIEW - COMPLETION
+    10. OVERVIEW - RECENT / ATTENTION LISTS
+    11. TASK PRIORITY / STATUS LABELS
+    12. EMPTY STATE
+    13. TASK LIST - SCOPE FILTER
+    14. TASK LIST - FILTER TOOLBAR
+    15. TASK LIST - KANBAN BOARD
+    16. TASK LIST - TASK CARD
+    17. CATEGORY PAGE - SUMMARY
+    18. CATEGORY PAGE - CATEGORY GRID
+    19. MODAL - BASE
+    20. TASK MODAL - DETAIL
+    21. TASK MODAL - TYPE SELECTOR
+    22. MODAL - FORM FIELDS
+    23. MODAL - DELETE CONFIRMATION
+    24. CATEGORY MODAL - DETAIL
+    25. RESPONSIVE - TABLET
+    26. RESPONSIVE - MOBILE
 
-   Cỡ chữ: KHÔNG viết số px cho tiêu đề, nút, thẻ thống kê, badge, modal.
-   Dùng biến var(--fs-...) định nghĩa trong layout.css (mục TYPOGRAPHY TOKENS).
-   CSS mới: thêm vào đúng mục, không thêm cuối file.
-   ========================================================= */
+   QUY TẮC
+     - Mọi selector bắt đầu bằng .task-page (modal là con trực tiếp của .task-page).
+     - Màu: chỉ dùng var(--task-...) ở mục 1. Không viết mã màu cứng, trừ màu nhận diện
+       truyền từ C# qua style="--xxx-color:..." và bóng đổ trung tính rgba(0,0,0,x).
+     - Cỡ chữ: chỉ dùng var(--fs-...) trong layout.css (TYPOGRAPHY TOKENS), không viết số px.
+     - Tên class đặt theo vai trò như study: task-btn, task-heading, task-label, task-summary,
+       summary-card, task-card, section-heading, task-chip, task-modal(-box/-head/-foot), field...
+       Không dùng BEM (__ và --); trạng thái dùng class rời như .active, .primary, .small.
+     - Thuộc tính hidden luôn thắng; JS chỉ cần bật tắt hidden.
+     - Phần CSS thêm mới đặt đúng mục, không thêm cuối file.
+   ===================================================================== */
 
+/* =====================================================================
+   1. BIẾN GIAO DIỆN  (CHỐT MÀU TẠI ĐÂY - cùng cấu trúc với study.css)
+   Tất cả màu của phân hệ nằm ở khối này, mục 2 trở xuống chỉ dùng var(--task-...).
+   Màu nhận diện: cam (orange). Đổi màu phân hệ = chỉ sửa khối này.
+     --task-bg           nền trang và nền thẻ nội dung
+     --task-card         nền thẻ nhạt (thẻ chỉ số, ô nhập, nút phụ)
+     --task-card-strong  nền nhấn mạnh (badge, thanh tiến độ, toast)
+     --task-soft         màu phụ (nền thanh tiến độ, cột mục tiêu)
+     --task-border       viền
+     --task-text         chữ chính          --task-muted        chữ phụ
+     --task-accent       màu nhấn           --task-accent-dark  màu nhấn đậm
+     --task-accent-rgb   màu nhấn dạng "r, g, b" để viết rgba(var(--task-accent-rgb), .2)
+     --task-on-accent    chữ nằm trên nền màu nhấn
+     --task-success / -warn / -danger / -info (+ "-bg" là nền nhạt tương ứng)
+     --task-overlay      nền mờ phía sau modal
+     --task-shadow       bóng đổ chuẩn của thẻ
+   ===================================================================== */
 
-/* =========================================================
-   01. BASE & THEME
-   ========================================================= */
-
+/* Theme sáng */
 .task-page {
-    --task-bg: var(--bg-primary, #f7f8fa);
-    --task-surface: var(--bg-secondary, #ffffff);
-    --task-surface-soft: var(--bg-tertiary, #f3f4f6);
-
-    --task-text: var(--text-primary, #252a34);
-    --task-muted: var(--text-secondary, #737b89);
-    --task-border: var(--border-color, #e5e7eb);
-
-    --task-primary: #ea580c;
-    --task-primary-hover: #c2410c;
-    --task-primary-soft: #fff1e8;
-
-    --task-success: #16a34a;
-    --task-warning: #d97706;
+    --task-bg: #ffffff;
+    --task-card: #fff7ed;
+    --task-card-strong: #ffedd5;
+    --task-soft: #fed7aa;
+    --task-border: #ffedd5;
+    --task-text: #431407;
+    --task-muted: #78716c;
+    --task-accent: #ea580c;
+    --task-accent-dark: #c2410c;
+    --task-accent-rgb: 234, 88, 12;
+    --task-on-accent: #ffffff;
+    --task-success: #15803d;
+    --task-success-bg: rgba(22, 163, 74, .14);
+    --task-warn: #b45309;
+    --task-warn-bg: rgba(217, 119, 6, .14);
     --task-danger: #dc2626;
-    --task-info: #0284c7;
+    --task-danger-bg: rgba(220, 38, 38, .12);
+    --task-info: #0369a1;
+    --task-info-bg: rgba(2, 132, 199, .12);
+    --task-overlay: rgba(15, 23, 42, .52);
+    --task-shadow: 0 6px 20px rgba(234, 88, 12, .05);
 
-    --task-radius-sm: 8px;
-    --task-radius-md: 12px;
-    --task-radius-lg: 18px;
-
-    --task-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
-    --task-transition: 0.2s ease;
-
+    color: var(--task-text);
     width: 100%;
     min-width: 0;
-    color: var(--task-text);
+    transition: background 0.3s ease, color 0.3s ease;
 }
 
+/* Theme tối: chỉ ghi đè giá trị biến, không viết lại rule nào khác.
+   Layout đặt data-theme="dark" lên <html>. Viết hai dạng selector để chắc chắn khớp. */
+:root[data-theme="dark"] .task-page,
 html[data-theme="dark"] .task-page {
-    --task-primary: #fb923c;
-    --task-primary-hover: #fdba74;
-    --task-primary-soft: rgba(251, 146, 60, 0.12);
-
+    --task-bg: #080a0f;
+    --task-card: #1a0f08;
+    --task-card-strong: #2e1a0c;
+    --task-soft: #4a2a12;
+    --task-border: #4a2a12;
+    --task-text: #fff7ed;
+    --task-muted: #fdba74;
+    --task-accent: #fb923c;
+    --task-accent-dark: #f97316;
+    --task-accent-rgb: 251, 146, 60;
+    --task-on-accent: #1c0a02;
     --task-success: #4ade80;
-    --task-warning: #fbbf24;
+    --task-success-bg: rgba(74, 222, 128, .16);
+    --task-warn: #fbbf24;
+    --task-warn-bg: rgba(251, 191, 36, .16);
     --task-danger: #f87171;
-    --task-info: #38bdf8;
-
-    --task-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    --task-danger-bg: rgba(248, 113, 113, .16);
+    --task-info: #7dd3fc;
+    --task-info-bg: rgba(56, 189, 248, .16);
+    --task-overlay: rgba(8, 10, 15, .65);
+    --task-shadow: 0 8px 28px rgba(0, 0, 0, .4);
 }
 
-.task-page,
-.task-page *,
-.task-modal,
-.task-modal * {
-    box-sizing: border-box;
-}
+/* =====================================================================
+   2. NỀN TẢNG
+   ===================================================================== */
+.task-page * { box-sizing: border-box; }
+.task-page h1, .task-page h2, .task-page h3, .task-page p { margin-top: 0; }
+.task-page button, .task-page input, .task-page select { font: inherit; }
 
-.task-page h1,
-.task-page h2,
-.task-page h3,
-.task-page h4,
-.task-page p,
-.task-modal h2,
-.task-modal h3,
-.task-modal h4,
-.task-modal p {
-    margin-top: 0;
-}
-
-.task-page button,
-.task-page input,
-.task-page select,
-.task-page textarea,
-.task-modal button,
-.task-modal input,
-.task-modal select,
-.task-modal textarea {
-    font: inherit;
-}
-
-.task-page button,
-.task-modal button {
-    cursor: pointer;
-}
-
-.task-page [hidden],
-.task-modal [hidden],
-.task-modal[hidden] {
-    display: none !important;
-}
-
-/* Khi mở modal: khóa cuộn trang phía sau */
-body.task-modal-open {
-    overflow: hidden;
-}
-
-/* Link trong trang Task không gạch chân */
-.task-page a,
-.task-modal a {
-    text-decoration: none;
-}
+/* Đảm bảo thuộc tính hidden luôn có tác dụng, kể cả khi phần tử đã có display: flex/grid.
+   JS ẩn/hiện modal, toast, dòng bảng chỉ bằng element.hidden = true/false. */
+.task-page [hidden] { display: none !important; }
 
 
-/* =========================================================
-   02. PAGE HEADER
-   ========================================================= */
-
-.task-page-header {
+/* =====================================================================
+   3. TIÊU ĐỀ TRANG VÀ NHÓM NÚT HÀNH ĐỘNG
+   Cấu trúc View:
+     <header class="task-heading">
+       <div><span class="task-label">…</span><h1>…</h1><p>…</p></div>
+       <div class="heading-actions"> các nút .task-btn </div>
+     </header>
+   ===================================================================== */
+.task-page .task-heading {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: space-between;
     gap: 20px;
-    margin-bottom: 26px;
+    margin-bottom: 24px;
 }
-
-.task-page-header > div {
-    min-width: 0;
-}
-
-.task-eyebrow {
+.task-page .task-label {
     display: inline-block;
     margin-bottom: 8px;
-    color: var(--task-primary);
+    color: var(--task-accent);
     font-size: var(--fs-eyebrow);
-    font-weight: 750;
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 1.5px;
 }
-
-.task-page-header h1 {
-    margin-bottom: 7px;
-    color: var(--task-text);
+.task-page .task-heading h1 {
+    margin-bottom: 6px;
     font-size: var(--fs-page-title);
-    font-weight: 750;
-    line-height: 1.3;
+    font-weight: 800;
+    letter-spacing: -.6px;
+    color: var(--task-text);
 }
-
-.task-page-header p {
+.task-page .task-heading p {
     margin-bottom: 0;
     color: var(--task-muted);
     font-size: var(--fs-page-sub);
     line-height: 1.6;
 }
-
-/* Nhóm nút thao tác ở đầu trang */
-.task-page-header__actions {
+.task-page .heading-actions {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
     gap: 10px;
     flex-wrap: wrap;
 }
 
-/* =========================================================
-   03. COMMON BUTTONS
-   ========================================================= */
 
+/* =====================================================================
+   4. NÚT BẤM
+     .task-btn            nút phụ (nền nhạt)
+     .task-btn.primary    nút chính, mỗi khu vực chỉ nên có một
+     .task-btn.small      nút nhỏ trong thẻ
+     .task-btn.danger     nút xóa trong modal xác nhận
+   Dùng được cho cả <button> lẫn <a>.
+   ===================================================================== */
 .task-page .task-btn {
     display: inline-flex;
     min-height: 40px;
     align-items: center;
     justify-content: center;
     gap: 6px;
-
     padding: 0 16px;
-
     border: 1px solid var(--task-border);
     border-radius: 12px;
-
-    background: var(--task-surface);
+    background: var(--task-card);
     color: var(--task-text);
-
     font-size: var(--fs-btn);
     font-weight: 650;
-
     cursor: pointer;
     text-decoration: none;
-    white-space: nowrap;
-
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
-
 .task-page .task-btn:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
-
-/* Nút chính */
-.task-page .task-btn-primary {
-    border-color: #ea580c;
-    background: #ea580c;
-    color: #ffffff;
-
-    box-shadow: 0 4px 14px rrgba(251, 146, 60, 0.12);
+.task-page .task-btn.primary {
+    border-color: var(--task-accent);
+    background: var(--task-accent);
+    color: var(--task-on-accent);
+    box-shadow: 0 4px 14px rgba(var(--task-accent-rgb), 0.25);
 }
+.task-page .task-btn.small { min-height: 32px; padding: 0 12px; border-radius: 9px; font-size: var(--fs-btn-sm); }
+.task-page .task-btn.danger { border-color: var(--task-danger); background: var(--task-danger); color: var(--task-on-accent); }
 
-.task-page .task-btn-primary:hover {
-    border-color: #ea580c;
-    background: #ea580c;
-    color: #ffffff;
-}
 
-/* Nút phụ */
-.task-page .task-btn-secondary {
-    border-color: var(--task-border);
-    background: var(--task-surface);
-    color: var(--task-text);
-}
-
-.task-page .task-btn-secondary:hover {
-    border-color: #ea580c;
-    color: #ea580c;
-}
-
-/* Nút nhỏ */
-.task-page .task-btn.small {
-    min-height: 32px;
-    padding: 0 12px;
-    border-radius: 9px;
-    font-size: 12px;
-}
-
-/* Nút xóa */
-.task-page .task-btn-danger {
-    border-color: #ea580c;
-    background: #ea580c;
-    color: #ffffff;
-}
-
-.task-page .task-btn-danger:hover {
-    border-color: #b91c1c;
-    background: #b91c1c;
-    color: #ffffff;
-}
-
-/* Nút xóa dạng viền */
-.task-page .task-btn-danger-outline {
-    border-color: #ea580c;
-    background: transparent;
-    color: #ea580c;
-}
-
-.task-page .task-btn-danger-outline:hover {
-    background: rgba(220, 38, 38, 0.08);
-}
-
-/* =========================================================
-   04. COMMON PANEL / CARD
-   ========================================================= */
-
-.task-panel {
-    min-width: 0;
-    padding: 20px;
-
-    background: var(--task-surface);
-    border: 1px solid var(--task-border);
-    border-radius: var(--task-radius-lg);
-    box-shadow: var(--task-shadow);
-}
-
-.task-panel-heading {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 14px;
-    margin-bottom: 18px;
-}
-
-.task-panel-heading h2 {
-    margin-bottom: 5px;
-    color: var(--task-text);    
-    font-size: var(--fs-panel-title);
-    font-weight: 700;
-}
-
-.task-panel-heading a {
-    margin-bottom: 5px;
-    color: var(--task-text);    
-    font-size: var(--fs-panel-title);
-    font-weight: 700;
-}
-
-.task-panel-heading p {
-    margin-bottom: 0;
-    color: var(--task-muted);
-    font-size: var(--fs-panel-sub);
-}
-
-.task-overview{
-    margin-top: 22px;
-}
-
-/* =========================================================
-   05. SUMMARY CARDS
-   ========================================================= */
-
-.task-page .task-summary-grid {
+/* =====================================================================
+   5. THẺ CHỈ SỐ (4 thẻ ở đầu mỗi trang)
+   Cấu trúc View:
+     <section class="task-summary">
+       <div class="summary-card">
+         <div class="summary-top"><span>Tên chỉ số</span><span class="summary-badge">NHÃN</span></div>
+         <h2>Giá trị</h2>
+         <p>Mô tả ngắn</p>
+       </div>  ×4
+     </section>
+   Giá trị do C# tính sẵn, View chỉ in ra.
+   ===================================================================== */
+.task-page .task-summary {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 16px;
     margin-bottom: 22px;
 }
-
-.task-page .task-summary-card {
+.task-page .summary-card {
     position: relative;
     overflow: hidden;
-
-    min-width: 0;
     padding: 20px;
-
     border-radius: 18px;
     border: 1px solid var(--task-border);
-
-    background: var(--task-accent);
+    background: var(--task-card);
     box-shadow: var(--task-shadow);
-
-    transition:
-        transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-        box-shadow 0.25s ease;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
 }
-
-.task-page .task-summary-card:hover {
+.task-page .summary-card:hover {
     transform: translateY(-3px);
     box-shadow: 0 12px 26px -6px rgba(0, 0, 0, 0.08);
 }
-
-/* Hình tròn trang trí góc dưới bên phải */
-.task-page .task-summary-card::after {
+/* Hình tròn trang trí ở góc dưới bên phải */
+.task-page .summary-card::after {
     position: absolute;
     right: -24px;
     bottom: -36px;
-
     width: 105px;
     height: 105px;
-
     border-radius: 50%;
-    background: #ea580c;
+    background: var(--task-accent);
     opacity: 0.12;
-
     content: "";
-    pointer-events: none;
 }
-
-/* Hàng tiêu đề */
-.task-page .task-summary-card__top {
-    position: relative;
-    z-index: 1;
-
+.task-page .summary-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-
     font-size: var(--fs-stat-label);
     font-weight: 600;
     color: var(--task-muted);
 }
-
-/* Nhãn tiếng Anh của thẻ thống kê (TOTAL, DONE...) - cùng kiểu với Finance */
-.task-page .task-summary-badge {
-    padding: 5px 10px;
+/* Badge nhỏ. Cũng dùng làm nhãn mã môn, tên môn trong bảng. */
+.task-page .summary-badge {
+    padding: 4px 8px;
     border-radius: 20px;
-    background: var(--task-primary-soft);
-    color: var(--task-primary-hover);
     font-size: var(--fs-stat-badge);
     font-weight: 800;
-    letter-spacing: .5px;
-    white-space: nowrap;
+    letter-spacing: 0.5px;
+    background: var(--task-card-strong);
+    color: var(--task-accent);
 }
-
-/* Số liệu */
-.task-page .task-summary-card strong {
+.task-page .summary-card h2 {
     position: relative;
     z-index: 1;
-
-    display: block;
-
     margin: 14px 0 4px;
-
     font-size: var(--fs-stat-value);
     font-weight: 800;
-    letter-spacing: -0.6px;
-
+    letter-spacing: -.6px;
     color: var(--task-text);
 }
-
-/* Mô tả */
-.task-page .task-summary-card small {
-    position: relative;
-    z-index: 1;
-
-    display: block;
-
+.task-page .summary-card p {
     margin: 0;
-
     color: var(--task-muted);
     font-size: var(--fs-stat-note);
 }
 
-/* =========================================================
-   06. OVERVIEW - SCOPE CARDS
-   ========================================================= */
 
-.task-scope-grid {
+/* =====================================================================
+   6. KHUNG NỘI DUNG
+     .task-grid      lưới 2 cột (cột trái rộng hơn), về 1 cột trên màn nhỏ
+     .task-card      thẻ nội dung chuẩn
+     .section-heading tiêu đề của một khối: <div><h3>…</h3><p>…</p></div> + nút (tuỳ chọn)
+   ===================================================================== */
+.task-page .task-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(320px, 1fr);
+    gap: 18px;
+    margin-bottom: 20px;
+}
+.task-page .task-card {
+    background: var(--task-bg);
+    border: 1px solid var(--task-border);
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: var(--task-shadow);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+}
+.task-page .task-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px -4px rgba(0, 0, 0, 0.07);
+}
+.task-page .section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+}
+.task-page .section-heading h3 {
+    margin: 0 0 4px;
+    font-size: var(--fs-panel-title);
+    font-weight: 800;
+    color: var(--task-text);
+}
+.task-page .section-heading p {
+    margin: 0;
+    font-size: var(--fs-panel-sub);
+    color: var(--task-muted);
+}
+
+
+
+/* ---- Bổ sung riêng của phân hệ (đi cùng mục 3 đến 6) ---- */
+body.task-modal-open {
+    overflow: hidden;
+}
+.task-page .task-overview {
+    margin-top: 22px;
+}
+/* Nút xóa dạng viền */
+.task-page .danger-outline { border-color: var(--task-danger); background: transparent; color: var(--task-danger); }
+.task-page .danger-outline:hover { background: var(--task-danger-bg); }
+/* Link trong trang Task không gạch chân */
+.task-page a { text-decoration: none; }
+/* Liên kết "Xem tất cả →" trong tiêu đề khối */
+.task-page .section-heading a { color: var(--task-accent-dark); font-size: var(--fs-btn-sm); font-weight: 650; text-decoration: none; }
+.task-page .section-heading a:hover { text-decoration: underline; }
+
+
+/* =========================================================
+   7. OVERVIEW - SCOPE CARDS
+   ========================================================= */
+.task-page .task-scope-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 14px;
 }
-
-.task-scope-card {
+.task-page .task-scope-card {
     display: flex;
     align-items: center;
     gap: 13px;
@@ -438,21 +370,19 @@ body.task-modal-open {
     min-width: 0;
     padding: 16px;
 
-    background: var(--task-surface);
+    background: var(--task-bg);
     border: 1px solid var(--task-border);
-    border-radius: var(--task-radius-md);
+    border-radius: 12px;
 
     transition:
-        border-color var(--task-transition),
-        transform var(--task-transition);
+        border-color 0.2s ease,
+        transform 0.2s ease;
 }
-
-.task-scope-card:hover {
-    border-color: var(--task-primary);
+.task-page .task-scope-card:hover {
+    border-color: var(--task-accent);
     transform: translateY(-2px);
 }
-
-.task-scope-card__icon {
+.task-page .task-scope-card-icon {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -462,138 +392,115 @@ body.task-modal-open {
     height: 42px;
 
     border-radius: 12px;
-    background: var(--task-primary-soft);
-    color: var(--task-primary);
-    font-size: 18px;
+    background: var(--task-card-strong);
+    color: var(--task-accent);
+    font-size: var(--fs-xl);
 }
-
-.task-scope-card__content {
+.task-page .task-scope-card-content {
     display: flex;
     flex-direction: column;
     gap: 4px;
     min-width: 0;
 }
-
-.task-scope-card__content strong {
+.task-page .task-scope-card-content strong {
     color: var(--task-text);
     font-size: var(--fs-card-title);
     font-weight: 700;
 }
-
-.task-scope-card__content small {
+.task-page .task-scope-card-content small {
     color: var(--task-muted);
     font-size: var(--fs-card-text);
 }
-
-.task-scope-card > b {
+.task-page .task-scope-card > b {
     margin-left: auto;
     color: var(--task-text);
-    font-size: 20px;
+    font-size: var(--fs-2xl);
     font-weight: 750;
 }
-
-
 /* =========================================================
-   07. OVERVIEW - CONTENT GRID
+   8. OVERVIEW - CONTENT GRID
    ========================================================= */
-
-.task-overview-grid {
+.task-page .task-overview-grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 18px;
     margin-top: 22px;
 }
-
-.task-overview-grid > .task-panel {
+.task-page .task-overview-grid > .task-card {
     min-width: 0;
 }
-
-
 /* =========================================================
-   08. OVERVIEW - COMPLETION
+   9. OVERVIEW - COMPLETION
    ========================================================= */
-
-.task-completion-overview {
+.task-page .task-completion-overview {
     display: flex;
     align-items: center;
     gap: 18px;
     margin-bottom: 22px;
 }
-
-.task-completion-number {
+.task-page .task-completion-number {
     flex: 0 0 auto;
     color: var(--task-text);
-    font-size: 20px;
+    font-size: var(--fs-2xl);
     font-weight: 800;
 }
-
-.task-progress-track {
+.task-page .task-progress-track {
     overflow: hidden;
     width: 100%;
     height: 9px;
 
-    background: var(--task-surface-soft);
+    background: var(--task-card);
     border-radius: 99px;
 }
-
-.task-progress-fill {
+.task-page .task-progress-fill {
     height: 100%;
     min-width: 0;
-    background: var(--task-primary);
+    background: var(--task-accent);
     border-radius: inherit;
     transition: width 0.35s ease;
 }
-
-.task-status-list {
+.task-page .task-status-list {
     display: flex;
     flex-direction: column;
     gap: 13px;
 }
-
-.task-status-item {
+.task-page .task-status-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
 }
-
-.task-status-item__heading {
+.task-page .task-status-item-heading {
     display: flex;
     align-items: center;
     gap: 9px;
     color: var(--task-muted);
-    font-size: 13px;
+    font-size: var(--fs-base);
 }
-
-.task-status-item strong {
+.task-page .task-status-item strong {
     color: var(--task-text);
-    font-size: 13px;
+    font-size: var(--fs-base);
 }
-
-.task-on-time-rate {
+.task-page .task-on-time-rate {
     margin-top: 20px;
     padding: 13px 15px;
 
-    background: var(--task-primary-soft);
-    border-radius: var(--task-radius-md);
+    background: var(--task-card-strong);
+    border-radius: 12px;
     color: var(--task-text);
-    font-size: 13px;
+    font-size: var(--fs-base);
 }
-
-
 /* =========================================================
-   09. OVERVIEW - RECENT / ATTENTION LISTS
+   10. OVERVIEW - RECENT / ATTENTION LISTS
    ========================================================= */
-
-.task-recent-list,
-.task-attention-list {
+.task-page .task-recent-list,
+.task-page .task-attention-list {
     display: flex;
     flex-direction: column;
     gap: 9px;
 }
-
-.task-recent-item,
-.task-attention-item {
+.task-page .task-recent-item,
+.task-page .task-attention-item {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -607,91 +514,76 @@ body.task-modal-open {
 
     background: transparent;
     border: 1px solid var(--task-border);
-    border-radius: var(--task-radius-md);
+    border-radius: 12px;
 
     transition:
-        background-color var(--task-transition),
-        border-color var(--task-transition);
+        background-color 0.2s ease,
+        border-color 0.2s ease;
 }
-
-.task-recent-item:hover,
-.task-attention-item:hover {
-    background: var(--task-primary-soft);
-    border-color: var(--task-primary);
+.task-page .task-recent-item:hover,
+.task-page .task-attention-item:hover {
+    background: var(--task-card-strong);
+    border-color: var(--task-accent);
 }
-
-.task-status-dot {
+.task-page .task-status-dot {
     flex: 0 0 9px;
     width: 9px;
     height: 9px;
     border-radius: 50%;
     background: var(--task-muted);
 }
-
-.task-status-dot.todo {
-    background: #94a3b8;
+.task-page .task-status-dot.todo {
+    background: var(--task-muted);
 }
-
-.task-status-dot.in_progress {
-    background: #0ea5e9;
+.task-page .task-status-dot.in_progress {
+    background: var(--task-info);
 }
-
-.task-status-dot.review {
-    background: #d97706;
+.task-page .task-status-dot.review {
+    background: var(--task-warn);
 }
-
-.task-status-dot.done {
-    background: #16a34a;
+.task-page .task-status-dot.done {
+    background: var(--task-success);
 }
-
-.task-recent-item__content,
-.task-attention-item__content {
+.task-page .task-recent-item-content,
+.task-page .task-attention-item-content {
     display: flex;
     flex: 1;
     flex-direction: column;
     gap: 5px;
     min-width: 0;
 }
-
-.task-recent-item__content strong,
-.task-attention-item__content strong {
+.task-page .task-recent-item-content strong,
+.task-page .task-attention-item-content strong {
     overflow: hidden;
     color: var(--task-text);
-    font-size: 13px;
+    font-size: var(--fs-base);
     font-weight: 650;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-
-.task-recent-item__content small,
-.task-attention-item__content small {
+.task-page .task-recent-item-content small,
+.task-page .task-attention-item-content small {
     color: var(--task-muted);
-    font-size: 11px;
+    font-size: var(--fs-xs);
 }
-
-.task-attention-indicator {
+.task-page .task-attention-indicator {
     flex: 0 0 8px;
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: var(--task-warning);
+    background: var(--task-warn);
 }
-
-.task-attention-indicator.overdue {
+.task-page .task-attention-indicator.overdue {
     background: var(--task-danger);
 }
-
-.task-attention-indicator.upcoming {
-    background: var(--task-warning);
+.task-page .task-attention-indicator.upcoming {
+    background: var(--task-warn);
 }
-
-
 /* =========================================================
-   10. TASK PRIORITY / STATUS LABELS
+   11. TASK PRIORITY / STATUS LABELS
    ========================================================= */
-
-.task-priority,
-.task-status-label {
+.task-page .task-priority,
+.task-page .task-status-label {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -705,56 +597,45 @@ body.task-modal-open {
     line-height: 1.4;
     white-space: nowrap;
 
-    background: var(--task-surface-soft);
+    background: var(--task-card);
     color: var(--task-muted);
 }
-
-.task-priority.low {
-    background: rgba(22, 163, 74, 0.10);
-    color: #16a34a;
+.task-page .task-priority.low {
+    background: var(--task-success-bg);
+    color: var(--task-success);
 }
-
-.task-priority.medium {
-    background: rgba(2, 132, 199, 0.10);
-    color: #0284c7;
+.task-page .task-priority.medium {
+    background: var(--task-info-bg);
+    color: var(--task-info);
 }
-
-.task-priority.high {
-    background: rgba(217, 119, 6, 0.12);
-    color: #d97706;
+.task-page .task-priority.high {
+    background: var(--task-warn-bg);
+    color: var(--task-warn);
 }
-
-.task-priority.urgent {
-    background: rgba(220, 38, 38, 0.10);
-    color: #dc2626;
+.task-page .task-priority.urgent {
+    background: var(--task-danger-bg);
+    color: var(--task-danger);
 }
-
-.task-status-label.todo {
-    background: rgba(148, 163, 184, 0.15);
-    color: #64748b;
+.task-page .task-status-label.todo {
+    background: var(--task-card);
+    color: var(--task-muted);
 }
-
-.task-status-label.in_progress {
-    background: rgba(14, 165, 233, 0.12);
-    color: #0284c7;
+.task-page .task-status-label.in_progress {
+    background: var(--task-info-bg);
+    color: var(--task-info);
 }
-
-.task-status-label.review {
-    background: rgba(217, 119, 6, 0.12);
-    color: #d97706;
+.task-page .task-status-label.review {
+    background: var(--task-warn-bg);
+    color: var(--task-warn);
 }
-
-.task-status-label.done {
-    background: rgba(22, 163, 74, 0.12);
-    color: #16a34a;
+.task-page .task-status-label.done {
+    background: var(--task-success-bg);
+    color: var(--task-success);
 }
-
-
 /* =========================================================
-   11. EMPTY STATE
+   12. EMPTY STATE
    ========================================================= */
-
-.task-empty-state {
+.task-page .task-empty {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -766,8 +647,7 @@ body.task-modal-open {
     text-align: center;
     color: var(--task-muted);
 }
-
-.task-empty-state__icon {
+.task-page .task-empty-icon {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -777,37 +657,31 @@ body.task-modal-open {
     margin-bottom: 12px;
 
     border-radius: 15px;
-    background: var(--task-primary-soft);
-    color: var(--task-primary);
-    font-size: 22px;
+    background: var(--task-card-strong);
+    color: var(--task-accent);
+    font-size: var(--fs-3xl);
 }
-
-.task-empty-state h3 {
+.task-page .task-empty h3 {
     margin-bottom: 6px;
     color: var(--task-text);
-    font-size: 15px;
+    font-size: var(--fs-lg);
 }
-
-.task-empty-state p {
+.task-page .task-empty p {
     max-width: 340px;
     margin-bottom: 16px;
-    font-size: 13px;
+    font-size: var(--fs-base);
     line-height: 1.6;
 }
-
-
 /* =========================================================
-   12. TASK LIST - SCOPE FILTER
+   13. TASK LIST - SCOPE FILTER
    ========================================================= */
-
-.task-scope-filter {
+.task-page .task-scope-filter {
     display: flex;
     flex-wrap: wrap;
     gap: 9px;
     margin-bottom: 17px;
 }
-
-.task-filter-chip {
+.task-page .task-chip {
     display: inline-flex;
     align-items: center;
     gap: 9px;
@@ -816,18 +690,17 @@ body.task-modal-open {
     padding: 7px 13px;
 
     color: var(--task-muted);
-    background: var(--task-surface);
+    background: var(--task-bg);
     border: 1px solid var(--task-border);
     border-radius: 99px;
 
-    font-size: 13px;
+    font-size: var(--fs-base);
     font-weight: 600;
     text-decoration: none;
 
-    transition: all var(--task-transition);
+    transition: all 0.2s ease;
 }
-
-.task-filter-chip span {
+.task-page .task-chip span {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -836,37 +709,31 @@ body.task-modal-open {
     height: 21px;
     padding: 0 5px;
 
-    background: var(--task-surface-soft);
+    background: var(--task-card);
     border-radius: 99px;
     color: var(--task-muted);
-    font-size: 11px;
+    font-size: var(--fs-xs);
 }
-
-.task-filter-chip:hover,
-.task-filter-chip.active {
-    color: var(--task-primary);
-    border-color: var(--task-primary);
-    background: var(--task-primary-soft);
+.task-page .task-chip:hover,
+.task-page .task-chip.active {
+    color: var(--task-accent);
+    border-color: var(--task-accent);
+    background: var(--task-card-strong);
 }
-
-.task-filter-chip.active span {
-    color: var(--task-primary);
-    background: var(--task-surface);
+.task-page .task-chip.active span {
+    color: var(--task-accent);
+    background: var(--task-bg);
 }
-
-
 /* =========================================================
-   13. TASK LIST - FILTER TOOLBAR
+   14. TASK LIST - FILTER TOOLBAR
    ========================================================= */
-
-.task-filter-toolbar {
+.task-page .task-toolbar {
     display: grid;
     grid-template-columns: minmax(210px, 1.5fr) repeat(4, minmax(130px, 1fr));
     gap: 10px;
     margin-bottom: 20px;
 }
-
-.task-search-box {
+.task-page .task-search-box {
     display: flex;
     align-items: center;
     gap: 9px;
@@ -875,17 +742,15 @@ body.task-modal-open {
     min-height: 43px;
     padding: 0 12px;
 
-    background: var(--task-surface);
+    background: var(--task-bg);
     border: 1px solid var(--task-border);
-    border-radius: var(--task-radius-md);
+    border-radius: 12px;
 }
-
-.task-search-box > span {
+.task-page .task-search-box > span {
     color: var(--task-muted);
-    font-size: 20px;
+    font-size: var(--fs-2xl);
 }
-
-.task-search-box input {
+.task-page .task-search-box input {
     width: 100%;
     min-width: 0;
     height: 40px;
@@ -894,38 +759,32 @@ body.task-modal-open {
     background: transparent;
     border: 0;
     outline: 0;
-    font-size: 13px;
+    font-size: var(--fs-base);
 }
-
-.task-search-box:focus-within {
-    border-color: var(--task-primary);
+.task-page .task-search-box:focus-within {
+    border-color: var(--task-accent);
 }
-
-.task-filter-toolbar select {
+.task-page .task-toolbar select {
     width: 100%;
     min-width: 0;
     min-height: 43px;
     padding: 0 10px;
 
     color: var(--task-text);
-    background: var(--task-surface);
+    background: var(--task-bg);
     border: 1px solid var(--task-border);
-    border-radius: var(--task-radius-md);
+    border-radius: 12px;
     outline: none;
 
-    font-size: 12px;
+    font-size: var(--fs-sm);
 }
-
-.task-filter-toolbar select:focus {
-    border-color: var(--task-primary);
+.task-page .task-toolbar select:focus {
+    border-color: var(--task-accent);
 }
-
-
 /* =========================================================
-   14. TASK LIST - KANBAN BOARD
+   15. TASK LIST - KANBAN BOARD
    ========================================================= */
-
-.task-kanban-board {
+.task-page .task-kanban-board {
     display: grid;
     grid-template-columns: repeat(4, minmax(245px, 1fr));
     gap: 14px;
@@ -935,8 +794,7 @@ body.task-modal-open {
     overflow-x: auto;
     padding-bottom: 8px;
 }
-
-.task-kanban-column {
+.task-page .task-kanban-column {
     display: flex;
     flex-direction: column;
 
@@ -944,12 +802,11 @@ body.task-modal-open {
     min-height: 300px;
     padding: 13px;
 
-    background: var(--task-surface-soft);
+    background: var(--task-card);
     border: 1px solid var(--task-border);
-    border-radius: var(--task-radius-lg);
+    border-radius: 18px;
 }
-
-.task-kanban-column__header {
+.task-page .task-kanban-column-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -957,15 +814,13 @@ body.task-modal-open {
 
     padding: 3px 2px 13px;
 }
-
-.task-kanban-column__header h2 {
+.task-page .task-kanban-column-header h2 {
     margin: 0;
     color: var(--task-text);
-    font-size: 13px;
+    font-size: var(--fs-base);
     font-weight: 750;
 }
-
-.task-kanban-column__header > span {
+.task-page .task-kanban-column-header > span {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -975,13 +830,12 @@ body.task-modal-open {
     padding: 0 6px;
 
     color: var(--task-muted);
-    background: var(--task-surface);
+    background: var(--task-bg);
     border-radius: 99px;
-    font-size: 11px;
+    font-size: var(--fs-xs);
     font-weight: 700;
 }
-
-.task-kanban-column__body {
+.task-page .task-kanban-column-body {
     display: flex;
     flex: 1;
     flex-direction: column;
@@ -989,16 +843,14 @@ body.task-modal-open {
 
     min-height: 230px;
     padding: 2px;
-    border-radius: var(--task-radius-md);
+    border-radius: 12px;
 }
-
-.task-kanban-column__body.is-drag-over {
-    outline: 2px dashed var(--task-primary);
+.task-page .task-kanban-column-body.is-drag-over {
+    outline: 2px dashed var(--task-accent);
     outline-offset: 2px;
-    background: var(--task-primary-soft);
+    background: var(--task-card-strong);
 }
-
-.task-kanban-empty {
+.task-page .task-kanban-empty {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1008,58 +860,50 @@ body.task-modal-open {
 
     color: var(--task-muted);
     border: 1px dashed var(--task-border);
-    border-radius: var(--task-radius-md);
-    font-size: 12px;
+    border-radius: 12px;
+    font-size: var(--fs-sm);
 }
-
-
 /* =========================================================
-   15. TASK LIST - TASK CARD
+   16. TASK LIST - TASK CARD
    ========================================================= */
-
-.task-card {
+.task-page .task-item {
     min-width: 0;
     padding: 14px;
 
-    background: var(--task-surface);
+    background: var(--task-bg);
     border: 1px solid var(--task-border);
-    border-radius: var(--task-radius-md);
+    border-radius: 12px;
     box-shadow: var(--task-shadow);
 
     cursor: pointer;
     transition:
-        border-color var(--task-transition),
-        transform var(--task-transition),
-        box-shadow var(--task-transition);
+        border-color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 }
-
-.task-card:hover {
-    border-color: var(--task-primary);
+.task-page .task-item:hover {
+    border-color: var(--task-accent);
     transform: translateY(-2px);
 }
-
-.task-card:focus-visible {
-    outline: 2px solid var(--task-primary);
+.task-page .task-item:focus-visible {
+    outline: 2px solid var(--task-accent);
     outline-offset: 2px;
 }
-
-.task-card__top {
+.task-page .task-item-top {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     gap: 8px;
     margin-bottom: 12px;
 }
-
-.task-card__scope {
+.task-page .task-item-scope {
     overflow: hidden;
     color: var(--task-muted);
     font-size: var(--fs-meta);
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-
-.task-card h3 {
+.task-page .task-item h3 {
     margin-bottom: 7px;
     color: var(--task-text);
     font-size: var(--fs-card-title);
@@ -1067,8 +911,7 @@ body.task-modal-open {
     line-height: 1.5;
     overflow-wrap: anywhere;
 }
-
-.task-card > p {
+.task-page .task-item > p {
     display: -webkit-box;
     overflow: hidden;
     margin-bottom: 11px;
@@ -1080,54 +923,47 @@ body.task-modal-open {
     -webkit-box-orient: vertical;
     /* -webkit-line-clamp: 2; */
 }
-
-.task-card__category {
+.task-page .task-item-category {
     display: inline-flex;
     margin-bottom: 10px;
     padding: 4px 8px;
 
-    color: var(--task-primary);
-    background: var(--task-primary-soft);
+    color: var(--task-accent);
+    background: var(--task-card-strong);
     border-radius: 6px;
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     font-weight: 650;
 }
-
-.task-card__tags {
+.task-page .task-item-tags {
     display: flex;
     flex-wrap: wrap;
     gap: 5px;
     margin-bottom: 11px;
 }
-
-.task-card__tags span {
+.task-page .task-item-tags span {
     display: inline-flex;
     padding: 4px 7px;
 
     color: var(--task-text);
-    background: color-mix(in srgb, var(--tag-color, #94a3b8) 13%, transparent);
-    border: 1px solid color-mix(in srgb, var(--tag-color, #94a3b8) 30%, transparent);
+    background: color-mix(in srgb, var(--tag-color, var(--task-muted)) 13%, transparent);
+    border: 1px solid color-mix(in srgb, var(--tag-color, var(--task-muted)) 30%, transparent);
     border-radius: 6px;
-    font-size: 10px;
+    font-size: var(--fs-2xs);
 }
-
-.task-card__subtasks {
+.task-page .task-item-subtasks {
     display: flex;
     flex-direction: column;
     gap: 6px;
     margin: 12px 0;
 }
-
-.task-card__subtasks .task-progress-track {
+.task-page .task-item-subtasks .task-progress-track {
     height: 5px;
 }
-
-.task-card__subtasks small {
+.task-page .task-item-subtasks small {
     color: var(--task-muted);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
 }
-
-.task-card__footer {
+.task-page .task-item-footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -1137,91 +973,64 @@ body.task-modal-open {
     border-top: 1px solid var(--task-border);
 
     color: var(--task-muted);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
 }
-
-.task-card__footer .is-overdue {
+.task-page .task-item-footer .is-overdue {
     color: var(--task-danger);
     font-weight: 700;
 }
-
-
 /* =========================================================
-   16. CATEGORY PAGE - SUMMARY
+   17. CATEGORY PAGE - SUMMARY
    ========================================================= */
-
-.task-category-summary {
+.task-page .task-category-summary {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 15px;
     margin-bottom: 22px;
 }
-
-.task-category-summary .task-summary-card {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.task-category-summary .task-summary-card > span {
-    color: var(--task-muted);
-    font-size: 13px;
-}
-
-.task-category-summary .task-summary-card strong {
-    font-size: 27px;
-}
-
-
 /* =========================================================
-   17. CATEGORY PAGE - CATEGORY GRID
+   18. CATEGORY PAGE - CATEGORY GRID
    ========================================================= */
-
-.task-category-section {
+.task-page .task-category-section {
     min-width: 0;
     padding: 20px;
 
-    background: var(--task-surface);
+    background: var(--task-bg);
     border: 1px solid var(--task-border);
-    border-radius: var(--task-radius-lg);
+    border-radius: 18px;
     box-shadow: var(--task-shadow);
 }
-
-.task-category-grid {
+.task-page .task-category-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 15px;
 }
-
-.task-category-card {
+.task-page .task-category-card {
     display: flex;
     flex-direction: column;
     min-width: 0;
     padding: 16px;
 
-    background: var(--task-surface);
+    background: var(--task-bg);
     border: 1px solid var(--task-border);
-    border-radius: var(--task-radius-md);
+    border-radius: 12px;
 
     transition:
-        border-color var(--task-transition),
-        transform var(--task-transition);
+        border-color 0.2s ease,
+        transform 0.2s ease;
 }
-
-.task-category-card:hover {
-    border-color: var(--task-primary);
+.task-page .task-category-card:hover {
+    border-color: var(--task-accent);
     transform: translateY(-2px);
 }
-
-.task-category-card__header {
+.task-page .task-category-card-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
     margin-bottom: 17px;
 }
-
-.task-category-icon {
+.task-page .task-category-icon {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1229,59 +1038,52 @@ body.task-modal-open {
     width: 43px;
     height: 43px;
 
-    color: var(--category-color, var(--task-primary));
-    background: color-mix(in srgb, var(--category-color, #ea580c) 13%, transparent);
+    color: var(--category-color, var(--task-accent));
+    background: color-mix(in srgb, var(--category-color, var(--task-accent)) 13%, transparent);
     border-radius: 13px;
-    font-size: 19px;
+    font-size: var(--fs-2xl);
 }
-
-.task-category-card__actions {
+.task-page .task-category-card-actions {
     display: flex;
     align-items: center;
     gap: 6px;
 }
-
-.task-category-card__actions button,
-.task-category-card__footer button {
+.task-page .task-category-card-actions button,
+.task-page .task-category-card-footer button {
     padding: 6px 9px;
 
     color: var(--task-muted);
     background: transparent;
     border: 1px solid var(--task-border);
     border-radius: 7px;
-    font-size: 11px;
+    font-size: var(--fs-xs);
     font-weight: 600;
 
-    transition: all var(--task-transition);
+    transition: all 0.2s ease;
 }
-
-.task-category-card__actions button:hover {
-    color: var(--task-primary);
-    border-color: var(--task-primary);
+.task-page .task-category-card-actions button:hover {
+    color: var(--task-accent);
+    border-color: var(--task-accent);
 }
-
-.task-category-card__body {
+.task-page .task-category-card-body {
     flex: 1;
     min-width: 0;
 }
-
-.task-category-card__body h3 {
+.task-page .task-category-card-body h3 {
     margin-bottom: 7px;
     color: var(--task-text);
-    font-size: 15px;
+    font-size: var(--fs-lg);
     font-weight: 700;
     overflow-wrap: anywhere;
 }
-
-.task-category-card__body p {
+.task-page .task-category-card-body p {
     margin-bottom: 16px;
     color: var(--task-muted);
-    font-size: 12px;
+    font-size: var(--fs-sm);
     line-height: 1.6;
     overflow-wrap: anywhere;
 }
-
-.task-category-card__footer {
+.task-page .task-category-card-footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -1290,31 +1092,24 @@ body.task-modal-open {
     padding-top: 12px;
     border-top: 1px solid var(--task-border);
 }
-
-.task-category-card__footer span {
+.task-page .task-category-card-footer span {
     color: var(--task-muted);
-    font-size: 11px;
+    font-size: var(--fs-xs);
 }
-
-.task-category-card__footer button {
+.task-page .task-category-card-footer button {
     color: var(--task-danger);
     border-color: transparent;
 }
-
-.task-category-card__footer button:hover {
-    background: rgba(220, 38, 38, 0.08);
+.task-page .task-category-card-footer button:hover {
+    background: var(--task-danger-bg);
 }
-
-.task-category-empty {
+.task-page .task-category-empty {
     grid-column: 1 / -1;
 }
-
-
 /* =========================================================
-   18. MODAL - BASE
+   19. MODAL - BASE
    ========================================================= */
-
-.task-modal {
+.task-page .task-modal {
     position: fixed;
     z-index: 2000;
     inset: 0;
@@ -1325,16 +1120,14 @@ body.task-modal-open {
 
     padding: 22px;
 }
-
-.task-modal-backdrop {
+.task-page .task-modal-backdrop {
     position: absolute;
     inset: 0;
 
-    background: rgba(15, 23, 42, 0.52);
+    background: var(--task-overlay);
     backdrop-filter: blur(2px);
 }
-
-.task-modal-dialog {
+.task-page .task-modal-box {
     position: relative;
     z-index: 1;
 
@@ -1345,41 +1138,36 @@ body.task-modal-open {
     max-height: min(88vh, 900px);
     overflow: hidden;
 
-    background: var(--bg-secondary, #ffffff);
-    color: var(--text-primary, #252a34);
+    background: var(--task-card);
+    color: var(--task-text);
 
-    border: 1px solid var(--border-color, #e5e7eb);
+    border: 1px solid var(--task-border);
     border-radius: 20px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
 }
-
-html[data-theme="dark"] .task-modal-dialog {
-    background: var(--bg-secondary, #20242c);
-    color: var(--text-primary, #f1f5f9);
+html[data-theme="dark"] .task-modal-box {
+    background: var(--task-card);
+    color: var(--task-text);
 }
-
-.task-modal-header {
+.task-page .task-modal-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 15px;
 
     padding: 20px 24px;
-    border-bottom: 1px solid var(--border-color, #e5e7eb);
+    border-bottom: 1px solid var(--task-border);
 }
-
-.task-modal-header .task-eyebrow {
+.task-page .task-modal-head .task-label {
     margin-bottom: 5px;
 }
-
-.task-modal-header h2 {
+.task-page .task-modal-head h2 {
     margin: 0;
-    color: var(--text-primary, #252a34);
-    font-size: 19px;
+    color: var(--task-text);
+    font-size: var(--fs-2xl);
     font-weight: 750;
 }
-
-.task-modal-close {
+.task-page .task-modal-close {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1388,34 +1176,30 @@ html[data-theme="dark"] .task-modal-dialog {
     width: 30px;
     height: 30px;
 
-    color: var(--text-secondary, #737b89);
-    background: var(--bg-tertiary, #f3f4f6);
+    color: var(--task-muted);
+    background: var(--task-card);
     border: 0;
     border-radius: 10px;
-    font-size: 15px;
+    font-size: var(--fs-lg);
 
-    transition: all var(--task-transition);
+    transition: all 0.2s ease;
 }
-
-.task-modal-close:hover {
+.task-page .task-modal-close:hover {
     color: var(--task-danger);
-    background: rgba(220, 38, 38, 0.10);
+    background: var(--task-danger-bg);
 }
-
-.task-modal > .task-modal-dialog > section {
+.task-page .task-modal > .task-modal-box > section {
     overflow-y: auto;
     padding: 22px 24px;
 }
-
 /* Nút thao tác trong modal */
-.task-modal-footer .task-btn {
+.task-page .task-modal-foot .task-btn {
     min-height: 40px;
     padding: 0 16px;
     border-radius: 12px;
     font-size: var(--fs-btn);
 }
-
-.task-modal-footer {
+.task-page .task-modal-foot {
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -1424,54 +1208,45 @@ html[data-theme="dark"] .task-modal-dialog {
 
     margin-top: 22px;
     padding-top: 17px;
-    border-top: 1px solid var(--border-color, #e5e7eb);
+    border-top: 1px solid var(--task-border);
 }
-
-.task-modal-footer [data-task-modal-mode="delete"],
-.task-modal-footer [data-category-modal-mode="delete"] {
+.task-page .task-modal-foot [data-task-modal-mode="delete"],
+.task-page .task-modal-foot [data-category-modal-mode="delete"] {
     margin-right: auto;
 }
-
-
 /* =========================================================
-   19. TASK MODAL - DETAIL
+   20. TASK MODAL - DETAIL
    ========================================================= */
-
-.task-detail-heading {
+.task-page .task-detail-heading {
     margin-bottom: 22px;
 }
-
-.task-detail-heading > div {
+.task-page .task-detail-heading > div {
     display: flex;
     flex-wrap: wrap;
     gap: 7px;
     margin-bottom: 12px;
 }
-
-.task-detail-heading h3 {
+.task-page .task-detail-heading h3 {
     margin-bottom: 8px;
-    color: var(--text-primary, #252a34);
+    color: var(--task-text);
     font-size: var(--fs-modal-title);
     font-weight: 750;
     overflow-wrap: anywhere;
 }
-
-.task-detail-heading p {
+.task-page .task-detail-heading p {
     margin-bottom: 0;
-    color: var(--text-secondary, #737b89);
-    font-size: 13px;
+    color: var(--task-muted);
+    font-size: var(--fs-base);
     line-height: 1.7;
     white-space: pre-line;
 }
-
-.task-detail-information {
+.task-page .task-detail-information {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
     margin-bottom: 22px;
 }
-
-.task-detail-field {
+.task-page .task-detail-field {
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -1479,57 +1254,49 @@ html[data-theme="dark"] .task-modal-dialog {
     min-width: 0;
     padding: 13px;
 
-    background: var(--bg-tertiary, #f3f4f6);
-    border: 1px solid var(--border-color, #e5e7eb);
+    background: var(--task-card);
+    border: 1px solid var(--task-border);
     border-radius: 11px;
 }
-
-.task-detail-field span {
-    color: var(--text-secondary, #737b89);
+.task-page .task-detail-field span {
+    color: var(--task-muted);
     font-size: var(--fs-detail-label);
     line-height: 1.4;
 }
-
-.task-detail-field strong {
-    color: var(--text-primary, #252a34);
+.task-page .task-detail-field strong {
+    color: var(--task-text);
     font-size: var(--fs-detail-value);
     overflow-wrap: anywhere;
 }
-
-.task-detail-section {
+.task-page .task-detail-section {
     margin-top: 20px;
 }
-
-.task-detail-section h3 {
+.task-page .task-detail-section h3 {
     margin-bottom: 11px;
-    color: var(--text-primary, #252a34);
-    font-size: 14px;
+    color: var(--task-text);
+    font-size: var(--fs-md);
     font-weight: 700;
 }
-
-.task-detail-section > div {
+.task-page .task-detail-section > div {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
 }
-
-.task-detail-section p {
+.task-page .task-detail-section p {
     margin-bottom: 0;
-    color: var(--text-secondary, #737b89);
-    font-size: 12px;
+    color: var(--task-muted);
+    font-size: var(--fs-sm);
 }
-
-.task-detail-tag {
+.task-page .task-detail-tag {
     display: inline-flex;
     padding: 5px 9px;
 
     border: 1px solid var(--task-border);
     border-radius: 7px;
     color: var(--task-text);
-    font-size: 11px;
+    font-size: var(--fs-xs);
 }
-
-.task-detail-comment {
+.task-page .task-detail-comment {
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -1537,32 +1304,26 @@ html[data-theme="dark"] .task-modal-dialog {
     width: 100%;
     padding: 11px;
 
-    background: var(--bg-tertiary, #f3f4f6);
+    background: var(--task-card);
     border-radius: 10px;
 }
-
-.task-detail-comment strong {
-    color: var(--text-primary, #252a34);
-    font-size: 12px;
+.task-page .task-detail-comment strong {
+    color: var(--task-text);
+    font-size: var(--fs-sm);
 }
-
-.task-detail-comment p {
-    color: var(--text-secondary, #737b89);
-    font-size: 12px;
+.task-page .task-detail-comment p {
+    color: var(--task-muted);
+    font-size: var(--fs-sm);
     white-space: pre-line;
 }
-
-.task-detail-comment small {
-    color: var(--text-secondary, #737b89);
-    font-size: 10px;
+.task-page .task-detail-comment small {
+    color: var(--task-muted);
+    font-size: var(--fs-2xs);
 }
-
-
 /* =========================================================
-   20. TASK MODAL - TYPE SELECTOR
+   21. TASK MODAL - TYPE SELECTOR
    ========================================================= */
-
-.task-type-selector {
+.task-page .task-type-selector {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -1571,122 +1332,103 @@ html[data-theme="dark"] .task-modal-dialog {
     margin-bottom: 20px;
     padding: 13px 15px;
 
-    background: var(--bg-tertiary, #f3f4f6);
-    border: 1px solid var(--border-color, #e5e7eb);
+    background: var(--task-card);
+    border: 1px solid var(--task-border);
     border-radius: 12px;
 }
-
-.task-type-selector > span {
-    color: var(--text-primary, #252a34);
-    font-size: 13px;
+.task-page .task-type-selector > span {
+    color: var(--task-text);
+    font-size: var(--fs-base);
     font-weight: 650;
 }
-
-.task-type-tabs {
+.task-page .task-type-tabs {
     display: flex;
     gap: 5px;
     padding: 4px;
 
-    background: var(--bg-primary, #f7f8fa);
+    background: var(--task-card);
     border-radius: 9px;
 }
-
-.task-type-tabs button {
+.task-page .task-type-tabs button {
     padding: 7px 12px;
 
-    color: var(--text-secondary, #737b89);
+    color: var(--task-muted);
     background: transparent;
     border: 0;
     border-radius: 7px;
-    font-size: 12px;
+    font-size: var(--fs-sm);
     font-weight: 650;
 }
-
-.task-type-tabs button.active {
-    color: var(--task-primary);
-    background: var(--bg-secondary, #ffffff);
+.task-page .task-type-tabs button.active {
+    color: var(--task-accent);
+    background: var(--task-card);
     box-shadow: var(--task-shadow);
 }
-
-
 /* =========================================================
-   21. MODAL - FORM FIELDS
+   22. MODAL - FORM FIELDS
    ========================================================= */
-
-.task-form-grid {
+.task-page .task-form-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
 }
-
-.task-form-field {
+.task-page .field {
     display: flex;
     flex-direction: column;
     gap: 7px;
     min-width: 0;
 }
-
-.task-form-field.full {
+.task-page .field.full {
     grid-column: 1 / -1;
 }
-
-.task-form-field label {
-    color: var(--text-primary, #252a34);
+.task-page .field label {
+    color: var(--task-text);
     font-size: var(--fs-field-label);
     font-weight: 650;
 }
-
-.task-form-field input,
-.task-form-field select,
-.task-form-field textarea {
+.task-page .field input,
+.task-page .field select,
+.task-page .field textarea {
     width: 100%;
     min-width: 0;
     min-height: 43px;
     padding: 10px 12px;
 
-    color: var(--text-primary, #252a34);
-    background: var(--bg-secondary, #ffffff);
-    border: 1px solid var(--border-color, #e5e7eb);
+    color: var(--task-text);
+    background: var(--task-card);
+    border: 1px solid var(--task-border);
     border-radius: 9px;
     outline: none;
 
     font-size: var(--fs-field-input);
-    transition: border-color var(--task-transition);
+    transition: border-color 0.2s ease;
 }
-
-.task-form-field textarea {
+.task-page .field textarea {
     min-height: 100px;
     resize: vertical;
     line-height: 1.6; font-size: var(--fs-field-input);}
-
-.task-form-field input:focus,
-.task-form-field select:focus,
-.task-form-field textarea:focus {
-    border-color: var(--task-primary);
+.task-page .field input:focus,
+.task-page .field select:focus,
+.task-page .field textarea:focus {
+    border-color: var(--task-accent);
 }
-
-.task-form-field input[type="color"] {
+.task-page .field input[type="color"] {
     min-height: 43px;
     padding: 5px;
     cursor: pointer;
 }
-
-.task-form-field small {
-    color: var(--text-secondary, #737b89);
-    font-size: 11px;
+.task-page .field small {
+    color: var(--task-muted);
+    font-size: var(--fs-xs);
 }
-
-.task-form-field span[data-valmsg-for] {
+.task-page .field span[data-valmsg-for] {
     color: var(--task-danger);
-    font-size: 11px;
+    font-size: var(--fs-xs);
 }
-
-
 /* =========================================================
-   22. MODAL - DELETE CONFIRMATION
+   23. MODAL - DELETE CONFIRMATION
    ========================================================= */
-
-.task-delete-content {
+.task-page .task-delete-content {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1694,8 +1436,7 @@ html[data-theme="dark"] .task-modal-dialog {
     padding: 15px 10px;
     text-align: center;
 }
-
-.task-delete-icon {
+.task-page .task-delete-icon {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1705,44 +1446,37 @@ html[data-theme="dark"] .task-modal-dialog {
     margin-bottom: 15px;
 
     color: var(--task-danger);
-    background: rgba(220, 38, 38, 0.10);
+    background: var(--task-danger-bg);
     border-radius: 50%;
-    font-size: 24px;
+    font-size: var(--fs-4xl);
     font-weight: 800;
 }
-
-.task-delete-content h3 {
+.task-page .task-delete-content h3 {
     margin-bottom: 10px;
-    color: var(--text-primary, #252a34);
-    font-size: 18px;
+    color: var(--task-text);
+    font-size: var(--fs-xl);
     font-weight: 750;
 }
-
-.task-delete-content p {
+.task-page .task-delete-content p {
     max-width: 440px;
     margin-bottom: 7px;
-    color: var(--text-secondary, #737b89);
-    font-size: 13px;
+    color: var(--task-muted);
+    font-size: var(--fs-base);
     line-height: 1.6;
 }
-
-.task-delete-content strong {
-    color: var(--text-primary, #252a34);
+.task-page .task-delete-content strong {
+    color: var(--task-text);
 }
-
-
 /* =========================================================
-   23. CATEGORY MODAL - DETAIL
+   24. CATEGORY MODAL - DETAIL
    ========================================================= */
-
-.category-detail-visual {
+.task-page .category-detail-visual {
     display: flex;
     align-items: center;
     gap: 13px;
     margin-bottom: 20px;
 }
-
-.category-detail-icon {
+.task-page .category-detail-icon {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1750,67 +1484,58 @@ html[data-theme="dark"] .task-modal-dialog {
     width: 58px;
     height: 58px;
 
-    color: var(--task-primary);
-    background: var(--task-primary-soft);
+    color: var(--task-accent);
+    background: var(--task-card-strong);
     border-radius: 16px;
-    font-size: 25px;
+    font-size: var(--fs-4xl);
 }
-
-.category-detail-color {
+.task-page .category-detail-color {
     width: 30px;
     height: 30px;
-    border: 3px solid var(--border-color, #e5e7eb);
+    border: 3px solid var(--task-border);
     border-radius: 50%;
 }
-
-.category-detail-main {
+.task-page .category-detail-main {
     margin-bottom: 20px;
 }
-
-.category-detail-main > span {
-    color: var(--text-secondary, #737b89);
-    font-size: 10px;
+.task-page .category-detail-main > span {
+    color: var(--task-muted);
+    font-size: var(--fs-2xs);
     font-weight: 700;
     letter-spacing: 0.8px;
 }
-
-.category-detail-main h3 {
+.task-page .category-detail-main h3 {
     margin: 5px 0 0;
-    color: var(--text-primary, #252a34);
-    font-size: 21px;
+    color: var(--task-text);
+    font-size: var(--fs-3xl);
     font-weight: 750;
     overflow-wrap: anywhere;
 }
-
-.category-detail-description {
+.task-page .category-detail-description {
     margin-bottom: 20px;
     padding: 14px;
 
-    background: var(--bg-tertiary, #f3f4f6);
+    background: var(--task-card);
     border-radius: 11px;
 }
-
-.category-detail-description h4 {
+.task-page .category-detail-description h4 {
     margin-bottom: 7px;
-    color: var(--text-primary, #252a34);
-    font-size: 13px;
+    color: var(--task-text);
+    font-size: var(--fs-base);
 }
-
-.category-detail-description p {
+.task-page .category-detail-description p {
     margin-bottom: 0;
-    color: var(--text-secondary, #737b89);
-    font-size: 12px;
+    color: var(--task-muted);
+    font-size: var(--fs-sm);
     line-height: 1.7;
     white-space: pre-line;
 }
-
-.category-detail-information {
+.task-page .category-detail-information {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 10px;
 }
-
-.category-detail-information > div {
+.task-page .category-detail-information > div {
     display: flex;
     flex-direction: column;
     gap: 7px;
@@ -1818,196 +1543,153 @@ html[data-theme="dark"] .task-modal-dialog {
     min-width: 0;
     padding: 13px;
 
-    background: var(--bg-tertiary, #f3f4f6);
-    border: 1px solid var(--border-color, #e5e7eb);
+    background: var(--task-card);
+    border: 1px solid var(--task-border);
     border-radius: 10px;
 }
-
-.category-detail-information span {
-    color: var(--text-secondary, #737b89);
-    font-size: 10px;
+.task-page .category-detail-information span {
+    color: var(--task-muted);
+    font-size: var(--fs-2xs);
 }
-
-.category-detail-information strong {
-    color: var(--text-primary, #252a34);
-    font-size: 12px;
+.task-page .category-detail-information strong {
+    color: var(--task-text);
+    font-size: var(--fs-sm);
     overflow-wrap: anywhere;
 }
-
-
 /* =========================================================
-   24. RESPONSIVE - TABLET
+   25. RESPONSIVE - TABLET
    ========================================================= */
-
 @media (max-width: 1100px) {
-    .task-summary-grid {
+.task-page .task-summary {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-
-    .task-filter-toolbar {
+.task-page .task-toolbar {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-
-    .task-search-box {
+.task-page .task-search-box {
         grid-column: 1 / -1;
     }
-
-    .task-category-grid {
+.task-page .task-category-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-
-    .task-overview-grid {
+.task-page .task-overview-grid {
         grid-template-columns: 1fr;
     }
 }
-
-
 /* =========================================================
-   25. RESPONSIVE - MOBILE
+   26. RESPONSIVE - MOBILE
    ========================================================= */
-
 @media (max-width: 768px) {
-    .task-page-header {
+.task-page .task-heading {
         align-items: flex-start;
         flex-direction: column;
         gap: 14px;
     }
-
-    .task-page-header h1 {
-        font-size: 23px;
+.task-page .task-heading h1 {
+        font-size: var(--fs-4xl);
     }
-
-    .task-page-header > .task-btn {
+.task-page .task-heading > .task-btn {
         width: 100%;
     }
-
-    .task-scope-grid {
+.task-page .task-scope-grid {
         grid-template-columns: 1fr;
     }
-
-    .task-category-summary {
+.task-page .task-category-summary {
         grid-template-columns: 1fr;
     }
-
-    .task-kanban-board {
+.task-page .task-kanban-board {
         grid-template-columns: repeat(4, minmax(260px, 1fr));
     }
-
-    .task-panel,
-    .task-category-section {
+.task-page .task-card,
+.task-page .task-category-section {
         padding: 16px;
     }
-
-    .task-modal {
+.task-page .task-modal {
         align-items: flex-end;
         padding: 0;
     }
-
-    .task-modal-dialog {
+.task-page .task-modal-box {
         width: 100%;
         max-height: 92vh;
         border-radius: 20px 20px 0 0;
     }
-
-    .task-modal-header {
+.task-page .task-modal-head {
         padding: 17px 18px;
     }
-
-    .task-modal > .task-modal-dialog > section {
+.task-page .task-modal > .task-modal-box > section {
         padding: 18px;
     }
 }
-
 @media (max-width: 560px) {
-    .task-summary-grid {
+.task-page .task-summary {
         grid-template-columns: 1fr 1fr;
         gap: 10px;
     }
-
-    .task-summary-card {
+.task-page .summary-card {
         padding: 14px;
     }
-
-    .task-summary-card strong {
+.task-page .summary-card h2 {
         font-size: var(--fs-stat-value-mobile);
     }
-
-    .task-filter-toolbar {
+.task-page .task-toolbar {
         grid-template-columns: 1fr 1fr;
     }
-
-    .task-search-box {
+.task-page .task-search-box {
         grid-column: 1 / -1;
     }
-
-    .task-category-grid {
+.task-page .task-category-grid {
         grid-template-columns: 1fr;
     }
-
-    .task-form-grid {
+.task-page .task-form-grid {
         grid-template-columns: 1fr;
     }
-
-    .task-form-field.full {
+.task-page .field.full {
         grid-column: auto;
     }
-
-    .task-detail-information {
+.task-page .task-detail-information {
         grid-template-columns: 1fr 1fr;
     }
-
-    .category-detail-information {
+.task-page .category-detail-information {
         grid-template-columns: 1fr;
     }
-
-    .task-type-selector {
+.task-page .task-type-selector {
         align-items: flex-start;
         flex-direction: column;
     }
-
-    .task-type-tabs {
+.task-page .task-type-tabs {
         width: 100%;
     }
-
-    .task-type-tabs button {
+.task-page .task-type-tabs button {
         flex: 1;
     }
-
-    .task-modal-footer {
+.task-page .task-modal-foot {
         display: grid;
         grid-template-columns: 1fr 1fr;
     }
-
-    .task-modal-footer > button {
+.task-page .task-modal-foot > button {
         width: 100%;
     }
-
-    .task-modal-footer [data-task-modal-mode="delete"],
-    .task-modal-footer [data-category-modal-mode="delete"] {
+.task-page .task-modal-foot [data-task-modal-mode="delete"],
+.task-page .task-modal-foot [data-category-modal-mode="delete"] {
         grid-column: 1 / -1;
         margin-right: 0;
     }
-
-    .task-page-header__actions {
+.task-page .heading-actions {
         width: 100%;
         justify-content: flex-start;
     }
 }
-
 @media (max-width: 380px) {
-    .task-summary-grid {
+.task-page .task-summary {
         grid-template-columns: 1fr;
     }
-
-    .task-filter-toolbar {
+.task-page .task-toolbar {
         grid-template-columns: 1fr;
     }
-
-    .task-search-box {
+.task-page .task-search-box {
         grid-column: auto;
     }
-
-    .task-detail-information {
+.task-page .task-detail-information {
         grid-template-columns: 1fr;
     }
 }

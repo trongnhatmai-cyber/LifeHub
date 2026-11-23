@@ -1,11 +1,101 @@
-@model LifeHub.Models.ViewModels.GoalManagement.GoalHabitPageViewModel
+@model LifeHub.Models.ViewModels.HabitManagement.HabitListViewModel
 @{
     Layout = "_Layout";
+    ViewData["Title"] = "Danh sách thói quen";
+    ViewData["ActivePage"] = "HabitList";
 }
 @section Styles {
-    <link rel="stylesheet" href="~/css/goal-habit.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/habit.css" asp-append-version="true" />
 }
-@await Html.PartialAsync("_GoalHabitPage", Model)
+
+<div class="habit-page" data-module="list">
+    <partial name="_HabitFlash" />
+
+    <header class="habit-heading">
+        <div>
+            <span class="habit-label">HABITS</span>
+            <h1>Danh sách thói quen</h1>
+            <p>Quản lý các hoạt động bạn muốn duy trì.</p>
+        </div>
+        <div class="heading-actions">
+            <button type="button" class="habit-btn primary" data-open="habitModal" data-mode="create" data-title="Tạo thói quen">+ Tạo thói quen</button>
+        </div>
+    </header>
+
+    <section class="habit-card">
+        <div class="habit-chips" role="group" aria-label="Lọc theo trạng thái">
+            <a class="habit-chip @(Model.Status == "all" ? "active" : "")" asp-action="HabitList" asp-route-frequency="@Model.Frequency" asp-route-sort="@Model.Sort" asp-route-q="@Model.Q">Tất cả <small>@Model.TotalCount</small></a>
+            <a class="habit-chip @(Model.Status == "active" ? "active" : "")" asp-action="HabitList" asp-route-status="active" asp-route-frequency="@Model.Frequency" asp-route-sort="@Model.Sort" asp-route-q="@Model.Q">Đang bật <small>@Model.ActiveCount</small></a>
+            <a class="habit-chip @(Model.Status == "paused" ? "active" : "")" asp-action="HabitList" asp-route-status="paused" asp-route-frequency="@Model.Frequency" asp-route-sort="@Model.Sort" asp-route-q="@Model.Q">Tạm dừng <small>@Model.PausedCount</small></a>
+        </div>
+
+        <form method="get" asp-action="HabitList" class="habit-toolbar">
+            <input type="hidden" name="status" value="@Model.Status" />
+            <input type="search" name="q" value="@Model.Q" placeholder="Tìm kiếm thói quen..." aria-label="Tìm kiếm thói quen" />
+            <select name="frequency" data-autosubmit aria-label="Tần suất">
+                <option value="all" selected="@(Model.Frequency == "all")">Mọi tần suất</option>
+                <option value="daily" selected="@(Model.Frequency == "daily")">Hằng ngày</option>
+                <option value="weekly" selected="@(Model.Frequency == "weekly")">Hằng tuần</option>
+                <option value="monthly" selected="@(Model.Frequency == "monthly")">Hằng tháng</option>
+            </select>
+            <select name="sort" data-autosubmit aria-label="Sắp xếp">
+                <option value="name" selected="@(Model.Sort == "name")">Theo tên</option>
+                <option value="newest" selected="@(Model.Sort == "newest")">Mới tạo</option>
+                <option value="streak" selected="@(Model.Sort == "streak")">Streak cao nhất</option>
+            </select>
+            <button type="submit" class="habit-btn">Tìm</button>
+        </form>
+
+        <p class="habit-count">Hiển thị @Model.Items.Count / @Model.TotalCount thói quen</p>
+
+        <div class="habit-list">
+            @foreach (var h in Model.Items)
+            {
+                <article class="habit-item @(h.Active ? "" : "is-paused")" style="--habit-color:@h.Color">
+                    <div class="habit-item-top">
+                        <div class="habit-tags">
+                            <span class="habit-tag">@h.TargetLabel</span>
+                            @if (!string.IsNullOrEmpty(h.ReminderTime)) { <span class="habit-tag">⏰ @h.ReminderTime</span> }
+                        </div>
+                        <span class="status st-@h.StatusCss">@h.StatusLabel</span>
+                    </div>
+                    <h3><i class="habit-dot"></i>@h.Title</h3>
+                    @if (!string.IsNullOrEmpty(h.GoalTitle)) { <div class="habit-meta">Liên kết mục tiêu: @h.GoalTitle</div> }
+
+                    <div class="habit-stats">
+                        <div class="habit-stat"><strong>@h.CurrentStreak</strong><span>Streak hiện tại</span></div>
+                        <div class="habit-stat"><strong>@h.LongestStreak</strong><span>Dài nhất</span></div>
+                        <div class="habit-stat"><strong>@h.PeriodDone/@h.TargetPerPeriod</strong><span>Trong @h.PeriodUnit</span></div>
+                    </div>
+
+                    <div class="card-actions">
+                        <button type="button" class="row-btn" data-open="habitModal" data-mode="edit" data-title="Chỉnh sửa thói quen"
+                                data-id="@h.Id" data-habittitle="@h.Title" data-frequency="@h.Frequency" data-targetperperiod="@h.TargetPerPeriod"
+                                data-remindertime="@h.ReminderTime" data-colorcode="@h.Color" data-goalid="@h.GoalId" data-active="@(h.Active ? "true" : "false")">Sửa</button>
+                        <form method="post" data-simulate>
+                            <input type="hidden" name="Id" value="@h.Id" />
+                            <input type="hidden" name="Active" value="@(h.Active ? "false" : "true")" />
+                            <button type="submit" class="row-btn">@(h.Active ? "Tạm dừng" : "Bật lại")</button>
+                        </form>
+                        <a class="row-btn" asp-action="HabitStatistics" title="Xem lịch sử và thống kê">Lịch sử</a>
+                        <button type="button" class="row-btn danger" data-open="deleteModal" data-mode="delete" data-id="@h.Id" data-name="@h.Title">Xóa</button>
+                    </div>
+                </article>
+            }
+        </div>
+
+        @if (!Model.Items.Any())
+        {
+            <div class="habit-empty">
+                @if (Model.TotalCount == 0) { <text>Chưa có thói quen nào. Bấm "+ Tạo thói quen" để bắt đầu.</text> }
+                else { <text>Không có thói quen phù hợp với bộ lọc.</text><br /><a class="habit-btn small" asp-action="HabitList">Xóa bộ lọc</a> }
+            </div>
+        }
+    </section>
+
+    <partial name="_HabitModals" model="Model.Goals" />
+</div>
+
 @section Scripts {
-    <script src="~/js/goal-habit.js" asp-append-version="true"></script>
+    <script src="~/js/habit.js" asp-append-version="true"></script>
 }

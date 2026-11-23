@@ -87,6 +87,22 @@
     --fs-field-input: 14px;
     --fs-detail-label: 11px;
     --fs-detail-value: 13px;
+
+    /* Thang cỡ chữ chung: dùng cho mọi chữ không thuộc nhóm có tên ở trên.
+       Mọi cỡ chữ trong task / project / finance đều lấy từ thang này, không viết số px. */
+    --fs-2xs: 10px;
+    --fs-xs: 11px;
+    --fs-sm: 12px;
+    --fs-base: 13px;
+    --fs-md: 14px;
+    --fs-lg: 15px;
+    --fs-lead: 16px;
+    --fs-xl: 18px;
+    --fs-2xl: 20px;
+    --fs-3xl: 22px;
+    --fs-4xl: 24px;
+    --fs-5xl: 28px;
+    --fs-6xl: 30px;
 }
 
 /* ================= DARK MODE ================= */

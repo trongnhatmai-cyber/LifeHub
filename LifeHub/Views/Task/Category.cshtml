@@ -16,15 +16,15 @@
 <div class="task-page task-category-page">
 
     <!-- PAGE HEADER -->
-    <header class="task-page-header">
+    <header class="task-heading">
         <div>
-            <span class="task-eyebrow">WORK MANAGEMENT</span>
+            <span class="task-label">WORK MANAGEMENT</span>
             <h1>Danh mục công việc</h1>
             <p>Sắp xếp công việc cá nhân theo từng nhóm.</p>
         </div>
 
         <button type="button"
-                class="task-btn task-btn-primary"
+                class="task-btn primary"
                 data-open-category-modal
                 data-modal-mode="create">
             + Thêm danh mục
@@ -34,19 +34,19 @@
     <!-- CATEGORY SUMMARY -->
     <section class="task-category-summary">
 
-        <article class="task-summary-card">
-            <span>Tổng danh mục</span>
-            <strong>@Model.TotalCategories</strong>
+        <article class="summary-card">
+            <div class="summary-top"><span>Tổng danh mục</span></div>
+            <h2>@Model.TotalCategories</h2>
         </article>
 
-        <article class="task-summary-card">
-            <span>Công việc đã phân loại</span>
-            <strong>@Model.TotalCategorizedTasks</strong>
+        <article class="summary-card">
+            <div class="summary-top"><span>Công việc đã phân loại</span></div>
+            <h2>@Model.TotalCategorizedTasks</h2>
         </article>
 
-        <article class="task-summary-card">
-            <span>Chưa phân loại</span>
-            <strong>@Model.UncategorizedTasksCount</strong>
+        <article class="summary-card">
+            <div class="summary-top"><span>Chưa phân loại</span></div>
+            <h2>@Model.UncategorizedTasksCount</h2>
         </article>
 
     </section>
@@ -54,9 +54,9 @@
     <!-- CATEGORY LIST -->
     <section class="task-category-section">
 
-        <div class="task-panel-heading">
+        <div class="section-heading">
             <div>
-                <h2>Tất cả danh mục</h2>
+                <h3>Tất cả danh mục</h3>
                 <p>Chọn một danh mục để xem thông tin chi tiết.</p>
             </div>
         </div>
@@ -68,14 +68,14 @@
                 <article class="task-category-card"
                          data-category-id="@category.Id">
 
-                    <div class="task-category-card__header">
+                    <div class="task-category-card-header">
 
                         <span class="task-category-icon"
                               style="--category-color: @category.Color">
                             @category.Icon
                         </span>
 
-                        <div class="task-category-card__actions">
+                        <div class="task-category-card-actions">
 
                             <button type="button"
                                     data-open-category-modal
@@ -96,7 +96,7 @@
                         </div>
                     </div>
 
-                    <div class="task-category-card__body">
+                    <div class="task-category-card-body">
                         <h3>@category.Name</h3>
 
                         <p>
@@ -106,7 +106,7 @@
                         </p>
                     </div>
 
-                    <div class="task-category-card__footer">
+                    <div class="task-category-card-footer">
                         <span>@category.TaskCount công việc</span>
 
                         <button type="button"
@@ -122,8 +122,8 @@
 
             @if (!Model.Categories.Any())
             {
-                <div class="task-empty-state task-category-empty">
-                    <span class="task-empty-state__icon">▧</span>
+                <div class="task-empty task-category-empty">
+                    <span class="task-empty-icon">▧</span>
 
                     <h3>Chưa có danh mục</h3>
 
@@ -133,7 +133,7 @@
                     </p>
 
                     <button type="button"
-                            class="task-btn task-btn-primary"
+                            class="task-btn primary"
                             data-open-category-modal
                             data-modal-mode="create">
                         + Tạo danh mục

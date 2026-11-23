@@ -1,0 +1,82 @@
+@model List<LifeHub.Models.ViewModels.HabitManagement.HabitGoalOption>
+@* Hộp thoại dùng chung: thêm/sửa thói quen (#habitModal), ghi chú check-in (#checkinModal), xác nhận xóa (#deleteModal).
+   Model = danh sách mục tiêu để liên kết (có thể rỗng). Phải là con trực tiếp của .habit-page.
+   Form đang mô phỏng (data-simulate). Tên input trùng SaveHabitInput / HabitCheckInInput. *@
+
+<div class="habit-modal" id="habitModal" role="dialog" aria-modal="true" aria-labelledby="habitModalTitle" hidden>
+    <div class="habit-modal-box">
+        <div class="habit-modal-head">
+            <h3 id="habitModalTitle" data-modal-title>Tạo thói quen</h3>
+            <button type="button" class="habit-modal-close" data-close aria-label="Đóng">&times;</button>
+        </div>
+        <form method="post" data-simulate data-validate="habit" novalidate>
+            <input type="hidden" name="Id" disabled />
+            <div class="habit-form-grid">
+                <div class="field full"><label for="hTitle">Tên thói quen</label><input id="hTitle" name="Title" maxlength="150" required placeholder="VD: Đọc sách 20 phút" /></div>
+                <div class="field">
+                    <label for="hFreq">Tần suất</label>
+                    <select id="hFreq" name="Frequency"><option value="daily">Hằng ngày</option><option value="weekly">Hằng tuần</option><option value="monthly">Hằng tháng</option></select>
+                </div>
+                <div class="field"><label for="hTarget">Mục tiêu mỗi kỳ (lần)</label><input id="hTarget" name="TargetPerPeriod" type="number" min="1" max="31" value="1" required /></div>
+                <div class="field"><label for="hRemind">Giờ nhắc</label><input id="hRemind" name="ReminderTime" type="time" /></div>
+                <div class="field"><label for="hColor">Màu hiển thị</label><input id="hColor" name="ColorCode" type="color" value="#4f46e5" /></div>
+                <div class="field">
+                    <label for="hGoal">Liên kết mục tiêu</label>
+                    <select id="hGoal" name="GoalId">
+                        <option value="">Không liên kết</option>
+                        @foreach (var g in Model) { <option value="@g.Id">@g.Title</option> }
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="hActive">Trạng thái</label>
+                    <select id="hActive" name="Active"><option value="true">Đang bật</option><option value="false">Tạm dừng</option></select>
+                </div>
+            </div>
+            <p class="form-error" hidden></p>
+            <div class="habit-modal-foot">
+                <button type="button" class="habit-btn" data-close>Hủy</button>
+                <button type="submit" class="habit-btn primary">Lưu thói quen</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="habit-modal" id="checkinModal" role="dialog" aria-modal="true" aria-labelledby="checkinModalTitle" hidden>
+    <div class="habit-modal-box">
+        <div class="habit-modal-head">
+            <h3 id="checkinModalTitle">Ghi chú check-in</h3>
+            <button type="button" class="habit-modal-close" data-close aria-label="Đóng">&times;</button>
+        </div>
+        <p class="habit-note" style="margin:0 0 14px"><strong data-text="name"></strong> · ngày <span data-text="datelabel"></span></p>
+        <form method="post" data-simulate data-validate="checkin" novalidate>
+            <input type="hidden" name="HabitId" />
+            <input type="hidden" name="CheckDate" />
+            <div class="habit-form-grid">
+                <div class="field full"><label for="cCount">Giá trị thực hiện (lần)</label><input id="cCount" name="CountValue" type="number" min="1" max="1000" value="1" required /></div>
+                <div class="field full"><label for="cNote">Ghi chú</label><textarea id="cNote" name="Note" maxlength="200" placeholder="Hôm nay bạn làm thế nào?"></textarea></div>
+            </div>
+            <p class="form-error" hidden></p>
+            <div class="habit-modal-foot">
+                <button type="button" class="habit-btn" data-close>Hủy</button>
+                <button type="submit" class="habit-btn primary">Lưu check-in</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="habit-modal" id="deleteModal" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle" hidden>
+    <div class="habit-modal-box">
+        <div class="habit-modal-head">
+            <h3 id="deleteModalTitle">Xác nhận xóa</h3>
+            <button type="button" class="habit-modal-close" data-close aria-label="Đóng">&times;</button>
+        </div>
+        <p class="habit-note">Bạn có chắc muốn xóa <strong data-text="name"></strong>? Thao tác này không thể hoàn tác.</p>
+        <form method="post" data-simulate>
+            <input type="hidden" name="Id" />
+            <div class="habit-modal-foot">
+                <button type="button" class="habit-btn" data-close>Hủy</button>
+                <button type="submit" class="habit-btn danger">Xóa</button>
+            </div>
+        </form>
+    </div>
+</div>

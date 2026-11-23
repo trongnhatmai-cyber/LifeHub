@@ -16,16 +16,16 @@
 <div class="task-page task-overview-page">
 
     <!-- PAGE HEADER -->
-    <header class="task-page-header">
+    <header class="task-heading">
         <div>
-            <span class="task-eyebrow">WORK MANAGEMENT</span>
+            <span class="task-label">WORK MANAGEMENT</span>
             <h1>Tổng quan công việc</h1>
             <p>Theo dõi tiến độ và tình hình công việc của bạn.</p>
         </div>
 
-        <div class="task-page-header__actions">
+        <div class="heading-actions">
             <button type="button"
-                    class="task-btn task-btn-primary"
+                    class="task-btn primary"
                     data-open-task-modal
                     data-modal-mode="create">
                 <i class="bi bi-plus-lg"></i>
@@ -34,62 +34,62 @@
 
             <a asp-controller="Task"
             asp-action="Task"
-            class="task-btn task-btn-secondary">
+            class="task-btn">
                 Xem danh sách công việc
             </a>
         </div>
     </header>
 
     <!-- SUMMARY -->
-    <section class="task-summary-grid">
+    <section class="task-summary">
 
-        <article class="task-summary-card">
-            <div class="task-summary-card__top">
+        <article class="summary-card">
+            <div class="summary-top">
                 <span>Tổng công việc</span>
-                <span class="task-summary-badge">TOTAL</span>
+                <span class="summary-badge">TOTAL</span>
             </div>
 
-            <strong>@Model.TotalTasks</strong>
-            <small>Tất cả công việc</small>
+            <h2>@Model.TotalTasks</h2>
+            <p>Tất cả công việc</p>
         </article>
 
-        <article class="task-summary-card">
-            <div class="task-summary-card__top">
+        <article class="summary-card">
+            <div class="summary-top">
                 <span>Đang thực hiện</span>
-                <span class="task-summary-badge">IN PROGRESS</span>
+                <span class="summary-badge">IN PROGRESS</span>
             </div>
 
-            <strong>@Model.InProgressTasksCount</strong>
-            <small>Công việc đang xử lý</small>
+            <h2>@Model.InProgressTasksCount</h2>
+            <p>Công việc đang xử lý</p>
         </article>
 
-        <article class="task-summary-card">
-            <div class="task-summary-card__top">
+        <article class="summary-card">
+            <div class="summary-top">
                 <span>Đã hoàn thành</span>
-                <span class="task-summary-badge">DONE</span>
+                <span class="summary-badge">DONE</span>
             </div>
 
-            <strong>@Model.CompletedTasksCount</strong>
-            <small>Công việc đã hoàn tất</small>
+            <h2>@Model.CompletedTasksCount</h2>
+            <p>Công việc đã hoàn tất</p>
         </article>
 
-        <article class="task-summary-card">
-            <div class="task-summary-card__top">
+        <article class="summary-card">
+            <div class="summary-top">
                 <span>Quá hạn</span>
-                <span class="task-summary-badge">OVERDUE</span>
+                <span class="summary-badge">OVERDUE</span>
             </div>
 
-            <strong>@Model.OverdueTasksCount</strong>
-            <small>Cần được chú ý</small>
+            <h2>@Model.OverdueTasksCount</h2>
+            <p>Cần được chú ý</p>
         </article>
 
     </section>
 
     <!-- TASK SCOPE -->
-    <section class="task-panel">
-        <div class="task-panel-heading">
+    <section class="task-card">
+        <div class="section-heading">
             <div>
-                <h2>Phạm vi công việc</h2>
+                <h3>Phạm vi công việc</h3>
                 <p>Các nhóm công việc bạn đang quản lý.</p>
             </div>
         </div>
@@ -100,9 +100,9 @@
                asp-action="Task"
                asp-route-scope="personal"
                class="task-scope-card">
-                <span class="task-scope-card__icon">♧</span>
+                <span class="task-scope-card-icon">♧</span>
 
-                <span class="task-scope-card__content">
+                <span class="task-scope-card-content">
                     <strong>Cá nhân</strong>
                     <small>Công việc do bạn quản lý</small>
                 </span>
@@ -114,9 +114,9 @@
                asp-action="Task"
                asp-route-scope="assigned"
                class="task-scope-card">
-                <span class="task-scope-card__icon">↙</span>
+                <span class="task-scope-card-icon">↙</span>
 
-                <span class="task-scope-card__content">
+                <span class="task-scope-card-content">
                     <strong>Được giao cho tôi</strong>
                     <small>Công việc do người khác giao</small>
                 </span>
@@ -128,9 +128,9 @@
                asp-action="Task"
                asp-route-scope="project"
                class="task-scope-card">
-                <span class="task-scope-card__icon">▦</span>
+                <span class="task-scope-card-icon">▦</span>
 
-                <span class="task-scope-card__content">
+                <span class="task-scope-card-content">
                     <strong>Dự án</strong>
                     <small>Công việc thuộc dự án</small>
                 </span>
@@ -145,10 +145,10 @@
     <div class="task-overview-grid">
 
         <!-- PROGRESS -->
-        <section class="task-panel">
-            <div class="task-panel-heading">
+        <section class="task-card">
+            <div class="section-heading">
                 <div>
-                    <h2>Tiến độ hoàn thành</h2>
+                    <h3>Tiến độ hoàn thành</h3>
                     <p>Tình trạng các công việc hiện tại.</p>
                 </div>
             </div>
@@ -189,7 +189,7 @@
                             count * 100.0 / Model.TotalTasks);
 
                     <div class="task-status-item">
-                        <div class="task-status-item__heading">
+                        <div class="task-status-item-heading">
                             <span>@status.Label</span>
                             <strong>@count</strong>
                         </div>
@@ -216,10 +216,10 @@
         </section>
 
         <!-- RECENT TASKS -->
-        <section class="task-panel">
-            <div class="task-panel-heading">
+        <section class="task-card">
+            <div class="section-heading">
                 <div>
-                    <h2>Công việc gần đây</h2>
+                    <h3>Công việc gần đây</h3>
                     <p>Những công việc được tạo gần nhất.</p>
                 </div>
 
@@ -242,7 +242,7 @@
 
                         <span class="task-status-dot @task.Status"></span>
 
-                        <span class="task-recent-item__content">
+                        <span class="task-recent-item-content">
                             <strong>@task.Title</strong>
 
                             <small>
@@ -265,7 +265,7 @@
 
                 @if (!Model.RecentTasks.Any())
                 {
-                    <div class="task-empty-state">
+                    <div class="task-empty">
                         <p>Chưa có công việc gần đây.</p>
                     </div>
                 }
@@ -276,10 +276,10 @@
 
     <!-- ATTENTION TASKS -->
     <div class="task-overview">
-        <section class="task-panel">
-            <div class="task-panel-heading">
+        <section class="task-card">
+            <div class="section-heading">
                 <div>
-                    <h2>Công việc cần chú ý</h2>
+                    <h3>Công việc cần chú ý</h3>
                     <p>Các công việc quá hạn, sắp đến hạn hoặc có ưu tiên cao.</p>
                 </div>
             </div>
@@ -298,7 +298,7 @@
                         @(task.IsOverdue ? "overdue" : "upcoming")">
                     </span>
 
-                    <span class="task-attention-item__content">
+                    <span class="task-attention-item-content">
                         <strong>@task.Title</strong>
 
                         <small>
@@ -327,7 +327,7 @@
 
             @if (!Model.AttentionTasks.Any())
             {
-                <div class="task-empty-state">
+                <div class="task-empty">
                     <p>Hiện không có công việc cần chú ý.</p>
                 </div>
             }
