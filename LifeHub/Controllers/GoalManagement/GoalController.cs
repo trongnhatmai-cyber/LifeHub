@@ -9,11 +9,7 @@ using KeyResultEntity = LifeHub.Models.GoalManagement.KeyResult;
 
 namespace LifeHub.Controllers
 {
-    /// <summary>
-    /// Phân hệ Mục tiêu: chỉ có các action GET nạp ViewModel (chưa có POST, chưa sửa model entity).
-    /// Form trong View đang chạy mô phỏng (data-simulate). Khi có action thật, bỏ data-simulate.
-    /// Cột category/goal_type/status là varchar không Unicode: nên lưu mã ASCII (study, short, long...).
-    /// </summary>
+    /// <summary>Phân hệ Mục tiêu: đọc và ghi dữ liệu cá nhân từ SQL qua ApplicationDbContext.</summary>
     [Authorize]
     public class GoalController : Controller
     {
@@ -169,7 +165,248 @@ namespace LifeHub.Controllers
             });
         }
 
+        // ------------------------------------------------------------------ POST
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateGoal(SaveGoalInput input)
+        {
+            var userId = User.GetUserId();
+            NormalizeGoalInput(input);
+            if (!ValidGoalInput(input))
+            {
+                TempData["ErrorMessage"] = "Thông tin mục tiêu không hợp lệ.";
+                return RedirectToAction(nameof(GoalList));
+            }
+
+            var goal = new Goal
+            {
+                UserId = userId,
+                Title = input.Title,
+                Description = input.Description,
+                Category = input.Category,
+                GoalType = input.GoalType,
+                StartDate = input.StartDate,
+                TargetDate = input.TargetDate,
+                Status = input.Status,
+                ProgressPercent = input.Status == GoalStatusKeys.Completed ? 100 : input.ProgressPercent,
+                IsCompleted = input.Status == GoalStatusKeys.Completed,
+                CreatedAt = DateTime.Now
+            };
+            _context.Goals.Add(goal);
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Đã tạo mục tiêu.";
+            return RedirectToAction(nameof(GoalList));
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateGoal(SaveGoalInput input)
+        {
+            var userId = User.GetUserId();
+            var goal = await _context.Goals.FirstOrDefaultAsync(g => g.Id == input.Id && g.UserId == userId);
+            if (goal == null) return NotFound();
+            NormalizeGoalInput(input);
+            if (!ValidGoalInput(input))
+            {
+                TempData["ErrorMessage"] = "Thông tin mục tiêu không hợp lệ.";
+                return RedirectToAction(nameof(GoalList));
+            }
+
+            goal.Title = input.Title;
+            goal.Description = input.Description;
+            goal.Category = input.Category;
+            goal.GoalType = input.GoalType;
+            goal.StartDate = input.StartDate;
+            goal.TargetDate = input.TargetDate;
+            goal.Status = input.Status;
+            goal.IsCompleted = input.Status == GoalStatusKeys.Completed;
+            var hasKeyResults = await _context.KeyResults.AnyAsync(k => k.GoalId == goal.Id);
+            goal.ProgressPercent = goal.IsCompleted ? 100 : hasKeyResults ? await CalculateProgressAsync(goal.Id) : input.ProgressPercent;
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Đã cập nhật mục tiêu.";
+            return RedirectToAction(nameof(GoalList));
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteGoal(int id)
+        {
+            var userId = User.GetUserId();
+            var goal = await _context.Goals.FirstOrDefaultAsync(g => g.Id == id && g.UserId == userId);
+            if (goal == null) return NotFound();
+
+            var tasks = await _context.Tasks.Where(t => t.UserId == userId && t.GoalId == id).ToListAsync();
+            foreach (var task in tasks) task.GoalId = null;
+            var habits = await _context.Habits.Where(h => h.UserId == userId && h.GoalId == id).ToListAsync();
+            foreach (var habit in habits) habit.GoalId = null;
+            _context.KeyResults.RemoveRange(_context.KeyResults.Where(k => k.GoalId == id));
+            _context.Goals.Remove(goal);
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Đã xóa mục tiêu.";
+            return RedirectToAction(nameof(GoalList));
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateKeyResult(SaveKeyResultInput input)
+        {
+            var userId = User.GetUserId();
+            input.Title = input.Title?.Trim() ?? string.Empty;
+            var goal = await _context.Goals.FirstOrDefaultAsync(g => g.Id == input.GoalId && g.UserId == userId);
+            if (!ModelState.IsValid || goal == null || string.IsNullOrWhiteSpace(input.Title) || input.CurrentValue > input.TargetValue)
+            {
+                TempData["ErrorMessage"] = "Thông tin Key Result không hợp lệ.";
+                return RedirectToAction(nameof(KeyResult), new { goalId = input.GoalId });
+            }
+
+            _context.KeyResults.Add(new KeyResultEntity
+            {
+                GoalId = goal.Id, Title = input.Title, TargetValue = input.TargetValue,
+                CurrentValue = input.CurrentValue, Unit = input.Unit?.Trim(), IsCompleted = input.CurrentValue >= input.TargetValue
+            });
+            await _context.SaveChangesAsync();
+            await RefreshGoalProgressAsync(goal);
+            TempData["SuccessMessage"] = "Đã thêm Key Result.";
+            return RedirectToAction(nameof(KeyResult), new { goalId = goal.Id });
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateKeyResult(SaveKeyResultInput input)
+        {
+            var userId = User.GetUserId();
+            input.Title = input.Title?.Trim() ?? string.Empty;
+            var item = await _context.KeyResults.FirstOrDefaultAsync(k => k.Id == input.Id && _context.Goals.Any(g => g.Id == k.GoalId && g.UserId == userId));
+            if (item == null) return NotFound();
+            var oldGoalId = item.GoalId;
+            var newGoal = await _context.Goals.FirstOrDefaultAsync(g => g.Id == input.GoalId && g.UserId == userId);
+            if (!ModelState.IsValid || newGoal == null || string.IsNullOrWhiteSpace(input.Title) || input.CurrentValue > input.TargetValue)
+            {
+                TempData["ErrorMessage"] = "Thông tin Key Result không hợp lệ.";
+                return RedirectToAction(nameof(KeyResult), new { goalId = oldGoalId });
+            }
+
+            item.GoalId = newGoal.Id;
+            item.Title = input.Title;
+            item.TargetValue = input.TargetValue;
+            item.CurrentValue = input.CurrentValue;
+            item.Unit = input.Unit?.Trim();
+            item.IsCompleted = input.CurrentValue >= input.TargetValue;
+            await _context.SaveChangesAsync();
+            var oldGoal = oldGoalId == newGoal.Id ? newGoal : await _context.Goals.FirstAsync(g => g.Id == oldGoalId && g.UserId == userId);
+            await RefreshGoalProgressAsync(oldGoal);
+            if (oldGoal.Id != newGoal.Id) await RefreshGoalProgressAsync(newGoal);
+            TempData["SuccessMessage"] = "Đã cập nhật Key Result.";
+            return RedirectToAction(nameof(KeyResult), new { goalId = newGoal.Id });
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteKeyResult(int id)
+        {
+            var userId = User.GetUserId();
+            var item = await _context.KeyResults.FirstOrDefaultAsync(k => k.Id == id && _context.Goals.Any(g => g.Id == k.GoalId && g.UserId == userId));
+            if (item == null) return NotFound();
+            var goal = await _context.Goals.FirstAsync(g => g.Id == item.GoalId && g.UserId == userId);
+            _context.KeyResults.Remove(item);
+            await _context.SaveChangesAsync();
+            await RefreshGoalProgressAsync(goal);
+            TempData["SuccessMessage"] = "Đã xóa Key Result.";
+            return RedirectToAction(nameof(KeyResult), new { goalId = goal.Id });
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateKeyResultValue(UpdateKeyResultValueInput input)
+        {
+            var userId = User.GetUserId();
+            var item = await _context.KeyResults.FirstOrDefaultAsync(k => k.Id == input.Id && _context.Goals.Any(g => g.Id == k.GoalId && g.UserId == userId));
+            if (item == null) return NotFound();
+            if (!ModelState.IsValid || input.CurrentValue > item.TargetValue)
+            {
+                TempData["ErrorMessage"] = "Giá trị hiện tại phải nằm trong khoảng từ 0 đến giá trị mục tiêu.";
+                return RedirectToAction(nameof(KeyResult), new { goalId = item.GoalId });
+            }
+            item.CurrentValue = input.CurrentValue;
+            item.IsCompleted = input.CurrentValue >= item.TargetValue;
+            var goal = await _context.Goals.FirstAsync(g => g.Id == item.GoalId && g.UserId == userId);
+            await _context.SaveChangesAsync();
+            await RefreshGoalProgressAsync(goal);
+            TempData["SuccessMessage"] = "Đã cập nhật tiến độ Key Result.";
+            return RedirectToAction(nameof(KeyResult), new { goalId = goal.Id });
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetGoalStatus(int id, string status, string? returnTo)
+        {
+            var userId = User.GetUserId();
+            var goal = await _context.Goals.FirstOrDefaultAsync(g => g.Id == id && g.UserId == userId);
+            if (goal == null) return NotFound();
+            if (status is not (GoalStatusKeys.Active or GoalStatusKeys.Paused or GoalStatusKeys.Completed)) return BadRequest();
+            goal.Status = status;
+            goal.IsCompleted = status == GoalStatusKeys.Completed;
+            if (goal.IsCompleted) goal.ProgressPercent = 100;
+            else if (await _context.KeyResults.AnyAsync(k => k.GoalId == id)) goal.ProgressPercent = await CalculateProgressAsync(id);
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Đã cập nhật trạng thái mục tiêu.";
+            return returnTo == nameof(GoalReview)
+                ? RedirectToAction(nameof(GoalReview), new { id })
+                : RedirectToAction(nameof(GoalList));
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveReview(SaveReviewInput input)
+        {
+            var userId = User.GetUserId();
+            var goal = await _context.Goals.FirstOrDefaultAsync(g => g.Id == input.Id && g.UserId == userId);
+            if (goal == null) return NotFound();
+            if (!ModelState.IsValid)
+            {
+                TempData["ErrorMessage"] = "Ghi chú đánh giá vượt quá độ dài cho phép.";
+                return RedirectToAction(nameof(GoalReview), new { id = input.Id });
+            }
+            goal.ReviewNote = input.ReviewNote?.Trim();
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Đã lưu ghi chú đánh giá.";
+            return RedirectToAction(nameof(GoalReview), new { id = input.Id });
+        }
+
         // ------------------------------------------------------------------ Helpers
+
+        private static void NormalizeGoalInput(SaveGoalInput input)
+        {
+            input.Title = input.Title?.Trim() ?? string.Empty;
+            input.Description = input.Description?.Trim();
+            input.Category = CategoryKey(input.Category);
+            input.GoalType = input.GoalType?.Trim().ToLowerInvariant() ?? string.Empty;
+            input.Status = input.Status?.Trim().ToLowerInvariant() ?? string.Empty;
+        }
+
+        private static bool ValidGoalInput(SaveGoalInput input) =>
+            !string.IsNullOrWhiteSpace(input.Title) && input.Title.Length <= 200 &&
+            (string.IsNullOrEmpty(input.Description) || input.Description.Length <= 2000) &&
+            GoalCategories.Labels.ContainsKey(input.Category) &&
+            input.GoalType is "short" or "long" &&
+            input.Status is GoalStatusKeys.Active or GoalStatusKeys.Paused or GoalStatusKeys.Completed &&
+            (!input.StartDate.HasValue || !input.TargetDate.HasValue || input.TargetDate.Value >= input.StartDate.Value);
+
+        private async Task RefreshGoalProgressAsync(Goal goal)
+        {
+            if (goal.IsCompleted)
+            {
+                goal.ProgressPercent = 100;
+                return;
+            }
+            var results = await _context.KeyResults.Where(k => k.GoalId == goal.Id).ToListAsync();
+            goal.ProgressPercent = results.Count == 0 ? 0 : (int)Math.Round(results.Average(k => k.TargetValue <= 0 ? 0 : Math.Clamp((double)((k.CurrentValue ?? 0) / k.TargetValue * 100m), 0, 100)));
+            if (results.Count > 0 && results.All(k => k.IsCompleted))
+            {
+                goal.ProgressPercent = 100;
+                goal.IsCompleted = true;
+                goal.Status = GoalStatusKeys.Completed;
+            }
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task<int> CalculateProgressAsync(int goalId)
+        {
+            var results = await _context.KeyResults.AsNoTracking().Where(k => k.GoalId == goalId).ToListAsync();
+            return results.Count == 0 ? 0 : (int)Math.Round(results.Average(k => k.TargetValue <= 0 ? 0 : Math.Clamp((double)((k.CurrentValue ?? 0) / k.TargetValue * 100m), 0, 100)));
+        }
 
         private async Task<(List<GoalCardItem> Goals, List<KeyResultEntity> KeyResults)> Load()
         {

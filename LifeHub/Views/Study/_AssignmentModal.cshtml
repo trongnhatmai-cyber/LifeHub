@@ -8,7 +8,7 @@
             <h3 id="assignmentModalTitle" data-modal-title>Thêm bài tập</h3>
             <button type="button" class="study-modal-close" data-close aria-label="Đóng">&times;</button>
         </div>
-        <form asp-controller="Study" asp-action="CreateAssignment" method="post" data-simulate>
+        <form asp-controller="Study" asp-action="CreateAssignment" method="post">
             <input type="hidden" name="Id" disabled />
             <div class="study-form-grid">
                 <div class="field full"><label for="asgTitle">Tên bài tập</label><input id="asgTitle" name="Title" maxlength="200" required /></div>

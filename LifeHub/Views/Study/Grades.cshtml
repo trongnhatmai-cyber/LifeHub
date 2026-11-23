@@ -23,17 +23,12 @@
     </header>
 
     <section class="study-summary">
-<<<<<<< HEAD
-        <div class="summary-card"><div class="summary-top"><span>GPA học kỳ này</span><span class="summary-badge">THANG 4</span></div><h2>@(Model.Gpa?.ToString("0.00") ?? "—")</h2><p>Tính theo tín chỉ</p></div>
-        <div class="summary-card"><div class="summary-top"><span>GPA mục tiêu</span><span class="summary-badge">MỤC TIÊU</span></div><h2>@(Model.TargetGpa?.ToString("0.0") ?? "—")</h2><p>@(Model.Gpa.HasValue && Model.TargetGpa.HasValue ? (Model.Gpa >= Model.TargetGpa ? "Đã đạt mục tiêu" : "Còn thiếu " + (Model.TargetGpa - Model.Gpa)!.Value.ToString("0.00") + " điểm") : "Chưa đặt mục tiêu")</p></div>
-        <div class="summary-card"><div class="summary-top"><span>Tín chỉ đã có điểm</span><span class="summary-badge">TÍN CHỈ</span></div><h2>@Model.ScoredCredits.ToString("00")</h2><p>Trên @Model.Rows.Count môn</p></div>
-        <div class="summary-card"><div class="summary-top"><span>Môn đạt mục tiêu</span><span class="summary-badge">KẾT QUẢ</span></div><h2>@Model.TargetMetCount.ToString("00")</h2><p>Điểm hiện tại không thấp hơn mục tiêu</p></div>
-=======
+
         <div class="summary-card"><div class="summary-top"><span>GPA học kỳ này</span><span class="summary-badge">SCALE 4</span></div><h2>@(Model.Gpa?.ToString("0.00") ?? "—")</h2><p>Tính theo tín chỉ</p></div>
         <div class="summary-card"><div class="summary-top"><span>GPA mục tiêu</span><span class="summary-badge">TARGET</span></div><h2>@(Model.TargetGpa?.ToString("0.0") ?? "—")</h2><p>@(Model.Gpa.HasValue && Model.TargetGpa.HasValue ? (Model.Gpa >= Model.TargetGpa ? "Đã đạt mục tiêu" : "Còn thiếu " + (Model.TargetGpa - Model.Gpa)!.Value.ToString("0.00") + " điểm") : "Chưa đặt mục tiêu")</p></div>
         <div class="summary-card"><div class="summary-top"><span>Tín chỉ đã có điểm</span><span class="summary-badge">CREDITS</span></div><h2>@Model.ScoredCredits.ToString("00")</h2><p>Trên @Model.Rows.Count môn đang học</p></div>
         <div class="summary-card"><div class="summary-top"><span>Môn đạt mục tiêu</span><span class="summary-badge">RESULT</span></div><h2>@Model.TargetMetCount.ToString("00")</h2><p>Điểm hiện tại không thấp hơn mục tiêu</p></div>
->>>>>>> f8d096479c41bd4df7557c3b301fb1038f345116
+
     </section>
 
     <section class="study-card">
@@ -99,10 +94,9 @@
                 <button type="button" class="study-modal-close" data-close aria-label="Đóng">&times;</button>
             </div>
             <p class="study-note">Môn: <strong data-text="name"></strong></p>
-            <form asp-action="SetTargetScore" method="post" data-simulate>
+            <form asp-action="SetTargetScore" method="post">
                 <input type="hidden" name="CourseId" />
                 <div class="field"><label for="tScore">Điểm mục tiêu (thang 10)</label><input id="tScore" name="TargetScore" type="number" min="0" max="10" step="0.1" required /></div>
-                <p class="study-note">Bản mô phỏng giao diện: dữ liệu chưa được lưu.</p>
                 <div class="study-modal-foot">
                     <button type="button" class="study-btn" data-close>Hủy</button>
                     <button type="submit" class="study-btn primary">Lưu mục tiêu</button>

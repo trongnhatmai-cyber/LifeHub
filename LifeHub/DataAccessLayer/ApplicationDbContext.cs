@@ -47,6 +47,7 @@ public class ApplicationDbContext :DbContext
     // 5. Task Management
     public DbSet<LifeHub.Models.TaskManagement.Task> Tasks
         => Set<LifeHub.Models.TaskManagement.Task>();
+    public DbSet<TaskCategory> TaskCategories => Set<TaskCategory>();
     public DbSet<TaskComment> TaskComments => Set<TaskComment>();
     public DbSet<Tag> Tags => Set<Tag>();
     public DbSet<TaskTag> TaskTags => Set<TaskTag>();
@@ -98,6 +99,17 @@ public class ApplicationDbContext :DbContext
         // 2. Task Management
         modelBuilder.Entity<TaskTag>()
             .HasKey(tt => new { tt.TaskId, tt.TagId });
+
+        modelBuilder.Entity<LifeHub.Models.TaskManagement.Task>()
+            .HasOne<TaskCategory>()
+            .WithMany()
+            .HasForeignKey(task => task.CategoryId)
+            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<TaskCategory>()
+            .HasOne<User>()
+            .WithMany()
+            .HasForeignKey(category => category.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         // 3. Knowledge Management
         modelBuilder.Entity<NoteTag>()
@@ -758,6 +770,7 @@ public class ApplicationDbContext :DbContext
 
         // 4. Task Management
         modelBuilder.Entity<LifeHub.Models.TaskManagement.Task>().ToTable("tasks");
+        modelBuilder.Entity<TaskCategory>().ToTable("task_categories");
         modelBuilder.Entity<TaskComment>().ToTable("task_comments");
         modelBuilder.Entity<Tag>().ToTable("tags");
         modelBuilder.Entity<TaskTag>().ToTable("task_tags");
@@ -1094,6 +1107,15 @@ public class ApplicationDbContext :DbContext
 
             entity.Property(x => x.CreatedAt)
                 .HasDefaultValueSql("GETDATE()");
+        });
+
+        modelBuilder.Entity<TaskCategory>(entity =>
+        {
+            entity.Property(x => x.Name).HasMaxLength(100);
+            entity.Property(x => x.Description).HasMaxLength(500);
+            entity.Property(x => x.Color).HasMaxLength(15).IsUnicode(false);
+            entity.Property(x => x.Icon).HasMaxLength(30).IsUnicode(false);
+            entity.HasIndex(x => new { x.UserId, x.Name }).IsUnique();
         });
 
         // Task Comment

@@ -95,16 +95,16 @@
 
                         @if (g.Status == "active")
                         {
-                            <form asp-action="SetGoalStatus" method="post" data-simulate><input type="hidden" name="id" value="@g.Id" /><input type="hidden" name="status" value="paused" /><button type="submit" class="row-btn">Tạm dừng</button></form>
-                            <form asp-action="SetGoalStatus" method="post" data-simulate><input type="hidden" name="id" value="@g.Id" /><input type="hidden" name="status" value="completed" /><button type="submit" class="row-btn">Hoàn thành</button></form>
+                            <form asp-action="SetGoalStatus" method="post"><input type="hidden" name="id" value="@g.Id" /><input type="hidden" name="status" value="paused" /><button type="submit" class="row-btn">Tạm dừng</button></form>
+                            <form asp-action="SetGoalStatus" method="post"><input type="hidden" name="id" value="@g.Id" /><input type="hidden" name="status" value="completed" /><button type="submit" class="row-btn">Hoàn thành</button></form>
                         }
                         else if (g.Status == "paused")
                         {
-                            <form asp-action="SetGoalStatus" method="post" data-simulate><input type="hidden" name="id" value="@g.Id" /><input type="hidden" name="status" value="active" /><button type="submit" class="row-btn">Tiếp tục</button></form>
+                            <form asp-action="SetGoalStatus" method="post"><input type="hidden" name="id" value="@g.Id" /><input type="hidden" name="status" value="active" /><button type="submit" class="row-btn">Tiếp tục</button></form>
                         }
                         else
                         {
-                            <form asp-action="SetGoalStatus" method="post" data-simulate><input type="hidden" name="id" value="@g.Id" /><input type="hidden" name="status" value="active" /><button type="submit" class="row-btn">Mở lại</button></form>
+                            <form asp-action="SetGoalStatus" method="post"><input type="hidden" name="id" value="@g.Id" /><input type="hidden" name="status" value="active" /><button type="submit" class="row-btn">Mở lại</button></form>
                         }
                         <a class="row-btn" asp-action="GoalReview" asp-route-id="@g.Id">Đánh giá</a>
                         <button type="button" class="row-btn danger" data-open="deleteModal" data-mode="delete"

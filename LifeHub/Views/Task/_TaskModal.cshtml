@@ -167,7 +167,7 @@
                 </div>
             </div>
 
-            <form id="taskForm">
+            <form id="taskForm" asp-action="SaveTask" method="post">
 
                 <input type="hidden"
                        asp-for="Id"
@@ -364,6 +364,8 @@
                 </p>
             </div>
 
+            <form asp-action="DeleteTask" method="post" data-task-delete-form>
+                <input type="hidden" name="id" data-task-delete-id />
             <footer class="task-modal-footer">
                 <button type="button"
                         class="task-btn task-btn-secondary"
@@ -371,12 +373,13 @@
                     Quay lại
                 </button>
 
-                <button type="button"
+                <button type="submit"
                         class="task-btn task-btn-danger"
                         data-task-delete-confirm>
                     Xác nhận xóa
                 </button>
             </footer>
+            </form>
 
         </section>
 

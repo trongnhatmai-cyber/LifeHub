@@ -6,7 +6,7 @@
    - Mọi View trong Views/Study đều nạp đúng một dòng:
        <script src="~/js/study.js" asp-append-version="true"></script>
 
-   VAI TRÒ (đúng quy ước MVC + Mock Data của LIFEHUB)
+   VAI TRÒ
    JavaScript CHỈ xử lý tương tác giao diện:
      1. Mở / đóng hộp thoại (modal), điền sẵn form khi sửa.
      2. Ẩn / hiện ô chỉ dùng cho bài thi.
@@ -15,7 +15,6 @@
      5. Tự gửi form lọc (GET) khi đổi lựa chọn.
      6. Thông báo nhỏ (toast).
    JS KHÔNG chứa dữ liệu học tập, không tính GPA / tiến độ / đếm bài. Việc đó do C# làm.
-   Form thêm / sửa / xóa hiện CHỈ MÔ PHỎNG, chưa lưu dữ liệu.
 
    QUY ƯỚC HTML MÀ FILE NÀY HIỂU (dùng cho mọi phân hệ sau)
    - Nút mở modal:   data-open="<id modal>"  data-mode="create|edit|delete"
@@ -29,7 +28,6 @@
    - Nút đóng:       data-close  (vẫn chấp nhận data-close-modal cũ).
    - Ô Id ẩn:        <input type="hidden" name="Id" disabled> -> JS chỉ bật khi mode = edit hoặc delete.
    - Ô chỉ cho bài thi: thêm thuộc tính data-exam-only vào .field, form phải có select name="Kind".
-   - Form mô phỏng:  <form data-simulate> -> chặn gửi và hiện toast. Khi có back-end, BỎ data-simulate.
    - Kiểm tra thêm:  <form data-validate="slot|semester"> (xem hàm validate).
    - Form lọc GET:   select/input có data-autosubmit sẽ tự gửi form khi đổi.
    - Lọc nhanh Tổng quan: nút .study-chip[data-filter] + <tbody id="assignmentBody"> với
@@ -85,11 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // ================================================================
-    // 2b. NHẮC NHỞ Ô BẮT BUỘC
-    // Ô nào có thuộc tính required thì tự thêm class "required" cho .field,
-    // CSS sẽ hiện dấu * đỏ sau nhãn. Không cần sửa View.
-    // ================================================================
+    // Ô nào có thuộc tính required thì thêm class để CSS hiện dấu *.
     document.querySelectorAll(".study-modal [required]").forEach(el => {
         const field = el.closest(".field");
         if (field) field.classList.add("required");
@@ -97,20 +91,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function clearInvalid(form) {
         form.querySelectorAll(".field.invalid").forEach(f => f.classList.remove("invalid"));
-    }
-
-    // Lấy (hoặc tạo) dòng báo lỗi của form.
-    function errorBox(form) {
-        let box = form.querySelector(".form-error");
-        if (!box) {
-            box = document.createElement("p");
-            box.className = "form-error";
-            box.setAttribute("role", "alert");
-            box.hidden = true;
-            const foot = form.querySelector(".study-modal-foot");
-            form.insertBefore(box, foot || null);
-        }
-        return box;
     }
 
     // Khi gõ vào ô đang báo lỗi thì gỡ viền đỏ của ô đó.
@@ -211,61 +191,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener("change", event => {
         const select = event.target;
         if (select.matches && select.matches('.study-modal [name="Kind"]')) syncExamFields(select.form);
-    });
-
-    // ================================================================
-    // 5. KIỂM TRA FORM PHÍA TRÌNH DUYỆT
-    // Chỉ kiểm tra những gì HTML5 không làm được. Back-end vẫn phải kiểm tra lại.
-    // ================================================================
-    function validate(form) {
-        if (form.dataset.validate === "slot") {
-            const start = form.querySelector('[name="Start"]').value;
-            const end = form.querySelector('[name="End"]').value;
-            if (start && end && end <= start) return "Giờ kết thúc phải sau giờ bắt đầu.";
-        }
-        if (form.dataset.validate === "semester") {
-            const start = form.querySelector('[name="StartDate"]').value;
-            const end = form.querySelector('[name="EndDate"]').value;
-            if (start && end && end <= start) return "Ngày kết thúc phải sau ngày bắt đầu.";
-        }
-        return "";
-    }
-
-    // ================================================================
-    // 6. GỬI FORM (MÔ PHỎNG, CHƯA LƯU DỮ LIỆU)
-    // BACK-END: khi action POST tương ứng đã làm xong, bỏ data-simulate khỏi form
-    // để trình duyệt gửi thẳng lên server theo asp-action. Khi đó khối này không còn tác dụng.
-    // ================================================================
-    document.querySelectorAll("form[data-simulate]").forEach(form => {
-        form.addEventListener("submit", event => {
-            event.preventDefault();
-
-            const error = errorBox(form);
-            clearInvalid(form);
-
-            // Ô thiếu hoặc sai: tô viền đỏ và liệt kê TÊN từng ô để người dùng biết sửa chỗ nào.
-            if (!form.checkValidity()) {
-                const bad = Array.from(form.elements).filter(el => el.willValidate && !el.checkValidity());
-                const names = bad.map(el => {
-                    const field = el.closest(".field");
-                    if (field) field.classList.add("invalid");
-                    const label = field && field.querySelector("label");
-                    return label ? label.textContent.trim() : el.name;
-                });
-                error.textContent = "Chưa nhập đúng: " + names.join(", ") + ".";
-                error.hidden = false;
-                if (bad[0]) bad[0].focus();
-                return;
-            }
-
-            const message = validate(form);
-            if (message) { error.textContent = message; error.hidden = false; return; }
-            error.hidden = true;
-
-            const modal = form.closest(".study-modal");
-            if (modal) closeModal(modal);
-            toast("Bản mô phỏng giao diện: dữ liệu chưa được lưu.");
-        });
     });
 
     // ================================================================

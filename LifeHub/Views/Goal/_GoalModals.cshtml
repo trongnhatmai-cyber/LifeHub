@@ -9,7 +9,7 @@
             <h3 id="goalModalTitle" data-modal-title>Tạo mục tiêu</h3>
             <button type="button" class="goal-modal-close" data-close aria-label="Đóng">&times;</button>
         </div>
-        <form asp-controller="Goal" asp-action="CreateGoal" method="post" data-simulate data-validate="goal" novalidate>
+        <form asp-controller="Goal" asp-action="CreateGoal" method="post" data-validate="goal">
             <input type="hidden" name="Id" disabled />
             <div class="goal-form-grid">
                 <div class="field full"><label for="gTitle">Tên mục tiêu</label><input id="gTitle" name="Title" maxlength="200" required placeholder="VD: Hoàn thành chứng chỉ chuyên môn" /></div>
@@ -52,7 +52,7 @@
             <h3 id="krModalTitle" data-modal-title>Thêm Key Result</h3>
             <button type="button" class="goal-modal-close" data-close aria-label="Đóng">&times;</button>
         </div>
-        <form asp-controller="Goal" asp-action="CreateKeyResult" method="post" data-simulate data-validate="kr" novalidate>
+        <form asp-controller="Goal" asp-action="CreateKeyResult" method="post" data-validate="kr">
             <input type="hidden" name="Id" disabled />
             <div class="goal-form-grid">
                 <div class="field full">
@@ -82,7 +82,7 @@
             <button type="button" class="goal-modal-close" data-close aria-label="Đóng">&times;</button>
         </div>
         <p class="goal-note">Bạn có chắc muốn xóa <strong data-text="name"></strong>? Thao tác này không thể hoàn tác.</p>
-        <form asp-controller="Goal" asp-action="DeleteGoal" method="post" data-simulate>
+        <form asp-controller="Goal" asp-action="DeleteGoal" method="post">
             <input type="hidden" name="Id" />
             <div class="goal-modal-foot">
                 <button type="button" class="goal-btn" data-close>Hủy</button>

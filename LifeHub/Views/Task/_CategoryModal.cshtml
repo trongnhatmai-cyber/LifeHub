@@ -115,7 +115,7 @@
         <!-- =================================== -->
         <section data-category-modal-section="form" hidden>
 
-            <form id="taskCategoryForm">
+            <form id="taskCategoryForm" asp-action="SaveCategory" method="post">
 
                 <input type="hidden"
                        asp-for="Id"
@@ -210,6 +210,8 @@
                 </p>
             </div>
 
+            <form asp-action="DeleteCategory" method="post" data-category-delete-form>
+                <input type="hidden" name="id" data-category-delete-id />
             <footer class="task-modal-footer">
                 <button type="button"
                         class="task-btn task-btn-secondary"
@@ -217,12 +219,13 @@
                     Quay lại
                 </button>
 
-                <button type="button"
+                    <button type="submit"
                         class="task-btn task-btn-danger"
                         data-category-delete-confirm>
                     Xác nhận xóa
                 </button>
             </footer>
+            </form>
 
         </section>
 

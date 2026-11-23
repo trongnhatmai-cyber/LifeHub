@@ -8,7 +8,7 @@
             <h3 id="courseModalTitle" data-modal-title>Thêm môn học</h3>
             <button type="button" class="study-modal-close" data-close aria-label="Đóng">&times;</button>
         </div>
-        <form asp-controller="Study" asp-action="CreateCourse" method="post" data-simulate>
+        <form asp-controller="Study" asp-action="CreateCourse" method="post">
             <input type="hidden" name="Id" disabled />
             <div class="study-form-grid">
                 <div class="field"><label for="cCode">Mã môn</label><input id="cCode" name="Code" maxlength="20" required placeholder="VD: IT301" /></div>

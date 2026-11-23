@@ -1,6 +1,7 @@
 
 using LifeHub.DataAccessLayer;
 using LifeHub.Models;
+using LifeHub.Models.SystemManagement;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
@@ -60,6 +61,41 @@ public class AuthService
         catch (DbUpdateException ex) when (ex.InnerException is SqlException { Number: 2601 or 2627 })
         {
             return false;
+        }
+
+        // Lời mời gửi tới email chưa đăng ký được liên kết và thông báo ngay khi tài khoản được tạo.
+        var pendingInvitations = await _context.ProjectInvitations
+            .Where(i => i.InvitedUserId == null && i.InvitedEmail == email && i.Status == "pending" &&
+                        (!i.ExpiresAt.HasValue || i.ExpiresAt > DateTime.Now))
+            .ToListAsync();
+        if (pendingInvitations.Count > 0)
+        {
+            var projectIds = pendingInvitations.Select(i => i.ProjectId).Distinct().ToArray();
+            var projectNames = await _context.Projects.AsNoTracking().Where(p => projectIds.Contains(p.Id))
+                .ToDictionaryAsync(p => p.Id, p => p.Name);
+            var inviterIds = pendingInvitations.Select(i => i.InvitedBy).Distinct().ToArray();
+            var inviterNames = await _context.Users.AsNoTracking().Where(u => inviterIds.Contains(u.Id))
+                .ToDictionaryAsync(u => u.Id, u => u.FullName);
+
+            foreach (var invitation in pendingInvitations)
+            {
+                invitation.InvitedUserId = user.Id;
+                var inviterName = inviterNames.GetValueOrDefault(invitation.InvitedBy, "Một thành viên");
+                var projectName = projectNames.GetValueOrDefault(invitation.ProjectId, "dự án");
+                _context.Notifications.Add(new Notification
+                {
+                    UserId = user.Id,
+                    Title = "Lời mời tham gia dự án",
+                    Message = $"{inviterName} đã mời bạn tham gia dự án “{projectName}”.",
+                    LinkUrl = $"/Project/Details/{invitation.ProjectId}",
+                    NotificationType = "project_invitation",
+                    RefType = "project_invitation",
+                    RefId = invitation.Id,
+                    CreatedAt = DateTime.Now
+                });
+            }
+
+            await _context.SaveChangesAsync();
         }
 
         return true;

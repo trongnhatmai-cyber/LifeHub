@@ -355,7 +355,7 @@ public class TransactionController : Controller
     private async Task PopulateCreateOptionsAsync(int userId)
     {
         ViewBag.Wallets = await _context.Wallets.AsNoTracking().Where(w => w.UserId == userId && w.IsActive)
-            .OrderBy(w => w.Name).Select(w => new { w.Id, w.Name }).ToListAsync();
+            .OrderBy(w => w.Name).Select(w => new { w.Id, w.Name, Balance = w.InitialBalance }).ToListAsync();
         ViewBag.Categories = await _context.Categories.AsNoTracking().Where(c => c.UserId == null || c.UserId == userId)
             .OrderBy(c => c.Name).Select(c => new { c.Id, c.Name, c.Type }).ToListAsync();
         ViewBag.SavingsGoals = await _context.SavingsGoals.AsNoTracking().Where(g => g.UserId == userId && !g.IsAchieved)

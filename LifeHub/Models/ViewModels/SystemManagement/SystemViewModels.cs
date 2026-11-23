@@ -23,18 +23,31 @@ namespace LifeHub.Models.ViewModels.SystemManagement
         public string? LinkUrl { get; set; }
         public bool IsRead { get; set; }
         public DateTime CreatedAt { get; set; }
+        public int ProjectId { get; set; }
+        public string ProjectName { get; set; } = "Dự án";
+        public int? InvitationId { get; set; }
+        public string? InvitationStatus { get; set; }
 
         public string TypeLabel => NotificationType switch
         {
-            "task" => "Công việc", "deadline" => "Hạn nộp", "exam" => "Lịch thi", "project" => "Dự án",
+            "task" => "Công việc", "deadline" => "Hạn nộp", "exam" => "Lịch thi",
+            "project" or "project_invitation_response" => "Dự án",
+            "project_invitation" => "Lời mời dự án",
             "finance" => "Tài chính", "achievement" => "Thành tựu", _ => "Hệ thống"
+        };
+
+        public string TypeIcon => NotificationType switch
+        {
+            "task" => "✓", "deadline" => "◷", "exam" => "▣",
+            "project" or "project_invitation" or "project_invitation_response" => "▰",
+            "finance" => "₫", "achievement" => "★", _ => "•"
         };
 
         /// <summary>Nhóm dùng cho bộ lọc: reminder / project / finance / system</summary>
         public string Group => NotificationType switch
         {
             "task" or "deadline" or "exam" => "reminder",
-            "project" => "project",
+            "project" or "project_invitation" or "project_invitation_response" => "project",
             "finance" => "finance",
             _ => "system"
         };

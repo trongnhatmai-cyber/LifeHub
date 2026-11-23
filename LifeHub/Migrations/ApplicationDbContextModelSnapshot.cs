@@ -1946,6 +1946,10 @@ namespace LifeHub.Migrations
                         .HasColumnType("int")
                         .HasColumnName("assigned_to");
 
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("int")
+                        .HasColumnName("category_id");
+
                     b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("datetime2")
                         .HasColumnName("completed_at");
@@ -2030,6 +2034,8 @@ namespace LifeHub.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CategoryId");
+
                     b.HasIndex("CourseId");
 
                     b.HasIndex("Deadline");
@@ -2045,6 +2051,52 @@ namespace LifeHub.Migrations
                     b.HasIndex("ProjectId", "Status");
 
                     b.ToTable("tasks", (string)null);
+                });
+
+            modelBuilder.Entity("LifeHub.Models.TaskManagement.TaskCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(15)")
+                        .HasColumnName("color");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Icon")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("icon");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("name");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "Name")
+                        .IsUnique();
+
+                    b.ToTable("task_categories", (string)null);
                 });
 
             modelBuilder.Entity("LifeHub.Models.TaskManagement.TaskComment", b =>
@@ -2765,6 +2817,11 @@ namespace LifeHub.Migrations
                         .HasForeignKey("AssignedTo")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("LifeHub.Models.TaskManagement.TaskCategory", null)
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("LifeHub.Models.StudyManagement.Course", null)
                         .WithMany()
                         .HasForeignKey("CourseId")
@@ -2785,6 +2842,15 @@ namespace LifeHub.Migrations
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("LifeHub.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("LifeHub.Models.TaskManagement.TaskCategory", b =>
+                {
                     b.HasOne("LifeHub.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
