@@ -1,0 +1,41 @@
+@model LifeHub.Models.ViewModels.SystemManagement.AchievementPageViewModel
+@{
+    Layout = "_SettingsLayout";
+    ViewData["SettingsActive"] = "";
+}
+
+<header class="settings-head">
+    <div>
+        <h1>Thành tựu của tôi</h1>
+        <p>Các huy hiệu bạn đã đạt được trong LifeHub.</p>
+    </div>
+</header>
+
+<div class="settings-stats">
+    <div class="settings-stat"><strong>@Model.EarnedCount/@Model.TotalCount</strong><span>Huy hiệu đã đạt</span></div>
+    <div class="settings-stat"><strong>@Model.TotalPoints</strong><span>Tổng điểm</span></div>
+</div>
+
+@if (Model.Items.Count == 0)
+{
+    <p class="settings-empty">Hệ thống chưa có huy hiệu nào.</p>
+}
+else
+{
+    <div class="settings-badges-grid">
+        @foreach (var a in Model.Items)
+        {
+            <article class="settings-achievement @(a.IsEarned ? "earned" : "locked")">
+                <span class="settings-achievement-icon" aria-hidden="true">@a.Icon</span>
+                <div>
+                    <strong>@a.Title</strong>
+                    <small>@a.Description</small>
+                    <span class="status @(a.IsEarned ? "st-warn" : "st-neutral")">
+                        @(a.IsEarned ? "Đạt ngày " + a.EarnedAt!.Value.ToString("dd/MM/yyyy") : "Chưa đạt")
+                        · +@a.PointsReward điểm
+                    </span>
+                </div>
+            </article>
+        }
+    </div>
+}

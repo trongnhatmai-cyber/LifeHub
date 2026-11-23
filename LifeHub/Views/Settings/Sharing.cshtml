@@ -1,0 +1,135 @@
+@model LifeHub.Models.ViewModels.SystemManagement.SharingPageViewModel
+@{
+    Layout = "_SettingsLayout";
+    ViewData["SettingsActive"] = "sharing";
+}
+
+<header class="settings-head">
+    <div>
+        <h1>Chia sẻ &amp; Phân quyền</h1>
+        <p>Quản lý nội dung bạn chia sẻ và quyền truy cập của từng người.</p>
+    </div>
+</header>
+
+<section class="settings-card">
+    <div class="section-heading"><div><h3>Chia sẻ nội dung mới</h3><p>Chọn ghi chú hoặc tài liệu của bạn và nhập email người nhận.</p></div></div>
+
+    @if (Model.Shareable.Count == 0)
+    {
+        <p class="settings-empty">Bạn chưa có ghi chú hoặc tài liệu nào để chia sẻ.</p>
+    }
+    else
+    {
+        <form asp-controller="Settings" asp-action="Share" method="post" class="settings-form">
+            <div class="settings-form-grid three">
+                <div class="field">
+                    <label for="ItemKey">Nội dung</label>
+                    <select id="ItemKey" name="ItemKey" required>
+                        @foreach (var grp in Model.Shareable.GroupBy(s => s.ItemType))
+                        {
+                            <optgroup label="@(grp.Key == "document" ? "Tài liệu" : "Ghi chú")">
+                                @foreach (var s in grp)
+                                {
+                                    <option value="@s.Key">@s.Title</option>
+                                }
+                            </optgroup>
+                        }
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="ShareEmail">Email người nhận</label>
+                    <input id="ShareEmail" name="Email" type="email" required placeholder="ten@email.com" autocomplete="off" />
+                </div>
+
+                <div class="field">
+                    <label for="SharePermission">Quyền</label>
+                    <select id="SharePermission" name="Permission">
+                        <option value="view" selected>Chỉ xem</option>
+                        <option value="edit">Được sửa</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="settings-actions">
+                <button type="submit" class="settings-btn primary">Chia sẻ</button>
+            </div>
+        </form>
+    }
+</section>
+
+<section class="settings-card">
+    <div class="section-heading"><div><h3>Tôi đang chia sẻ</h3><p>@Model.SharedByMe.Count lượt chia sẻ</p></div></div>
+
+    @if (Model.SharedByMe.Count == 0)
+    {
+        <p class="settings-empty">Bạn chưa chia sẻ nội dung nào.</p>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table class="settings-table">
+                <thead><tr><th scope="col">Nội dung</th><th scope="col">Người nhận</th><th scope="col">Quyền</th><th scope="col"><span class="sr-only">Thao tác</span></th></tr></thead>
+                <tbody>
+                    @foreach (var r in Model.SharedByMe)
+                    {
+                        <tr>
+                            <td><strong>@r.ItemTitle</strong><div class="settings-sub">@r.ItemTypeLabel</div></td>
+                            <td>@r.PersonName<div class="settings-sub">@r.PersonEmail</div></td>
+                            <td>
+                                <form asp-controller="Settings" asp-action="UpdateSharePermission" method="post" class="settings-inline">
+                                    <input type="hidden" name="Id" value="@r.Id" />
+                                    <select name="Permission" data-autosubmit aria-label="Quyền của @r.PersonName">
+                                        <option value="view" selected="@(r.Permission != "edit")">Chỉ xem</option>
+                                        <option value="edit" selected="@(r.Permission == "edit")">Được sửa</option>
+                                    </select>
+                                </form>
+                            </td>
+                            <td>
+                                <form asp-controller="Settings" asp-action="RevokeShare" asp-route-id="@r.Id" method="post"
+                                      data-confirm="Thu hồi quyền truy cập của @r.PersonName?">
+                                    <button type="submit" class="settings-btn small danger">Thu hồi</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+<section class="settings-card">
+    <div class="section-heading"><div><h3>Được chia sẻ với tôi</h3><p>@Model.SharedWithMe.Count mục</p></div></div>
+
+    @if (Model.SharedWithMe.Count == 0)
+    {
+        <p class="settings-empty">Chưa có ai chia sẻ nội dung cho bạn.</p>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table class="settings-table">
+                <thead><tr><th scope="col">Nội dung</th><th scope="col">Chủ sở hữu</th><th scope="col">Quyền của bạn</th><th scope="col"><span class="sr-only">Thao tác</span></th></tr></thead>
+                <tbody>
+                    @foreach (var r in Model.SharedWithMe)
+                    {
+                        <tr>
+                            <td><strong>@r.ItemTitle</strong><div class="settings-sub">@r.ItemTypeLabel</div></td>
+                            <td>@r.PersonName<div class="settings-sub">@r.PersonEmail</div></td>
+                            <td><span class="status @(r.Permission == "edit" ? "st-info" : "st-neutral")">@r.PermissionLabel</span></td>
+                            <td>
+                                <form asp-controller="Settings" asp-action="RevokeShare" asp-route-id="@r.Id" method="post"
+                                      data-confirm="Rời khỏi mục được chia sẻ này?">
+                                    <button type="submit" class="settings-btn small">Rời khỏi</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+<p class="settings-note">Quyền truy cập luôn được máy chủ kiểm tra khi bạn thao tác; việc ẩn hay hiện nút trên giao diện chỉ để thuận tiện.</p>

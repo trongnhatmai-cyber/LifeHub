@@ -1,0 +1,128 @@
+/* =====================================================================
+   LIFEHUB - THÔNG BÁO (Views/Notification/Index.cshtml)        wwwroot/css/notification.css
+
+   Cùng cách tổ chức với study.css: mọi selector bắt đầu bằng .notification-page,
+   màu chỉ dùng biến --sys-* (chốt ở cuối layout.css), cỡ chữ chỉ dùng var(--fs-...).
+   Ô biểu tượng màu .lh-tone và các tone-info / success / warn / danger / neutral
+   nằm trong layout.css để dropdown trên Topbar dùng chung.
+
+   MỤC LỤC
+     1. Nền tảng        2. Tiêu đề trang      3. Nút
+     4. Bố cục hai cột  5. Danh sách thông báo 6. Trạng thái rỗng
+     7. Responsive
+   ===================================================================== */
+
+/* 1. NỀN TẢNG */
+.notification-page { width: 100%; min-width: 0; color: var(--sys-text); }
+.notification-page *, .notification-page *::before, .notification-page *::after { box-sizing: border-box; }
+.notification-page h1, .notification-page h2, .notification-page h3, .notification-page p { margin-top: 0; }
+.notification-page button, .notification-page input { font: inherit; }
+.notification-page [hidden] { display: none !important; }
+.notification-page a { text-decoration: none; }
+
+/* 2. TIÊU ĐỀ TRANG */
+.notification-page .notification-heading {
+    display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-bottom: 22px;
+}
+.notification-page .notification-title { display: flex; align-items: center; gap: 14px; }
+.notification-page .notification-title h1 { margin: 0 0 4px; font-size: var(--fs-page-title); font-weight: 800; letter-spacing: -.4px; }
+.notification-page .notification-title p { margin: 0; color: var(--sys-muted); font-size: var(--fs-page-sub); }
+.notification-page .notification-back {
+    display: inline-grid; place-items: center; width: 40px; height: 40px; flex: none;
+    border: 1px solid var(--sys-border); border-radius: 12px; background: var(--sys-bg); color: var(--sys-text); cursor: pointer;
+}
+.notification-page .notification-back:hover { border-color: var(--sys-accent); color: var(--sys-accent); }
+.notification-page .heading-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.notification-page .heading-actions form { margin: 0; }
+.notification-page .notification-total { color: var(--sys-muted); font-size: var(--fs-base); font-weight: 600; }
+
+/* 3. NÚT */
+.notification-page .notification-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; padding: 0 16px;
+    border: 1px solid var(--sys-border); border-radius: 12px; background: var(--sys-bg); color: var(--sys-accent);
+    font-size: var(--fs-btn); font-weight: 650; cursor: pointer; white-space: nowrap;
+    transition: border-color .2s ease, background .2s ease;
+}
+.notification-page .notification-btn:hover:not(:disabled) { border-color: var(--sys-accent); background: var(--sys-card-strong); }
+.notification-page .notification-btn:disabled { opacity: .5; cursor: not-allowed; }
+.notification-page .notification-icon-btn {
+    display: inline-grid; place-items: center; width: 32px; height: 32px; padding: 0;
+    border: 0; border-radius: 10px; background: transparent; color: var(--sys-muted); cursor: pointer;
+}
+.notification-page .notification-icon-btn:hover { background: var(--sys-card-strong); color: var(--sys-accent); }
+.notification-page .notification-icon-btn.danger:hover { background: var(--sys-danger-bg); color: var(--sys-danger); }
+
+/* 4. BỐ CỤC HAI CỘT: bộ lọc 220px + danh sách */
+.notification-page .notification-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 18px; align-items: start; }
+.notification-page .notification-filters {
+    display: grid; gap: 4px; padding: 10px; border: 1px solid var(--sys-border); border-radius: 16px;
+    background: var(--sys-bg); box-shadow: var(--sys-shadow);
+}
+.notification-page .notification-filter {
+    display: flex; align-items: center; gap: 10px; width: 100%; height: 42px; padding: 0 12px;
+    border: 0; border-radius: 10px; background: transparent; color: var(--sys-muted);
+    font-size: var(--fs-base); font-weight: 650; text-align: left; cursor: pointer;
+}
+.notification-page .notification-filter:hover { background: var(--sys-card); color: var(--sys-text); }
+.notification-page .notification-filter.active { background: var(--sys-card-strong); color: var(--sys-accent); }
+.notification-page .notification-card {
+    min-width: 0; padding: 18px; border: 1px solid var(--sys-border); border-radius: 16px;
+    background: var(--sys-bg); box-shadow: var(--sys-shadow);
+}
+.notification-page .notification-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 8px; }
+.notification-page .notification-search {
+    flex: 1 1 220px; min-width: 0; height: 40px; padding: 0 14px;
+    border: 1px solid var(--sys-border); border-radius: 12px; background: var(--sys-card); color: var(--sys-text); font-size: var(--fs-base);
+}
+.notification-page .notification-search:focus { outline: 2px solid var(--sys-accent); outline-offset: 1px; }
+.notification-page .notification-chips { display: flex; gap: 8px; }
+.notification-page .notification-chip {
+    height: 36px; padding: 0 14px; border: 1px solid var(--sys-border); border-radius: 999px;
+    background: var(--sys-bg); color: var(--sys-muted); font-size: var(--fs-sm); font-weight: 650; cursor: pointer;
+}
+.notification-page .notification-chip:hover { border-color: var(--sys-accent); }
+.notification-page .notification-chip.active { border-color: var(--sys-accent); background: var(--sys-accent); color: var(--sys-on-accent); }
+
+/* 5. DANH SÁCH THÔNG BÁO */
+.notification-page .notification-day { margin: 18px 0 6px; color: var(--sys-muted); font-size: var(--fs-sm); font-weight: 800; letter-spacing: .4px; text-transform: uppercase; }
+.notification-page .notification-item {
+    display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; gap: 14px; align-items: start;
+    padding: 14px 12px; border-top: 1px solid var(--sys-border); border-radius: 12px;
+}
+.notification-page .notification-group .notification-item:first-of-type { border-top: 0; }
+.notification-page .notification-item:hover { background: var(--sys-card); }
+.notification-page .notification-item.unread { background: var(--sys-card-strong); border-top-color: transparent; }
+.notification-page .notification-body { min-width: 0; }
+.notification-page .notification-body h3 { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0 0 3px; font-size: var(--fs-card-title); font-weight: 700; }
+.notification-page .notification-body h3 a { color: inherit; }
+.notification-page .notification-body h3 a:hover { color: var(--sys-accent); text-decoration: underline; }
+.notification-page .notification-body p { margin: 0; color: var(--sys-muted); font-size: var(--fs-card-text); line-height: 1.5; }
+.notification-page .notification-new {
+    padding: 2px 8px; border-radius: 999px; background: var(--sys-accent); color: var(--sys-on-accent);
+    font-size: var(--fs-2xs); font-weight: 800;
+}
+.notification-page .notification-side { display: grid; justify-items: end; gap: 6px; }
+.notification-page .notification-side time { color: var(--sys-muted); font-size: var(--fs-sm); white-space: nowrap; }
+.notification-page .notification-actions { display: flex; gap: 2px; }
+.notification-page .notification-actions form { margin: 0; }
+.notification-page .notification-more { display: flex; justify-content: center; margin-top: 14px; }
+
+/* 6. TRẠNG THÁI RỖNG */
+.notification-page .notification-empty {
+    display: grid; justify-items: center; gap: 6px; padding: 40px 16px; border: 1px dashed var(--sys-border);
+    border-radius: 14px; color: var(--sys-muted); font-size: var(--fs-base); text-align: center;
+}
+.notification-page .notification-empty .lh-ico { width: 28px; height: 28px; }
+.notification-page .notification-empty strong { color: var(--sys-text); font-size: var(--fs-card-title); }
+
+/* 7. RESPONSIVE */
+@media (max-width: 900px) {
+    .notification-page .notification-layout { grid-template-columns: 1fr; }
+    .notification-page .notification-filters { display: flex; overflow-x: auto; }
+    .notification-page .notification-filter { width: auto; flex: none; }
+}
+@media (max-width: 640px) {
+    .notification-page .notification-item { grid-template-columns: 36px minmax(0, 1fr); }
+    .notification-page .notification-side { grid-column: 2; grid-auto-flow: column; justify-content: space-between; justify-items: start; }
+    .notification-page .notification-title h1 { font-size: var(--fs-stat-value-mobile); }
+}

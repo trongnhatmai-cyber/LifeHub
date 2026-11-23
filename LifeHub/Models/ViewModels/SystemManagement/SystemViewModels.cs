@@ -39,6 +39,48 @@ namespace LifeHub.Models.ViewModels.SystemManagement
             _ => "system"
         };
 
+        /// <summary>Nhóm hiển thị trên trang Thông báo: task / study / project / time / system / other</summary>
+        public string Category => NotificationType switch
+        {
+            "task" => "task",
+            "deadline" or "exam" => "study",
+            "project" => "project",
+            "event" or "reminder" => "time",
+            "system" => "system",
+            _ => "other"
+        };
+
+        public string CategoryLabel => Category switch
+        {
+            "task" => "Công việc", "study" => "Học tập", "project" => "Dự án",
+            "time" => "Thời gian", "system" => "Hệ thống", _ => "Khác"
+        };
+
+        /// <summary>Tên biểu tượng trong sprite của _Layout (id="i-...").</summary>
+        public string Icon => NotificationType switch
+        {
+            "achievement" => "trophy",
+            "finance" => "wallet",
+            _ => Category switch
+            {
+                "task" => "briefcase", "study" => "book", "project" => "users",
+                "time" => "clock", "system" => "info", _ => "bell"
+            }
+        };
+
+        /// <summary>Màu trạng thái theo quy ước chung: info / success / warn / danger / neutral</summary>
+        public string Tone => NotificationType switch
+        {
+            "deadline" or "exam" or "achievement" => "warn",
+            "task" or "project" or "finance" => "success",
+            "system" => "neutral",
+            _ => "info"
+        };
+
+        /// <summary>Chỉ cho phép đường dẫn nội bộ để tránh chuyển hướng ra ngoài.</summary>
+        public string? SafeLink => !string.IsNullOrWhiteSpace(LinkUrl) && LinkUrl.StartsWith("/") && !LinkUrl.StartsWith("//")
+            ? LinkUrl : null;
+
         public string TimeAgo(DateTime now)
         {
             var span = now - CreatedAt;

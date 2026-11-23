@@ -1,0 +1,55 @@
+@model LifeHub.Models.ViewModels.SystemManagement.SettingsViewModel
+@{
+    Layout = "_SettingsLayout";
+    ViewData["SettingsActive"] = "notice";
+    int unread = ViewBag.Unread is int u ? u : 0;
+    int pending = ViewBag.PendingReminders is int p ? p : 0;
+}
+
+<header class="settings-head">
+    <div>
+        <h1>Thông báo</h1>
+        <p>Chọn cách LifeHub gửi thông báo và nhắc nhở cho bạn.</p>
+    </div>
+</header>
+
+<form asp-controller="Settings" asp-action="UpdateNotifications" method="post" class="settings-form">
+    <section class="settings-card">
+        <div class="section-heading"><div><h3>Kênh nhận thông báo</h3><p>Áp dụng cho công việc, học tập, dự án, lịch và nhắc nhở.</p></div></div>
+
+        <div class="settings-switch-row">
+            <span class="settings-ico" style="--ico: var(--sys-ico-notice); --ico-bg: var(--sys-ico-notice-bg);"><svg class="lh-ico"><use href="#i-mail"></use></svg></span>
+            <div class="settings-switch-text"><strong>Thông báo qua email</strong><small>Gửi tóm tắt và nhắc nhở quan trọng đến email của bạn.</small></div>
+            <label class="settings-switch">
+                <input type="checkbox" name="NotifyEmail" value="true" checked="@Model.NotifyEmail" aria-label="Thông báo qua email" />
+                <span></span>
+            </label>
+            <input type="hidden" name="NotifyEmail" value="false" />
+        </div>
+
+        <div class="settings-switch-row">
+            <span class="settings-ico" style="--ico: var(--sys-ico-notice); --ico-bg: var(--sys-ico-notice-bg);"><svg class="lh-ico"><use href="#i-bell"></use></svg></span>
+            <div class="settings-switch-text"><strong>Thông báo trong ứng dụng</strong><small>Hiện ở biểu tượng chuông trên thanh trên cùng.</small></div>
+            <label class="settings-switch">
+                <input type="checkbox" name="NotifyPush" value="true" checked="@Model.NotifyPush" aria-label="Thông báo trong ứng dụng" />
+                <span></span>
+            </label>
+            <input type="hidden" name="NotifyPush" value="false" />
+        </div>
+
+        <div class="settings-actions">
+            <button type="submit" class="settings-btn primary">Lưu thay đổi</button>
+        </div>
+    </section>
+</form>
+
+<section class="settings-card">
+    <div class="section-heading"><div><h3>Hiện trạng</h3></div></div>
+    <dl class="settings-facts">
+        <div><dt>Thông báo chưa đọc</dt><dd>@unread</dd></div>
+        <div><dt>Nhắc nhở đang chờ</dt><dd>@pending</dd></div>
+    </dl>
+    <div class="settings-actions start">
+        <a asp-controller="Notification" asp-action="Index" class="settings-btn">Xem tất cả thông báo</a>
+    </div>
+</section>

@@ -1,0 +1,180 @@
+@model LifeHub.Models.ViewModels.SystemManagement.NotificationPageViewModel
+@using LifeHub.Models.ViewModels.SystemManagement
+
+@{
+    Layout = "_Layout";
+    // ViewData["Title"] và ["ActivePage"] do NotificationController.Index() đặt.
+
+    var now = DateTime.Now;
+    var today = now.Date;
+
+    // Nhóm lọc ở cột trái: chỉ hiện nhóm đang có thông báo (giống mẫu thiết kế).
+    var categoryOrder = new[] { "system", "task", "study", "project", "time", "other" };
+    var categoryLabels = new Dictionary<string, string>
+    {
+        ["system"] = "Hệ thống", ["task"] = "Công việc", ["study"] = "Học tập",
+        ["project"] = "Dự án", ["time"] = "Thời gian", ["other"] = "Khác"
+    };
+    var categoryIcons = new Dictionary<string, string>
+    {
+        ["system"] = "info", ["task"] = "briefcase", ["study"] = "book",
+        ["project"] = "users", ["time"] = "clock", ["other"] = "more"
+    };
+    var counts = Model.Items.GroupBy(n => n.Category).ToDictionary(g => g.Key, g => g.Count());
+
+    // Gom theo ngày (Hôm nay / Hôm qua / ngày cụ thể).
+    var days = Model.Items
+        .GroupBy(n => n.CreatedAt.Date)
+        .OrderByDescending(g => g.Key)
+        .ToList();
+
+    string DayLabel(DateTime d) => d == today ? "Hôm nay" : d == today.AddDays(-1) ? "Hôm qua" : d.ToString("dd/MM/yyyy");
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/notification.css" asp-append-version="true" />
+}
+
+<div class="notification-page" id="notificationPage" data-page-size="15">
+
+    <!-- TIÊU ĐỀ TRANG -->
+    <header class="notification-heading">
+        <div class="notification-title">
+            <button type="button" class="notification-back" data-back aria-label="Quay lại">
+                <svg class="lh-ico"><use href="#i-arrow-left"></use></svg>
+            </button>
+            <div>
+                <h1>Thông báo</h1>
+                <p>Theo dõi tất cả hoạt động và cập nhật từ LifeHub.</p>
+            </div>
+        </div>
+
+        <div class="heading-actions">
+            <span class="notification-total">@Model.TotalCount thông báo</span>
+            <form asp-controller="Notification" asp-action="MarkAllRead" method="post">
+                <button type="submit" class="notification-btn" disabled="@(Model.UnreadCount == 0)">
+                    <svg class="lh-ico"><use href="#i-check-all"></use></svg>
+                    Đánh dấu tất cả đã đọc
+                </button>
+            </form>
+        </div>
+    </header>
+
+    <div class="notification-layout">
+
+        <!-- CỘT TRÁI: LỌC THEO LOẠI -->
+        <aside class="notification-filters" aria-label="Lọc theo loại thông báo">
+            <button type="button" class="notification-filter active" data-category="all" aria-pressed="true">
+                <svg class="lh-ico"><use href="#i-grid"></use></svg>
+                <span>Tất cả (@Model.TotalCount)</span>
+            </button>
+
+            @foreach (var key in categoryOrder)
+            {
+                if (!counts.TryGetValue(key, out var c)) { continue; }
+                <button type="button" class="notification-filter" data-category="@key" aria-pressed="false">
+                    <svg class="lh-ico"><use href="#i-@categoryIcons[key]"></use></svg>
+                    <span>@categoryLabels[key] (@c)</span>
+                </button>
+            }
+        </aside>
+
+        <!-- CỘT PHẢI: DANH SÁCH -->
+        <section class="notification-card" aria-label="Danh sách thông báo">
+
+            <div class="notification-toolbar">
+                <input type="search" id="notificationSearch" class="notification-search"
+                       placeholder="Tìm thông báo..." autocomplete="off" aria-label="Tìm thông báo" />
+
+                <div class="notification-chips" role="group" aria-label="Lọc theo trạng thái đọc">
+                    <button type="button" class="notification-chip active" data-read="all" aria-pressed="true">Tất cả (@Model.TotalCount)</button>
+                    <button type="button" class="notification-chip" data-read="unread" aria-pressed="false">Chưa đọc (@Model.UnreadCount)</button>
+                </div>
+            </div>
+
+            @if (Model.TotalCount == 0)
+            {
+                <div class="notification-empty">
+                    <svg class="lh-ico"><use href="#i-bell"></use></svg>
+                    <strong>Bạn chưa có thông báo nào</strong>
+                    Thông báo về công việc, học tập và dự án sẽ xuất hiện tại đây.
+                </div>
+            }
+            else
+            {
+                <div id="notificationList">
+                    @foreach (var day in days)
+                    {
+                        <div class="notification-group">
+                            <h2 class="notification-day">@DayLabel(day.Key)</h2>
+
+                            @foreach (var n in day)
+                            {
+                                var link = n.SafeLink;
+                                <article class="notification-item @(n.IsRead ? "" : "unread")"
+                                         data-category="@n.Category"
+                                         data-unread="@(n.IsRead ? "false" : "true")"
+                                         data-search="@((n.Title + " " + n.Message).ToLowerInvariant())">
+
+                                    <span class="lh-tone tone-@n.Tone"><svg class="lh-ico"><use href="#i-@n.Icon"></use></svg></span>
+
+                                    <div class="notification-body">
+                                        <h3>
+                                            @if (link != null)
+                                            {
+                                                <a href="@link" data-notification-link="@n.Id" data-unread="@(n.IsRead ? "false" : "true")">@n.Title</a>
+                                            }
+                                            else
+                                            {
+                                                @n.Title
+                                            }
+                                            @if (!n.IsRead)
+                                            {
+                                                <span class="notification-new">Mới</span>
+                                            }
+                                        </h3>
+                                        <p>@n.Message</p>
+                                    </div>
+
+                                    <div class="notification-side">
+                                        <time>@n.TimeAgo(now)</time>
+                                        <div class="notification-actions">
+                                            @if (!n.IsRead)
+                                            {
+                                                <form asp-controller="Notification" asp-action="MarkRead" asp-route-id="@n.Id" method="post">
+                                                    <button type="submit" class="notification-icon-btn" title="Đánh dấu đã đọc" aria-label="Đánh dấu đã đọc">
+                                                        <svg class="lh-ico"><use href="#i-check"></use></svg>
+                                                    </button>
+                                                </form>
+                                            }
+                                            <form asp-controller="Notification" asp-action="Delete" asp-route-id="@n.Id" method="post"
+                                                  data-confirm="Xóa thông báo này?">
+                                                <button type="submit" class="notification-icon-btn danger" title="Xóa thông báo" aria-label="Xóa thông báo">
+                                                    <svg class="lh-ico"><use href="#i-trash"></use></svg>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </article>
+                            }
+                        </div>
+                    }
+                </div>
+
+                <div class="notification-empty" id="notificationNoMatch" hidden>
+                    <svg class="lh-ico"><use href="#i-search"></use></svg>
+                    <strong>Không có thông báo phù hợp</strong>
+                    Hãy đổi bộ lọc hoặc từ khóa tìm kiếm.
+                </div>
+
+                <div class="notification-more">
+                    <button type="button" class="notification-btn" id="notificationMore" hidden>Xem thêm thông báo</button>
+                </div>
+            }
+        </section>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/notification.js" asp-append-version="true"></script>
+}

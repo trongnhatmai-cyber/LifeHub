@@ -1,0 +1,76 @@
+@model LifeHub.Models.ViewModels.SystemManagement.ProfileViewModel
+@{
+    Layout = "_SettingsLayout";
+    ViewData["SettingsActive"] = "security";
+    var now = DateTime.Now;
+}
+
+<header class="settings-head">
+    <div>
+        <h1>Bảo mật</h1>
+        <p>Đổi mật khẩu và theo dõi trạng thái bảo mật tài khoản.</p>
+    </div>
+</header>
+
+<section class="settings-card">
+    <div class="section-heading"><div><h3>Đổi mật khẩu</h3><p>Mật khẩu mới cần có ít nhất 8 ký tự.</p></div></div>
+
+    <form asp-controller="Settings" asp-action="ChangePassword" method="post" class="settings-form" id="passwordForm" novalidate>
+        <div class="settings-form-grid">
+            <div class="field full">
+                <label for="CurrentPassword">Mật khẩu hiện tại</label>
+                <input id="CurrentPassword" name="CurrentPassword" type="password" required autocomplete="current-password" />
+            </div>
+            <div class="field">
+                <label for="NewPassword">Mật khẩu mới</label>
+                <input id="NewPassword" name="NewPassword" type="password" minlength="8" required autocomplete="new-password" />
+            </div>
+            <div class="field">
+                <label for="ConfirmPassword">Nhập lại mật khẩu mới</label>
+                <input id="ConfirmPassword" name="ConfirmPassword" type="password" minlength="8" required autocomplete="new-password" />
+            </div>
+        </div>
+        <p class="settings-form-error" id="passwordError" role="alert" hidden></p>
+
+        <div class="settings-actions">
+            <button type="submit" class="settings-btn primary">Đổi mật khẩu</button>
+        </div>
+    </form>
+</section>
+
+<section class="settings-card">
+    <div class="section-heading"><div><h3>Trạng thái tài khoản</h3></div></div>
+    <dl class="settings-facts">
+        <div><dt>Xác thực email</dt><dd>@(Model.EmailVerified ? "Đã xác thực" : "Chưa xác thực")</dd></div>
+        <div><dt>Đăng nhập gần nhất</dt><dd>@(Model.LastLoginAt.HasValue ? Model.LastLoginAt.Value.ToString("dd/MM/yyyy HH:mm") : "Chưa có")</dd></div>
+    </dl>
+</section>
+
+<section class="settings-card">
+    <div class="section-heading"><div><h3>Mã xác thực gần đây</h3><p>Các mã dùng để xác thực email và đặt lại mật khẩu.</p></div></div>
+
+    @if (Model.SecurityTokens.Count == 0)
+    {
+        <p class="settings-empty">Chưa có mã xác thực nào.</p>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table class="settings-table">
+                <thead><tr><th scope="col">Loại</th><th scope="col">Tạo lúc</th><th scope="col">Hết hạn</th><th scope="col">Trạng thái</th></tr></thead>
+                <tbody>
+                    @foreach (var t in Model.SecurityTokens)
+                    {
+                        var key = t.StatusKey(now);
+                        <tr>
+                            <td>@t.TypeLabel</td>
+                            <td>@t.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@t.ExpiresAt.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td><span class="status @(key == "active" ? "st-success" : key == "used" ? "st-neutral" : "st-warn")">@t.StatusLabel(now)</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

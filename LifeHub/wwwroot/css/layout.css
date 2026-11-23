@@ -886,3 +886,248 @@ button:active,
         transition-duration: .01ms !important;
     }
 }
+
+
+/* =====================================================================
+   TIỆN ÍCH CHUNG TOÀN HỆ THỐNG (Topbar, thông báo, tìm kiếm, Cài đặt)
+   Màu của các tiện ích này CHỐT TẠI ĐÂY (--sys-*): trung tính + xanh dương #2563EB,
+   không dùng màu nhận diện riêng của phân hệ. notification.css và system-settings.css
+   chỉ gọi lại các biến này. Màu từng phân hệ (--pastel-*) giữ nguyên ở trên.
+   ===================================================================== */
+:root {
+    --sys-bg: #ffffff;            /* nền card, dropdown, modal */
+    --sys-card: #f1f5f9;          /* nền phụ: ô nhập, thanh lọc, hover */
+    --sys-card-strong: #eff6ff;   /* primary soft: mục đang chọn, badge nhạt */
+    --sys-border: #e2e8f0;
+    --sys-text: #1e293b;
+    --sys-muted: #64748b;
+    --sys-accent: #2563eb;        /* primary */
+    --sys-accent-dark: #1d4ed8;   /* primary hover */
+    --sys-on-accent: #ffffff;
+    --sys-shadow: 0 6px 20px rgba(15, 23, 42, .06);
+    --sys-pop-shadow: 0 16px 40px rgba(15, 23, 42, .14);
+    --sys-overlay: rgba(15, 23, 42, .45);
+
+    /* Màu trạng thái dùng chung toàn LifeHub (chữ/biểu tượng + nền nhạt) */
+    --sys-info: #2563eb;     --sys-info-bg: #eff6ff;
+    --sys-success: #16a34a;  --sys-success-bg: #f0fdf4;
+    --sys-warn: #d97706;     --sys-warn-bg: #fffbeb;
+    --sys-danger: #dc2626;   --sys-danger-bg: #fef2f2;
+    --sys-neutral: #64748b;  --sys-neutral-bg: #f1f5f9;
+
+    /* Màu điểm nhấn biểu tượng theo từng mục Cài đặt (không dùng làm nền cả card) */
+    --sys-ico-account: #4f46e5;     --sys-ico-account-bg: #eef2ff;
+    --sys-ico-appearance: #2563eb;  --sys-ico-appearance-bg: #eff6ff;
+    --sys-ico-notice: #2563eb;      --sys-ico-notice-bg: #eff6ff;
+    --sys-ico-security: #0d9488;    --sys-ico-security-bg: #f0fdfa;
+    --sys-ico-sharing: #7c3aed;     --sys-ico-sharing-bg: #f5f3ff;
+    --sys-ico-log: #0891b2;         --sys-ico-log-bg: #ecfeff;
+    --sys-ico-achievement: #d97706; --sys-ico-achievement-bg: #fffbeb;
+    --sys-ico-settings: #64748b;    --sys-ico-settings-bg: #f1f5f9;
+}
+
+:root[data-theme="dark"],
+html[data-theme="dark"] {
+    --sys-bg: #202736;
+    --sys-card: #273244;
+    --sys-card-strong: #172b49;
+    --sys-border: #354155;
+    --sys-text: #f1f5f9;
+    --sys-muted: #94a3b8;
+    --sys-accent: #60a5fa;
+    --sys-accent-dark: #93c5fd;
+    --sys-on-accent: #0b1220;
+    --sys-shadow: 0 6px 20px rgba(0, 0, 0, .25);
+    --sys-pop-shadow: 0 16px 40px rgba(0, 0, 0, .45);
+    --sys-overlay: rgba(8, 10, 15, .65);
+
+    --sys-info: #60a5fa;     --sys-info-bg: #172b49;
+    --sys-success: #4ade80;  --sys-success-bg: #0f2a1a;
+    --sys-warn: #fbbf24;     --sys-warn-bg: #33260a;
+    --sys-danger: #f87171;   --sys-danger-bg: #3b1212;
+    --sys-neutral: #94a3b8;  --sys-neutral-bg: #273244;
+
+    --sys-ico-account: #818cf8;     --sys-ico-account-bg: #1e2150;
+    --sys-ico-appearance: #60a5fa;  --sys-ico-appearance-bg: #172b49;
+    --sys-ico-notice: #60a5fa;      --sys-ico-notice-bg: #172b49;
+    --sys-ico-security: #2dd4bf;    --sys-ico-security-bg: #0b2a28;
+    --sys-ico-sharing: #a78bfa;     --sys-ico-sharing-bg: #241846;
+    --sys-ico-log: #22d3ee;         --sys-ico-log-bg: #0b2a33;
+    --sys-ico-achievement: #fbbf24; --sys-ico-achievement-bg: #33260a;
+    --sys-ico-settings: #94a3b8;    --sys-ico-settings-bg: #273244;
+}
+
+/* ---- Biểu tượng SVG (sprite _IconSprite) ---- */
+.lh-ico {
+    width: 18px; height: 18px; flex: none;
+    fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+.lh-ico-sm { width: 14px; height: 14px; }
+
+/* ---- Topbar: ô tìm kiếm bên trái ---- */
+.app .lh-search-trigger {
+    display: flex; align-items: center; gap: 10px;
+    flex: 1 1 auto; max-width: 480px; min-width: 0; height: 40px; padding: 0 14px;
+    border: 1px solid var(--sys-border); border-radius: 12px;
+    background: var(--sys-card); color: var(--sys-muted);
+    font: inherit; font-size: var(--fs-md); text-align: left; cursor: pointer;
+    transition: border-color .2s ease, background .2s ease;
+}
+.app .lh-search-trigger:hover { border-color: var(--sys-accent); }
+.app .lh-search-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.app .lh-kbd {
+    padding: 2px 7px; border: 1px solid var(--sys-border); border-radius: 6px;
+    background: var(--sys-bg); color: var(--sys-muted); font: inherit; font-size: var(--fs-xs); font-weight: 600;
+}
+
+/* ---- Topbar: nhóm nút bên phải ---- */
+.app .topbar-right { gap: 8px; margin-left: auto; }
+.app .lh-icon-btn {
+    position: relative; display: inline-grid; place-items: center;
+    width: 40px; height: 40px; padding: 0;
+    border: 1px solid transparent; border-radius: 12px;
+    background: transparent; color: var(--sys-muted); cursor: pointer;
+    transition: background .2s ease, color .2s ease;
+}
+.app .lh-icon-btn:hover,
+.app .lh-icon-btn[aria-expanded="true"] { background: var(--sys-card-strong); color: var(--sys-accent); }
+.app .lh-icon-btn-sm { width: 32px; height: 32px; border-radius: 10px; }
+.app .lh-divider { width: 1px; height: 24px; margin: 0 6px; background: var(--sys-border); }
+
+/* Nút đổi giao diện: hiện mặt trăng ở theme sáng, mặt trời ở theme tối */
+.app #themeToggle .lh-ico-sun { display: none; }
+:root[data-theme="dark"] .app #themeToggle .lh-ico-sun { display: block; }
+:root[data-theme="dark"] .app #themeToggle .lh-ico-moon { display: none; }
+
+.app .lh-badge {
+    position: absolute; top: 2px; right: 1px; min-width: 18px; height: 18px; padding: 0 5px;
+    display: inline-grid; place-items: center; border-radius: 999px;
+    background: var(--sys-danger); color: #ffffff; font-size: var(--fs-2xs); font-weight: 800; line-height: 1;
+}
+.app .lh-badge[hidden] { display: none; }
+.app .lh-badge-inline { position: static; margin-left: auto; }
+
+.app .lh-avatar-btn {
+    display: inline-flex; align-items: center; gap: 4px; padding: 3px 6px 3px 3px;
+    border: 1px solid transparent; border-radius: 999px; background: transparent; color: var(--sys-muted); cursor: pointer;
+}
+.app .lh-avatar-btn:hover,
+.app .lh-avatar-btn[aria-expanded="true"] { background: var(--sys-card-strong); }
+.app .lh-avatar-btn .avatar,
+.app .lh-user-card .avatar { background: var(--sys-accent); color: var(--sys-on-accent); }
+
+/* ---- Dropdown dùng chung ---- */
+.app .lh-menu { position: relative; }
+.app .lh-pop {
+    position: absolute; top: calc(100% + 10px); right: 0; z-index: 60;
+    border: 1px solid var(--sys-border); border-radius: 14px;
+    background: var(--sys-bg); color: var(--sys-text); box-shadow: var(--sys-pop-shadow);
+    overflow: hidden; font-size: var(--fs-base);
+}
+.app .lh-pop[hidden] { display: none; }
+.app .lh-pop-notif { width: 360px; max-width: calc(100vw - 24px); }
+.app .lh-pop-user { width: 240px; padding: 6px; }
+.app .lh-pop-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 10px; }
+.app .lh-pop-head h3 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: var(--fs-lg); font-weight: 750; }
+.app .lh-link-btn {
+    border: 0; background: none; padding: 0; color: var(--sys-accent);
+    font: inherit; font-size: var(--fs-sm); font-weight: 700; cursor: pointer;
+}
+.app .lh-link-btn:hover { color: var(--sys-accent-dark); text-decoration: underline; }
+.app .lh-pop-empty { margin: 0; padding: 22px 16px; color: var(--sys-muted); text-align: center; }
+.app .lh-pop-foot {
+    display: flex; align-items: center; justify-content: center; gap: 4px; padding: 12px;
+    border-top: 1px solid var(--sys-border); color: var(--sys-accent);
+    font-size: var(--fs-sm); font-weight: 700; text-decoration: none;
+}
+.app .lh-pop-foot:hover { background: var(--sys-card); }
+
+/* Danh sách thông báo trong dropdown */
+.app .lh-notif-list { max-height: 360px; overflow-y: auto; }
+.app .lh-notif {
+    display: flex; gap: 12px; width: 100%; padding: 12px 16px;
+    border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.app .lh-notif:hover { background: var(--sys-card); }
+.app .lh-notif.is-unread { background: var(--sys-card-strong); }
+.app .lh-notif-body { flex: 1; min-width: 0; }
+.app .lh-notif-body strong { display: block; font-size: var(--fs-base); font-weight: 700; }
+.app .lh-notif-body span { display: block; margin-top: 2px; color: var(--sys-muted); font-size: var(--fs-sm); line-height: 1.45; }
+.app .lh-notif-body small { display: block; margin-top: 4px; color: var(--sys-muted); font-size: var(--fs-xs); }
+.app .lh-notif-dot { flex: none; width: 8px; height: 8px; margin-top: 6px; border-radius: 50%; background: var(--sys-accent); }
+
+/* Ô biểu tượng tròn theo màu trạng thái (dùng ở dropdown, trang Thông báo, Cài đặt) */
+.app .lh-tone {
+    display: inline-grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: 10px;
+    background: var(--sys-info-bg); color: var(--sys-info);
+}
+.app .lh-tone.tone-success { background: var(--sys-success-bg); color: var(--sys-success); }
+.app .lh-tone.tone-warn { background: var(--sys-warn-bg); color: var(--sys-warn); }
+.app .lh-tone.tone-danger { background: var(--sys-danger-bg); color: var(--sys-danger); }
+.app .lh-tone.tone-neutral { background: var(--sys-neutral-bg); color: var(--sys-neutral); }
+
+/* Menu Avatar */
+.app .lh-user-card { display: flex; align-items: center; gap: 10px; padding: 10px; margin-bottom: 4px; }
+.app .lh-user-card strong { display: block; font-size: var(--fs-base); }
+.app .lh-user-card small { display: block; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--sys-muted); font-size: var(--fs-xs); }
+.app .lh-pop-item {
+    display: flex; align-items: center; gap: 10px; width: 100%; height: 40px; padding: 0 10px;
+    border: 0; border-radius: 10px; background: transparent; color: var(--sys-text);
+    font: inherit; font-size: var(--fs-base); font-weight: 600; text-decoration: none; cursor: pointer;
+}
+.app .lh-pop-item:hover { background: var(--sys-card); }
+.app .lh-pop-item .lh-ico { color: var(--sys-muted); }
+.app .lh-pop-item.lh-danger,
+.app .lh-pop-item.lh-danger .lh-ico { color: var(--sys-danger); }
+.app .lh-pop-sep { height: 1px; margin: 6px 4px; background: var(--sys-border); }
+.app .lh-pop-user form { margin: 0; }
+
+/* ---- Sidebar: Thông báo + Cài đặt ở cuối ---- */
+.app .sidebar-foot { flex-shrink: 0; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--lh-line); }
+.app .sidebar-foot .sidebar-bottom { margin-top: 0; padding-top: 10px; border-top: 0; border-radius: 11px; }
+.app .sidebar-foot .menu-sym .lh-ico,
+.app .sidebar-foot .sidebar-bottom .lh-ico { width: 18px; height: 18px; }
+
+/* ---- Bảng tìm kiếm nổi (Ctrl + K) ---- */
+body.lh-search-open { overflow: hidden; }
+.app .lh-search {
+    position: fixed; inset: 0; z-index: 1000; display: flex; justify-content: center; align-items: flex-start;
+    padding: 12vh 16px 16px; background: var(--sys-overlay); backdrop-filter: blur(3px);
+}
+.app .lh-search[hidden] { display: none; }
+.app .lh-search-box {
+    width: 100%; max-width: 620px; max-height: 76vh; display: flex; flex-direction: column;
+    border: 1px solid var(--sys-border); border-radius: 18px; background: var(--sys-bg); color: var(--sys-text);
+    box-shadow: var(--sys-pop-shadow); overflow: hidden;
+}
+.app .lh-search-input { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--sys-border); color: var(--sys-muted); }
+.app .lh-search-input input {
+    flex: 1; min-width: 0; height: 36px; border: 0; outline: 0; background: transparent; color: var(--sys-text);
+    font: inherit; font-size: var(--fs-lg);
+}
+.app .lh-search-body { flex: 1; overflow-y: auto; padding: 8px; }
+.app .lh-search-label { display: flex; justify-content: space-between; margin: 10px 8px 4px; color: var(--sys-muted); font-size: var(--fs-xs); font-weight: 800; letter-spacing: .5px; text-transform: uppercase; }
+.app .lh-search-label button { border: 0; background: none; color: var(--sys-accent); font: inherit; font-size: var(--fs-xs); font-weight: 700; text-transform: none; letter-spacing: 0; cursor: pointer; }
+.app .lh-result {
+    display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 10px;
+    border: 0; border-radius: 10px; background: transparent; color: inherit;
+    font: inherit; text-align: left; text-decoration: none; cursor: pointer;
+}
+.app .lh-result:hover,
+.app .lh-result.is-active { background: var(--sys-card-strong); }
+.app .lh-result .lh-ico { color: var(--sys-muted); }
+.app .lh-result b { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-base); font-weight: 650; }
+.app .lh-result small { color: var(--sys-muted); font-size: var(--fs-xs); white-space: nowrap; }
+.app .lh-search-empty { margin: 0; padding: 26px 12px; color: var(--sys-muted); text-align: center; font-size: var(--fs-base); }
+.app .lh-search-foot { display: flex; gap: 16px; padding: 10px 14px; border-top: 1px solid var(--sys-border); color: var(--sys-muted); font-size: var(--fs-xs); }
+
+@media (max-width: 900px) {
+    .app .lh-kbd { display: none; }
+}
+@media (max-width: 700px) {
+    .app .topbar { padding: 0 14px; gap: 8px; }
+    .app .lh-search-text { display: none; }
+    .app .lh-search-trigger { flex: 0 0 40px; width: 40px; padding: 0; justify-content: center; }
+    .app .lh-pop-notif { position: fixed; top: 70px; right: 12px; left: 12px; width: auto; max-width: none; }
+    .app .lh-search { padding-top: 70px; }
+}

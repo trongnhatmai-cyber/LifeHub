@@ -1,0 +1,58 @@
+@model LifeHub.Models.ViewModels.SystemManagement.ProfileViewModel
+@{
+    Layout = "_SettingsLayout";
+    ViewData["SettingsActive"] = "profile";
+}
+
+<header class="settings-head">
+    <div>
+        <h1>Tài khoản cá nhân</h1>
+        <p>Thông tin hồ sơ hiển thị trong LifeHub.</p>
+    </div>
+</header>
+
+<section class="settings-card">
+    <div class="settings-profile">
+        <span class="settings-avatar" aria-hidden="true">@Model.Initial</span>
+        <div>
+            <strong>@Model.FullName</strong>
+            <small>@Model.Email</small>
+            <div class="settings-badges">
+                <span class="status st-info">@Model.RoleLabel</span>
+                <span class="status @(Model.EmailVerified ? "st-success" : "st-warn")">@(Model.EmailVerified ? "Email đã xác thực" : "Email chưa xác thực")</span>
+            </div>
+        </div>
+    </div>
+
+    <form asp-controller="Settings" asp-action="UpdateProfile" method="post" class="settings-form" novalidate>
+        <div class="settings-form-grid">
+            <div class="field">
+                <label for="FullName">Họ và tên</label>
+                <input id="FullName" name="FullName" type="text" value="@Model.FullName" maxlength="100" required autocomplete="name" />
+            </div>
+
+            <div class="field">
+                <label for="PhoneNumber">Số điện thoại</label>
+                <input id="PhoneNumber" name="PhoneNumber" type="tel" value="@Model.PhoneNumber" maxlength="15" autocomplete="tel" />
+            </div>
+
+            <div class="field full">
+                <label for="Email">Email đăng nhập</label>
+                <input id="Email" type="email" value="@Model.Email" readonly aria-describedby="emailHint" />
+                <small id="emailHint">Email dùng để đăng nhập nên không thể thay đổi tại đây.</small>
+            </div>
+        </div>
+
+        <div class="settings-actions">
+            <button type="submit" class="settings-btn primary">Lưu thay đổi</button>
+        </div>
+    </form>
+</section>
+
+<section class="settings-card">
+    <div class="section-heading"><div><h3>Thông tin tài khoản</h3></div></div>
+    <dl class="settings-facts">
+        <div><dt>Ngày tạo tài khoản</dt><dd>@Model.CreatedAt.ToString("dd/MM/yyyy")</dd></div>
+        <div><dt>Đăng nhập gần nhất</dt><dd>@(Model.LastLoginAt.HasValue ? Model.LastLoginAt.Value.ToString("dd/MM/yyyy HH:mm") : "Chưa có")</dd></div>
+    </dl>
+</section>
