@@ -1,0 +1,146 @@
+@model LifeHub.Models.ViewModels.LifestyleManagement.LifeSleepPageViewModel
+@using LifeHub.Models.ViewModels.LifestyleManagement
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Giấc ngủ";
+    ViewData["ActivePage"] = "LifestyleSleep";
+    var s = Model.Stats;
+    var todayKey = DateTime.Today.ToString("yyyy-MM-dd");
+    var inv = System.Globalization.CultureInfo.InvariantCulture;
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/lifestyle.css" asp-append-version="true" />
+}
+
+<div class="life-page" data-module="sleep">
+    <partial name="_LifeFlash" />
+
+    <header class="life-heading">
+        <div>
+            <span class="life-label">GIẤC NGỦ</span>
+            <h1>Giấc ngủ của bạn</h1>
+            <p>Ghi nhận và theo dõi thời lượng, giờ đi ngủ, giờ thức dậy.</p>
+        </div>
+        <div class="heading-actions">
+            <button type="button" class="life-btn primary" data-open="sleepModal" data-mode="create" data-title="Ghi nhận giấc ngủ" data-sleepdate="@todayKey">+ Ghi nhận giấc ngủ</button>
+        </div>
+    </header>
+
+    <section class="life-summary">
+        <div class="summary-card">
+            <div class="summary-top"><span>Thời lượng gần nhất</span><span class="summary-badge">LAST</span></div>
+            <h2>@LifeFmt.Duration(s.LastMinutes)</h2><p>@s.LastNote</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Trung bình tuần</span><span class="summary-badge">7 NGÀY</span></div>
+            <h2>@LifeFmt.Duration(s.AverageMinutes)</h2><p>@(s.RecordedDays == 0 ? "Chưa có dữ liệu" : "Từ " + s.RecordedDays + "/7 ngày có ghi nhận")</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Giờ đi ngủ trung bình</span><span class="summary-badge">BED</span></div>
+            <h2>@s.AverageBed</h2><p>Trong 7 ngày gần nhất</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Giờ thức dậy trung bình</span><span class="summary-badge">WAKE</span></div>
+            <h2>@s.AverageWake</h2><p>Trong 7 ngày gần nhất</p>
+        </div>
+    </section>
+
+    <div class="life-grid even">
+        <section class="life-card" aria-labelledby="sleepDurTitle">
+            <div class="section-heading"><div><h3 id="sleepDurTitle">Thời lượng ngủ 7 ngày</h3><p>Đường kẻ ngang là mốc 8 giờ</p></div></div>
+            @if (s.RecordedDays == 0)
+            {
+                <div class="life-empty">Chưa có ghi nhận trong 7 ngày gần nhất. Bấm "+ Ghi nhận giấc ngủ" để bắt đầu.</div>
+            }
+            else
+            {
+                <div class="trend has-target" role="img" aria-label="Biểu đồ thời lượng ngủ 7 ngày">
+                    @foreach (var b in s.Bars)
+                    {
+                        <div class="trend-col @(b.IsToday ? "today" : "")"><strong>@b.ValueLabel</strong><div class="trend-track"><i style="height:@(b.Percent)%"></i></div><small>@b.Label</small></div>
+                    }
+                </div>
+            }
+        </section>
+
+        <section class="life-card" aria-labelledby="sleepSpanTitle">
+            <div class="section-heading"><div><h3 id="sleepSpanTitle">Giờ đi ngủ và thức dậy</h3><p>Mỗi thanh nối giờ đi ngủ với giờ thức dậy</p></div></div>
+            @if (s.RecordedDays == 0)
+            {
+                <div class="life-empty">Chưa có dữ liệu để vẽ biểu đồ.</div>
+            }
+            else
+            {
+                <div class="span-chart">
+                    @foreach (var sp in s.Spans)
+                    {
+                        var left = sp.LeftPercent.ToString("0.#", inv);
+                        var width = sp.WidthPercent.ToString("0.#", inv);
+                        <div class="span-row">
+                            <span class="span-label">@sp.Label</span>
+                            <div class="span-track">
+                                @if (sp.HasData) { <i class="span-bar" style="left:@(left)%;width:@(width)%"></i> }
+                            </div>
+                            <span class="span-text">@(sp.HasData ? sp.BedLabel + " → " + sp.WakeLabel : "Chưa ghi nhận")</span>
+                        </div>
+                    }
+                    <div class="span-row span-axis" aria-hidden="true">
+                        <span></span>
+                        <div class="span-ticks"><span>20:00</span><span>00:00</span><span>04:00</span><span>08:00</span><span>12:00</span></div>
+                        <span></span>
+                    </div>
+                </div>
+            }
+        </section>
+    </div>
+
+    <section class="life-card" aria-labelledby="sleepHistTitle">
+        <div class="section-heading">
+            <div><h3 id="sleepHistTitle">Lịch sử giấc ngủ</h3><p>Bấm "Xem" để xem chi tiết, "Sửa" để chỉnh</p></div>
+        </div>
+        <nav class="life-chips" aria-label="Lọc theo thời gian">
+            <a class="life-chip @(Model.Range == "7" ? "active" : "")" asp-action="Sleep" asp-route-range="7">7 ngày</a>
+            <a class="life-chip @(Model.Range == "30" ? "active" : "")" asp-action="Sleep" asp-route-range="30">30 ngày</a>
+            <a class="life-chip @(Model.Range == "90" ? "active" : "")" asp-action="Sleep" asp-route-range="90">90 ngày</a>
+        </nav>
+        <p class="life-count">@Model.TotalInRange bản ghi trong @Model.Range ngày gần nhất</p>
+        @if (Model.Items.Any())
+        {
+            <div class="table-wrap">
+                <table class="life-table">
+                    <thead><tr><th>Ngày</th><th>Đi ngủ</th><th>Thức dậy</th><th>Thời lượng</th><th>Chất lượng</th><th class="right">Thao tác</th></tr></thead>
+                    <tbody>
+                        @foreach (var i in Model.Items)
+                        {
+                            <tr>
+                                <td><strong>@i.DateLabel</strong></td>
+                                <td>@i.BedLabel</td>
+                                <td>@i.WakeLabel</td>
+                                <td>@i.DurationLabel</td>
+                                <td>@i.QualityLabel</td>
+                                <td class="right">
+                                    <span class="row-actions">
+                                        <button type="button" class="row-btn" data-open="sleepViewModal" data-datelabel="@i.Date.ToString("dd/MM/yyyy")" data-bed="@i.BedLabel" data-wake="@i.WakeLabel" data-duration="@i.DurationLabel" data-quality="@i.QualityLabel" data-notes="@(string.IsNullOrWhiteSpace(i.Notes) ? "Không có ghi chú" : i.Notes)">Xem</button>
+                                        <button type="button" class="row-btn" data-open="sleepModal" data-mode="edit" data-title="Sửa giấc ngủ" data-id="@i.Id" data-sleepdate="@i.DateKey" data-bedtime="@(i.Bed?.ToString("HH:mm"))" data-waketime="@(i.Wake?.ToString("HH:mm"))" data-sleepquality="@i.Quality" data-notes="@i.Notes">Sửa</button>
+                                        <button type="button" class="row-btn danger" data-open="deleteModal" data-mode="delete" data-id="@i.Id" data-name="giấc ngủ ngày @i.DateLabel">Xóa</button>
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="life-empty">Chưa có bản ghi giấc ngủ trong khoảng này. Bấm "+ Ghi nhận giấc ngủ" để bắt đầu.</div>
+        }
+    </section>
+
+    <partial name="_LifeSleepModals" />
+    <partial name="_LifeDeleteModal" />
+</div>
+
+@section Scripts {
+    <script src="~/js/lifestyle.js" asp-append-version="true"></script>
+}

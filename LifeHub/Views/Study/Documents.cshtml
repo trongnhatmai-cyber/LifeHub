@@ -47,12 +47,25 @@
             @foreach (var d in Model.Items)
             {
                 <article class="doc-card" style="--course-color:@d.CourseColor">
-                    <div class="course-card-top"><span class="summary-badge">@d.CourseCode</span><span class="doc-kind">@d.KindLabel</span></div>
+                    <div class="course-card-top"><span class="summary-badge">@d.CourseCode</span><span class="doc-kind">@d.KindLabel · @d.SourceLabel</span></div>
                     <h3>@d.Title</h3>
                     @if (!string.IsNullOrEmpty(d.Note)) { <p class="course-meta">@d.Note</p> }
                     <p class="course-meta">Thêm ngày @d.AddedAt.ToString("dd/MM/yyyy")@(string.IsNullOrEmpty(d.SizeLabel) ? "" : " · " + d.SizeLabel)</p>
                     <div class="card-actions">
-                        <a class="study-btn small" href="@d.Url" target="_blank" rel="noopener noreferrer">Mở</a>
+                        @if (d.Source == "content")
+                        {
+                            <a class="study-btn small" href="@d.Url">Đọc</a>
+                            <a class="study-btn small" asp-action="ExportDocument" asp-route-id="@d.Id">Tải .doc</a>
+                        }
+                        else if (d.Source == "file")
+                        {
+                            <a class="study-btn small" href="@d.Url" target="_blank" rel="noopener noreferrer">Mở</a>
+                            <a class="study-btn small" asp-action="OpenDocument" asp-route-id="@d.Id" asp-route-download="true">Tải về</a>
+                        }
+                        else
+                        {
+                            <a class="study-btn small" href="@d.Url" target="_blank" rel="noopener noreferrer">Mở</a>
+                        }
                         <button type="button" class="study-btn small" data-open="deleteModal" data-mode="delete" data-id="@d.Id" data-name="@d.Title">Xóa</button>
                     </div>
                 </article>
@@ -62,12 +75,12 @@
     </section>
 
     <div class="study-modal" id="documentModal" role="dialog" aria-modal="true" aria-labelledby="documentModalTitle" hidden>
-        <div class="study-modal-box">
+        <div class="study-modal-box wide">
             <div class="study-modal-head">
                 <h3 id="documentModalTitle" data-modal-title>Thêm tài liệu</h3>
                 <button type="button" class="study-modal-close" data-close aria-label="Đóng">&times;</button>
             </div>
-            <form asp-action="CreateDocument" method="post">
+            <form asp-action="CreateDocument" method="post" enctype="multipart/form-data">
                 <div class="study-form-grid">
                     <div class="field full"><label for="dTitle">Tên tài liệu</label><input id="dTitle" name="Title" maxlength="200" required /></div>
                     <div class="field">
@@ -84,8 +97,19 @@
                             <option value="video">Video</option><option value="note">Ghi chú</option>
                         </select>
                     </div>
-                    <div class="field full"><label for="dUrl">Đường dẫn</label><input id="dUrl" name="Url" maxlength="500" placeholder="https://..." required /></div>
-                    <div class="field full"><label for="dNote">Ghi chú</label><input id="dNote" name="Note" maxlength="500" /></div>
+                    <div class="field full">
+                        <label for="dFile">Tệp từ máy tính</label>
+                        <input id="dFile" name="File" type="file" data-max-mb="20"
+                               accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.md,.png,.jpg,.jpeg,.webp,.mp4" />
+                        <small>PDF, Word, PowerPoint, Excel, ảnh, văn bản hoặc MP4 · tối đa 20 MB.</small>
+                    </div>
+                    <div class="field full">
+                        <label id="dContentLabel">Nội dung (soạn như một tệp Word)</label>
+                        <partial name="_StudyEditor" model='"d"' />
+                        <small>Không bắt buộc. Có thể đọc lại trong web hoặc tải về dạng .doc.</small>
+                    </div>
+                    <div class="field full"><label for="dUrl">Hoặc đường dẫn trực tuyến</label><input id="dUrl" name="Url" maxlength="500" placeholder="https://..." /><small>Cần ít nhất một trong ba: tệp, nội dung hoặc đường dẫn.</small></div>
+                    <div class="field full"><label for="dNote">Ghi chú ngắn</label><input id="dNote" name="Note" maxlength="255" /></div>
                 </div>
                 <div class="study-modal-foot">
                     <button type="button" class="study-btn" data-close>Hủy</button>

@@ -1,0 +1,12 @@
+@* Toast sau thao tác (TempData SuccessMessage / ErrorMessage). Đặt một dòng trong <div class="life-page">:  <partial name="_LifeFlash" /> *@
+@{
+    var ok = TempData["SuccessMessage"] as string;
+    var err = TempData["ErrorMessage"] as string;
+}
+@if (!string.IsNullOrWhiteSpace(ok) || !string.IsNullOrWhiteSpace(err))
+{
+    <div class="life-toast-stack">
+        @if (!string.IsNullOrWhiteSpace(ok)) { <div class="life-toast" role="status" data-toast>@ok</div> }
+        @if (!string.IsNullOrWhiteSpace(err)) { <div class="life-toast error" role="alert" data-toast>@err</div> }
+    </div>
+}

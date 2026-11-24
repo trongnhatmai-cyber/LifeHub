@@ -1,0 +1,402 @@
+/* =====================================================================
+   LIFEHUB - LIFESTYLE (SINH HOẠT CÁ NHÂN)        wwwroot/css/lifestyle.css
+
+   Chép từ mẫu study.css / habit.css theo đúng quy ước:  .study-page -> .life-page,
+   --study-* -> --life-*,  .study-* -> .life-*. Cùng một vai trò dùng cùng tên class
+   (summary-card, status, row-btn, field, ...) để View các phân hệ đọc giống nhau.
+
+   Màu nhận diện Sinh hoạt: pastel emerald (#ecfdf5) + emerald (#059669).
+
+   MỤC LỤC
+     1. Biến giao diện (sáng/tối)   2. Nền tảng   3. Tiêu đề   4. Nút   5. Thẻ chỉ số
+     6. Khung nội dung   7. Danh sách rút gọn + thanh tiến độ   8. Phân bố   9. Trạng thái rỗng
+    10. Ghi chú   11. Chip lọc   12. Nhãn trạng thái   13. Modal/form   14. Toast
+    15. Thanh lọc, nút thao tác   16. Sinh hoạt: bảng, biểu đồ, kế hoạch   19. Responsive
+
+   QUY TẮC: mọi selector bắt đầu bằng .life-page; màu lấy từ biến --life-*;
+   chỉ dùng màu cứng cho trạng thái (xanh, đỏ, cam, xám) và nút nguy hiểm.
+   Modal là con trực tiếp của .life-page (không đặt trong thẻ có hover transform).
+   Cỡ chữ dùng var(--fs-...) trong layout.css.
+   ===================================================================== */
+
+/* 1. BIẾN GIAO DIỆN - nhận diện Habit: pastel indigo (#eef2ff) + indigo (#4f46e5) */
+/* 1. BIẾN GIAO DIỆN - nhận diện Sinh hoạt: pastel emerald (#ecfdf5) + emerald (#059669).
+   Đổi màu phân hệ = chỉ sửa khối này, không viết mã màu cứng ở các mục dưới. */
+.life-page {
+    --life-bg: #ffffff;
+    --life-card: #ecfdf5;
+    --life-card-strong: #d1fae5;
+    --life-soft: #a7f3d0;
+    --life-border: #d1fae5;
+    --life-text: #064e3b;
+    --life-muted: #44675a;
+    --life-accent: #059669;
+    --life-accent-dark: #047857;
+    --life-on-accent: #ffffff;
+    --life-shadow: 0 6px 20px rgba(5, 150, 105, .06);
+
+    color: var(--life-text);
+    width: 100%;
+    min-width: 0;
+    transition: background .3s ease, color .3s ease;
+}
+:root[data-theme="dark"] .life-page,
+html[data-theme="dark"] .life-page {
+    --life-bg: #07130f;
+    --life-card: #0d211a;
+    --life-card-strong: #123328;
+    --life-soft: #1e5b46;
+    --life-border: #1e5b46;
+    --life-text: #ecfdf5;
+    --life-muted: #8fcdb4;
+    --life-accent: #34d399;
+    --life-accent-dark: #10b981;
+    --life-on-accent: #04231a;
+    --life-shadow: 0 8px 28px rgba(0, 0, 0, .4);
+}
+
+/* 2. NỀN TẢNG */
+.life-page * { box-sizing: border-box; }
+.life-page h1, .life-page h2, .life-page h3, .life-page p { margin-top: 0; }
+.life-page button, .life-page input, .life-page select, .life-page textarea { font: inherit; }
+.life-page [hidden] { display: none !important; }
+
+/* 3. TIÊU ĐỀ TRANG */
+.life-page .life-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 24px; }
+.life-page .life-label { display: inline-block; margin-bottom: 8px; color: var(--life-accent-dark); font-size: var(--fs-eyebrow); font-weight: 800; letter-spacing: 1.5px; }
+html[data-theme="dark"] .life-page .life-label { color: var(--life-accent); }
+.life-page .life-heading h1 { margin-bottom: 6px; font-size: var(--fs-page-title); font-weight: 800; letter-spacing: -.6px; color: var(--life-text); }
+.life-page .life-heading p { margin-bottom: 0; color: var(--life-muted); font-size: var(--fs-page-sub); line-height: 1.6; }
+.life-page .heading-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+/* 4. NÚT BẤM: .life-btn (phụ) | .primary | .small | .danger */
+.life-page .life-btn {
+    display: inline-flex; min-height: 40px; align-items: center; justify-content: center; gap: 6px;
+    padding: 0 16px; border: 1px solid var(--life-border); border-radius: 12px;
+    background: var(--life-card); color: var(--life-text);
+    font-size: var(--fs-btn); font-weight: 650; cursor: pointer; text-decoration: none;
+    transition: all .2s cubic-bezier(.16, 1, .3, 1);
+}
+.life-page .life-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0, 0, 0, .06); }
+.life-page .life-btn.primary { border-color: var(--life-accent); background: var(--life-accent); color: var(--life-on-accent); box-shadow: 0 4px 14px rgba(5, 150, 105, .25); }
+.life-page .life-btn.small { min-height: 32px; padding: 0 12px; border-radius: 9px; font-size: var(--fs-btn-sm); }
+.life-page .life-btn.danger { border-color: #dc2626; background: #dc2626; color: #fff; }
+.life-page .life-btn:focus-visible, .life-page .row-btn:focus-visible, .life-page .life-chip:focus-visible { outline: 2px solid var(--life-accent); outline-offset: 2px; }
+
+/* 5. THẺ CHỈ SỐ */
+.life-page .life-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 22px; }
+.life-page .summary-card {
+    position: relative; overflow: hidden; padding: 20px; border-radius: 18px;
+    border: 1px solid var(--life-border); background: var(--life-card); box-shadow: var(--life-shadow);
+    transition: transform .25s cubic-bezier(.16, 1, .3, 1), box-shadow .25s ease;
+}
+.life-page .summary-card:hover { transform: translateY(-3px); box-shadow: 0 12px 26px -6px rgba(0, 0, 0, .08); }
+.life-page .summary-card::after { position: absolute; right: -24px; bottom: -36px; width: 105px; height: 105px; border-radius: 50%; background: var(--life-accent); opacity: .14; content: ""; }
+.life-page .summary-top { display: flex; align-items: center; justify-content: space-between; font-size: var(--fs-stat-label); font-weight: 600; color: var(--life-muted); }
+.life-page .summary-badge { display: inline-block; padding: 4px 8px; border-radius: 20px; font-size: var(--fs-stat-badge); font-weight: 800; letter-spacing: .5px; background: var(--life-card-strong); color: var(--life-accent-dark); }
+html[data-theme="dark"] .life-page .summary-badge { color: var(--life-accent); }
+.life-page .summary-card h2 { position: relative; z-index: 1; margin: 14px 0 4px; font-size: var(--fs-stat-value); font-weight: 800; letter-spacing: -.6px; color: var(--life-text); }
+.life-page .summary-card p { margin: 0; color: var(--life-muted); font-size: var(--fs-stat-note); }
+
+/* 6. KHUNG NỘI DUNG */
+.life-page .life-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(300px, 1fr); gap: 18px; margin-bottom: 20px; }
+.life-page .life-grid.even { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.life-page .life-card {
+    background: var(--life-bg); border: 1px solid var(--life-border); border-radius: 18px; padding: 22px; box-shadow: var(--life-shadow);
+    min-width: 0; margin-bottom: 0;
+}
+.life-page .life-grid > .life-card, .life-page > .life-card { margin-bottom: 0; }
+.life-page > .life-card { margin-bottom: 20px; }
+.life-page .section-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+.life-page .section-heading h3 { margin: 0 0 4px; font-size: var(--fs-panel-title); font-weight: 800; color: var(--life-text); }
+.life-page .section-heading p { margin: 0; font-size: var(--fs-panel-sub); color: var(--life-muted); }
+
+/* 7. DANH SÁCH RÚT GỌN (mục tiêu gần hạn, theo dõi, KR nổi bật) */
+.life-page .life-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+    padding: 12px 14px; margin-bottom: 10px; border-radius: 12px;
+    background: var(--life-card); border: 1px solid var(--life-border);
+}
+.life-page .life-row:last-child { margin-bottom: 0; }
+.life-page .life-row-info { min-width: 0; flex: 1; }
+.life-page .life-row-title { display: block; font-weight: 750; font-size: var(--fs-card-text); color: var(--life-text); text-decoration: none; overflow-wrap: anywhere; }
+.life-page a.life-row-title:hover { color: var(--life-accent-dark); }
+.life-page .life-meta { margin-top: 3px; font-size: var(--fs-meta); color: var(--life-muted); }
+.life-page .life-row-side { width: 150px; flex-shrink: 0; }
+.life-page .life-row-side-top { display: flex; justify-content: space-between; font-size: var(--fs-meta); color: var(--life-muted); }
+.life-page .life-row-side-top strong { color: var(--life-text); }
+
+/* Thanh tiến độ dùng chung (mọi trang) */
+.life-page .bar { height: 7px; margin: 5px 0 0; overflow: hidden; border-radius: 20px; background: var(--life-card-strong); }
+.life-page .life-row .bar, .life-page .life-item .bar { background: var(--life-soft); }
+.life-page .bar i { display: block; height: 100%; border-radius: 20px; background: var(--life-accent); transition: width .4s ease; }
+.life-page .bar.done i { background: #16a34a; }
+.life-page .bar.late i { background: #dc2626; }
+
+/* 8. PHÂN BỐ THEO TIẾN ĐỘ (trang Progress, Overview) */
+.life-page .band-list { display: grid; gap: 10px; }
+.life-page .band { display: grid; grid-template-columns: 92px minmax(0, 1fr) 70px; align-items: center; gap: 12px; font-size: var(--fs-meta); color: var(--life-muted); }
+.life-page .band strong { color: var(--life-text); text-align: right; font-weight: 750; }
+.life-page .band .bar { margin: 0; height: 10px; }
+.life-page .big-number { display: flex; align-items: baseline; gap: 10px; margin-bottom: 6px; }
+.life-page .big-number strong { font-size: 44px; font-weight: 800; letter-spacing: -1.5px; line-height: 1; color: var(--life-text); }
+.life-page .big-number span { color: var(--life-muted); font-size: var(--fs-card-text); }
+
+/* 9. TRẠNG THÁI RỖNG */
+.life-page .life-empty { padding: 22px 18px; text-align: center; font-size: var(--fs-card-text); color: var(--life-muted); border: 1px dashed var(--life-border); border-radius: 14px; }
+.life-page .life-empty .life-btn { margin-top: 12px; }
+
+/* 10. GHI CHÚ NHỎ */
+.life-page .life-note { margin: 14px 0 0; font-size: var(--fs-meta); color: var(--life-muted); line-height: 1.55; }
+.life-page .life-count { margin: 0 0 12px; color: var(--life-muted); font-size: var(--fs-meta); }
+
+/* 11. CHIP LỌC (liên kết lọc phía server) */
+.life-page .life-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.life-page .life-chip {
+    display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border: 1px solid var(--life-border); border-radius: 999px;
+    background: var(--life-card); color: var(--life-muted); font-size: var(--fs-meta); font-weight: 650; cursor: pointer; text-decoration: none; transition: all .2s ease;
+}
+.life-page .life-chip:hover { color: var(--life-text); }
+.life-page .life-chip.active { border-color: var(--life-accent); background: var(--life-accent); color: var(--life-on-accent); }
+.life-page .life-chip small { font-size: var(--fs-detail-label); opacity: .8; }
+
+/* 12. NHÃN TRẠNG THÁI: st-graded (hoàn thành) | st-submitted (đang thực hiện) | st-overdue (quá hạn) | st-upcoming (tạm dừng) */
+.life-page .status { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: var(--fs-detail-label); font-weight: 700; white-space: nowrap; }
+.life-page .st-graded    { background: rgba(22, 163, 74, .14); color: #15803d; }
+.life-page .st-submitted { background: rgba(37, 99, 235, .14); color: #1d4ed8; }
+.life-page .st-overdue   { background: rgba(220, 38, 38, .14); color: #b91c1c; }
+.life-page .st-upcoming  { background: rgba(217, 119, 6, .16); color: #b45309; }
+html[data-theme="dark"] .life-page .st-graded    { color: #4ade80; }
+html[data-theme="dark"] .life-page .st-submitted { color: #93c5fd; }
+html[data-theme="dark"] .life-page .st-overdue   { color: #f87171; }
+html[data-theme="dark"] .life-page .st-upcoming  { color: #fbbf24; }
+.life-page .life-tag { display: inline-block; padding: 3px 9px; border-radius: 20px; background: var(--life-card-strong); color: var(--life-muted); font-size: var(--fs-detail-label); font-weight: 700; }
+
+/* 13. MODAL VÀ FORM */
+body.life-modal-open { overflow: hidden; }
+.life-page .life-modal { position: fixed; inset: 0; z-index: 1200; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(8, 10, 15, .55); backdrop-filter: blur(3px); }
+.life-page .life-modal-box { width: 100%; max-width: 560px; max-height: calc(100vh - 40px); overflow-y: auto; padding: 24px; border: 1px solid var(--life-border); border-radius: 18px; background: var(--life-bg); box-shadow: 0 24px 60px rgba(0, 0, 0, .25); }
+.life-page .life-modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.life-page .life-modal-head h3 { margin: 0; font-size: var(--fs-modal-title); font-weight: 800; }
+.life-page .life-modal-close { width: 32px; height: 32px; border: 0; border-radius: 10px; background: var(--life-card); color: var(--life-muted); font-size: 20px; line-height: 1; cursor: pointer; }
+.life-page .life-modal-foot { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+.life-page .life-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.life-page .life-form-grid .full { grid-column: 1 / -1; }
+.life-page .field label { display: block; margin-bottom: 6px; font-size: var(--fs-field-label); font-weight: 700; color: var(--life-muted); }
+.life-page .field input, .life-page .field select, .life-page .field textarea {
+    width: 100%; padding: 0 12px; border: 1px solid var(--life-border); border-radius: 10px;
+    background: var(--life-card); color: var(--life-text); font-size: var(--fs-field-input);
+}
+.life-page .field input, .life-page .field select { height: 40px; }
+.life-page .field textarea { padding: 10px 12px; min-height: 84px; resize: vertical; line-height: 1.5; }
+.life-page .field input:focus, .life-page .field select:focus, .life-page .field textarea:focus { outline: 2px solid var(--life-accent); outline-offset: 1px; }
+.life-page .field small { display: block; margin-top: 4px; font-size: var(--fs-detail-label); color: var(--life-muted); }
+.life-page .field.required > label::after { content: " *"; color: #dc2626; }
+.life-page .field.invalid input, .life-page .field.invalid select, .life-page .field.invalid textarea { border-color: #dc2626; }
+.life-page .form-error { margin: 12px 0 0; padding: 9px 11px; border-radius: 9px; background: rgba(220, 38, 38, .12); color: #dc2626; font-size: var(--fs-meta); font-weight: 600; }
+html[data-theme="dark"] .life-page .form-error { color: #f87171; }
+
+/* 14. TOAST (TempData SuccessMessage / ErrorMessage). lifestyle.js tự ẩn sau vài giây. */
+.life-page .life-toast-stack { position: fixed; right: 24px; bottom: 24px; z-index: 1300; display: grid; gap: 8px; max-width: 340px; }
+.life-page .life-toast { padding: 12px 16px; border: 1px solid var(--life-border); border-left: 4px solid #16a34a; border-radius: 12px; background: var(--life-bg); color: var(--life-text); font-size: var(--fs-card-text); font-weight: 600; box-shadow: 0 12px 30px rgba(0, 0, 0, .18); }
+.life-page .life-toast.error { border-left-color: #dc2626; }
+
+/* 15. THANH LỌC GET VÀ NÚT THAO TÁC */
+.life-page .life-toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+.life-page .life-toolbar input, .life-page .life-toolbar select {
+    height: 40px; padding: 0 12px; border: 1px solid var(--life-border); border-radius: 12px; background: var(--life-card); color: var(--life-text); font-size: var(--fs-card-text);
+}
+.life-page .life-toolbar input { flex: 1 1 220px; min-width: 0; }
+.life-page .life-toolbar select { flex: 0 1 170px; }
+.life-page .life-toolbar input:focus, .life-page .life-toolbar select:focus { outline: 2px solid var(--life-accent); outline-offset: 1px; }
+.life-page .row-actions { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.life-page .row-actions form { margin: 0; }
+.life-page .row-btn { padding: 6px 11px; border: 1px solid var(--life-border); border-radius: 8px; background: var(--life-card); color: var(--life-text); font-size: var(--fs-detail-label); font-weight: 700; cursor: pointer; text-decoration: none; }
+.life-page .row-btn:hover { border-color: var(--life-accent); color: var(--life-accent-dark); }
+html[data-theme="dark"] .life-page .row-btn:hover { color: var(--life-accent); }
+.life-page .row-btn.danger:hover { border-color: #dc2626; color: #dc2626; }
+.life-page .due-hint.overdue { color: #dc2626; font-weight: 700; }
+html[data-theme="dark"] .life-page .due-hint.overdue { color: #f87171; }
+
+/* 12b. TRẠNG THÁI DÙNG CHUNG (chuẩn mục 13 của đặc tả Sinh hoạt)
+   Chưa bắt đầu = xám | Đang diễn ra = xanh dương | Hoàn thành = xanh lá | Đã bỏ qua = cam | Đã hủy = đỏ | Tạm dừng = xám đậm
+   Trạng thái ghi cả bằng chữ, không chỉ bằng màu. */
+.life-page .st-pending { background: rgba(100, 116, 139, .14); color: #475569; }
+.life-page .st-doing   { background: rgba(37, 99, 235, .14);  color: #1d4ed8; }
+.life-page .st-done    { background: rgba(22, 163, 74, .14);  color: #15803d; }
+.life-page .st-skipped { background: rgba(217, 119, 6, .16);  color: #b45309; }
+.life-page .st-cancel  { background: rgba(220, 38, 38, .14);  color: #b91c1c; }
+.life-page .st-paused  { background: rgba(51, 65, 85, .18);   color: #334155; }
+html[data-theme="dark"] .life-page .st-pending { color: #cbd5e1; }
+html[data-theme="dark"] .life-page .st-doing   { color: #93c5fd; }
+html[data-theme="dark"] .life-page .st-done    { color: #4ade80; }
+html[data-theme="dark"] .life-page .st-skipped { color: #fbbf24; }
+html[data-theme="dark"] .life-page .st-cancel  { color: #f87171; }
+html[data-theme="dark"] .life-page .st-paused  { color: #94a3b8; }
+
+/* 16. SINH HOẠT: tiện ích, bảng, biểu đồ, kế hoạch */
+.life-page .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.life-page .life-stack { display: grid; gap: 18px; align-content: start; min-width: 0; }
+.life-page .inline-form { display: inline; margin: 0; }
+.life-page .life-sample { display: inline-block; padding: 3px 9px; border: 1px dashed var(--life-accent); border-radius: 20px; color: var(--life-accent-dark); font-size: var(--fs-detail-label); font-weight: 700; vertical-align: middle; }
+html[data-theme="dark"] .life-page .life-sample { color: var(--life-accent); }
+.life-page .summary-card h2.summary-text { font-size: 18px; line-height: 1.35; letter-spacing: 0; overflow-wrap: anywhere; }
+
+/* Chọn ngày ở Tổng quan */
+.life-page .date-nav { display: inline-flex; align-items: center; gap: 8px; margin: 0; }
+.life-page .date-input { height: 36px; padding: 0 10px; border: 1px solid var(--life-border); border-radius: 10px; background: var(--life-card); color: var(--life-text); font-size: var(--fs-btn-sm); }
+.life-page .date-input:focus { outline: 2px solid var(--life-accent); outline-offset: 1px; }
+
+/* Bảng dữ liệu (mẫu study.css mục 10) */
+.life-page .table-wrap { overflow-x: auto; }
+.life-page .life-table { width: 100%; border-collapse: collapse; font-size: var(--fs-card-text); }
+.life-page .life-table th { padding: 12px 10px; text-align: left; color: var(--life-muted); font-size: var(--fs-detail-label); font-weight: 700; border-bottom: 1px solid var(--life-border); white-space: nowrap; }
+.life-page .life-table td { padding: 12px 10px; border-bottom: 1px solid var(--life-border); vertical-align: middle; }
+.life-page .life-table tbody tr:last-child td { border-bottom: 0; }
+.life-page .life-table .right { text-align: right; }
+.life-page .life-table .muted { color: var(--life-muted); }
+.life-page .row-sub { display: block; margin-top: 2px; font-size: var(--fs-detail-label); font-weight: 400; color: var(--life-muted); }
+.life-page .row-actions { white-space: nowrap; }
+
+/* Chi tiết dạng cặp nhãn - giá trị (modal xem giấc ngủ, chi tiết kế hoạch) */
+.life-page .detail-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0 0 18px; }
+.life-page .detail-list > div { padding: 10px 12px; border-radius: 10px; background: var(--life-card); border: 1px solid var(--life-border); }
+.life-page .detail-list .wide { grid-column: 1 / -1; }
+.life-page .detail-list dt { margin: 0 0 3px; color: var(--life-muted); font-size: var(--fs-detail-label); font-weight: 700; }
+.life-page .detail-list dd { margin: 0; font-size: var(--fs-detail-value); font-weight: 650; overflow-wrap: anywhere; }
+.life-page .sub-title { margin: 20px 0 10px; font-size: var(--fs-card-title); font-weight: 800; }
+.life-page .life-tag { display: inline-block; padding: 3px 9px; border-radius: 20px; background: var(--life-card-strong); color: var(--life-muted); font-size: var(--fs-detail-label); font-weight: 700; }
+
+/* Thanh tiến độ có nhãn (kế hoạch hôm nay, chi tiết kế hoạch, thẻ kế hoạch) */
+.life-page .day-progress { margin: 0 0 18px; }
+.life-page .day-progress-top { display: flex; justify-content: space-between; gap: 8px; font-size: var(--fs-card-text); font-weight: 700; }
+.life-page .plan-card .day-progress-top { font-size: var(--fs-meta); font-weight: 600; color: var(--life-muted); }
+.life-page .plan-card .day-progress-top strong { color: var(--life-text); }
+
+/* Số liệu nhỏ dưới biểu đồ */
+.life-page .life-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin: 14px 0; }
+.life-page .life-stat { padding: 9px 10px; border-radius: 10px; background: var(--life-card); text-align: center; }
+.life-page .life-stat strong { display: block; font-size: 18px; font-weight: 800; color: var(--life-text); }
+.life-page .life-stat span { font-size: var(--fs-detail-label); color: var(--life-muted); }
+
+/* Kế hoạch hôm nay (Tổng quan) */
+.life-page .plan-today { padding: 16px; margin-bottom: 14px; border: 1px solid var(--life-border); border-radius: 14px; background: var(--life-card); }
+.life-page .plan-today:last-child { margin-bottom: 0; }
+.life-page .plan-today-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; }
+.life-page .plan-today-head strong { font-size: var(--fs-card-title); margin-right: 8px; }
+.life-page .plan-today-progress { width: 240px; max-width: 100%; }
+.life-page .step-list { list-style: none; margin: 0 0 12px; padding: 0; display: grid; gap: 8px; }
+.life-page .step-row { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 10px; background: var(--life-bg); border: 1px solid var(--life-border); }
+.life-page .step-row.is-done .step-name { color: var(--life-muted); text-decoration: line-through; text-decoration-color: var(--life-muted); }
+.life-page .step-time { font-weight: 800; font-size: var(--fs-card-text); }
+.life-page .step-name { font-weight: 650; font-size: var(--fs-card-text); overflow-wrap: anywhere; }
+
+/* Biểu đồ cột (thuần CSS; chiều cao do View in từ giá trị C# tính). Dùng chung cho giấc ngủ và vận động. */
+.life-page .trend { display: flex; height: 190px; align-items: flex-end; gap: 8px; }
+.life-page .trend-col { display: flex; flex: 1; min-width: 0; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; height: 100%; }
+.life-page .trend-track { position: relative; display: flex; width: 100%; max-width: 38px; height: calc(100% - 38px); align-items: flex-end; border-radius: 8px 8px 3px 3px; background: var(--life-card); }
+.life-page .trend-track i { display: block; width: 100%; min-height: 2px; border-radius: 8px 8px 3px 3px; background: var(--life-accent); }
+.life-page .trend-col.today .trend-track i { background: var(--life-accent-dark); outline: 2px solid var(--life-text); outline-offset: 1px; }
+.life-page .trend-col small { color: var(--life-muted); font-size: 10px; white-space: nowrap; }
+.life-page .trend-col strong { font-size: var(--fs-detail-label); color: var(--life-text); white-space: nowrap; }
+/* Mốc 8 giờ trên thang 0 đến 10 giờ = 80% chiều cao cột */
+.life-page .trend.has-target .trend-track::after { position: absolute; left: -4px; right: -4px; bottom: 80%; border-top: 2px dashed var(--life-accent-dark); content: ""; pointer-events: none; }
+html[data-theme="dark"] .life-page .trend.has-target .trend-track::after { border-top-color: var(--life-accent); }
+
+/* Biểu đồ giờ đi ngủ - thức dậy: mỗi dòng một thanh, trục 20:00 đến 12:00 hôm sau */
+.life-page .span-chart { display: grid; gap: 8px; }
+.life-page .span-row { display: grid; grid-template-columns: 48px minmax(0, 1fr) 118px; align-items: center; gap: 10px; font-size: var(--fs-meta); color: var(--life-muted); }
+.life-page .span-track { position: relative; height: 16px; border-radius: 8px; background: var(--life-card); border: 1px solid var(--life-border); }
+.life-page .span-bar { position: absolute; top: 1px; bottom: 1px; border-radius: 7px; background: var(--life-accent); }
+.life-page .span-text { color: var(--life-text); font-weight: 650; text-align: right; white-space: nowrap; }
+.life-page .span-ticks { display: flex; justify-content: space-between; font-size: 10px; color: var(--life-muted); }
+
+/* So sánh tuần */
+.life-page .compare-row { display: grid; grid-template-columns: 74px minmax(0, 1fr) 78px; align-items: center; gap: 10px; margin-bottom: 8px; font-size: var(--fs-meta); }
+.life-page .compare-row .bar { margin: 0; height: 12px; }
+.life-page .compare-row strong { text-align: right; color: var(--life-text); }
+.life-page .compare-row.muted .bar i { background: var(--life-soft); }
+.life-page .compare-delta { margin: 10px 0 0; font-size: var(--fs-card-text); font-weight: 700; }
+.life-page .compare-delta.up { color: #15803d; }
+.life-page .compare-delta.down { color: #b45309; }
+.life-page .compare-delta.flat { color: var(--life-muted); }
+html[data-theme="dark"] .life-page .compare-delta.up { color: #4ade80; }
+html[data-theme="dark"] .life-page .compare-delta.down { color: #fbbf24; }
+
+/* Danh mục hoạt động */
+.life-page .cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+.life-page .cat-card { display: flex; flex-direction: column; gap: 3px; padding: 12px 14px; border: 1px solid var(--life-border); border-radius: 12px; background: var(--life-card); color: var(--life-text); text-decoration: none; transition: border-color .2s ease, transform .2s ease; }
+.life-page .cat-card:hover { border-color: var(--life-accent); transform: translateY(-1px); }
+.life-page .cat-card.active { border-color: var(--life-accent); box-shadow: 0 0 0 1px var(--life-accent) inset; }
+.life-page .cat-card strong { font-size: var(--fs-card-text); }
+.life-page .cat-card span { font-size: var(--fs-meta); color: var(--life-muted); }
+.life-page .cat-card:focus-visible, .life-page .plan-card:focus-visible { outline: 2px solid var(--life-accent); outline-offset: 2px; }
+
+/* Kế hoạch: danh sách + chi tiết */
+.life-page .plan-layout { grid-template-columns: minmax(280px, .8fr) minmax(0, 1.5fr); align-items: start; }
+.life-page .plan-list { display: grid; gap: 12px; }
+.life-page .plan-card { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; border: 1px solid var(--life-border); border-radius: 14px; background: var(--life-card); color: var(--life-text); text-decoration: none; transition: border-color .2s ease; }
+.life-page .plan-card:hover { border-color: var(--life-accent); }
+.life-page .plan-card.is-selected { border-color: var(--life-accent); box-shadow: 0 0 0 1px var(--life-accent) inset; background: var(--life-bg); }
+.life-page .plan-card.is-paused { opacity: .82; }
+.life-page .plan-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.life-page .plan-card-top strong { font-size: var(--fs-card-title); overflow-wrap: anywhere; }
+.life-page .plan-card .bar { margin-top: 2px; }
+.life-page .plan-detail .card-actions { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 16px; margin-top: 16px; border-top: 1px solid var(--life-border); }
+.life-page .life-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* Lịch sử thực hiện 7 ngày */
+.life-page .hist { display: flex; height: 130px; align-items: flex-end; gap: 8px; }
+.life-page .hist-col { display: flex; flex: 1; min-width: 0; flex-direction: column; align-items: center; justify-content: flex-end; gap: 5px; height: 100%; }
+.life-page .hist-track { display: flex; width: 100%; max-width: 34px; height: calc(100% - 36px); align-items: flex-end; border-radius: 7px 7px 3px 3px; background: var(--life-card); }
+.life-page .hist-track i { display: block; width: 100%; min-height: 2px; border-radius: 7px 7px 3px 3px; background: var(--life-accent); }
+.life-page .hist-col.today .hist-track i { background: var(--life-accent-dark); outline: 2px solid var(--life-text); outline-offset: 1px; }
+.life-page .hist-col strong { font-size: var(--fs-detail-label); color: var(--life-text); white-space: nowrap; }
+.life-page .hist-col small { color: var(--life-muted); font-size: 10px; }
+
+/* Modal rộng + trình sửa danh sách hoạt động trong kế hoạch */
+.life-page .life-modal-box.wide { max-width: 720px; }
+.life-page .rows-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 20px 0 10px; }
+.life-page .rows-head h4 { margin: 0; font-size: var(--fs-card-title); font-weight: 800; }
+.life-page .act-edit-list { display: grid; gap: 12px; }
+.life-page .act-edit-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; padding: 14px; border: 1px solid var(--life-border); border-radius: 12px; background: var(--life-card); }
+.life-page .act-edit-row .full { grid-column: 1 / -1; }
+.life-page .act-edit-row > .row-btn { grid-column: 1 / -1; justify-self: end; }
+.life-page .day-picks { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.life-page .day-picks legend { padding: 0; margin-bottom: 6px; font-size: var(--fs-field-label); font-weight: 700; color: var(--life-muted); }
+.life-page .day-picks label { display: inline-flex; align-items: center; gap: 5px; margin: 0; padding: 5px 10px; border: 1px solid var(--life-border); border-radius: 999px; background: var(--life-bg); color: var(--life-text); font-size: var(--fs-meta); font-weight: 650; cursor: pointer; }
+.life-page .day-picks input { width: auto; height: auto; accent-color: var(--life-accent); }
+.life-page .apply-rules { margin: 0 0 16px; padding-left: 18px; color: var(--life-muted); font-size: var(--fs-card-text); line-height: 1.6; }
+
+/* 19. RESPONSIVE: 1024px (tablet) và 640px (điện thoại), cùng mốc với các phân hệ khác */
+@media (max-width: 1024px) {
+    .life-page .life-summary { grid-template-columns: repeat(2, 1fr); }
+    .life-page .life-grid, .life-page .life-grid.even, .life-page .plan-layout { grid-template-columns: 1fr; }
+    .life-page .act-edit-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+    .life-page .life-summary { grid-template-columns: 1fr; }
+    .life-page .life-heading { flex-direction: column; align-items: flex-start; }
+    .life-page .life-form-grid { grid-template-columns: 1fr; }
+    .life-page .life-row { flex-direction: column; align-items: stretch; }
+    .life-page .life-toolbar select { flex: 1 1 100%; }
+    .life-page .band { grid-template-columns: 78px minmax(0, 1fr) 56px; gap: 8px; }
+    .life-page .life-toast-stack { right: 12px; left: 12px; bottom: 12px; max-width: none; }
+    .life-page .detail-list { grid-template-columns: 1fr; }
+    .life-page .act-edit-row { grid-template-columns: 1fr; }
+    .life-page .span-row { grid-template-columns: 44px minmax(0, 1fr); }
+    .life-page .span-row .span-text { grid-column: 2; text-align: left; }
+    .life-page .span-axis > span { display: none; }
+    .life-page .span-axis { grid-template-columns: 1fr; }
+    .life-page .step-row { grid-template-columns: 48px minmax(0, 1fr); }
+    .life-page .step-row .status { grid-column: 2; justify-self: start; }
+    .life-page .trend { gap: 4px; }
+    .life-page .trend-col strong { font-size: 9px; }
+    .life-page .plan-today-progress { width: 100%; }
+}
+@media (max-width: 560px) {
+    .life-page .summary-card h2 { font-size: var(--fs-stat-value-mobile); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .life-page * { transition: none !important; }
+}

@@ -1,0 +1,36 @@
+@model LifeHub.Models.ViewModels.StudyManagement.StudyDocumentContentViewModel
+
+@{
+    Layout = "_Layout";
+    // ViewData["Title"] và ["ActivePage"] do StudyController.ViewDocument đặt.
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/study.css" asp-append-version="true" />
+}
+
+<div class="study-page" data-module="document-view">
+    <header class="study-heading">
+        <div>
+            <span class="study-label">@Model.CourseCode@(string.IsNullOrEmpty(Model.ContextLabel) ? "" : " · " + Model.ContextLabel)</span>
+            <h1>@Model.Title</h1>
+            <p>@Model.CourseName · Cập nhật @Model.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+        </div>
+        <div class="heading-actions">
+            <a asp-action="Documents" class="study-btn">Quay lại tài liệu</a>
+            <a asp-action="ExportDocument" asp-route-id="@Model.Id" class="study-btn primary">Tải về (.doc)</a>
+        </div>
+    </header>
+
+    <section class="study-card" style="--course-color:@Model.CourseColor">
+        @if (string.IsNullOrWhiteSpace(Model.Html))
+        {
+            <div class="study-empty">Tài liệu này chưa có nội dung.</div>
+        }
+        else
+        {
+            @* Html đã được StudyController.SanitizeHtml làm sạch (chỉ còn thẻ định dạng, không thuộc tính). *@
+            <article class="study-richtext">@Html.Raw(Model.Html)</article>
+        }
+    </section>
+</div>

@@ -1,0 +1,17 @@
+@* Xác nhận xóa dùng chung (#deleteModal). Nút mở truyền data-id và data-name. Form mô phỏng (data-simulate). *@
+<div class="life-modal" id="deleteModal" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle" hidden>
+    <div class="life-modal-box">
+        <div class="life-modal-head">
+            <h3 id="deleteModalTitle">Xác nhận xóa</h3>
+            <button type="button" class="life-modal-close" data-close aria-label="Đóng">&times;</button>
+        </div>
+        <p class="life-note" style="margin:0">Bạn có chắc muốn xóa <strong data-text="name"></strong>? Thao tác này không thể hoàn tác.</p>
+        <form method="post" data-simulate>
+            <input type="hidden" name="Id" disabled />
+            <div class="life-modal-foot">
+                <button type="button" class="life-btn" data-close>Hủy</button>
+                <button type="submit" class="life-btn danger">Xóa</button>
+            </div>
+        </form>
+    </div>
+</div>

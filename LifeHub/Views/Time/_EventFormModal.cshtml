@@ -1,0 +1,52 @@
+@* Hộp thoại tạo / sửa / nhân bản sự kiện, dùng chung Tổng quan, Lịch cá nhân, Sự kiện.
+   Form MÔ PHỎNG (data-simulate): kiểm tra rồi báo "chưa lưu", vì Event.EndTime của Back-end mới là DateOnly.
+   Tên input trùng thuộc tính của SaveEventInput. *@
+<div class="time-modal" id="eventFormModal" role="dialog" aria-modal="true" aria-labelledby="eventFormTitle" hidden>
+    <div class="time-modal-box">
+        <div class="time-modal-head">
+            <h3 id="eventFormTitle" data-modal-title>Tạo sự kiện</h3>
+            <button type="button" class="time-modal-close" data-close aria-label="Đóng">&times;</button>
+        </div>
+        <form data-simulate novalidate>
+            <input type="hidden" name="Id" disabled />
+            <div class="time-form-grid">
+                <p class="form-section">THÔNG TIN SỰ KIỆN</p>
+                <div class="field full"><label for="eTitle">Tên sự kiện</label><input id="eTitle" name="Title" maxlength="150" required placeholder="VD: Họp nhóm đồ án" /></div>
+                <div class="field">
+                    <label for="eType">Loại sự kiện</label>
+                    <select id="eType" name="EventType" required>
+                        @foreach (var t in new[] { "Họp", "Học tập", "Công việc", "Dự án", "Sinh hoạt", "Cá nhân", "Khác" }) { <option value="@t" selected="@(t == "Cá nhân")">@t</option> }
+                    </select>
+                </div>
+                <div class="field"><label for="eColor">Màu sự kiện</label><input id="eColor" name="Color" type="color" value="#7c3aed" /></div>
+
+                <p class="form-section">THỜI GIAN</p>
+                <div class="field full"><label for="eDate">Ngày bắt đầu</label><input id="eDate" name="StartDate" type="date" required /></div>
+                <div class="field"><label for="eStart">Giờ bắt đầu</label><input id="eStart" name="StartTime" type="time" required /></div>
+                <div class="field"><label for="eEnd">Giờ kết thúc</label><input id="eEnd" name="EndTime" type="time" required /></div>
+                <div class="field">
+                    <label for="eRec">Lặp lại</label>
+                    <select id="eRec" name="Recurrence">
+                        <option value="none">Không lặp</option><option value="daily">Hằng ngày</option><option value="weekly">Hằng tuần</option>
+                        <option value="monthly">Hằng tháng</option><option value="custom">Tùy chỉnh</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="eRem">Nhắc nhở</label>
+                    <select id="eRem" name="Reminder">
+                        <option value="">Không nhắc</option><option value="5">Trước 5 phút</option><option value="15">Trước 15 phút</option>
+                        <option value="30">Trước 30 phút</option><option value="60">Trước 1 giờ</option>
+                    </select>
+                </div>
+
+                <p class="form-section">CHI TIẾT</p>
+                <div class="field full"><label for="eLoc">Địa điểm</label><input id="eLoc" name="Location" maxlength="200" /></div>
+                <div class="field full"><label for="eDesc">Mô tả</label><textarea id="eDesc" name="Description" rows="3"></textarea></div>
+            </div>
+            <div class="time-modal-foot">
+                <button type="button" class="time-btn" data-close>Hủy</button>
+                <button type="submit" class="time-btn primary">Lưu sự kiện</button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -210,6 +210,10 @@ namespace LifeHub.Models.ViewModels.StudyManagement
         {
             "pdf" => "PDF", "slide" => "Slide", "video" => "Video", "note" => "Ghi chú", _ => "Liên kết"
         };
+
+        /// <summary>link = liên kết ngoài, file = tệp tải lên từ máy, content = nội dung soạn trong web</summary>
+        public string Source { get; set; } = "link";
+        public string SourceLabel => Source switch { "file" => "Tệp tải lên", "content" => "Soạn trong web", _ => "Liên kết" };
     }
 
     public class StudyDocumentsPageViewModel
@@ -277,12 +281,14 @@ namespace LifeHub.Models.ViewModels.StudyManagement
         [Required] public string Kind { get; set; } = "pdf";
         public IFormFile? File { get; set; }                 // tệp chọn từ máy tính
         [StringLength(500)] public string? Url { get; set; } // hoặc liên kết trực tuyến
+        /// <summary>Nội dung soạn trực tiếp (HTML từ trình soạn thảo). Server làm sạch rồi lưu thành tệp riêng.</summary>
+        [StringLength(60000)] public string? Content { get; set; }
         [StringLength(500)] public string? Note { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext context)
         {
-            if (File == null && string.IsNullOrWhiteSpace(Url))
-                yield return new ValidationResult("Hãy chọn tệp từ máy hoặc nhập đường dẫn.", new[] { nameof(File), nameof(Url) });
+            if (File == null && string.IsNullOrWhiteSpace(Url) && string.IsNullOrWhiteSpace(Content))
+                yield return new ValidationResult("Hãy chọn tệp từ máy, soạn nội dung hoặc nhập đường dẫn.", new[] { nameof(File), nameof(Url), nameof(Content) });
         }
     }
 
@@ -296,5 +302,19 @@ namespace LifeHub.Models.ViewModels.StudyManagement
         public IFormFile? File { get; set; }
         [StringLength(500)] public string? Url { get; set; }
         [StringLength(500)] public string? Note { get; set; }
+    }
+
+    /// <summary>Trang đọc nội dung tài liệu được soạn trong web (Study/ViewDocument).</summary>
+    public class StudyDocumentContentViewModel
+    {
+        public int Id { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string CourseCode { get; set; } = string.Empty;
+        public string CourseName { get; set; } = string.Empty;
+        public string CourseColor { get; set; } = "#2563eb";
+        /// <summary>VD: "Bài tập: Báo cáo tuần 3" khi nội dung thuộc một bài tập.</summary>
+        public string ContextLabel { get; set; } = string.Empty;
+        public string Html { get; set; } = string.Empty;   // đã làm sạch ở server
+        public DateTime UpdatedAt { get; set; }
     }
 }

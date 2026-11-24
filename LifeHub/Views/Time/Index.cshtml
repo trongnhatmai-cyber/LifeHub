@@ -1,162 +1,135 @@
-@model LifeHub.Models.ViewModels.TimeManagement.TimeViewModel
+@model LifeHub.Models.ViewModels.TimeManagement.TimeOverviewViewModel
+@using System.Globalization
 
 @{
     Layout = "_Layout";
     ViewData["Title"] = "Quản lý thời gian";
     ViewData["ActivePage"] = "TimeOverview";
-
-    var m = Model ?? new LifeHub.Models.ViewModels.TimeManagement.TimeViewModel
-    {
-        TodayEventsCount = 3,
-        PomodoroCompletedCount = 5,
-        TotalFocusMinutes = 125,
-        UpcomingDeadlinesCount = 4,
-        Events = new List<LifeHub.Models.ViewModels.TimeManagement.TimeCalendarEvent>
-        {
-            new() { Id = 1, Title = "Lớp Mạng máy tính", StartTime = DateTime.Today.AddHours(7).AddMinutes(30), EndTime = DateTime.Today.AddHours(10), Location = "Phòng B2-304", EventType = "Lịch học" },
-            new() { Id = 2, Title = "Họp trực tuyến nhóm NET108", StartTime = DateTime.Today.AddHours(15), EndTime = DateTime.Today.AddHours(16).AddMinutes(30), Location = "Google Meet", EventType = "Dự án" },
-            new() { Id = 3, Title = "Ôn tập và làm Quiz Kiểm thử", StartTime = DateTime.Today.AddHours(20), EndTime = DateTime.Today.AddHours(21).AddMinutes(30), Location = "Bàn học", EventType = "Cá nhân" },
-            new() { Id = 4, Title = "Hạn nộp Assignment Database", StartTime = DateTime.Today.AddDays(2).AddHours(23).AddMinutes(59), Location = "LMS", EventType = "Deadline" }
-        },
-        PomodoroHistory = new List<LifeHub.Models.ViewModels.TimeManagement.PomodoroSessionHistory>
-        {
-            new() { Id = 1, TaskOrCourseName = "Nghiên cứu Razor View & ViewModel", DurationMinutes = 25, CompletedAt = DateTime.Now.AddHours(-1) },
-            new() { Id = 2, TaskOrCourseName = "Thiết kế Layout & Sidebar CSS", DurationMinutes = 25, CompletedAt = DateTime.Now.AddHours(-2) },
-            new() { Id = 3, TaskOrCourseName = "Đọc tài liệu Entity Framework Core", DurationMinutes = 25, CompletedAt = DateTime.Now.AddHours(-3) }
-        }
-    };
+    string F(double v) => v.ToString("0.##", CultureInfo.InvariantCulture);
+    var totalMin = Model.Allocation.Sum(x => x.Minutes);
 }
 
 @section Styles {
     <link rel="stylesheet" href="~/css/time.css" asp-append-version="true" />
 }
 
-@section Scripts {
-    <script src="~/js/time.js" asp-append-version="true" defer></script>
-}
-
 <div class="time-page">
-    <!-- TIÊU ĐỀ PHÂN HỆ THỜI GIAN -->
     <header class="time-heading">
         <div>
-            <span class="time-label">TIME MANAGEMENT · FOCUS & CALENDAR</span>
-            <h1>Thời gian của bạn</h1>
-            <p>Lập lịch trình cá nhân, nhắc nhở công việc và tập trung cùng kỹ thuật Pomodoro.</p>
+            <span class="time-label">QUẢN LÝ THỜI GIAN</span>
+            <h1>Quản lý thời gian</h1>
+            <p>Sắp xếp thời gian, làm chủ lịch trình của bạn.</p>
         </div>
 
         <div class="heading-actions">
-            <button type="button" class="time-btn primary" id="addEventBtn">
-                + Thêm sự kiện
-            </button>
+            <form method="get" asp-controller="Time" asp-action="Index" class="date-nav">
+                <input type="date" name="date" value="@Model.DateIso" data-autosubmit aria-label="Chọn ngày" />
+            </form>
+            <a class="time-btn" asp-controller="Time" asp-action="Calendar" asp-route-date="@Model.DateIso">Xem lịch</a>
+            <button type="button" class="time-btn primary" data-open="eventFormModal" data-mode="create" data-title="Tạo sự kiện" data-startdate="@Model.DateIso">+ Tạo sự kiện</button>
         </div>
     </header>
 
-    <!-- 4 THẺ CHỈ SỐ PASTEL TEAL TỔNG QUAN -->
     <section class="time-summary">
         <div class="summary-card">
-            <div class="summary-top">
-                <span>Sự kiện hôm nay</span>
-                <span class="summary-badge">HÔM NAY</span>
-            </div>
-            <h2>0@m.TodayEventsCount</h2>
-            <p>Lịch học & buổi hẹn</p>
+            <div class="summary-top"><span>Sự kiện hôm nay</span><span class="summary-badge">EVENTS</span></div>
+            <h2>@Model.TotalCount</h2>
+            <p>Tổng số lịch trình</p>
         </div>
-
         <div class="summary-card">
-            <div class="summary-top">
-                <span>Phiên tập trung</span>
-                <span class="summary-badge">POMODORO</span>
-            </div>
-            <h2>0@m.PomodoroCompletedCount</h2>
-            <p>Phiên đã hoàn thành</p>
+            <div class="summary-top"><span>Thời gian đã lên lịch</span><span class="summary-badge">PLANNED</span></div>
+            <h2>@Model.PlannedText</h2>
+            <p>Trong ngày</p>
         </div>
-
         <div class="summary-card">
-            <div class="summary-top">
-                <span>Thời gian tập trung</span>
-                <span class="summary-badge">NĂNG SUẤT</span>
-            </div>
-            <h2>@m.TotalFocusMinutes p</h2>
-            <p>Tương đương @(m.TotalFocusMinutes / 60)h @(m.TotalFocusMinutes % 60)p</p>
+            <div class="summary-top"><span>Đã hoàn thành</span><span class="summary-badge">DONE</span></div>
+            <h2>@Model.DoneCount/@Model.TotalCount</h2>
+            <p>Sự kiện hôm nay</p>
         </div>
-
         <div class="summary-card">
-            <div class="summary-top">
-                <span>Deadline tuần này</span>
-                <span class="summary-badge">SẮP ĐẾN HẠN</span>
-            </div>
-            <h2>0@m.UpcomingDeadlinesCount</h2>
-            <p>Cần hoàn thành đúng hạn</p>
+            <div class="summary-top"><span>Thời gian tập trung</span><span class="summary-badge">FOCUS</span></div>
+            <h2>@Model.FocusText</h2>
+            <p>Pomodoro, @Model.FocusSessions phiên</p>
         </div>
     </section>
 
-    <!-- KHỐI NỘI DUNG CHÍNH (2 CỘT CHUẨN) -->
-    <div class="time-grid">
-        <!-- CỘT TRÁI: ĐỒNG HỒ POMODORO -->
-        <div class="time-card">
-            <div class="section-heading">
-                <div>
-                    <h3>Đồng hồ Pomodoro</h3>
-                    <p>Chu kỳ 25 phút tập trung sâu · 5 phút nghỉ ngơi</p>
-                </div>
-                <span class="summary-badge" id="pomoModePill">TẬP TRUNG 25 PHÚT</span>
-            </div>
-
-            <div class="pomodoro-box">
-                <div style="font-size:12px;color:var(--time-muted);font-weight:700;">THỜI GIAN CÒN LẠI</div>
-                <div class="pomodoro-display" id="pomodoroDisplay">25:00</div>
-                <div class="pomodoro-controls">
-                    <button type="button" class="time-btn primary" id="pomoStartBtn" style="padding:0 24px;">
-                        ▶ Bắt đầu
-                    </button>
-                    <button type="button" class="time-btn" id="pomoResetBtn">
-                        Đặt lại
-                    </button>
-                </div>
-            </div>
-
-            <div style="margin-top:20px;">
-                <h4 style="font-size:13px;margin:0 0 10px;font-weight:750;">Lịch sử phiên gần nhất hôm nay</h4>
-                @foreach (var p in m.PomodoroHistory)
-                {
-                    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:10px;background:var(--time-card);margin-bottom:6px;font-size:12px;">
-                        <span style="font-weight:600;">✓ @p.TaskOrCourseName</span>
-                        <span style="color:var(--time-muted);">@p.DurationMinutes phút · @p.CompletedAt.ToString("HH:mm")</span>
-                    </div>
-                }
-            </div>
+    <!-- LỊCH TRÌNH HÔM NAY -->
+    <section class="time-card" style="margin-bottom:20px">
+        <div class="section-heading">
+            <div><h3>Lịch trình @(Model.DateIso == Model.TodayIso ? "hôm nay" : "trong ngày")</h3><p>@Model.DateLabel, @Model.TotalCount sự kiện</p></div>
+            <a class="time-btn small" asp-controller="Time" asp-action="Calendar" asp-route-date="@Model.DateIso">Xem lịch đầy đủ &rarr;</a>
         </div>
 
-        <!-- CỘT PHẢI: SỰ KIỆN & LỊCH TRÌNH -->
-        <div class="time-card">
-            <div class="section-heading">
-                <div>
-                    <h3>Lịch trình chi tiết</h3>
-                    <p>Tổng hợp lịch học, lịch họp và deadline</p>
-                </div>
-                <button type="button" class="time-btn" style="padding:4px 10px;font-size:12px;min-height:30px;">
-                    Xem tháng
+        <div class="agenda">
+            @foreach (var e in Model.TodayEvents)
+            {
+                <button type="button" class="agenda-item" style="--ev-color:@e.Color" @Html.Raw(e.Attrs("eventDetailModal", "detail"))>
+                    <span class="agenda-time">@e.TimeRange</span>
+                    <span class="agenda-main"><strong>@e.Title</strong><small>@e.TypeLabel@(e.Location != "" ? ", " + e.Location : "")</small></span>
+                    <span class="source-tag">@e.SourceLabel</span>
+                    <span class="status @e.StatusClass">@e.StatusIcon @e.StatusLabel</span>
                 </button>
-            </div>
-
-            <div>
-                @foreach (var ev in m.Events)
-                {
-                    <div class="event-list-item">
-                        <div style="text-align:center;min-width:55px;">
-                            <div style="font-size:13px;font-weight:800;color:var(--time-accent);">@ev.StartTime.ToString("HH:mm")</div>
-                            <div style="font-size:10px;color:var(--time-muted);">@ev.StartTime.ToString("dd/MM")</div>
-                        </div>
-
-                        <div style="flex:1;">
-                            <div style="font-weight:700;font-size:13px;">@ev.Title</div>
-                            <div style="font-size:11px;color:var(--time-muted);">📍 @ev.Location</div>
-                        </div>
-
-                        <span class="summary-badge" style="font-size:9px;">@ev.EventType</span>
-                    </div>
-                }
-            </div>
+            }
         </div>
+        @if (!Model.TodayEvents.Any())
+        {
+            <div class="time-empty">Chưa có sự kiện nào trong ngày này. Bấm "+ Tạo sự kiện" để bắt đầu.</div>
+        }
+    </section>
+
+    <div class="time-grid">
+        <!-- PHÂN BỔ THỜI GIAN -->
+        <section class="time-card">
+            <div class="section-heading">
+                <div><h3>Phân bổ thời gian</h3><p>Theo nhóm, tuần @Model.WeekLabel</p></div>
+            </div>
+            @if (totalMin > 0)
+            {
+                <div class="donut-wrap">
+                    <div class="donut">
+                        <svg viewBox="0 0 36 36" role="img" aria-label="Biểu đồ phân bổ thời gian theo nhóm">
+                            <circle class="donut-bg" cx="18" cy="18" r="15.9155" />
+                            @foreach (var sl in Model.Allocation)
+                            {
+                                var p = sl.Minutes * 100.0 / totalMin;
+                                <circle class="donut-seg" cx="18" cy="18" r="15.9155" stroke="@sl.Color" stroke-dasharray="@F(p) @F(100 - p)" stroke-dashoffset="@F(-sl.Offset)" />
+                            }
+                        </svg>
+                        <div class="donut-center"><strong>@Model.AllocationTotalText</strong><span>Đã lên lịch</span></div>
+                    </div>
+                    <ul class="legend-list">
+                        @foreach (var sl in Model.Allocation)
+                        {
+                            <li><div><i style="background:@sl.Color"></i>@sl.Label</div><span>@sl.MinutesText, @sl.Percent%</span></li>
+                        }
+                    </ul>
+                </div>
+            }
+            else
+            {
+                <div class="time-empty">Chưa có sự kiện nào trong tuần này để phân bổ.</div>
+            }
+        </section>
+
+        <!-- KẾ HOẠCH TUẦN -->
+        <section class="time-card">
+            <div class="section-heading">
+                <div><h3>Kế hoạch tuần</h3><p>Tiến độ thực hiện kế hoạch @Model.WeekLabel</p></div>
+            </div>
+            <div class="plan-grid">
+                <div class="plan-stat">Đã lên lịch<strong>@Model.WeekPlannedText</strong></div>
+                <div class="plan-stat">Đã hoàn thành<strong>@Model.WeekDone</strong></div>
+                <div class="plan-stat">Còn lại<strong>@Model.WeekRemaining</strong></div>
+            </div>
+            <div class="bar" role="progressbar" aria-valuenow="@Model.WeekPercent" aria-valuemin="0" aria-valuemax="100"><i style="width:@Model.WeekPercent%"></i></div>
+            <p class="plan-note">Đã thực hiện @Model.WeekPercent% các sự kiện đã lên lịch trong tuần.</p>
+        </section>
     </div>
+
+    <partial name="_EventFormModal" />
+    <partial name="_EventDetailModal" />
 </div>
+
+@section Scripts {
+    <script src="~/js/time.js" asp-append-version="true"></script>
+}
