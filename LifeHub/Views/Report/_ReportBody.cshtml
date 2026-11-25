@@ -1,0 +1,30 @@
+@model LifeHub.Models.ViewModels.ReportManagement.ReportBaseViewModel
+@* Phần thân dùng chung của cả 6 báo cáo: KPI, nhận xét, biểu đồ, bảng, ghi chú cách tính. *@
+@{ var vd = new ViewDataDictionary(ViewData) { ["Range"] = Model.Range }; }
+
+<partial name="_ReportKpis" model="Model.Kpis" view-data="vd" />
+
+@if (Model.Insights.Any())
+{
+    <section class="report-card" style="margin-bottom:20px">
+        <div class="section-heading"><div><h3>Nhận xét dữ liệu</h3><p>Sinh từ dữ liệu thật của bạn bằng quy tắc tính toán xác định</p></div></div>
+        <ul class="insight-list">@foreach (var text in Model.Insights) { <li class="insight-item">@text</li> }</ul>
+    </section>
+}
+
+@if (Model.Charts.Any())
+{
+    <div class="chart-grid">
+        @foreach (var c in Model.Charts) { <partial name="_ReportChart" model="c" /> }
+    </div>
+}
+
+@foreach (var t in Model.Tables) { <partial name="_ReportTable" model="t" /> }
+
+@if (Model.Notes.Any())
+{
+    <section class="report-card" style="margin-top:20px">
+        <div class="section-heading"><div><h3>Ghi chú cách tính</h3></div></div>
+        <ul class="report-notes">@foreach (var n in Model.Notes) { <li>@n</li> }</ul>
+    </section>
+}

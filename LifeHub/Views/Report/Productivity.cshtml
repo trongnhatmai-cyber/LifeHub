@@ -1,0 +1,39 @@
+@model LifeHub.Models.ViewModels.ReportManagement.ReportBaseViewModel
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Báo cáo mục tiêu & thói quen";
+    ViewData["ActivePage"] = "Report";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/report.css" asp-append-version="true" />
+}
+
+<div class="report-page" style="--report-sub:@Model.SubColor">
+    <partial name="_ReportHeader" model="Model" />
+    <section class="report-card" style="margin-bottom:20px">
+        <div class="goal-filters">
+            <form method="get" asp-controller="Report" asp-action="Productivity">
+                <input type="hidden" name="range" value="@Model.Range.Key" />
+                <input type="hidden" name="from" value="@(Model.Range.Key == "custom" ? Model.Range.FromIso : null)" />
+                <input type="hidden" name="to" value="@(Model.Range.Key == "custom" ? Model.Range.ToIso : null)" />
+                <input type="hidden" name="compare" value="@Model.Range.Compare.ToString().ToLower()" />
+                <select name="goalStatus" data-autosubmit aria-label="Lọc mục tiêu theo trạng thái">
+                    <option value="all" selected="@(Model.GoalStatus == "all")">Mọi trạng thái mục tiêu</option>
+                    <option value="active" selected="@(Model.GoalStatus == "active")">Đang thực hiện</option>
+                    <option value="completed" selected="@(Model.GoalStatus == "completed")">Đã hoàn thành</option>
+                </select>
+                <select name="goalType" data-autosubmit aria-label="Lọc mục tiêu theo loại">
+                    <option value="all" selected="@(Model.GoalType == "all")">Mọi loại mục tiêu</option>
+                    @foreach (var t in Model.GoalTypes) { <option value="@t" selected="@(Model.GoalType == t)">@t</option> }
+                </select>
+            </form>
+        </div>
+    </section>
+    <partial name="_ReportBody" model="Model" />
+</div>
+
+@section Scripts {
+    <script src="~/js/report.js" asp-append-version="true"></script>
+}

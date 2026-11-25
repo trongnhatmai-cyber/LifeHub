@@ -1,95 +1,21 @@
-@model LifeHub.Models.ViewModels.ReportPageViewModel
+@model LifeHub.Models.ViewModels.ReportManagement.ReportBaseViewModel
 
 @{
     Layout = "_Layout";
-    ViewData["Title"] = "Thống kê";
+    ViewData["Title"] = "Tổng quan hoạt động";
     ViewData["ActivePage"] = "Report";
-    var sections = new[]
-    {
-        (Key: "overview", Label: "Tổng quan", Action: "Index"),
-        (Key: "study", Label: "Học tập", Action: "Study"),
-        (Key: "tasks", Label: "Công việc", Action: "Tasks"),
-        (Key: "finance", Label: "Tài chính", Action: "Finance"),
-        (Key: "productivity", Label: "Năng suất", Action: "Productivity")
-    };
-    var fromLabel = Model.FromDate?.ToString("dd/MM/yyyy") ?? "Bắt đầu";
 }
 
 @section Styles {
     <link rel="stylesheet" href="~/css/report.css" asp-append-version="true" />
 }
 
-<main class="report-page">
-    <header class="report-heading">
-        <div>
-            <span class="report-eyebrow">LIFEHUB INSIGHTS</span>
-            <h1>Thống kê hoạt động</h1>
-            <p>Dữ liệu cá nhân tổng hợp từ các phân hệ trong LifeHub.</p>
-        </div>
-        <form asp-action="@Model.ActionName" method="get" class="report-period-form">
-            <label for="reportPeriod">Khoảng thời gian</label>
-            <select id="reportPeriod" name="period" onchange="this.form.submit()">
-                <option value="week" selected="@(Model.Period == "week")">Tuần này</option>
-                <option value="month" selected="@(Model.Period == "month")">Tháng này</option>
-                <option value="year" selected="@(Model.Period == "year")">Năm nay</option>
-                <option value="all" selected="@(Model.Period == "all")">Toàn thời gian</option>
-            </select>
-        </form>
-    </header>
+<div class="report-page" style="--report-sub:@Model.SubColor">
+    <partial name="_ReportHeader" model="Model" />
 
-    <nav class="report-tabs" aria-label="Nhóm báo cáo">
-        @foreach (var tab in sections)
-        {
-            <a asp-action="@tab.Action" asp-route-period="@Model.Period" class="@(Model.Section == tab.Key ? "active" : "")">@tab.Label</a>
-        }
-    </nav>
+    <partial name="_ReportBody" model="Model" />
+</div>
 
-    <p class="report-range">@Model.PeriodLabel · @fromLabel – @Model.ToDate.ToString("dd/MM/yyyy")</p>
-
-    @if (Model.Section is "overview" or "study")
-    {
-        <section class="report-section">
-            <h2>Học tập</h2>
-            <div class="report-grid">
-                <article class="report-card"><span>Môn học</span><strong>@Model.CourseCount</strong><small>@Model.CompletedCourseCount môn đã hoàn thành</small></article>
-                <article class="report-card"><span>Điểm trung bình</span><strong>@(Model.AverageCourseScore?.ToString("0.00") ?? "—")</strong><small>@Model.GradedAssignmentCount bài đã có điểm</small></article>
-            </div>
-        </section>
-    }
-
-    @if (Model.Section is "overview" or "tasks")
-    {
-        <section class="report-section">
-            <h2>Công việc</h2>
-            <div class="report-grid">
-                <article class="report-card"><span>Công việc được cập nhật</span><strong>@Model.TaskCount</strong><small>@Model.TaskCompletionPercent% đã hoàn thành</small></article>
-                <article class="report-card"><span>Đã hoàn thành</span><strong>@Model.CompletedTaskCount</strong><small>@Model.OpenTaskCount việc còn mở</small></article>
-                <article class="report-card"><span>Quá hạn</span><strong>@Model.OverdueTaskCount</strong><small>Trong danh sách đang theo dõi</small></article>
-            </div>
-        </section>
-    }
-
-    @if (Model.Section is "overview" or "finance")
-    {
-        <section class="report-section">
-            <h2>Tài chính</h2>
-            <div class="report-grid">
-                <article class="report-card"><span>Thu nhập</span><strong>@Model.Income.ToString("N0") ₫</strong><small>@Model.TransactionCount giao dịch trong kỳ</small></article>
-                <article class="report-card"><span>Chi tiêu</span><strong>@Model.Expense.ToString("N0") ₫</strong><small>Thu nhập trừ chi tiêu: @((Model.Income - Model.Expense).ToString("N0")) ₫</small></article>
-                <article class="report-card"><span>Số dư các ví</span><strong>@Model.WalletBalance.ToString("N0") ₫</strong><small>Số dư hiện tại</small></article>
-            </div>
-        </section>
-    }
-
-    @if (Model.Section is "overview" or "productivity")
-    {
-        <section class="report-section">
-            <h2>Mục tiêu và năng suất</h2>
-            <div class="report-grid">
-                <article class="report-card"><span>Mục tiêu đang thực hiện</span><strong>@Model.ActiveGoalCount</strong><small>@Model.CompletedGoalCount mục tiêu đã hoàn thành</small></article>
-                <article class="report-card"><span>Thói quen hoạt động</span><strong>@Model.ActiveHabitCount</strong><small>@Model.CompletedHabitLogCount/@Model.HabitLogCount lượt ghi nhận hoàn thành</small></article>
-                <article class="report-card"><span>Thời gian tập trung</span><strong>@(Model.FocusMinutes / 60) giờ @(Model.FocusMinutes % 60) phút</strong><small>Phiên Pomodoro đã hoàn thành</small></article>
-            </div>
-        </section>
-    }
-</main>
+@section Scripts {
+    <script src="~/js/report.js" asp-append-version="true"></script>
+}

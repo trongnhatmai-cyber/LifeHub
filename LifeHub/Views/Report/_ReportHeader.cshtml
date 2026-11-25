@@ -1,0 +1,68 @@
+@model LifeHub.Models.ViewModels.ReportManagement.ReportBaseViewModel
+@* ReportHeader: tiêu đề, xuất báo cáo, thanh điều hướng 6 báo cáo và bộ lọc thời gian dùng chung.
+   Bộ lọc áp dụng đồng nhất cho mọi KPI và biểu đồ của trang; khoảng thời gian thực tế luôn hiển thị. *@
+@{
+    var r = Model.Range;
+    var navs = new[] { ("overview", "Index", "Tổng quan hoạt động"), ("study", "Study", "Báo cáo học tập"), ("tasks", "Tasks", "Công việc & dự án"),
+                       ("finance", "Finance", "Tài chính"), ("goals", "Productivity", "Mục tiêu & thói quen"), ("lifestyle", "Lifestyle", "Sinh hoạt") };
+    var chips = new[] { ("7d", "7 ngày"), ("30d", "30 ngày"), ("90d", "90 ngày"), ("12m", "12 tháng") };
+    string? customFrom = r.Key == "custom" ? r.FromIso : null;
+    string? customTo = r.Key == "custom" ? r.ToIso : null;
+}
+
+<header class="report-heading">
+    <div>
+        <span class="report-label">@Model.Eyebrow</span>
+        <h1>@Model.Title</h1>
+        <p>@Model.Description</p>
+    </div>
+    <div class="heading-actions">
+        <details class="export-menu">
+            <summary class="report-btn">Xuất báo cáo &#9662;</summary>
+            <div class="export-list">
+                <a asp-controller="Report" asp-action="Export" asp-route-section="@Model.Section" asp-route-range="@r.Key" asp-route-from="@customFrom" asp-route-to="@customTo" asp-route-compare="@r.Compare">Tải CSV (KPI và bảng)</a>
+                <button type="button" data-print>In / Lưu PDF</button>
+            </div>
+        </details>
+    </div>
+</header>
+
+<nav class="report-nav" aria-label="Các báo cáo">
+    @foreach (var (key, action, label) in navs)
+    {
+        <a class="@(Model.Section == key ? "active" : "")" aria-current="@(Model.Section == key ? "page" : null)" asp-controller="Report" asp-action="@action"
+           asp-route-range="@r.Key" asp-route-from="@customFrom" asp-route-to="@customTo" asp-route-compare="@r.Compare">@label</a>
+    }
+</nav>
+
+<div class="report-filter">
+    <div class="filter-chips" role="group" aria-label="Khoảng thời gian báo cáo">
+        @foreach (var (key, label) in chips)
+        {
+            <a class="report-chip @(r.Key == key ? "active" : "")" asp-controller="Report" asp-action="@Model.Action" asp-route-range="@key" asp-route-compare="@r.Compare"
+               asp-route-goalStatus="@(Model.Section == "goals" ? Model.GoalStatus : null)" asp-route-goalType="@(Model.Section == "goals" ? Model.GoalType : null)">@label</a>
+        }
+        <a class="report-chip @(r.Key == "custom" ? "active" : "")" href="#" data-range-custom>Tùy chỉnh</a>
+    </div>
+
+    <form method="get" asp-controller="Report" asp-action="@Model.Action">
+        <input type="hidden" name="range" value="@r.Key" />
+        @if (Model.Section == "goals")
+        {
+            <input type="hidden" name="goalStatus" value="@Model.GoalStatus" />
+            <input type="hidden" name="goalType" value="@Model.GoalType" />
+        }
+        <div class="custom-range" hidden="@(r.Key != "custom")">
+            <input type="date" name="from" value="@r.FromIso" max="@r.Today.ToString("yyyy-MM-dd")" aria-label="Từ ngày" />
+            <span>đến</span>
+            <input type="date" name="to" value="@r.ToIso" max="@r.Today.ToString("yyyy-MM-dd")" aria-label="Đến ngày" />
+            <button type="submit" class="report-btn small primary" data-range-apply>Áp dụng</button>
+        </div>
+        <label class="compare" title="Hiển thị biến động so với kỳ liền trước">
+            <input type="checkbox" name="compare" value="true" checked="@r.Compare" data-autosubmit /> So sánh kỳ trước
+        </label>
+        <input type="hidden" name="compare" value="false" />
+    </form>
+
+    <span class="period-text">Khoảng thời gian: <strong>@r.Text</strong> (@r.Days ngày)@(r.Compare ? ", so với " + r.PrevText : "")</span>
+</div>

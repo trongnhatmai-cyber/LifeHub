@@ -1,0 +1,21 @@
+@model LifeHub.Models.ViewModels.ReportManagement.ReportBaseViewModel
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Báo cáo sinh hoạt";
+    ViewData["ActivePage"] = "Report";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/report.css" asp-append-version="true" />
+}
+
+<div class="report-page" style="--report-sub:@Model.SubColor">
+    <partial name="_ReportHeader" model="Model" />
+
+    <partial name="_ReportBody" model="Model" />
+</div>
+
+@section Scripts {
+    <script src="~/js/report.js" asp-append-version="true"></script>
+}

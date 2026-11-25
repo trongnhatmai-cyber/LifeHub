@@ -28,6 +28,8 @@
 
     --pastel-time: #f0fdfa;
     --pastel-time-accent: #0d9488;
+    --pastel-report: #faf5ff;
+    --pastel-report-accent: #9333ea;
 
     --pastel-goal: #fefce8;
     --pastel-goal-accent: #ca8a04;
@@ -129,6 +131,8 @@ html[data-theme="dark"] {
 
     --pastel-time: #011918;
     --pastel-time-accent: #2dd4bf;
+    --pastel-report: #1a0f2e;
+    --pastel-report-accent: #c084fc;
 
     --pastel-goal: #292408;
     --pastel-goal-accent: #facc15;

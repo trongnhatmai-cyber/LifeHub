@@ -1,0 +1,49 @@
+@model LifeHub.Models.ViewModels.ReportManagement.ReportTable
+@* ReportDataTable. PreviewRows: chỉ hiện ngần ấy dòng đầu, phần còn lại nằm sau nút "Xem thêm" (report.js). *@
+@{
+    var tid = "tbl-" + Math.Abs(Model.Title.GetHashCode()).ToString("x");
+    var hasExtra = Model.PreviewRows.HasValue && Model.Rows.Count > Model.PreviewRows.Value;
+}
+<section class="report-card">
+    <div class="section-heading">
+        <div><h3>@Model.Title</h3>@if (Model.Subtitle != "") { <p>@Model.Subtitle</p> }</div>
+    </div>
+    @if (!Model.Rows.Any())
+    {
+        <div class="report-empty">@Model.Empty</div>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table class="report-table" id="@tid">
+                <thead><tr>@for (var i = 0; i < Model.Headers.Count; i++) { <th class="@(Model.RightColumns.Contains(i) ? "right" : "")">@Model.Headers[i]</th> }</tr></thead>
+                <tbody>
+                    @for (var ri = 0; ri < Model.Rows.Count; ri++)
+                    {
+                        var extra = Model.PreviewRows.HasValue && ri >= Model.PreviewRows.Value;
+                        <tr data-extra="@(extra ? "1" : null)" hidden="@extra">
+                            @for (var ci = 0; ci < Model.Rows[ri].Cells.Count; ci++)
+                            {
+                                var c = Model.Rows[ri].Cells[ci];
+                                <td class="@(Model.RightColumns.Contains(ci) ? "right" : "")">
+                                    @if (c.Status != null) { <span class="status @c.Status">@c.Text</span> }
+                                    else if (c.Url != null && c.Text != "") { <a class="cell-link" href="@c.Url">@c.Text</a> }
+                                    else
+                                    {
+                                        if (c.Color != null) { <i class="cell-dot" style="--dot:@c.Color"></i> }
+                                        <text>@c.Text</text>
+                                        if (!string.IsNullOrEmpty(c.Sub)) { <small class="row-sub">@c.Sub</small> }
+                                    }
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        @if (hasExtra)
+        {
+            <div class="table-more"><button type="button" class="report-btn small" data-more="@tid" aria-expanded="false">Xem thêm</button></div>
+        }
+    }
+</section>
