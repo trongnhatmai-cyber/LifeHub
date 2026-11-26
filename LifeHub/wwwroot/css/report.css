@@ -1,19 +1,702 @@
-.report-page{max-width:1240px;margin:0 auto;padding:28px 32px 56px;color:#182230}
-.report-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:24px}
-.report-eyebrow{color:#e11d48;font-size:.72rem;font-weight:800;letter-spacing:.14em}
-.report-heading h1{margin:8px 0;font-size:clamp(1.7rem,3vw,2.35rem);font-weight:800}
-.report-heading p,.report-range{margin:0;color:#64748b}
-.report-period-form{display:grid;gap:6px;min-width:170px;color:#475569;font-size:.84rem;font-weight:700}
-.report-period-form select{border:1px solid #e2e8f0;border-radius:10px;background:#fff;padding:10px 12px;color:#1e293b;font:inherit}
-.report-tabs{display:flex;flex-wrap:wrap;gap:8px;padding-bottom:16px;border-bottom:1px solid #e2e8f0}
-.report-tabs a{padding:9px 14px;border-radius:999px;color:#475569;text-decoration:none;font-weight:700;background:#f1f5f9}
-.report-tabs a.active{background:#ffe4e8;color:#be123c}
-.report-range{margin:18px 0 24px;font-size:.9rem}
-.report-section{margin:24px 0 32px}
-.report-section h2{margin:0 0 14px;font-size:1.15rem}
-.report-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
-.report-card{display:grid;gap:9px;min-height:120px;padding:20px;border:1px solid #e2e8f0;border-radius:16px;background:#fff;box-shadow:0 8px 25px rgba(15,23,42,.04)}
-.report-card span{color:#64748b;font-size:.88rem;font-weight:700}
-.report-card strong{font-size:1.55rem;line-height:1.2;overflow-wrap:anywhere}
-.report-card small{color:#64748b}
-@media(max-width:640px){.report-page{padding:22px 16px 40px}.report-heading{align-items:stretch;flex-direction:column}.report-period-form{max-width:260px}}
+/* =====================================================================
+   LIFEHUB - ANALYTICS (THỐNG KÊ & BÁO CÁO)        wwwroot/css/report.css
+
+   Nhân bản từ study.css theo "CÁCH TÁI SỬ DỤNG" của file mẫu:
+     .study-page -> .report-page      --study- -> --report-      .study- -> .report-
+   Màu nhận diện Analytics: Violet (pastel #faf5ff, soft #f3e8ff, medium #c084fc, accent #9333ea).
+   Mỗi báo cáo có thêm màu phụ của phân hệ nguồn: View gắn style="--report-sub:#..." lên .report-page.
+
+   MỤC LỤC (số mục dùng chung giữ như study.css)
+     1. Biến giao diện   2. Nền tảng   3. Tiêu đề trang   4. Nút bấm   5. Thẻ chỉ số   6. Khung nội dung
+     7. Điều hướng báo cáo và bộ lọc thời gian      [MỚI]
+     8. KPI: đơn vị, so sánh kỳ trước, giải thích    [MỚI]
+     9. Trạng thái rỗng   10. Bảng dữ liệu   11. Chip lọc   12. Nhãn trạng thái
+    14. Toast   15. Thanh lọc GET, nút thao tác
+    16. Biểu đồ (đường, cột, donut, chú thích)      [MỚI]
+    17. Bảng báo cáo: nút xem thêm                  [MỚI]
+    18. Nhận xét và ghi chú cách tính               [MỚI]
+    19. Menu xuất báo cáo và in                     [MỚI]
+    20. Responsive (gom hết ở cuối file)
+
+   QUY TẮC: cỡ chữ dùng var(--fs-...); màu dùng --report-*; chỉ dùng màu cứng cho màu trạng thái và màu phân hệ
+   nguồn truyền từ C# (style="--rc-color:#..."). Biểu đồ là SVG, trục và lưới dùng lớp rc-* nên tự đổi theo theme.
+   ===================================================================== */
+
+
+/* =====================================================================
+   1. BIẾN GIAO DIỆN (Violet)
+   ===================================================================== */
+.report-page {
+    --report-bg: #ffffff;
+    --report-card: #faf5ff;
+    --report-card-strong: #f3e8ff;
+    --report-soft: #e9d5ff;
+    --report-border: #f3e8ff;
+    --report-text: #3b0764;
+    --report-muted: #6b7280;
+    --report-accent: #9333ea;
+    --report-accent-dark: #7e22ce;
+    --report-neutral: #e5e7eb;
+    --report-shadow: 0 6px 20px rgba(147, 51, 234, .06);
+    --report-sub: var(--report-accent);
+
+    color: var(--report-text);
+    width: 100%;
+    min-width: 0;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+:root[data-theme="dark"] .report-page,
+html[data-theme="dark"] .report-page {
+    --report-bg: #080a0f;
+    --report-card: #1a0f2e;
+    --report-card-strong: #2a1650;
+    --report-soft: #4c1d95;
+    --report-border: #3b2168;
+    --report-text: #faf5ff;
+    --report-muted: #c4b5fd;
+    --report-accent: #c084fc;
+    --report-accent-dark: #a855f7;
+    --report-neutral: #1f2937;
+    --report-shadow: 0 8px 28px rgba(0, 0, 0, .4);
+}
+
+
+/* =====================================================================
+   2. NỀN TẢNG
+   ===================================================================== */
+.report-page * { box-sizing: border-box; }
+.report-page h1, .report-page h2, .report-page h3, .report-page p { margin-top: 0; }
+.report-page button, .report-page input, .report-page select { font: inherit; }
+
+/* Đảm bảo thuộc tính hidden luôn có tác dụng, kể cả khi phần tử đã có display: flex/grid.
+   JS ẩn/hiện modal, toast, dòng bảng chỉ bằng element.hidden = true/false. */
+.report-page [hidden] { display: none !important; }
+
+
+/* =====================================================================
+   3. TIÊU ĐỀ TRANG VÀ NHÓM NÚT HÀNH ĐỘNG
+   Cấu trúc View:
+     <header class="report-heading">
+       <div><span class="report-label">…</span><h1>…</h1><p>…</p></div>
+       <div class="heading-actions"> các nút .report-btn </div>
+     </header>
+   ===================================================================== */
+.report-page .report-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+.report-page .report-label {
+    display: inline-block;
+    margin-bottom: 8px;
+    color: var(--report-accent);
+    font-size: var(--fs-eyebrow);
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+.report-page .report-heading h1 {
+    margin-bottom: 6px;
+    font-size: var(--fs-page-title);
+    font-weight: 800;
+    letter-spacing: -.6px;
+    color: var(--report-text);
+}
+.report-page .report-heading p {
+    margin-bottom: 0;
+    color: var(--report-muted);
+    font-size: var(--fs-page-sub);
+    line-height: 1.6;
+}
+.report-page .heading-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+
+/* =====================================================================
+   4. NÚT BẤM
+     .report-btn            nút phụ (nền nhạt)
+     .report-btn.primary    nút chính, mỗi khu vực chỉ nên có một
+     .report-btn.small      nút nhỏ trong thẻ
+     .report-btn.danger     nút xóa trong modal xác nhận
+   Dùng được cho cả <button> lẫn <a>.
+   ===================================================================== */
+.report-page .report-btn {
+    display: inline-flex;
+    min-height: 40px;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 16px;
+    border: 1px solid var(--report-border);
+    border-radius: 12px;
+    background: var(--report-card);
+    color: var(--report-text);
+    font-size: var(--fs-btn);
+    font-weight: 650;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.report-page .report-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+.report-page .report-btn.primary {
+    border-color: var(--report-accent);
+    background: var(--report-accent);
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(147, 51, 234, 0.25);
+}
+.report-page .report-btn.small { min-height: 32px; padding: 0 12px; border-radius: 9px; font-size: var(--fs-btn-sm); }
+.report-page .report-btn.danger { border-color: #dc2626; background: #dc2626; color: #fff; }
+
+
+/* =====================================================================
+   5. THẺ CHỈ SỐ (4 thẻ ở đầu mỗi trang)
+   Cấu trúc View:
+     <section class="report-summary">
+       <div class="summary-card">
+         <div class="summary-top"><span>Tên chỉ số</span><span class="summary-badge">NHÃN</span></div>
+         <h2>Giá trị</h2>
+         <p>Mô tả ngắn</p>
+       </div>  ×4
+     </section>
+   Giá trị do C# tính sẵn, View chỉ in ra.
+   ===================================================================== */
+.report-page .report-summary {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 22px;
+}
+.report-page .summary-card {
+    position: relative;
+    overflow: hidden;
+    padding: 20px;
+    border-radius: 18px;
+    border: 1px solid var(--report-border);
+    background: var(--report-card);
+    box-shadow: var(--report-shadow);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+}
+.report-page .summary-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 26px -6px rgba(0, 0, 0, 0.08);
+}
+/* Hình tròn trang trí ở góc dưới bên phải */
+.report-page .summary-card::after {
+    position: absolute;
+    right: -24px;
+    bottom: -36px;
+    width: 105px;
+    height: 105px;
+    border-radius: 50%;
+    background: var(--report-accent);
+    opacity: 0.12;
+    content: "";
+}
+.report-page .summary-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: var(--fs-stat-label);
+    font-weight: 600;
+    color: var(--report-muted);
+}
+/* Badge nhỏ. Cũng dùng làm nhãn mã môn, tên môn trong bảng. */
+.report-page .summary-badge {
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: var(--fs-stat-badge);
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    background: var(--report-card-strong);
+    color: var(--report-accent);
+}
+.report-page .summary-card h2 {
+    position: relative;
+    z-index: 1;
+    margin: 14px 0 4px;
+    font-size: var(--fs-stat-value);
+    font-weight: 800;
+    letter-spacing: -.6px;
+    color: var(--report-text);
+}
+.report-page .summary-card p {
+    margin: 0;
+    color: var(--report-muted);
+    font-size: var(--fs-stat-note);
+}
+
+
+/* =====================================================================
+   6. KHUNG NỘI DUNG
+     .report-grid      lưới 2 cột (cột trái rộng hơn), về 1 cột trên màn nhỏ
+     .report-card      thẻ nội dung chuẩn
+     .section-heading tiêu đề của một khối: <div><h3>…</h3><p>…</p></div> + nút (tuỳ chọn)
+   ===================================================================== */
+.report-page .report-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(320px, 1fr);
+    gap: 18px;
+    margin-bottom: 20px;
+}
+.report-page .report-card {
+    background: var(--report-bg);
+    border: 1px solid var(--report-border);
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: var(--report-shadow);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+}
+.report-page .report-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px -4px rgba(0, 0, 0, 0.07);
+}
+.report-page .section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+}
+.report-page .section-heading h3 {
+    margin: 0 0 4px;
+    font-size: var(--fs-panel-title);
+    font-weight: 800;
+    color: var(--report-text);
+}
+.report-page .section-heading p {
+    margin: 0;
+    font-size: var(--fs-panel-sub);
+    color: var(--report-muted);
+}
+
+
+/* =====================================================================
+   7. ĐIỀU HƯỚNG BÁO CÁO VÀ BỘ LỌC THỜI GIAN
+   .report-nav: 6 mục của phân hệ (không đưa vào sidebar chính). Mục đang xem có class "active".
+   .report-filter: bộ lọc thời gian ÁP DỤNG CHUNG cho mọi KPI và biểu đồ của trang. Form GET.
+   .period-text: luôn hiển thị khoảng thời gian thực tế đang dùng.
+   ===================================================================== */
+.report-page .report-nav { display: flex; gap: 4px; margin-bottom: 18px; overflow-x: auto; border-bottom: 1px solid var(--report-border); }
+.report-page .report-nav a {
+    padding: 10px 14px;
+    border-bottom: 2px solid transparent;
+    color: var(--report-muted);
+    font-size: var(--fs-btn);
+    font-weight: 650;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.report-page .report-nav a:hover { color: var(--report-text); }
+.report-page .report-nav a.active { border-bottom-color: var(--report-sub); color: var(--report-text); font-weight: 800; }
+
+.report-page .report-filter {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 16px;
+    margin-bottom: 18px;
+    padding: 12px 14px;
+    border: 1px solid var(--report-border);
+    border-radius: 14px;
+    background: var(--report-card);
+}
+.report-page .report-filter form { display: contents; }
+.report-page .report-filter .filter-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.report-page .report-filter label.compare { display: inline-flex; align-items: center; gap: 8px; color: var(--report-muted); font-size: var(--fs-meta); font-weight: 650; cursor: pointer; }
+.report-page .custom-range { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.report-page .custom-range input {
+    height: 36px;
+    padding: 0 10px;
+    border: 1px solid var(--report-border);
+    border-radius: 10px;
+    background: var(--report-bg);
+    color: var(--report-text);
+    font-size: var(--fs-meta);
+}
+.report-page .period-text { margin-left: auto; color: var(--report-muted); font-size: var(--fs-meta); }
+.report-page .period-text strong { color: var(--report-text); }
+
+
+/* =====================================================================
+   8. KPI: ĐƠN VỊ, SO SÁNH KỲ TRƯỚC, GIẢI THÍCH CÁCH TÍNH
+   Mỗi KPI có tên, giá trị, đơn vị, khoảng thời gian, so sánh kỳ trước (nếu hợp lệ), giải thích (dấu ?).
+   Giá trị "--" nghĩa là chưa đủ dữ liệu, không điền số giả. Mũi tên chỉ hướng thay đổi, không phán xét tốt xấu.
+   Tooltip nằm TRONG thẻ (thẻ có overflow hidden) nên .kpi-tip không đặt position.
+   ===================================================================== */
+.report-page .report-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 22px; }
+.report-page .summary-card h2 .kpi-unit { margin-left: 4px; color: var(--report-muted); font-size: var(--fs-panel-sub); font-weight: 650; letter-spacing: 0; }
+.report-page .kpi-tip {
+    display: inline-grid;
+    width: 16px;
+    height: 16px;
+    margin-left: 6px;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--report-card-strong);
+    color: var(--report-accent);
+    font-size: 10px;
+    font-weight: 800;
+    cursor: help;
+}
+.report-page .kpi-tip::after {
+    position: absolute;
+    z-index: 5;
+    top: 46px;
+    right: 14px;
+    left: 14px;
+    padding: 8px 10px;
+    border: 1px solid var(--report-border);
+    border-radius: 10px;
+    background: var(--report-bg);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, .18);
+    color: var(--report-text);
+    content: attr(data-tip);
+    font-size: var(--fs-meta);
+    font-weight: 500;
+    line-height: 1.5;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .15s ease;
+}
+.report-page .kpi-tip:hover::after, .report-page .kpi-tip:focus::after { opacity: 1; }
+.report-page .kpi-delta { position: relative; z-index: 1; margin: 6px 0 0; color: var(--report-muted); font-size: var(--fs-meta); font-weight: 700; }
+.report-page .kpi-delta.up { color: var(--report-accent); }
+.report-page .kpi-delta.down { color: var(--report-text); }
+.report-page .kpi-link { position: relative; z-index: 1; display: inline-block; margin-top: 8px; color: var(--report-accent); font-size: var(--fs-meta); font-weight: 700; text-decoration: none; }
+.report-page .kpi-link:hover { text-decoration: underline; }
+
+
+/* =====================================================================
+   9. TRẠNG THÁI RỖNG
+   Luôn viết lời hướng dẫn hành động: "Chưa có … Bấm "+ Thêm …" để bắt đầu."
+   ===================================================================== */
+.report-page .report-empty {
+    padding: 18px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--report-muted);
+}
+
+
+/* =====================================================================
+   10. BẢNG DỮ LIỆU
+     <div class="table-wrap"><table class="report-table"> … </table></div>
+   .table-wrap cho phép cuộn ngang trên màn nhỏ.
+     td.right  căn phải (điểm, thao tác)   td.muted  chữ phụ không xuống dòng
+     .row-sub  dòng phụ nhỏ dưới tên trong ô
+   ===================================================================== */
+.report-page .table-wrap { overflow-x: auto; }
+.report-page .report-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+.report-page .report-table th {
+    padding: 12px 10px;
+    text-align: left;
+    color: var(--report-muted);
+    font-size: 11px;
+    font-weight: 700;
+    border-bottom: 1px solid var(--report-border);
+    white-space: nowrap;
+}
+.report-page .report-table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--report-border);
+}
+.report-page .report-table .right { text-align: right; }
+.report-page .report-table .muted { color: var(--report-muted); white-space: nowrap; }
+.report-page .row-sub {
+    display: block;
+    margin-top: 2px;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--report-muted);
+}
+
+
+/* =====================================================================
+   11. CHIP LỌC
+   Hai cách dùng, cùng một giao diện:
+     - <a class="report-chip" asp-route-...>   lọc phía server (Controller lọc, tải lại trang)
+     - <button class="report-chip" data-filter="..."> lọc nhanh phía trình duyệt (xem report.js mục 8)
+   Chip đang chọn thêm class "active" (Razor tự gán khi render).
+   ===================================================================== */
+.report-page .report-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+.report-page .report-chip {
+    padding: 6px 14px;
+    border: 1px solid var(--report-border);
+    border-radius: 999px;
+    background: var(--report-card);
+    color: var(--report-muted);
+    font-size: 12px;
+    font-weight: 650;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.report-page a.report-chip { display: inline-flex; align-items: center; text-decoration: none; }
+.report-page .report-chip:hover { color: var(--report-text); }
+.report-page .report-chip.active {
+    border-color: var(--report-accent);
+    background: var(--report-accent);
+    color: #ffffff;
+}
+/* Theme tối: màu nhấn sáng hơn nên chữ chip đang chọn phải tối để đọc được */
+html[data-theme="dark"] .report-page .report-chip.active,
+:root[data-theme="dark"] .report-page .report-chip.active { color: #08111f; }
+
+
+/* =====================================================================
+   12. NHÃN TRẠNG THÁI
+   Dùng: <span class="status st-@key">Nhãn</span>
+   Bốn trạng thái chuẩn, có thể dùng cho mọi phân hệ:
+     st-graded     xanh lá   hoàn thành / đã chấm / đã kết thúc
+     st-submitted  xanh dương đang diễn ra / đã nộp
+     st-overdue    đỏ        quá hạn / cảnh báo / trùng lịch
+     st-upcoming   cam       sắp tới / chưa làm
+   Key (graded, submitted, overdue, upcoming) do C# trả về từ ViewModel.
+   Report dùng: graded = hoàn thành / đã nộp, submitted = đang thực hiện, upcoming = chưa nộp / cần chú ý, overdue = quá hạn, rest = đã đóng.
+   ===================================================================== */
+.report-page .status {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.report-page .st-graded    { background: rgba(22, 163, 74, .14);  color: #15803d; }
+.report-page .st-submitted { background: rgba(37, 99, 235, .14);  color: #1d4ed8; }
+.report-page .st-overdue   { background: rgba(220, 38, 38, .14);  color: #b91c1c; }
+.report-page .st-upcoming  { background: rgba(217, 119, 6, .16);  color: #b45309; }
+.report-page .st-rest      { background: var(--report-neutral);   color: var(--report-muted); }
+/* Theme tối: chữ sáng hơn để đủ tương phản */
+html[data-theme="dark"] .report-page .st-graded,    :root[data-theme="dark"] .report-page .st-graded    { color: #4ade80; }
+html[data-theme="dark"] .report-page .st-submitted, :root[data-theme="dark"] .report-page .st-submitted { color: #93c5fd; }
+html[data-theme="dark"] .report-page .st-overdue,   :root[data-theme="dark"] .report-page .st-overdue   { color: #f87171; }
+html[data-theme="dark"] .report-page .st-upcoming,  :root[data-theme="dark"] .report-page .st-upcoming  { color: #fbbf24; }
+
+
+/* =====================================================================
+   14. THÔNG BÁO NHỎ (TOAST)
+   JS tự tạo hoặc dùng sẵn <div class="report-toast" id="reportToast" hidden>.
+   Chỉ dùng cho thông báo thật. Form mô phỏng chỉ báo "chưa được lưu", không báo thành công giả.
+   ===================================================================== */
+.report-page .report-toast {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 1300;
+    max-width: 340px;
+    padding: 12px 16px;
+    border: 1px solid var(--report-border);
+    border-radius: 12px;
+    background: var(--report-card-strong);
+    color: var(--report-text);
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .18);
+}
+
+
+/* =====================================================================
+   15. THANH LỌC GET VÀ NÚT THAO TÁC TRONG BẢNG
+   Thanh lọc: <form method="get" class="report-toolbar"> input tìm kiếm + select data-autosubmit
+   .report-count: dòng "Hiển thị x / y" dưới thanh lọc.
+   .row-actions + .row-btn: nút Sửa, Xóa, Nhập điểm trong cột thao tác.
+   .due-hint: dòng "Còn n ngày" / "Quá hạn n ngày" (thêm .overdue để tô đỏ).
+   ===================================================================== */
+.report-page .report-count { margin: 0 0 12px; color: var(--report-muted); font-size: 12px; }
+
+.report-page .report-toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+.report-page .report-toolbar input,
+.report-page .report-toolbar select {
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--report-border);
+    border-radius: 12px;
+    background: var(--report-card);
+    color: var(--report-text);
+    font-size: 13px;
+}
+.report-page .report-toolbar input { flex: 1 1 220px; min-width: 0; }
+.report-page .report-toolbar select { flex: 0 1 190px; }
+.report-page .report-toolbar input:focus,
+.report-page .report-toolbar select:focus { outline: 2px solid var(--report-accent); outline-offset: 1px; }
+
+.report-page .row-actions { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+.report-page .row-actions form { margin: 0; }
+.report-page .row-btn {
+    padding: 6px 11px;
+    border: 1px solid var(--report-border);
+    border-radius: 8px;
+    background: var(--report-card);
+    color: var(--report-text);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.report-page .row-btn:hover { border-color: var(--report-accent); color: var(--report-accent); }
+.report-page .due-hint.overdue { color: #dc2626; font-weight: 700; }
+
+
+/* =====================================================================
+   16. BIỂU ĐỒ
+   SVG do C# vẽ (ReportCharts). Màu chuỗi: style="--rc-color:#..." trên từng phần tử.
+   .chart-grid: lưới 2 cột, .chart-card.wide chiếm cả hàng. .legend-btn bật/tắt từng chuỗi (report.js thêm class is-off).
+   Donut: chu vi chuẩn hóa 100, chữ ở giữa là HTML (.donut-center).
+   ===================================================================== */
+.report-page .chart-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-bottom: 20px; }
+.report-page .chart-card.wide { grid-column: 1 / -1; }
+.report-page .chart-scroll { overflow-x: auto; }
+.report-page .rc { display: block; width: 100%; min-width: 460px; height: auto; }
+.report-page .rc-grid { stroke: var(--report-border); stroke-width: 1; }
+.report-page .rc-axis { fill: var(--report-muted); font-size: 11px; }
+.report-page .rc-line { fill: none; stroke: var(--rc-color); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.report-page .rc-dot { fill: var(--rc-color); }
+.report-page .rc-bar { fill: var(--rc-color); }
+.report-page .rc-series.is-off { display: none; }
+
+.report-page .chart-legend { display: flex; flex-wrap: wrap; gap: 8px 10px; margin-top: 12px; }
+.report-page .legend-btn, .report-page .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border: 1px solid var(--report-border);
+    border-radius: 999px;
+    background: var(--report-card);
+    color: var(--report-text);
+    font-size: var(--fs-meta);
+}
+.report-page .legend-btn { cursor: pointer; }
+.report-page .legend-btn i, .report-page .legend-item i { width: 10px; height: 10px; border-radius: 3px; background: var(--lg-color); }
+.report-page .legend-btn[aria-pressed="false"] { opacity: .5; text-decoration: line-through; }
+
+.report-page .donut-wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; }
+.report-page .donut { position: relative; width: 160px; height: 160px; flex-shrink: 0; }
+.report-page .rc-donut { width: 100%; height: 100%; transform: rotate(-90deg); }
+.report-page .rc-donut-bg { fill: none; stroke: var(--report-card-strong); stroke-width: 4; }
+.report-page .rc-donut-seg { fill: none; stroke-width: 4; }
+.report-page .donut-center { position: absolute; inset: 0; display: grid; padding: 28px; place-content: center; text-align: center; }
+.report-page .donut-center strong { overflow-wrap: anywhere; font-size: var(--fs-panel-title); font-weight: 800; line-height: 1.2; }
+.report-page .donut-center span { color: var(--report-muted); font-size: var(--fs-meta); }
+.report-page .legend-list { display: grid; flex: 1; gap: 8px; min-width: 170px; margin: 0; padding: 0; list-style: none; }
+.report-page .legend-list li { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: var(--fs-card-text); }
+.report-page .legend-list i { display: inline-block; width: 10px; height: 10px; margin-right: 8px; border-radius: 3px; }
+.report-page .legend-list span { color: var(--report-muted); text-align: right; }
+
+
+/* =====================================================================
+   17. BẢNG BÁO CÁO
+   Dùng .report-table (mục 10). Chấm màu .cell-dot là màu phân hệ / danh mục; .report-table tr[hidden] là dòng "xem thêm".
+   ===================================================================== */
+.report-page .report-table .cell-dot { display: inline-block; width: 9px; height: 9px; margin-right: 8px; border-radius: 50%; background: var(--dot, var(--report-accent)); }
+.report-page .report-table a.cell-link { color: var(--report-accent); font-weight: 700; text-decoration: none; }
+.report-page .report-table a.cell-link:hover { text-decoration: underline; }
+.report-page .report-table tr[hidden] { display: none; }
+.report-page .table-more { margin-top: 12px; text-align: center; }
+.report-page .report-card + .report-card { margin-top: 20px; }
+
+
+/* =====================================================================
+   18. NHẬN XÉT VÀ GHI CHÚ CÁCH TÍNH
+   Nhận xét chỉ sinh từ dữ liệu thật bằng quy tắc xác định (chưa dùng AI).
+   ===================================================================== */
+.report-page .insight-list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.report-page .insight-item { padding: 10px 12px; border-left: 3px solid var(--report-sub); border-radius: 10px; background: var(--report-card); font-size: var(--fs-card-text); line-height: 1.55; }
+.report-page .report-notes { display: grid; gap: 6px; margin: 0; padding-left: 18px; color: var(--report-muted); font-size: var(--fs-meta); line-height: 1.6; }
+.report-page .report-empty { padding: 22px 18px; border: 1px dashed var(--report-border); border-radius: 12px; color: var(--report-muted); font-size: var(--fs-card-text); text-align: center; }
+.report-page .goal-filters { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 14px; }
+.report-page .goal-filters form { display: contents; }
+.report-page .goal-filters select {
+    height: 40px;
+    min-width: 200px;
+    padding: 0 12px;
+    border: 1px solid var(--report-border);
+    border-radius: 12px;
+    background: var(--report-card);
+    color: var(--report-text);
+    font-size: var(--fs-btn);
+    cursor: pointer;
+}
+.report-page .goal-filters select:focus { outline: 2px solid var(--report-accent); outline-offset: 1px; }
+
+
+/* =====================================================================
+   19. MENU XUẤT BÁO CÁO VÀ IN
+   Xuất CSV (KPI và các bảng) hoặc in / lưu PDF bằng trình duyệt. Khi in, ẩn các điều khiển.
+   ===================================================================== */
+.report-page .export-menu { position: relative; }
+.report-page .export-menu > summary { list-style: none; }
+.report-page .export-menu > summary::-webkit-details-marker { display: none; }
+.report-page .export-list {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 6px);
+    z-index: 30;
+    min-width: 210px;
+    padding: 6px;
+    border: 1px solid var(--report-border);
+    border-radius: 12px;
+    background: var(--report-bg);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, .18);
+}
+.report-page .export-list a, .report-page .export-list button {
+    display: block;
+    width: 100%;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 8px;
+    background: none;
+    color: var(--report-text);
+    font-size: var(--fs-btn-sm);
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+}
+.report-page .export-list a:hover, .report-page .export-list button:hover { background: var(--report-card); }
+
+@media print {
+    .report-page .report-nav, .report-page .report-filter, .report-page .heading-actions, .report-page .table-more, .report-page .kpi-link, .report-page .goal-filters { display: none !important; }
+    .report-page .report-card { box-shadow: none; break-inside: avoid; }
+    .report-page .report-table tr[hidden] { display: table-row !important; }
+    .report-page .rc-series.is-off { display: inline !important; }
+}
+
+
+/* =====================================================================
+   20. RESPONSIVE
+   Mốc chuẩn: 1024px (tablet) và 640px (điện thoại). Bảng rộng cuộn ngang trong .table-wrap.
+   ===================================================================== */
+@media (max-width: 1024px) {
+    .report-page .report-grid { grid-template-columns: 1fr; }
+    .report-page .chart-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+    .report-page .report-summary { grid-template-columns: 1fr; }
+    .report-page .report-heading { flex-direction: column; align-items: flex-start; }
+    .report-page .period-text { margin-left: 0; }
+    .report-page .report-filter { padding: 12px; }
+    .report-page .report-toolbar select { flex: 1 1 100%; }
+    .report-page .goal-filters select { flex: 1 1 100%; }
+    .report-page .donut { width: 140px; height: 140px; }
+}
+
+@media (max-width: 560px) {
+    .report-page .summary-card h2 { font-size: var(--fs-stat-value-mobile); }
+}

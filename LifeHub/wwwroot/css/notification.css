@@ -1,0 +1,666 @@
+
+/* =========================================================
+   LIFEHUB - NOTIFICATION PAGE
+   Scope: .notification-page
+   Dependencies: layout.css (--sys-*, --fs-*)
+   ========================================================= */
+
+/* 1. FOUNDATION */
+.notification-page {
+    width: 100%;
+    min-width: 0;
+    color: var(--sys-text);
+}
+
+.notification-page *,
+.notification-page *::before,
+.notification-page *::after {
+    box-sizing: border-box;
+}
+
+.notification-page h1,
+.notification-page h2,
+.notification-page h3,
+.notification-page p {
+    margin-top: 0;
+}
+
+.notification-page button,
+.notification-page input {
+    font: inherit;
+}
+
+.notification-page [hidden] {
+    display: none !important;
+}
+
+.notification-page a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.notification-page button:focus-visible,
+.notification-page a:focus-visible,
+.notification-page input:focus-visible {
+    outline: 2px solid var(--sys-accent);
+    outline-offset: 3px;
+}
+
+/* 2. PAGE HEADING */
+.notification-page .notification-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.notification-page .notification-title {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.notification-page .notification-title > div {
+    min-width: 0;
+}
+
+.notification-page .notification-title h1 {
+    margin: 0 0 5px;
+    font-size: var(--fs-page-title);
+    font-weight: 800;
+    letter-spacing: -.4px;
+}
+
+.notification-page .notification-title p {
+    margin: 3px 0 0;
+    color: var(--sys-muted);
+    font-size: var(--fs-page-sub);
+    line-height: 1.5;
+}
+
+.notification-page .notification-back {
+    display: inline-grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    flex: none;
+    border: 1px solid var(--sys-border);
+    border-radius: 12px;
+    background: var(--sys-bg);
+    color: var(--sys-text);
+    cursor: pointer;
+    transition: .2s ease;
+}
+
+.notification-page .notification-back:hover {
+    border-color: var(--sys-accent);
+    color: var(--sys-accent);
+    transform: translateX(-2px);
+}
+
+.notification-page .notification-back .lh-ico {
+    width: 19px;
+    height: 19px;
+}
+
+.notification-page .heading-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.notification-page .heading-actions form {
+    margin: 0;
+}
+
+.notification-page .notification-total {
+    color: var(--sys-muted);
+    font-size: var(--fs-base);
+    font-weight: 650;
+    white-space: nowrap;
+}
+
+/* 3. BUTTONS */
+.notification-page .notification-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 0 15px;
+    border: 1px solid var(--sys-border);
+    border-radius: 11px;
+    background: var(--sys-bg);
+    color: var(--sys-accent);
+    font-size: var(--fs-btn);
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition:
+        background .2s ease,
+        border-color .2s ease,
+        transform .2s ease;
+}
+
+.notification-page .notification-btn:hover:not(:disabled) {
+    border-color: var(--sys-accent);
+    background: var(--sys-card-strong);
+}
+
+.notification-page .notification-btn:active:not(:disabled) {
+    transform: scale(.98);
+}
+
+.notification-page .notification-btn:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+.notification-page .notification-btn .lh-ico {
+    width: 17px;
+    height: 17px;
+}
+
+.notification-page .notification-icon-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--sys-muted);
+    cursor: pointer;
+    transition: .2s ease;
+}
+
+.notification-page .notification-icon-btn .lh-ico {
+    width: 17px;
+    height: 17px;
+}
+
+.notification-page .notification-icon-btn:hover {
+    background: var(--sys-card-strong);
+    color: var(--sys-accent);
+}
+
+.notification-page .notification-icon-btn.danger:hover {
+    background: var(--sys-danger-bg);
+    color: var(--sys-danger);
+}
+
+/* 4. MAIN LAYOUT */
+.notification-page .notification-layout {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    align-items: start;
+    gap: 20px;
+}
+
+/* CATEGORY FILTERS */
+.notification-page .notification-filters {
+    position: sticky;
+    top: 88px;
+    display: grid;
+    gap: 5px;
+    padding: 10px;
+    border: 1px solid var(--sys-border);
+    border-radius: 16px;
+    background: var(--sys-bg);
+    box-shadow: var(--sys-shadow);
+}
+
+.notification-page .notification-filter {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    width: 100%;
+    min-height: 43px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--sys-muted);
+    font-size: var(--fs-base);
+    font-weight: 650;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: .2s ease;
+}
+
+.notification-page .notification-filter .lh-ico {
+    width: 18px;
+    height: 18px;
+    flex: none;
+}
+
+.notification-page .notification-filter:hover {
+    background: var(--sys-card);
+    color: var(--sys-text);
+}
+
+.notification-page .notification-filter.active {
+    background: var(--sys-card-strong);
+    color: var(--sys-accent);
+}
+
+.notification-page .notification-filter.active::before {
+    position: absolute;
+    left: 0;
+    top: 10px;
+    bottom: 10px;
+    width: 3px;
+    border-radius: 0 4px 4px 0;
+    background: var(--sys-accent);
+    content: "";
+}
+
+/* NOTIFICATION CARD */
+.notification-page .notification-card {
+    min-width: 0;
+    padding: 18px;
+    border: 1px solid var(--sys-border);
+    border-radius: 16px;
+    background: var(--sys-bg);
+    box-shadow: var(--sys-shadow);
+}
+
+/* 5. TOOLBAR */
+.notification-page .notification-toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.notification-page .notification-search {
+    flex: 1 1 220px;
+    width: 100%;
+    min-width: 0;
+    height: 42px;
+    padding: 0 14px;
+    border: 1px solid var(--sys-border);
+    border-radius: 11px;
+    background: var(--sys-card);
+    color: var(--sys-text);
+    font-size: var(--fs-base);
+    transition: border-color .2s ease;
+}
+
+.notification-page .notification-search::placeholder {
+    color: var(--sys-muted);
+    opacity: .8;
+}
+
+.notification-page .notification-search:focus {
+    border-color: var(--sys-accent);
+    outline: none;
+}
+
+.notification-page .notification-chips {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.notification-page .notification-chip {
+    min-height: 36px;
+    padding: 0 14px;
+    border: 1px solid var(--sys-border);
+    border-radius: 999px;
+    background: var(--sys-bg);
+    color: var(--sys-muted);
+    font-size: var(--fs-sm);
+    font-weight: 650;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: .2s ease;
+}
+
+.notification-page .notification-chip:hover {
+    border-color: var(--sys-accent);
+    color: var(--sys-accent);
+}
+
+.notification-page .notification-chip.active {
+    border-color: var(--sys-accent);
+    background: var(--sys-accent);
+    color: var(--sys-on-accent);
+}
+
+/* 6. NOTIFICATION GROUP */
+.notification-page .notification-day {
+    margin: 22px 0 8px;
+    color: var(--sys-muted);
+    font-size: var(--fs-sm);
+    font-weight: 800;
+    letter-spacing: .45px;
+    text-transform: uppercase;
+}
+
+.notification-page .notification-group:first-child .notification-day {
+    margin-top: 14px;
+}
+
+/* 7. NOTIFICATION ITEM */
+.notification-page .notification-item {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 13px;
+    padding: 15px 12px;
+    border-top: 1px solid var(--sys-border);
+    border-radius: 11px;
+    transition: background .2s ease;
+}
+
+.notification-page .notification-item:hover {
+    background: var(--sys-card);
+}
+
+.notification-page .notification-item.unread {
+    background: var(--sys-card-strong);
+}
+
+.notification-page .notification-item.unread:hover {
+    background: var(--sys-card);
+}
+
+/* ICON */
+.notification-page .notification-item > .lh-tone {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    flex: none;
+}
+
+.notification-page .notification-item > .lh-tone .lh-ico {
+    width: 20px;
+    height: 20px;
+}
+
+/* CONTENT */
+.notification-page .notification-body {
+    min-width: 0;
+}
+
+.notification-page .notification-body h3 {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 5px;
+    color: var(--sys-text);
+    font-size: var(--fs-card-title);
+    font-weight: 750;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.notification-page .notification-body h3 a {
+    color: inherit;
+    transition: color .2s ease;
+}
+
+.notification-page .notification-body h3 a:hover {
+    color: var(--sys-accent);
+    text-decoration: underline;
+}
+
+.notification-page .notification-body p {
+    margin: 0;
+    color: var(--sys-muted);
+    font-size: var(--fs-card-text);
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.notification-page .notification-new {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: var(--sys-accent);
+    color: var(--sys-on-accent);
+    font-size: var(--fs-2xs);
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.notification-page .notification-expired {
+    margin-top: 7px !important;
+    font-size: var(--fs-sm) !important;
+    font-style: italic;
+}
+
+/* INVITATION ACTIONS */
+.notification-page .notification-invitation-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.notification-page .notification-invitation-actions form {
+    margin: 0;
+}
+
+.notification-page .notification-primary,
+.notification-page .notification-secondary {
+    min-height: 34px;
+    padding: 0 12px;
+    border: 1px solid var(--sys-border);
+    border-radius: 9px;
+    font-size: var(--fs-sm);
+    font-weight: 700;
+    cursor: pointer;
+    transition: .2s ease;
+}
+
+.notification-page .notification-primary {
+    border-color: var(--sys-accent);
+    background: var(--sys-accent);
+    color: var(--sys-on-accent);
+}
+
+.notification-page .notification-primary:hover {
+    opacity: .85;
+}
+
+.notification-page .notification-secondary {
+    background: var(--sys-bg);
+    color: var(--sys-muted);
+}
+
+.notification-page .notification-secondary:hover {
+    border-color: var(--sys-danger);
+    color: var(--sys-danger);
+}
+
+.notification-page .notification-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    color: var(--sys-accent);
+    font-size: var(--fs-sm);
+    font-weight: 700;
+}
+
+.notification-page .notification-link:hover {
+    text-decoration: underline;
+}
+
+/* 8. TIME AND ACTIONS */
+.notification-page .notification-side {
+    display: grid;
+    justify-items: end;
+    gap: 7px;
+}
+
+.notification-page .notification-side time {
+    color: var(--sys-muted);
+    font-size: var(--fs-sm);
+    white-space: nowrap;
+}
+
+.notification-page .notification-actions {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.notification-page .notification-actions form {
+    margin: 0;
+}
+
+/* 9. EMPTY STATE */
+.notification-page .notification-empty {
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+    padding: 42px 16px;
+    border: 1px dashed var(--sys-border);
+    border-radius: 14px;
+    color: var(--sys-muted);
+    font-size: var(--fs-base);
+    line-height: 1.6;
+    text-align: center;
+}
+
+.notification-page .notification-empty .lh-ico {
+    width: 30px;
+    height: 30px;
+    margin-bottom: 5px;
+}
+
+.notification-page .notification-empty strong {
+    color: var(--sys-text);
+    font-size: var(--fs-card-title);
+}
+
+/* 10. LOAD MORE */
+.notification-page .notification-more {
+    display: flex;
+    justify-content: center;
+    margin-top: 18px;
+}
+
+/* 11. RESPONSIVE */
+@media (max-width: 1000px) {
+    .notification-page .notification-layout {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .notification-page .notification-filters {
+        position: static;
+        display: flex;
+        gap: 5px;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        scrollbar-width: thin;
+    }
+
+    .notification-page .notification-filter {
+        width: auto;
+        flex: 0 0 auto;
+    }
+
+    .notification-page .notification-filter.active::before {
+        display: none;
+    }
+}
+
+@media (max-width: 640px) {
+    .notification-page .notification-heading {
+        align-items: flex-start;
+        gap: 14px;
+    }
+
+    .notification-page .notification-title {
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .notification-page .notification-title h1 {
+        font-size: var(--fs-stat-value-mobile);
+    }
+
+    .notification-page .heading-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .notification-page .notification-card {
+        padding: 12px;
+    }
+
+    .notification-page .notification-toolbar {
+        align-items: stretch;
+    }
+
+    .notification-page .notification-search {
+        flex-basis: 100%;
+    }
+
+    .notification-page .notification-chips {
+        width: 100%;
+    }
+
+    .notification-page .notification-item {
+        grid-template-columns: 36px minmax(0, 1fr);
+        gap: 10px;
+        padding: 13px 8px;
+    }
+
+    .notification-page .notification-item > .lh-tone {
+        width: 36px;
+        height: 36px;
+    }
+
+    .notification-page .notification-side {
+        grid-column: 2;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        gap: 8px;
+    }
+
+    .notification-page .notification-invitation-actions {
+        gap: 6px;
+    }
+}
+
+@media (max-width: 380px) {
+    .notification-page .heading-actions {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .notification-page .notification-btn {
+        max-width: 100%;
+        white-space: normal;
+    }
+
+    .notification-page .notification-chips {
+        gap: 5px;
+    }
+
+    .notification-page .notification-chip {
+        padding: 0 10px;
+    }
+}

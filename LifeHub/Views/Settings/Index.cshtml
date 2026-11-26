@@ -1,0 +1,46 @@
+@{
+    Layout = "_SettingsLayout";
+    ViewData["SettingsActive"] = "index";
+
+    // { action, tên, mô tả, biểu tượng, màu biểu tượng (ico-...), từ khóa tìm kiếm }
+    var groups = new List<string[]>
+    {
+        new[] { "Profile",       "Tài khoản cá nhân",   "Quản lý thông tin cá nhân của bạn (họ tên, số điện thoại, email...)", "user",     "account",    "hồ sơ họ tên email số điện thoại ảnh đại diện" },
+        new[] { "Appearance",    "Giao diện",           "Chọn giao diện sáng/tối, ngôn ngữ và múi giờ",                         "palette",  "appearance", "chủ đề sáng tối dark light ngôn ngữ múi giờ" },
+        new[] { "Notifications", "Thông báo",           "Tùy chỉnh cách nhận thông báo và nhắc nhở",                            "bell",     "notice",     "thông báo nhắc nhở email push" },
+        new[] { "Security",      "Bảo mật",             "Đổi mật khẩu và xem trạng thái bảo mật tài khoản",                     "shield",   "security",   "mật khẩu bảo mật token xác thực" },
+        new[] { "Sharing",       "Chia sẻ & Phân quyền", "Quản lý quyền truy cập và nội dung đã chia sẻ",                       "share",    "sharing",    "chia sẻ phân quyền quyền truy cập thu hồi" },
+        new[] { "ActivityLog",   "Nhật ký hoạt động",   "Xem lịch sử hoạt động của tài khoản",                                  "history",  "log",        "nhật ký lịch sử hoạt động đăng nhập" }
+    };
+}
+
+<header class="settings-head">
+    <div>
+        <h1>Cài đặt</h1>
+        <p>Quản lý tài khoản và tùy chỉnh trải nghiệm LifeHub.</p>
+    </div>
+</header>
+
+<div class="settings-searchbar">
+    <svg class="lh-ico"><use href="#i-search"></use></svg>
+    <input type="search" id="settingsSearch" placeholder="Tìm cài đặt..." autocomplete="off" aria-label="Tìm cài đặt" />
+</div>
+
+<div class="settings-cards" id="settingsCards">
+    @foreach (var g in groups)
+    {
+        <a asp-controller="Settings" asp-action="@g[0]" class="settings-link-card"
+           data-keywords="@((g[1] + " " + g[2] + " " + g[5]).ToLowerInvariant())">
+            <span class="settings-ico" style="--ico: var(--sys-ico-@g[4]); --ico-bg: var(--sys-ico-@g[4]-bg);">
+                <svg class="lh-ico"><use href="#i-@g[3]"></use></svg>
+            </span>
+            <span class="settings-link-text">
+                <strong>@g[1]</strong>
+                <small>@g[2]</small>
+            </span>
+            <svg class="lh-ico settings-chevron"><use href="#i-chevron-right"></use></svg>
+        </a>
+    }
+</div>
+
+<p class="settings-empty" id="settingsNoMatch" hidden>Không tìm thấy mục cài đặt phù hợp.</p>

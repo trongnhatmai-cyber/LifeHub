@@ -1,0 +1,24 @@
+@model string
+@* Trình soạn thảo văn bản đơn giản (như soạn một tệp Word), dùng chung cho form tài liệu và form bài tập.
+   Model = tiền tố id (VD "d", "asg"). Form chứa nó gửi nội dung (HTML) qua ô ẩn name="Content";
+   study.js đồng bộ ô ẩn khi gửi và SERVER làm sạch lại (StudyController.SanitizeHtml) trước khi lưu. *@
+<div class="study-editor" data-editor data-load-url="@Url.Action("DocumentHtml", "Study")">
+    <div class="study-editor-bar" role="toolbar" aria-label="Định dạng văn bản">
+        <button type="button" data-cmd="bold" title="In đậm (Ctrl+B)" aria-label="In đậm"><b>B</b></button>
+        <button type="button" data-cmd="italic" title="In nghiêng (Ctrl+I)" aria-label="In nghiêng"><i>I</i></button>
+        <button type="button" data-cmd="underline" title="Gạch chân (Ctrl+U)" aria-label="Gạch chân"><u>U</u></button>
+        <span class="study-editor-sep" aria-hidden="true"></span>
+        <button type="button" data-cmd="formatBlock" data-value="h2" title="Tiêu đề lớn" aria-label="Tiêu đề lớn">H1</button>
+        <button type="button" data-cmd="formatBlock" data-value="h3" title="Tiêu đề nhỏ" aria-label="Tiêu đề nhỏ">H2</button>
+        <button type="button" data-cmd="formatBlock" data-value="p" title="Đoạn văn thường" aria-label="Đoạn văn thường">¶</button>
+        <span class="study-editor-sep" aria-hidden="true"></span>
+        <button type="button" data-cmd="insertUnorderedList" title="Danh sách gạch đầu dòng" aria-label="Danh sách gạch đầu dòng">• Danh sách</button>
+        <button type="button" data-cmd="insertOrderedList" title="Danh sách đánh số" aria-label="Danh sách đánh số">1. Danh sách</button>
+        <button type="button" data-cmd="formatBlock" data-value="blockquote" title="Trích dẫn" aria-label="Trích dẫn">“ ”</button>
+        <span class="study-editor-sep" aria-hidden="true"></span>
+        <button type="button" data-cmd="removeFormat" title="Xóa định dạng" aria-label="Xóa định dạng">Xóa định dạng</button>
+    </div>
+    <div class="study-editor-area study-richtext" id="@(Model)Editor" contenteditable="true" role="textbox" aria-multiline="true"
+         aria-label="Nội dung văn bản" data-placeholder="Gõ nội dung tại đây, như đang soạn một tệp Word..."></div>
+    <input type="hidden" name="Content" />
+</div>

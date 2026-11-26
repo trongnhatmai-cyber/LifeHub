@@ -1,0 +1,51 @@
+@* Hộp thoại giấc ngủ: ghi nhận/sửa (#sleepModal) và xem chi tiết (#sleepViewModal). Phải là con trực tiếp của .life-page.
+   Form đang mô phỏng (data-simulate). Tên input trùng SaveSleepInput. *@
+
+<div class="life-modal" id="sleepModal" role="dialog" aria-modal="true" aria-labelledby="sleepModalTitle" hidden>
+    <div class="life-modal-box">
+        <div class="life-modal-head">
+            <h3 id="sleepModalTitle" data-modal-title>Ghi nhận giấc ngủ</h3>
+            <button type="button" class="life-modal-close" data-close aria-label="Đóng">&times;</button>
+        </div>
+        <form method="post" data-simulate data-validate="sleep" novalidate>
+            <input type="hidden" name="Id" disabled />
+            <div class="life-form-grid">
+                <div class="field full"><label for="sSleepDate">Ngày ngủ</label><input id="sSleepDate" name="SleepDate" type="date" required /><small>Tính theo ngày bắt đầu đi ngủ.</small></div>
+                <div class="field"><label for="sBed">Giờ đi ngủ</label><input id="sBed" name="BedTime" type="time" required /></div>
+                <div class="field"><label for="sWake">Giờ thức dậy</label><input id="sWake" name="WakeTime" type="time" required /></div>
+                <div class="field full">
+                    <label for="sQuality">Chất lượng tự đánh giá</label>
+                    <select id="sQuality" name="SleepQuality">
+                        <option value="">Chưa đánh giá</option>
+                        <option value="1">1 – Rất tệ</option><option value="2">2 – Tệ</option><option value="3">3 – Bình thường</option>
+                        <option value="4">4 – Tốt</option><option value="5">5 – Rất tốt</option>
+                    </select>
+                </div>
+                <div class="field full"><label for="sNotes">Ghi chú</label><textarea id="sNotes" name="Notes" maxlength="255" placeholder="Ví dụ: ngủ muộn vì làm bài tập"></textarea></div>
+            </div>
+            <p class="form-error" hidden></p>
+            <div class="life-modal-foot">
+                <button type="button" class="life-btn" data-close>Hủy</button>
+                <button type="submit" class="life-btn primary">Lưu giấc ngủ</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="life-modal" id="sleepViewModal" role="dialog" aria-modal="true" aria-labelledby="sleepViewTitle" hidden>
+    <div class="life-modal-box">
+        <div class="life-modal-head">
+            <h3 id="sleepViewTitle">Chi tiết giấc ngủ</h3>
+            <button type="button" class="life-modal-close" data-close aria-label="Đóng">&times;</button>
+        </div>
+        <dl class="detail-list">
+            <div><dt>Ngày ngủ</dt><dd data-text="datelabel"></dd></div>
+            <div><dt>Đi ngủ</dt><dd data-text="bed"></dd></div>
+            <div><dt>Thức dậy</dt><dd data-text="wake"></dd></div>
+            <div><dt>Thời lượng</dt><dd data-text="duration"></dd></div>
+            <div><dt>Chất lượng</dt><dd data-text="quality"></dd></div>
+            <div class="wide"><dt>Ghi chú</dt><dd data-text="notes"></dd></div>
+        </dl>
+        <div class="life-modal-foot"><button type="button" class="life-btn primary" data-close>Đóng</button></div>
+    </div>
+</div>

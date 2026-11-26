@@ -1,9 +1,35 @@
 /* =====================================================================
-   LIFEHUB - TIME MANAGEMENT (THỜI GIAN & POMODORO)
-   Tone Xanh ngọc / Teal pastel - Đồng bộ 100% Vibe chuẩn với Finance & Study
+   LIFEHUB - TIME MANAGEMENT (QUẢN LÝ THỜI GIAN)        wwwroot/css/time.css
+
+   Nhân bản từ study.css theo "CÁCH TÁI SỬ DỤNG" của file mẫu:
+     .study-page -> .time-page      --study- -> --time-      .study- -> .time-
+   Màu nhận diện phân hệ: Teal, khớp --pastel-time / --pastel-time-accent trong layout.css.
+
+   MỤC LỤC (số mục 1 đến 6, 9 đến 15 giữ như study.css)
+     1. Biến giao diện (theme sáng / tối)          2. Nền tảng        3. Tiêu đề trang
+     4. Nút bấm        5. Thẻ chỉ số        6. Khung nội dung
+     7. Lịch trình trong ngày (agenda)             [MỚI]
+     8. Biểu đồ phân bổ và kế hoạch tuần           [MỚI]
+     9. Trạng thái rỗng   10. Bảng dữ liệu   11. Chip lọc   12. Nhãn trạng thái
+    13. Hộp thoại và form  14. Toast   15. Thanh lọc, chọn ngày, nút thao tác
+    16. Thanh công cụ lịch và bộ lọc nguồn         [MỚI]
+    17. Lưới giờ (ngày / tuần)                     [MỚI]
+    18. Lưới tháng                                 [MỚI]
+    19. Chi tiết sự kiện                           [MỚI]
+    20. Pomodoro                                   [MỚI]
+    21. Responsive (gom hết ở cuối file)
+
+   QUY TẮC (như file mẫu): cỡ chữ dùng var(--fs-...); màu dùng --time-*; chỉ dùng màu cứng cho màu trạng thái,
+   nút nguy hiểm và màu phân hệ nguồn của sự kiện (View truyền bằng style="--ev-color:#...").
+   Modal và toast là con trực tiếp của .time-page.
    ===================================================================== */
 
-/* THEME LIGHT - Nền trắng, thẻ ngọc teal pastel nhạt */
+
+/* =====================================================================
+   1. BIẾN GIAO DIỆN
+     --time-bg / card / card-strong / soft / border / text / muted / accent / accent-dark / shadow
+     --time-neutral  xám trung tính (ô tháng ngoài phạm vi, nhãn trung tính)
+   ===================================================================== */
 .time-page {
     --time-bg: #ffffff;
     --time-card: #f0fdfa;
@@ -14,6 +40,7 @@
     --time-muted: #64748b;
     --time-accent: #0d9488;
     --time-accent-dark: #0f766e;
+    --time-neutral: #e5e7eb;
     --time-shadow: 0 6px 20px rgba(13, 148, 136, .05);
 
     color: var(--time-text);
@@ -22,7 +49,6 @@
     transition: background 0.3s ease, color 0.3s ease;
 }
 
-/* THEME DARK - Nền đen sâu, các thẻ mang màu pastel ngọc đậm */
 :root[data-theme="dark"] .time-page,
 html[data-theme="dark"] .time-page {
     --time-bg: #080a0f;
@@ -34,14 +60,31 @@ html[data-theme="dark"] .time-page {
     --time-muted: #5eead4;
     --time-accent: #2dd4bf;
     --time-accent-dark: #14b8a6;
+    --time-neutral: #1f2937;
     --time-shadow: 0 8px 28px rgba(0, 0, 0, .4);
 }
 
+
+/* =====================================================================
+   2. NỀN TẢNG
+   ===================================================================== */
 .time-page * { box-sizing: border-box; }
 .time-page h1, .time-page h2, .time-page h3, .time-page p { margin-top: 0; }
 .time-page button, .time-page input, .time-page select { font: inherit; }
 
-/* HEADER PHÂN HỆ */
+/* Đảm bảo thuộc tính hidden luôn có tác dụng, kể cả khi phần tử đã có display: flex/grid.
+   JS ẩn/hiện modal, toast, dòng bảng chỉ bằng element.hidden = true/false. */
+.time-page [hidden] { display: none !important; }
+
+
+/* =====================================================================
+   3. TIÊU ĐỀ TRANG VÀ NHÓM NÚT HÀNH ĐỘNG
+   Cấu trúc View:
+     <header class="time-heading">
+       <div><span class="time-label">…</span><h1>…</h1><p>…</p></div>
+       <div class="heading-actions"> các nút .time-btn </div>
+     </header>
+   ===================================================================== */
 .time-page .time-heading {
     display: flex;
     align-items: flex-end;
@@ -53,13 +96,13 @@ html[data-theme="dark"] .time-page {
     display: inline-block;
     margin-bottom: 8px;
     color: var(--time-accent);
-    font-size: 11px;
+    font-size: var(--fs-eyebrow);
     font-weight: 800;
     letter-spacing: 1.5px;
 }
 .time-page .time-heading h1 {
     margin-bottom: 6px;
-    font-size: clamp(24px, 3vw, 32px);
+    font-size: var(--fs-page-title);
     font-weight: 800;
     letter-spacing: -.6px;
     color: var(--time-text);
@@ -67,7 +110,7 @@ html[data-theme="dark"] .time-page {
 .time-page .time-heading p {
     margin-bottom: 0;
     color: var(--time-muted);
-    font-size: 13px;
+    font-size: var(--fs-page-sub);
     line-height: 1.6;
 }
 .time-page .heading-actions {
@@ -76,6 +119,16 @@ html[data-theme="dark"] .time-page {
     gap: 10px;
     flex-wrap: wrap;
 }
+
+
+/* =====================================================================
+   4. NÚT BẤM
+     .time-btn            nút phụ (nền nhạt)
+     .time-btn.primary    nút chính, mỗi khu vực chỉ nên có một
+     .time-btn.small      nút nhỏ trong thẻ
+     .time-btn.danger     nút xóa trong modal xác nhận
+   Dùng được cho cả <button> lẫn <a>.
+   ===================================================================== */
 .time-page .time-btn {
     display: inline-flex;
     min-height: 40px;
@@ -87,7 +140,7 @@ html[data-theme="dark"] .time-page {
     border-radius: 12px;
     background: var(--time-card);
     color: var(--time-text);
-    font-size: 13px;
+    font-size: var(--fs-btn);
     font-weight: 650;
     cursor: pointer;
     text-decoration: none;
@@ -103,8 +156,22 @@ html[data-theme="dark"] .time-page {
     color: #ffffff;
     box-shadow: 0 4px 14px rgba(13, 148, 136, 0.25);
 }
+.time-page .time-btn.small { min-height: 32px; padding: 0 12px; border-radius: 9px; font-size: var(--fs-btn-sm); }
+.time-page .time-btn.danger { border-color: #dc2626; background: #dc2626; color: #fff; }
 
-/* 4 THẺ CHỈ SỐ PASTEL TEAL */
+
+/* =====================================================================
+   5. THẺ CHỈ SỐ (4 thẻ ở đầu mỗi trang)
+   Cấu trúc View:
+     <section class="time-summary">
+       <div class="summary-card">
+         <div class="summary-top"><span>Tên chỉ số</span><span class="summary-badge">NHÃN</span></div>
+         <h2>Giá trị</h2>
+         <p>Mô tả ngắn</p>
+       </div>  ×4
+     </section>
+   Giá trị do C# tính sẵn, View chỉ in ra.
+   ===================================================================== */
 .time-page .time-summary {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -125,6 +192,7 @@ html[data-theme="dark"] .time-page {
     transform: translateY(-3px);
     box-shadow: 0 12px 26px -6px rgba(0, 0, 0, 0.08);
 }
+/* Hình tròn trang trí ở góc dưới bên phải */
 .time-page .summary-card::after {
     position: absolute;
     right: -24px;
@@ -136,30 +204,29 @@ html[data-theme="dark"] .time-page {
     opacity: 0.12;
     content: "";
 }
-
 .time-page .summary-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 12px;
+    font-size: var(--fs-stat-label);
     font-weight: 600;
     color: var(--time-muted);
 }
+/* Badge nhỏ. Cũng dùng làm nhãn mã môn, tên môn trong bảng. */
 .time-page .summary-badge {
     padding: 4px 8px;
     border-radius: 20px;
-    font-size: 9px;
+    font-size: var(--fs-stat-badge);
     font-weight: 800;
     letter-spacing: 0.5px;
     background: var(--time-card-strong);
     color: var(--time-accent);
 }
-
 .time-page .summary-card h2 {
     position: relative;
     z-index: 1;
     margin: 14px 0 4px;
-    font-size: clamp(21px, 2.2vw, 28px);
+    font-size: var(--fs-stat-value);
     font-weight: 800;
     letter-spacing: -.6px;
     color: var(--time-text);
@@ -167,13 +234,19 @@ html[data-theme="dark"] .time-page {
 .time-page .summary-card p {
     margin: 0;
     color: var(--time-muted);
-    font-size: 11px;
+    font-size: var(--fs-stat-note);
 }
 
-/* KHỐI NỘI DUNG CHÍNH (GRID) */
+
+/* =====================================================================
+   6. KHUNG NỘI DUNG
+     .time-grid      lưới 2 cột (cột trái rộng hơn), về 1 cột trên màn nhỏ
+     .time-card      thẻ nội dung chuẩn
+     .section-heading tiêu đề của một khối: <div><h3>…</h3><p>…</p></div> + nút (tuỳ chọn)
+   ===================================================================== */
 .time-page .time-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1.3fr) minmax(320px, 1fr);
+    grid-template-columns: minmax(0, 1.4fr) minmax(320px, 1fr);
     gap: 18px;
     margin-bottom: 20px;
 }
@@ -189,7 +262,6 @@ html[data-theme="dark"] .time-page {
     transform: translateY(-2px);
     box-shadow: 0 10px 24px -4px rgba(0, 0, 0, 0.07);
 }
-
 .time-page .section-heading {
     display: flex;
     align-items: center;
@@ -198,59 +270,544 @@ html[data-theme="dark"] .time-page {
 }
 .time-page .section-heading h3 {
     margin: 0 0 4px;
-    font-size: 16px;
+    font-size: var(--fs-panel-title);
     font-weight: 800;
     color: var(--time-text);
 }
 .time-page .section-heading p {
     margin: 0;
-    font-size: 11px;
+    font-size: var(--fs-panel-sub);
     color: var(--time-muted);
 }
 
-/* KHỐI POMODORO TẬP TRUNG */
-.time-page .pomodoro-box {
-    text-align: center;
-    padding: 24px 10px;
-    background: var(--time-card);
-    border-radius: 16px;
+
+/* =====================================================================
+   7. LỊCH TRÌNH TRONG NGÀY (agenda ở trang Tổng quan)
+   Mỗi dòng là một sự kiện, màu nguồn truyền từ View: style="--ev-color:@e.Color".
+   .agenda-item là <button> để bấm mở chi tiết (data-open="eventDetailModal").
+   ===================================================================== */
+.time-page .agenda { display: grid; gap: 10px; }
+.time-page .agenda-item {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    padding: 12px 14px;
     border: 1px solid var(--time-border);
-    margin-bottom: 18px;
+    border-left: 4px solid var(--ev-color, var(--time-accent));
+    border-radius: 12px;
+    background: var(--time-card);
+    color: var(--time-text);
+    text-align: left;
+    cursor: pointer;
 }
-.time-page .pomodoro-display {
-    font-size: clamp(48px, 6vw, 64px);
-    font-weight: 900;
-    letter-spacing: -2px;
-    color: var(--time-accent);
-    margin: 8px 0;
-    font-variant-numeric: tabular-nums;
+.time-page .agenda-item:hover { border-color: var(--ev-color, var(--time-accent)); }
+.time-page .agenda-time { font-size: var(--fs-card-text); font-weight: 750; white-space: nowrap; }
+.time-page .agenda-main strong { display: block; font-size: var(--fs-card-title); font-weight: 750; overflow-wrap: anywhere; }
+.time-page .agenda-main small { color: var(--time-muted); font-size: var(--fs-meta); }
+.time-page .source-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    background: color-mix(in srgb, var(--ev-color, var(--time-accent)) 16%, var(--time-bg));
+    color: var(--time-text);
+    font-size: var(--fs-badge);
+    font-weight: 700;
+    white-space: nowrap;
 }
-.time-page .pomodoro-controls {
+.time-page .source-tag::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--ev-color, var(--time-accent)); }
+
+
+/* =====================================================================
+   8. BIỂU ĐỒ PHÂN BỔ VÀ KẾ HOẠCH TUẦN
+   Doughnut là SVG: mỗi lát là một <circle> với stroke-dasharray "phần trăm 100-phần trăm" (chu vi chuẩn hóa 100).
+   Số liệu do C# tính sẵn, View chỉ in ra.
+   ===================================================================== */
+.time-page .donut-wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; }
+.time-page .donut { position: relative; width: 150px; height: 150px; flex-shrink: 0; }
+.time-page .donut svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.time-page .donut-bg { fill: none; stroke: var(--time-card-strong); stroke-width: 4; }
+.time-page .donut-seg { fill: none; stroke-width: 4; }
+.time-page .donut-center { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+.time-page .donut-center strong { font-size: var(--fs-panel-title); font-weight: 800; }
+.time-page .donut-center span { color: var(--time-muted); font-size: var(--fs-meta); }
+.time-page .legend-list { display: grid; flex: 1; gap: 8px; min-width: 160px; margin: 0; padding: 0; list-style: none; }
+.time-page .legend-list li { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: var(--fs-card-text); }
+.time-page .legend-list i { display: inline-block; width: 10px; height: 10px; margin-right: 8px; border-radius: 3px; }
+.time-page .legend-list span { color: var(--time-muted); }
+
+.time-page .plan-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+.time-page .plan-stat { padding: 10px 12px; border-radius: 12px; background: var(--time-card); color: var(--time-muted); font-size: var(--fs-meta); }
+.time-page .plan-stat strong { display: block; color: var(--time-text); font-size: var(--fs-panel-title); font-weight: 800; }
+.time-page .bar { height: 10px; overflow: hidden; border-radius: 10px; background: var(--time-card-strong); }
+.time-page .bar i { display: block; height: 100%; border-radius: 10px; background: var(--time-accent); }
+.time-page .plan-note { margin: 10px 0 0; color: var(--time-muted); font-size: var(--fs-card-text); }
+
+
+/* =====================================================================
+   9. TRẠNG THÁI RỖNG
+   Luôn viết lời hướng dẫn hành động: "Chưa có … Bấm "+ Thêm …" để bắt đầu."
+   ===================================================================== */
+.time-page .time-empty {
+    padding: 18px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--time-muted);
+}
+
+
+/* =====================================================================
+   10. BẢNG DỮ LIỆU
+     <div class="table-wrap"><table class="time-table"> … </table></div>
+   .table-wrap cho phép cuộn ngang trên màn nhỏ.
+     td.right  căn phải (điểm, thao tác)   td.muted  chữ phụ không xuống dòng
+     .row-sub  dòng phụ nhỏ dưới tên trong ô
+   ===================================================================== */
+.time-page .table-wrap { overflow-x: auto; }
+.time-page .time-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+.time-page .time-table th {
+    padding: 12px 10px;
+    text-align: left;
+    color: var(--time-muted);
+    font-size: 11px;
+    font-weight: 700;
+    border-bottom: 1px solid var(--time-border);
+    white-space: nowrap;
+}
+.time-page .time-table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--time-border);
+}
+.time-page .time-table .right { text-align: right; }
+.time-page .time-table .muted { color: var(--time-muted); white-space: nowrap; }
+.time-page .row-sub {
+    display: block;
+    margin-top: 2px;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--time-muted);
+}
+
+
+/* =====================================================================
+   11. CHIP LỌC
+   Hai cách dùng, cùng một giao diện:
+     - <a class="time-chip" asp-route-...>   lọc phía server (Controller lọc, tải lại trang)
+     - <button class="time-chip" data-filter="..."> lọc nhanh phía trình duyệt (xem time.js mục 8)
+   Chip đang chọn thêm class "active" (Razor tự gán khi render).
+   ===================================================================== */
+.time-page .time-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+.time-page .time-chip {
+    padding: 6px 14px;
+    border: 1px solid var(--time-border);
+    border-radius: 999px;
+    background: var(--time-card);
+    color: var(--time-muted);
+    font-size: 12px;
+    font-weight: 650;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.time-page a.time-chip { display: inline-flex; align-items: center; text-decoration: none; }
+.time-page .time-chip:hover { color: var(--time-text); }
+.time-page .time-chip.active {
+    border-color: var(--time-accent);
+    background: var(--time-accent);
+    color: #ffffff;
+}
+/* Theme tối: màu nhấn sáng hơn nên chữ chip đang chọn phải tối để đọc được */
+html[data-theme="dark"] .time-page .time-chip.active,
+:root[data-theme="dark"] .time-page .time-chip.active { color: #08111f; }
+
+
+/* =====================================================================
+   12. NHÃN TRẠNG THÁI
+   Dùng: <span class="status st-@key">Nhãn</span>
+   Bốn trạng thái chuẩn, có thể dùng cho mọi phân hệ:
+     st-graded     xanh lá   hoàn thành / đã chấm / đã kết thúc
+     st-submitted  xanh dương đang diễn ra / đã nộp
+     st-overdue    đỏ        quá hạn / cảnh báo / trùng lịch
+     st-upcoming   cam       sắp tới / chưa làm
+   Key (graded, submitted, overdue, upcoming) do C# trả về từ ViewModel.
+   Time dùng: graded = đã hoàn thành, submitted = đang diễn ra, upcoming = sắp tới, overdue = đã hủy.
+   ===================================================================== */
+.time-page .status {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.time-page .st-graded    { background: rgba(22, 163, 74, .14);  color: #15803d; }
+.time-page .st-submitted { background: rgba(37, 99, 235, .14);  color: #1d4ed8; }
+.time-page .st-overdue   { background: rgba(220, 38, 38, .14);  color: #b91c1c; }
+.time-page .st-upcoming  { background: rgba(217, 119, 6, .16);  color: #b45309; }
+/* Theme tối: chữ sáng hơn để đủ tương phản */
+html[data-theme="dark"] .time-page .st-graded,    :root[data-theme="dark"] .time-page .st-graded    { color: #4ade80; }
+html[data-theme="dark"] .time-page .st-submitted, :root[data-theme="dark"] .time-page .st-submitted { color: #93c5fd; }
+html[data-theme="dark"] .time-page .st-overdue,   :root[data-theme="dark"] .time-page .st-overdue   { color: #f87171; }
+html[data-theme="dark"] .time-page .st-upcoming,  :root[data-theme="dark"] .time-page .st-upcoming  { color: #fbbf24; }
+
+
+/* =====================================================================
+   13. HỘP THOẠI (MODAL) VÀ FORM
+   Cấu trúc chuẩn (xem partial _EventFormModal.cshtml làm mẫu):
+     <div class="time-modal" id="…" hidden>
+       <div class="time-modal-box">
+         <div class="time-modal-head"><h3 data-modal-title>…</h3><button class="time-modal-close" data-close>&times;</button></div>
+         <form data-simulate>
+           <div class="time-form-grid"> <div class="field [full]"><label/><input/></div> … </div>
+           <p class="form-error" hidden></p>
+           <div class="time-modal-foot"> nút Hủy + nút Lưu </div>
+         </form>
+       </div>
+     </div>
+   .field.full chiếm cả hàng; không có thì chia hai cột.
+   body.time-modal-open do JS gắn để khóa cuộn trang phía sau.
+   LƯU Ý: modal là con trực tiếp của .time-page, không đặt trong thẻ có transform.
+   ===================================================================== */
+body.time-modal-open { overflow: hidden; }
+
+.time-page .time-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    margin-top: 16px;
+    padding: 20px;
+    background: rgba(8, 10, 15, .55);
+    backdrop-filter: blur(3px);
 }
-
-/* SỰ KIỆN LỊCH */
-.time-page .event-list-item {
+.time-page .time-modal-box {
+    width: 100%;
+    max-width: 560px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    padding: 24px;
+    border: 1px solid var(--time-border);
+    border-radius: 18px;
+    background: var(--time-bg);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .25);
+}
+.time-page .time-modal-head {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 12px 14px;
-    border-radius: 12px;
+    justify-content: space-between;
+    margin-bottom: 18px;
+}
+.time-page .time-modal-head h3 { margin: 0; font-size: var(--fs-modal-title); font-weight: 800; }
+.time-page .time-modal-close {
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 10px;
     background: var(--time-card);
-    border: 1px solid var(--time-border);
-    margin-bottom: 10px;
+    color: var(--time-muted);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+}
+.time-page .time-modal-foot {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 18px;
 }
 
-/* Responsive */
-@media(max-width: 1024px) {
+/* Form */
+.time-page .time-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+.time-page .time-form-grid .full { grid-column: 1 / -1; }
+.time-page .field label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: var(--fs-field-label);
+    font-weight: 700;
+    color: var(--time-muted);
+}
+.time-page .field input,
+.time-page .field select {
+    width: 100%;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--time-border);
+    border-radius: 10px;
+    background: var(--time-card);
+    color: var(--time-text);
+    font-size: var(--fs-field-input);
+}
+.time-page .field input[type="color"] { padding: 3px; cursor: pointer; }
+.time-page .field textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--time-border);
+    border-radius: 10px;
+    background: var(--time-card);
+    color: var(--time-text);
+    font-size: var(--fs-field-input);
+}
+.time-page .field input:focus,
+.time-page .field select:focus {
+    outline: 2px solid var(--time-accent);
+    outline-offset: 1px;
+}
+.time-page .time-note {
+    margin: 14px 0 0;
+    font-size: 11px;
+    color: var(--time-muted);
+}
+/* Lỗi kiểm tra form (JS hoặc server gán). Phần tử có thuộc tính hidden khi không có lỗi. */
+.time-page .form-error {
+    margin: 12px 0 0;
+    padding: 9px 11px;
+    border-radius: 9px;
+    background: rgba(220, 38, 38, .12);
+    color: #dc2626;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+
+/* Tiêu đề nhóm trong form dài, ô nhập nhiều dòng */
+.time-page .form-section { grid-column: 1 / -1; margin: 6px 0 -4px; color: var(--time-muted); font-size: var(--fs-detail-label); font-weight: 800; letter-spacing: 1px; }
+.time-page .field textarea { resize: vertical; }
+.time-page .field input[type="color"] { height: 40px; }
+
+/* Ô bắt buộc: JS tự thêm class "required" cho .field có input[required] (time.js mục 2b).
+   Khi gửi sai, JS thêm class "invalid" để viền đỏ ô cần sửa. */
+.time-page .field.required > label::after { content: " *"; color: #dc2626; }
+.time-page .field.invalid input,
+.time-page .field.invalid select,
+.time-page .field.invalid textarea { border-color: #dc2626; }
+.time-page .field small { display: block; margin-top: 4px; font-size: 11px; color: var(--time-muted); }
+
+
+/* =====================================================================
+   14. THÔNG BÁO NHỎ (TOAST)
+   JS tự tạo hoặc dùng sẵn <div class="time-toast" id="timeToast" hidden>.
+   Chỉ dùng cho thông báo thật. Form mô phỏng chỉ báo "chưa được lưu", không báo thành công giả.
+   ===================================================================== */
+.time-page .time-toast {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 1300;
+    max-width: 340px;
+    padding: 12px 16px;
+    border: 1px solid var(--time-border);
+    border-radius: 12px;
+    background: var(--time-card-strong);
+    color: var(--time-text);
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .18);
+}
+
+
+/* =====================================================================
+   15. THANH LỌC GET VÀ NÚT THAO TÁC TRONG BẢNG
+   Thanh lọc: <form method="get" class="time-toolbar"> input tìm kiếm + select data-autosubmit
+   .time-count: dòng "Hiển thị x / y" dưới thanh lọc.
+   .row-actions + .row-btn: nút Sửa, Xóa, Nhập điểm trong cột thao tác.
+   .due-hint: dòng "Còn n ngày" / "Quá hạn n ngày" (thêm .overdue để tô đỏ).
+   ===================================================================== */
+.time-page .time-count { margin: 0 0 12px; color: var(--time-muted); font-size: 12px; }
+
+.time-page .time-toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+.time-page .time-toolbar input,
+.time-page .time-toolbar select {
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--time-border);
+    border-radius: 12px;
+    background: var(--time-card);
+    color: var(--time-text);
+    font-size: 13px;
+}
+.time-page .time-toolbar input { flex: 1 1 220px; min-width: 0; }
+.time-page .time-toolbar select { flex: 0 1 190px; }
+.time-page .time-toolbar input:focus,
+.time-page .time-toolbar select:focus { outline: 2px solid var(--time-accent); outline-offset: 1px; }
+
+/* Thanh công cụ lịch: chọn ngày, chuyển trước/sau */
+.time-page .date-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.time-page .date-nav form { margin: 0; }
+.time-page .date-nav input { height: 40px; padding: 0 12px; border: 1px solid var(--time-border); border-radius: 12px; background: var(--time-card); color: var(--time-text); font-size: var(--fs-btn); }
+
+.time-page .row-actions { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+.time-page .row-actions form { margin: 0; }
+.time-page .row-btn {
+    padding: 6px 11px;
+    border: 1px solid var(--time-border);
+    border-radius: 8px;
+    background: var(--time-card);
+    color: var(--time-text);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.time-page .row-btn:hover { border-color: var(--time-accent); color: var(--time-accent); }
+.time-page .due-hint.overdue { color: #dc2626; font-weight: 700; }
+
+
+/* =====================================================================
+   16. THANH CÔNG CỤ LỊCH VÀ BỘ LỌC NGUỒN
+   Bộ lọc nguồn là các nút bật/tắt [data-source-filter] (JS ẩn hiện sự kiện có data-source tương ứng).
+   Chấm màu nguồn: <i class="dot" style="--ev-color:...">.
+   ===================================================================== */
+.time-page .cal-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.time-page .cal-range { font-size: var(--fs-panel-title); font-weight: 800; }
+.time-page .cal-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 14px; }
+.time-page .cal-filters select { height: 34px; padding: 0 10px; border: 1px solid var(--time-border); border-radius: 999px; background: var(--time-card); color: var(--time-text); font-size: var(--fs-meta); }
+.time-page .time-chip .dot { display: inline-block; width: 8px; height: 8px; margin-right: 6px; border-radius: 50%; background: var(--ev-color, var(--time-accent)); }
+.time-page .time-chip[aria-pressed="false"] { opacity: .5; }
+.time-page [data-source][hidden], .time-page [data-type][hidden] { display: none !important; }
+
+
+/* =====================================================================
+   17. LƯỚI GIỜ (chế độ Ngày và Tuần)
+   C# tính sẵn vị trí: top, height (phần trăm cột) và làn (Lane / Lanes) khi trùng giờ.
+   --tt-hours: số giờ hiển thị    --tt-row: chiều cao mỗi giờ    --ev-color: màu nguồn
+   Cấu trúc: .tt-wrap > .tt > .tt-col (.tt-hours | .today) > .tt-head + .tt-allday + .tt-body > .tt-block
+   ===================================================================== */
+.time-page .tt-wrap { overflow-x: auto; }
+.time-page .tt { display: grid; grid-template-columns: 52px repeat(var(--tt-cols, 7), minmax(104px, 1fr)); min-width: 760px; --tt-row: 52px; }
+.time-page .tt.cols-1 { min-width: 0; }
+.time-page .tt-col { min-width: 0; border-left: 1px solid var(--time-border); }
+.time-page .tt-col.tt-hours { border-left: 0; }
+.time-page .tt-head { display: flex; height: 40px; align-items: center; justify-content: center; gap: 6px; border-bottom: 1px solid var(--time-border); font-size: var(--fs-sm); font-weight: 750; }
+.time-page .tt-head a { color: inherit; text-decoration: none; }
+.time-page .tt-col.today .tt-head { color: var(--time-accent); }
+.time-page .tt-col.today { background: color-mix(in srgb, var(--time-accent) 6%, transparent); }
+.time-page .tt-allday { display: flex; height: 30px; flex-direction: column; gap: 2px; overflow: hidden; padding: 3px; border-bottom: 1px solid var(--time-border); }
+.time-page .tt-allday small { color: var(--time-muted); font-size: var(--fs-2xs); }
+.time-page .tt-body {
+    position: relative;
+    height: calc(var(--tt-hours) * var(--tt-row));
+    background: repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--tt-row) - 1px), var(--time-border) calc(var(--tt-row) - 1px), var(--time-border) var(--tt-row));
+}
+.time-page .tt-hours .tt-body { background: none; }
+.time-page .tt-hours .tt-body span { display: block; height: var(--tt-row); padding: 2px 6px 0 0; text-align: right; color: var(--time-muted); font-size: var(--fs-2xs); }
+.time-page .tt-block,
+.time-page .ev-pill {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    overflow: hidden;
+    padding: 4px 7px;
+    border: 1px solid color-mix(in srgb, var(--ev-color) 35%, transparent);
+    border-left: 4px solid var(--ev-color);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--ev-color) 14%, var(--time-bg));
+    color: var(--time-text);
+    font-size: var(--fs-2xs);
+    text-align: left;
+    cursor: pointer;
+}
+.time-page .tt-block { position: absolute; }
+.time-page .tt-block strong { font-size: var(--fs-xs); }
+.time-page .tt-block:hover,
+.time-page .ev-pill:hover { filter: brightness(.97); }
+.time-page .tt-block.done { opacity: .7; }
+.time-page .tt-now { position: absolute; left: 0; right: 0; height: 2px; background: #dc2626; }
+
+
+/* =====================================================================
+   18. LƯỚI THÁNG
+   Mỗi ô là một ngày; tối đa 3 sự kiện dạng .ev-pill, phần còn lại là liên kết "+n" sang chế độ Ngày.
+   ===================================================================== */
+.time-page .month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.time-page .month-dow { color: var(--time-muted); font-size: var(--fs-xs); font-weight: 700; text-align: center; }
+.time-page .month-cell { display: flex; min-height: 104px; flex-direction: column; gap: 3px; padding: 6px; border: 1px solid var(--time-border); border-radius: 10px; background: var(--time-bg); }
+.time-page .month-cell.out { background: var(--time-neutral); opacity: .45; }
+.time-page .month-cell.today { border-color: var(--time-accent); box-shadow: 0 0 0 1px var(--time-accent) inset; }
+.time-page .month-num { color: var(--time-muted); font-size: var(--fs-xs); font-weight: 700; }
+.time-page .month-num a { color: inherit; text-decoration: none; }
+.time-page .month-cell.today .month-num { color: var(--time-accent); }
+.time-page .month-more { color: var(--time-accent); font-size: var(--fs-2xs); font-weight: 700; text-decoration: none; }
+.time-page .month-cell .ev-pill { padding: 2px 6px; white-space: nowrap; text-overflow: ellipsis; }
+
+
+/* =====================================================================
+   19. CHI TIẾT SỰ KIỆN (modal xem)
+   Nhãn và giá trị: .detail-grid > div > small + strong. Chân modal đổi theo quyền sửa:
+   [data-if-editable] chỉ hiện với sự kiện do Quản lý thời gian tạo, [data-if-readonly] với sự kiện từ phân hệ khác.
+   ===================================================================== */
+.time-page .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+.time-page .detail-grid .full { grid-column: 1 / -1; }
+.time-page .detail-grid small { display: block; margin-bottom: 3px; color: var(--time-muted); font-size: var(--fs-detail-label); font-weight: 800; letter-spacing: .6px; }
+.time-page .detail-grid strong { font-size: var(--fs-detail-value); font-weight: 650; overflow-wrap: anywhere; }
+.time-page .detail-banner { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding: 10px 12px; border-left: 4px solid var(--ev-color, var(--time-accent)); border-radius: 10px; background: var(--time-card); }
+.time-page .detail-banner strong { font-size: var(--fs-card-title); }
+
+
+/* =====================================================================
+   20. POMODORO
+   Bộ đếm chạy hoàn toàn ở trình duyệt (time.js). Vòng tròn tiến độ là SVG với stroke-dashoffset do JS cập nhật.
+   .pomo-modes: ba chế độ (Tập trung / Nghỉ ngắn / Nghỉ dài), chip đang chọn có class "active".
+   ===================================================================== */
+.time-page .pomo { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 10px 0; }
+.time-page .pomo-ring { position: relative; width: 260px; height: 260px; }
+.time-page .pomo-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.time-page .pomo-track { fill: none; stroke: var(--time-card-strong); stroke-width: 6; }
+.time-page .pomo-progress { fill: none; stroke: var(--time-accent); stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset .4s linear; }
+.time-page .pomo-center { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+.time-page .pomo-time { font-size: 52px; font-weight: 800; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+.time-page .pomo-state { color: var(--time-muted); font-size: var(--fs-card-text); font-weight: 650; }
+.time-page .pomo-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.time-page .pomo-target { width: 100%; max-width: 420px; }
+.time-page .pomo-target select { width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--time-border); border-radius: 10px; background: var(--time-card); color: var(--time-text); font-size: var(--fs-field-input); }
+.time-page .pomo-config { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 420px; }
+.time-page .pomo-config .field input { text-align: center; }
+.time-page .history-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; margin-bottom: 8px; border: 1px solid var(--time-border); border-radius: 10px; background: var(--time-card); font-size: var(--fs-card-text); }
+.time-page .history-item small { display: block; color: var(--time-muted); font-size: var(--fs-meta); }
+
+
+/* =====================================================================
+   21. RESPONSIVE
+   Mốc chuẩn: 1024px (tablet) và 640px (điện thoại). Bảng có class "stack" và <td data-label> chuyển thành danh sách.
+   ===================================================================== */
+@media (max-width: 1024px) {
     .time-page .time-summary { grid-template-columns: repeat(2, 1fr); }
     .time-page .time-grid { grid-template-columns: 1fr; }
 }
-@media(max-width: 640px) {
+
+@media (max-width: 640px) {
     .time-page .time-summary { grid-template-columns: 1fr; }
     .time-page .time-heading { flex-direction: column; align-items: flex-start; }
+    .time-page .time-form-grid { grid-template-columns: 1fr; }
+    .time-page .time-toolbar select { flex: 1 1 100%; }
+    .time-page .agenda-item { grid-template-columns: 1fr; gap: 6px; }
+    .time-page .plan-grid { grid-template-columns: 1fr; }
+    .time-page .detail-grid { grid-template-columns: 1fr; }
+    .time-page .pomo-ring { width: 220px; height: 220px; }
+    .time-page .pomo-time { font-size: 42px; }
+    .time-page .month-cell { min-height: 74px; padding: 4px; }
+    .time-page .month-cell .ev-pill { font-size: 0; padding: 0; height: 6px; border-left-width: 0; background: var(--ev-color); }
+
+    .time-page .time-table.stack thead { display: none; }
+    .time-page .time-table.stack tr { display: block; padding: 10px 0; border-bottom: 1px solid var(--time-border); }
+    .time-page .time-table.stack td { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 10px; border: 0; }
+    .time-page .time-table.stack td::before { content: attr(data-label); color: var(--time-muted); font-size: var(--fs-xs); font-weight: 700; }
+}
+
+@media (max-width: 560px) {
+    .time-page .summary-card h2 { font-size: var(--fs-stat-value-mobile); }
 }

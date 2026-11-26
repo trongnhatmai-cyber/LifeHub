@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using System;
 using System.ComponentModel.DataAnnotations;
 
@@ -32,5 +33,14 @@ namespace LifeHub.Models.ViewModels.StudyManagement
         [Range(1, 1000)] public decimal MaxScore { get; set; } = 10;
         public int? DurationMinutes { get; set; }
         public string? Location { get; set; }
+
+        /// <summary>Tệp đính kèm chọn từ máy (đề bài, bài làm...). Tối đa 20 MB.</summary>
+        public IFormFile? Attachment { get; set; }
+
+        /// <summary>Tích để gỡ tệp đính kèm hiện có khi sửa bài tập.</summary>
+        public bool RemoveAttachment { get; set; }
+
+        /// <summary>Nội dung soạn trực tiếp (HTML). Để trống khi sửa = xóa nội dung đã có.</summary>
+        [StringLength(60000)] public string? Content { get; set; }
     }
 }

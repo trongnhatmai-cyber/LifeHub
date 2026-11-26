@@ -4,65 +4,6 @@ using System.Linq;
 
 namespace LifeHub.Models.ViewModels.SystemManagement
 {
-    // ======================= THÔNG BÁO & NHẮC NHỞ (notifications, reminders) =======================
-    public class NotificationPageViewModel
-    {
-        public int TotalCount => Items.Count;
-        public int UnreadCount => Items.Count(n => !n.IsRead);
-        public int PendingReminderCount => Reminders.Count(r => !r.IsSent);
-        public List<NotificationItem> Items { get; set; } = new();
-        public List<ReminderItem> Reminders { get; set; } = new();
-    }
-
-    public class NotificationItem
-    {
-        public int Id { get; set; }
-        public string Title { get; set; } = string.Empty;
-        public string Message { get; set; } = string.Empty;
-        public string NotificationType { get; set; } = "system";      // task / deadline / exam / project / finance / achievement / system
-        public string? LinkUrl { get; set; }
-        public bool IsRead { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public int ProjectId { get; set; }
-        public string ProjectName { get; set; } = "Dự án";
-        public int? InvitationId { get; set; }
-        public string? InvitationStatus { get; set; }
-
-        public string TypeLabel => NotificationType switch
-        {
-            "task" => "Công việc", "deadline" => "Hạn nộp", "exam" => "Lịch thi",
-            "project" or "project_invitation_response" => "Dự án",
-            "project_invitation" => "Lời mời dự án",
-            "finance" => "Tài chính", "achievement" => "Thành tựu", _ => "Hệ thống"
-        };
-
-        public string TypeIcon => NotificationType switch
-        {
-            "task" => "✓", "deadline" => "◷", "exam" => "▣",
-            "project" or "project_invitation" or "project_invitation_response" => "▰",
-            "finance" => "₫", "achievement" => "★", _ => "•"
-        };
-
-        /// <summary>Nhóm dùng cho bộ lọc: reminder / project / finance / system</summary>
-        public string Group => NotificationType switch
-        {
-            "task" or "deadline" or "exam" => "reminder",
-            "project" or "project_invitation" or "project_invitation_response" => "project",
-            "finance" => "finance",
-            _ => "system"
-        };
-
-        public string TimeAgo(DateTime now)
-        {
-            var span = now - CreatedAt;
-            if (span.TotalMinutes < 1) return "Vừa xong";
-            if (span.TotalHours < 1) return $"{(int)span.TotalMinutes} phút trước";
-            if (span.TotalDays < 1) return $"{(int)span.TotalHours} giờ trước";
-            if (span.TotalDays < 7) return $"{(int)span.TotalDays} ngày trước";
-            return CreatedAt.ToString("dd/MM/yyyy");
-        }
-    }
-
     public class ReminderItem
     {
         public int Id { get; set; }

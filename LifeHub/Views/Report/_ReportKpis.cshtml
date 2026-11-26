@@ -1,0 +1,24 @@
+@model List<LifeHub.Models.ViewModels.ReportManagement.ReportKpi>
+@* ReportMetricCard: tên chỉ số, giá trị, đơn vị, khoảng thời gian, so sánh kỳ trước (nếu hợp lệ), giải thích cách tính (dấu ?). *@
+@{ var r = (LifeHub.BusinessLogicLayer.ReportManagement.ReportRange)ViewData["Range"]!; }
+<section class="report-summary">
+    @foreach (var k in Model)
+    {
+        <div class="summary-card">
+            <div class="summary-top">
+                <span>@k.Title<span class="kpi-tip" tabindex="0" role="note" data-tip="Cách tính: @k.Tooltip" aria-label="Cách tính: @k.Tooltip">?</span></span>
+                <span class="summary-badge">@k.Badge</span>
+            </div>
+            <h2>@k.Value@if (k.Unit != "") { <small class="kpi-unit">@k.Unit</small> }</h2>
+            <p>@k.Note</p>
+            @if (k.Delta != null)
+            {
+                <p class="kpi-delta @k.DeltaDir">@(k.DeltaDir == "up" ? "▲" : k.DeltaDir == "down" ? "▼" : "▬") @k.Delta</p>
+            }
+            @if (k.LinkAction != null)
+            {
+                <a class="kpi-link" asp-controller="Report" asp-action="@k.LinkAction" asp-route-range="@r.Key" asp-route-from="@(r.Key == "custom" ? r.FromIso : null)" asp-route-to="@(r.Key == "custom" ? r.ToIso : null)" asp-route-compare="@r.Compare">Xem chi tiết &rarr;</a>
+            }
+        </div>
+    }
+</section>

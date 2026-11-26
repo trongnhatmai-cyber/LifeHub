@@ -1,14 +1,15 @@
 @model List<LifeHub.Models.ViewModels.StudyManagement.StudyCourseItem>
 
 @* Hộp thoại thêm/sửa bài tập và lịch thi dùng chung cho trang Tổng quan và trang Bài tập. Model là danh sách môn học cho ô chọn.
-   Tên input trùng thuộc tính của CreateAssignmentInput/UpdateAssignmentInput. *@
+   Tên input trùng thuộc tính của CreateAssignmentInput/UpdateAssignmentInput.
+   Form gửi multipart để kèm tệp (Attachment) và nội dung soạn (Content). *@
 <div class="study-modal" id="assignmentModal" role="dialog" aria-modal="true" aria-labelledby="assignmentModalTitle" hidden>
-    <div class="study-modal-box">
+    <div class="study-modal-box wide">
         <div class="study-modal-head">
             <h3 id="assignmentModalTitle" data-modal-title>Thêm bài tập</h3>
             <button type="button" class="study-modal-close" data-close aria-label="Đóng">&times;</button>
         </div>
-        <form asp-controller="Study" asp-action="CreateAssignment" method="post">
+        <form asp-controller="Study" asp-action="CreateAssignment" method="post" enctype="multipart/form-data">
             <input type="hidden" name="Id" disabled />
             <div class="study-form-grid">
                 <div class="field full"><label for="asgTitle">Tên bài tập</label><input id="asgTitle" name="Title" maxlength="200" required /></div>
@@ -31,6 +32,23 @@
                 <div class="field"><label for="asgMax">Điểm tối đa</label><input id="asgMax" name="MaxScore" type="number" min="1" step="0.5" value="10" required /></div>
                 <div class="field" data-exam-only hidden><label for="asgDuration">Thời lượng thi (phút)</label><input id="asgDuration" name="DurationMinutes" type="number" min="1" /></div>
                 <div class="field full" data-exam-only hidden><label for="asgLocation">Phòng thi</label><input id="asgLocation" name="Location" /></div>
+
+                <div class="field full">
+                    <label for="asgFile">Tệp đính kèm (đề bài, bài làm...)</label>
+                    <input id="asgFile" name="Attachment" type="file" data-max-mb="20"
+                           accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.md,.png,.jpg,.jpeg,.webp,.mp4" />
+                    <small>Tối đa 20 MB. Chọn tệp mới sẽ thay tệp đang đính kèm.</small>
+                    <div class="study-current-file" data-current-attachment hidden>
+                        <span>Đang đính kèm: <strong data-current-name></strong></span>
+                        <label class="study-check"><input type="checkbox" name="RemoveAttachment" value="true" /> Gỡ tệp này</label>
+                    </div>
+                </div>
+
+                <div class="field full">
+                    <label id="asgContentLabel">Nội dung bài tập (soạn như một tệp Word)</label>
+                    <partial name="_StudyEditor" model='"asg"' />
+                    <small>Không bắt buộc. Xóa hết chữ rồi lưu để gỡ nội dung đã có.</small>
+                </div>
             </div>
             <div class="study-modal-foot">
                 <button type="button" class="study-btn" data-close>Hủy</button>

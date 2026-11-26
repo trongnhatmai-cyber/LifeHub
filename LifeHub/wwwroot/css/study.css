@@ -693,6 +693,103 @@ body.study-modal-open { overflow: hidden; }
 .study-page .field small { display: block; margin-top: 4px; font-size: 11px; color: var(--study-muted); }
 
 
+/* ---- Hộp thoại rộng (form có trình soạn thảo, ô chọn tệp) ---- */
+.study-page .study-modal-box.wide { max-width: 760px; }
+
+/* ---- Ô chọn tệp từ máy tính ---- */
+.study-page .field input[type="file"] {
+    height: auto;
+    padding: 9px 12px;
+    cursor: pointer;
+}
+.study-page .field input[type="file"]::file-selector-button {
+    margin-right: 12px;
+    padding: 6px 12px;
+    border: 1px solid var(--study-border);
+    border-radius: 8px;
+    background: var(--study-bg);
+    color: var(--study-text);
+    font: inherit;
+    font-size: var(--fs-btn-sm);
+    font-weight: 650;
+    cursor: pointer;
+}
+.study-page .study-current-file {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: var(--study-card-strong);
+    font-size: var(--fs-card-text);
+}
+.study-page .study-current-file[hidden] { display: none; }
+.study-page .study-check { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-card-text); cursor: pointer; }
+.study-page .study-check input { width: auto; height: auto; }
+
+/* ---- Trình soạn thảo văn bản (như soạn tệp Word) ---- */
+.study-page .study-editor {
+    border: 1px solid var(--study-border);
+    border-radius: 12px;
+    background: var(--study-bg);
+    overflow: hidden;
+}
+.study-page .study-editor:focus-within { outline: 2px solid var(--study-accent); outline-offset: 1px; }
+.study-page .study-editor-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--study-border);
+    background: var(--study-card);
+}
+.study-page .study-editor-bar button {
+    min-width: 32px;
+    height: 30px;
+    padding: 0 8px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--study-text);
+    font: inherit;
+    font-size: var(--fs-btn-sm);
+    font-weight: 650;
+    cursor: pointer;
+}
+.study-page .study-editor-bar button:hover { border-color: var(--study-border); background: var(--study-bg); }
+.study-page .study-editor-sep { width: 1px; height: 18px; margin: 0 4px; background: var(--study-border); }
+.study-page .study-editor-area {
+    min-height: 180px;
+    max-height: 320px;
+    overflow-y: auto;
+    padding: 12px 14px;
+    outline: 0;
+    font-size: var(--fs-field-input);
+}
+.study-page .study-editor-area:empty::before { content: attr(data-placeholder); color: var(--study-muted); pointer-events: none; }
+
+/* Vùng hiển thị nội dung văn bản (trong trình soạn thảo và trang đọc tài liệu) */
+.study-page .study-richtext { line-height: 1.7; color: var(--study-text); overflow-wrap: anywhere; }
+.study-page .study-richtext p { margin: 0 0 .8em; }
+.study-page .study-richtext h2 { margin: 1em 0 .5em; font-size: var(--fs-panel-title); font-weight: 800; }
+.study-page .study-richtext h3 { margin: 1em 0 .4em; font-size: var(--fs-card-title); font-weight: 700; }
+.study-page .study-richtext ul, .study-page .study-richtext ol { margin: 0 0 .8em; padding-left: 1.5em; }
+.study-page .study-richtext blockquote {
+    margin: 0 0 .8em;
+    padding: 6px 14px;
+    border-left: 4px solid var(--course-color, var(--study-accent));
+    background: var(--study-card);
+    color: var(--study-muted);
+}
+
+/* Liên kết tệp / nội dung dưới tên bài tập */
+.study-page .doc-links a { margin-right: 10px; color: var(--study-accent); font-weight: 650; text-decoration: none; }
+.study-page .doc-links a:hover { text-decoration: underline; }
+
 /* =====================================================================
    14. THÔNG BÁO NHỎ (TOAST)
    JS tự tạo hoặc dùng sẵn <div class="study-toast" id="studyToast" hidden>.

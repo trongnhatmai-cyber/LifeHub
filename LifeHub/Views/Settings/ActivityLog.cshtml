@@ -1,0 +1,66 @@
+@model LifeHub.Models.ViewModels.SystemManagement.SystemLogPageViewModel
+@{
+    Layout = "_SettingsLayout";
+    ViewData["SettingsActive"] = "log";
+
+    var now = DateTime.Now;
+    var groups = new[]
+    {
+        new[] { "all", "Tất cả" }, new[] { "session", "Đăng nhập" }, new[] { "data", "Dữ liệu" },
+        new[] { "share", "Chia sẻ" }, new[] { "security", "Bảo mật" }
+    };
+}
+
+<header class="settings-head">
+    <div>
+        <h1>Nhật ký hoạt động</h1>
+        <p>Lịch sử đăng nhập, thay đổi hồ sơ, cài đặt và các hoạt động bảo mật của tài khoản.</p>
+    </div>
+</header>
+
+<section class="settings-card" id="logPanel">
+    <div class="settings-toolbar">
+        <input type="search" id="logSearch" class="settings-search" placeholder="Tìm trong nhật ký..." autocomplete="off" aria-label="Tìm trong nhật ký" />
+
+        <select id="logRange" aria-label="Lọc theo thời gian">
+            <option value="0">Mọi thời gian</option>
+            <option value="1">24 giờ qua</option>
+            <option value="7">7 ngày qua</option>
+            <option value="30">30 ngày qua</option>
+        </select>
+    </div>
+
+    <div class="settings-chips" role="group" aria-label="Lọc theo loại hoạt động">
+        @foreach (var g in groups)
+        {
+            var count = g[0] == "all" ? Model.Logs.Count : Model.Logs.Count(l => l.Group == g[0]);
+            <button type="button" class="settings-chip @(g[0] == "all" ? "active" : "")" data-group="@g[0]" aria-pressed="@(g[0] == "all" ? "true" : "false")">@g[1] (@count)</button>
+        }
+    </div>
+
+    @if (Model.Logs.Count == 0)
+    {
+        <p class="settings-empty">Chưa có hoạt động nào được ghi lại.</p>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table class="settings-table" id="logTable">
+                <thead><tr><th scope="col">Hoạt động</th><th scope="col">Chi tiết</th><th scope="col">Địa chỉ IP</th><th scope="col">Thời gian</th></tr></thead>
+                <tbody>
+                    @foreach (var l in Model.Logs)
+                    {
+                        <tr data-group="@l.Group" data-age="@((now - l.CreatedAt).TotalDays.ToString("0.####", System.Globalization.CultureInfo.InvariantCulture))"
+                            data-search="@((l.ActionLabel + " " + l.Details + " " + l.IpAddress).ToLowerInvariant())">
+                            <td><span class="status @(l.Group == "security" ? "st-warn" : l.Group == "share" ? "st-info" : "st-neutral")">@l.ActionLabel</span></td>
+                            <td>@(string.IsNullOrWhiteSpace(l.Details) ? "—" : l.Details)</td>
+                            <td>@(string.IsNullOrWhiteSpace(l.IpAddress) ? "—" : l.IpAddress)</td>
+                            <td class="settings-nowrap">@l.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <p class="settings-empty" id="logNoMatch" hidden>Không có hoạt động phù hợp bộ lọc.</p>
+    }
+</section>

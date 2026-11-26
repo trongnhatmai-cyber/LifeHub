@@ -1,0 +1,16 @@
+@* Xác nhận xóa sự kiện (mô phỏng cho đến khi có Back-end). Nút mở truyền data-evtitle. *@
+<div class="time-modal" id="eventDeleteModal" role="dialog" aria-modal="true" aria-labelledby="eventDeleteTitle" hidden>
+    <div class="time-modal-box">
+        <div class="time-modal-head">
+            <h3 id="eventDeleteTitle">Xác nhận xóa</h3>
+            <button type="button" class="time-modal-close" data-close aria-label="Đóng">&times;</button>
+        </div>
+        <p class="time-note">Bạn có chắc muốn xóa sự kiện <strong data-text="evtitle"></strong>? Hành động này không thể hoàn tác.</p>
+        <form data-simulate>
+            <div class="time-modal-foot">
+                <button type="button" class="time-btn" data-close>Hủy</button>
+                <button type="submit" class="time-btn danger">Xóa sự kiện</button>
+            </div>
+        </form>
+    </div>
+</div>

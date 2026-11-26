@@ -1,0 +1,177 @@
+@model LifeHub.Models.ViewModels.LifestyleManagement.LifeOverviewViewModel
+@using LifeHub.Models.ViewModels.LifestyleManagement
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Sinh hoạt cá nhân";
+    ViewData["ActivePage"] = "LifestyleOverview";
+    var dayWord = Model.IsToday ? "hôm nay" : Model.Date.ToString("dd/MM");
+    var maxDate = DateTime.Today.AddDays(14).ToString("yyyy-MM-dd");
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/lifestyle.css" asp-append-version="true" />
+}
+
+<div class="life-page" data-module="overview">
+    <partial name="_LifeFlash" />
+
+    <header class="life-heading">
+        <div>
+            <span class="life-label">SINH HOẠT CÁ NHÂN</span>
+            <h1>Sinh hoạt cá nhân</h1>
+            <p>Theo dõi và xây dựng lối sống cân bằng. Đang xem ngày @Model.DateLabel.</p>
+        </div>
+        <div class="heading-actions">
+            <form method="get" asp-action="Index" class="date-nav" aria-label="Chọn ngày xem">
+                <a class="life-btn small" asp-action="Index" asp-route-date="@Model.PrevKey" aria-label="Ngày trước">&lsaquo;</a>
+                <label class="sr-only" for="lifeDate">Chọn ngày</label>
+                <input id="lifeDate" class="date-input" type="date" name="date" value="@Model.DateKey" max="@maxDate" data-autosubmit />
+                @if (Model.NextKey != null) { <a class="life-btn small" asp-action="Index" asp-route-date="@Model.NextKey" aria-label="Ngày sau">&rsaquo;</a> }
+                @if (!Model.IsToday) { <a class="life-btn small" asp-action="Index">Hôm nay</a> }
+            </form>
+            <button type="button" class="life-btn primary" data-open="activityModal" data-mode="create" data-title="Ghi nhận hoạt động" data-activitydate="@Model.DateKey">+ Ghi nhận hoạt động</button>
+        </div>
+    </header>
+
+    <section class="life-summary">
+        <div class="summary-card">
+            <div class="summary-top"><span>Giấc ngủ gần nhất</span><span class="summary-badge">SLEEP</span></div>
+            <h2>@LifeFmt.Duration(Model.LastSleepMinutes)</h2><p>@Model.LastSleepNote</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Vận động @dayWord</span><span class="summary-badge">ACTIVE</span></div>
+            <h2>@(Model.ActivityMinutes > 0 ? LifeFmt.Duration(Model.ActivityMinutes) : "0p")</h2><p>@Model.ActivityNote</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Kế hoạch sinh hoạt</span><span class="summary-badge">PLAN</span></div>
+            <h2>@Model.PlanDone/@Model.PlanScheduled</h2><p>Hoạt động hoàn thành</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Hoạt động @dayWord</span><span class="summary-badge">SCHEDULE</span></div>
+            <h2>@Model.PlanScheduled</h2><p>Hoạt động được lên lịch</p>
+        </div>
+    </section>
+
+    <!-- 8.3 KẾ HOẠCH SINH HOẠT HÔM NAY -->
+    <section class="life-card" aria-labelledby="todayPlanTitle">
+        <div class="section-heading">
+            <div><h3 id="todayPlanTitle">Kế hoạch sinh hoạt @dayWord</h3><p>Các hoạt động thuộc kế hoạch đang áp dụng. Đây là lịch dự kiến, không phải hoạt động đã ghi nhận.</p></div>
+            <span class="life-sample" title="Chưa có bảng lưu kế hoạch trong CSDL, dữ liệu đang là dữ liệu mẫu">Dữ liệu mẫu</span>
+        </div>
+        @foreach (var plan in Model.TodayPlans)
+        {
+            var done = plan.Activities.Count(a => a.State == "done");
+            var total = plan.Activities.Count;
+            var pct = total == 0 ? 0 : (int)Math.Round(done * 100d / total);
+            <div class="plan-today">
+                <div class="plan-today-head">
+                    <div><strong>@plan.Name</strong> <span class="status @plan.StatusClass">@plan.StatusLabel</span></div>
+                    <div class="plan-today-progress">
+                        <div class="day-progress-top"><span>Tiến độ thực hiện</span><strong>@done/@total hoạt động</strong></div>
+                        <div class="bar @(pct == 100 ? "done" : "")"><i style="width:@(pct)%"></i></div>
+                    </div>
+                </div>
+                <ul class="step-list">
+                    @foreach (var a in plan.Activities)
+                    {
+                        <li class="step-row is-@a.State">
+                            <time class="step-time">@a.TimeLabel</time>
+                            <span class="step-name">@a.Name</span>
+                            <span class="status @a.StateClass">@a.StateLabel</span>
+                        </li>
+                    }
+                </ul>
+                <a class="row-btn" asp-action="Plan" asp-route-id="@plan.Id">Xem kế hoạch &rarr;</a>
+            </div>
+        }
+        @if (!Model.TodayPlans.Any())
+        {
+            <div class="life-empty">Không có hoạt động nào được lên lịch cho ngày này. Bấm "Xem kế hoạch" để tạo hoặc áp dụng kế hoạch.<br /><a class="life-btn small" asp-action="Plan">Xem kế hoạch</a></div>
+        }
+    </section>
+
+    <!-- 8.4 THỐNG KÊ -->
+    <div class="life-grid even">
+        <section class="life-card" aria-labelledby="sleepStatTitle">
+            <div class="section-heading">
+                <div><h3 id="sleepStatTitle">Thống kê giấc ngủ</h3><p>7 ngày gần nhất tính đến @Model.DateLabel</p></div>
+                <a class="row-btn" asp-action="Sleep">Chi tiết</a>
+            </div>
+            @if (Model.Sleep.RecordedDays == 0)
+            {
+                <div class="life-empty">Chưa có ghi nhận giấc ngủ trong 7 ngày này. Mở trang Giấc ngủ để thêm.<br /><a class="life-btn small" asp-action="Sleep">Đến trang Giấc ngủ</a></div>
+            }
+            else
+            {
+                <div class="trend has-target" role="img" aria-label="Biểu đồ thời lượng ngủ 7 ngày">
+                    @foreach (var b in Model.Sleep.Bars)
+                    {
+                        <div class="trend-col @(b.IsToday ? "today" : "")"><strong>@b.ValueLabel</strong><div class="trend-track"><i style="height:@(b.Percent)%"></i></div><small>@b.Label</small></div>
+                    }
+                </div>
+                <p class="life-note">Đường kẻ ngang là mốc 8 giờ. Thang biểu đồ từ 0 đến 10 giờ.</p>
+                <div class="life-stats">
+                    <div class="life-stat"><strong>@LifeFmt.Duration(Model.Sleep.AverageMinutes)</strong><span>Ngủ trung bình</span></div>
+                    <div class="life-stat"><strong>@Model.Sleep.AverageBed</strong><span>Giờ đi ngủ</span></div>
+                    <div class="life-stat"><strong>@Model.Sleep.AverageWake</strong><span>Giờ thức dậy</span></div>
+                </div>
+            }
+        </section>
+
+        <section class="life-card" aria-labelledby="actStatTitle">
+            <div class="section-heading">
+                <div><h3 id="actStatTitle">Thống kê vận động</h3><p>Thời lượng theo ngày và phân loại</p></div>
+                <a class="row-btn" asp-action="Activity">Chi tiết</a>
+            </div>
+            @if (Model.Activity.WeekMinutes == 0 && Model.Activity.Bars.All(b => b.Minutes == 0))
+            {
+                <div class="life-empty">Chưa có hoạt động nào được ghi nhận trong 7 ngày này. Bấm "+ Ghi nhận hoạt động" để bắt đầu.</div>
+            }
+            else
+            {
+                <div class="trend" role="img" aria-label="Biểu đồ thời lượng vận động 7 ngày">
+                    @foreach (var b in Model.Activity.Bars)
+                    {
+                        <div class="trend-col @(b.IsToday ? "today" : "")"><strong>@b.ValueLabel</strong><div class="trend-track"><i style="height:@(b.Percent)%"></i></div><small>@b.Label</small></div>
+                    }
+                </div>
+                <div class="life-stats">
+                    <div class="life-stat"><strong>@LifeFmt.Duration(Model.Activity.WeekMinutes)</strong><span>Tuần này</span></div>
+                    <div class="life-stat"><strong>@Model.Activity.WeekSessions</strong><span>Số buổi</span></div>
+                </div>
+                @if (Model.Activity.Bands.Any())
+                {
+                    <div class="band-list">
+                        @foreach (var b in Model.Activity.Bands)
+                        {
+                            <div class="band"><span>@b.Label</span><div class="bar"><i style="width:@(b.Percent)%"></i></div><strong>@LifeFmt.Duration(b.Minutes)</strong></div>
+                        }
+                    </div>
+                }
+            }
+        </section>
+    </div>
+
+    <!-- 8.5 HOẠT ĐỘNG GẦN ĐÂY (bản ghi thực tế) -->
+    <section class="life-card" aria-labelledby="recentTitle">
+        <div class="section-heading">
+            <div><h3 id="recentTitle">Hoạt động gần đây</h3><p>Chỉ gồm các hoạt động đã thực sự ghi nhận</p></div>
+        </div>
+        @foreach (var a in Model.Recent)
+        {
+            <div class="life-row">
+                <div class="life-row-info"><span class="life-row-title">@a.Name</span><div class="life-meta">@a.DateLabel · @a.CategoryLabel</div></div>
+                <span class="life-tag">@a.DurationLabel</span>
+            </div>
+        }
+        @if (!Model.Recent.Any())
+        {
+            <div class="life-empty">Chưa có hoạt động nào được ghi nhận. Bấm "+ Ghi nhận hoạt động" để bắt đầu.</div>
+        }
+    </section>
+
+    <partial name="_LifeActivityModals" model="Model.PlanOptions" />
+</div>
+
+@section Scripts {
+    <script src="~/js/lifestyle.js" asp-append-version="true"></script>
+}

@@ -48,4 +48,19 @@ namespace LifeHub.Models.ViewModels.SystemManagement
         [Required] public int Id { get; set; }
         [Required] public string Permission { get; set; } = "view";
     }
+
+    /// <summary>Form "Giao diện" (user_settings: ThemeMode, Language, Timezone).</summary>
+    public class UpdateAppearanceInput
+    {
+        [Required] public string ThemeMode { get; set; } = "light";
+        [Required] public string Language { get; set; } = "vi";
+        [Required] public string Timezone { get; set; } = "Asia/Ho_Chi_Minh";
+    }
+
+    /// <summary>Form "Thông báo" (user_settings: NotifyEmail, NotifyPush).</summary>
+    public class UpdateNotificationSettingsInput
+    {
+        public bool NotifyEmail { get; set; }
+        public bool NotifyPush { get; set; }
+    }
 }

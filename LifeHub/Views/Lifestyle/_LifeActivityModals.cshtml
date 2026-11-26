@@ -1,0 +1,44 @@
+@model List<LifeHub.Models.ViewModels.LifestyleManagement.LifePlanOption>
+@using LifeHub.Models.ViewModels.LifestyleManagement
+@* Hộp thoại ghi nhận/sửa hoạt động (#activityModal). Model = các hoạt động trong kế hoạch để liên kết (có thể rỗng).
+   Phải là con trực tiếp của .life-page. Form mô phỏng (data-simulate). Tên input trùng SaveActivityInput. *@
+
+<div class="life-modal" id="activityModal" role="dialog" aria-modal="true" aria-labelledby="activityModalTitle" hidden>
+    <div class="life-modal-box">
+        <div class="life-modal-head">
+            <h3 id="activityModalTitle" data-modal-title>Ghi nhận hoạt động</h3>
+            <button type="button" class="life-modal-close" data-close aria-label="Đóng">&times;</button>
+        </div>
+        <form method="post" data-simulate data-validate="activity" novalidate>
+            <input type="hidden" name="Id" disabled />
+            <div class="life-form-grid">
+                <div class="field full"><label for="aName">Tên hoạt động</label><input id="aName" name="Name" maxlength="100" required placeholder="Ví dụ: Chạy bộ công viên" /></div>
+                <div class="field">
+                    <label for="aCategory">Danh mục</label>
+                    <select id="aCategory" name="Category" required>
+                        @foreach (var c in LifeCategory.All) { <option value="@c.Key">@c.Label</option> }
+                    </select>
+                </div>
+                <div class="field"><label for="aDate">Ngày thực hiện</label><input id="aDate" name="ActivityDate" type="date" required /></div>
+                <div class="field"><label for="aStart">Giờ bắt đầu</label><input id="aStart" name="StartTime" type="time" /></div>
+                <div class="field"><label for="aDuration">Thời lượng (phút)</label><input id="aDuration" name="DurationMin" type="number" min="1" max="1440" value="30" required /></div>
+                <div class="field full"><label for="aLocation">Địa điểm</label><input id="aLocation" name="Location" maxlength="150" placeholder="Ví dụ: Công viên Tao Đàn" /></div>
+                <div class="field full">
+                    <label for="aPlan">Liên kết hoạt động trong kế hoạch</label>
+                    <select id="aPlan" name="PlanActivityId">
+                        <option value="">Không liên kết</option>
+                        @foreach (var p in Model) { <option value="@p.Id">@p.Text</option> }
+                    </select>
+                    <small>Liên kết để đánh dấu hoạt động trong kế hoạch là đã thực hiện.</small>
+                </div>
+                <div class="field full"><label for="aNotes">Ghi chú</label><textarea id="aNotes" name="Notes" maxlength="255" placeholder="Cảm nhận sau buổi tập"></textarea></div>
+            </div>
+            <p class="life-note">Hiện CSDL chỉ lưu theo ngày: tên (loại hoạt động), tổng thời lượng và ghi chú. Giờ bắt đầu, địa điểm và liên kết kế hoạch cần Backend bổ sung cột lưu.</p>
+            <p class="form-error" hidden></p>
+            <div class="life-modal-foot">
+                <button type="button" class="life-btn" data-close>Hủy</button>
+                <button type="submit" class="life-btn primary">Lưu hoạt động</button>
+            </div>
+        </form>
+    </div>
+</div>

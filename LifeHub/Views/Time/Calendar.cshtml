@@ -1,0 +1,132 @@
+@model LifeHub.Models.ViewModels.TimeManagement.TimeCalendarViewModel
+@using System.Globalization
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Lịch cá nhân";
+    ViewData["ActivePage"] = "TimeCalendar";
+    string F(double v) => v.ToString("0.##", CultureInfo.InvariantCulture);
+    var hours = Model.EndHour - Model.StartHour;
+    var now = DateTime.Now;
+    var nowPct = (now.Hour * 60 + now.Minute - Model.StartHour * 60) * 100.0 / (hours * 60);
+    var sources = new[] { ("study", "Học tập", "#2563eb"), ("task", "Công việc", "#ea580c"), ("project", "Dự án", "#16a34a"), ("life", "Sinh hoạt", "#059669"), ("personal", "Cá nhân", "#7c3aed") };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/time.css" asp-append-version="true" />
+}
+
+<div class="time-page">
+    <header class="time-heading">
+        <div>
+            <span class="time-label">QUẢN LÝ THỜI GIAN</span>
+            <h1>Lịch cá nhân</h1>
+            <p>Lịch tổng hợp từ Học tập, Công việc, Dự án, Sinh hoạt và sự kiện riêng của bạn.</p>
+        </div>
+        <div class="heading-actions">
+            <button type="button" class="time-btn primary" data-open="eventFormModal" data-mode="create" data-title="Tạo sự kiện" data-startdate="@Model.DateIso">+ Thêm sự kiện</button>
+        </div>
+    </header>
+
+    <section class="time-card">
+        <!-- Thanh công cụ: trước / hôm nay / sau, chế độ Ngày / Tuần / Tháng -->
+        <div class="cal-toolbar">
+            <div class="date-nav">
+                <a class="time-btn" asp-controller="Time" asp-action="Calendar" asp-route-view="@Model.View" asp-route-date="@Model.PrevIso" aria-label="Trước">&lsaquo;</a>
+                <a class="time-btn" asp-controller="Time" asp-action="Calendar" asp-route-view="@Model.View" asp-route-date="@Model.TodayIso">Hôm nay</a>
+                <a class="time-btn" asp-controller="Time" asp-action="Calendar" asp-route-view="@Model.View" asp-route-date="@Model.NextIso" aria-label="Sau">&rsaquo;</a>
+                <span class="cal-range">@Model.RangeLabel</span>
+            </div>
+            <div class="time-chips" style="margin:0" role="group" aria-label="Chế độ xem">
+                <a class="time-chip @(Model.View == "day" ? "active" : "")" asp-controller="Time" asp-action="Calendar" asp-route-view="day" asp-route-date="@Model.DateIso">Ngày</a>
+                <a class="time-chip @(Model.View == "week" ? "active" : "")" asp-controller="Time" asp-action="Calendar" asp-route-view="week" asp-route-date="@Model.DateIso">Tuần</a>
+                <a class="time-chip @(Model.View == "month" ? "active" : "")" asp-controller="Time" asp-action="Calendar" asp-route-view="month" asp-route-date="@Model.DateIso">Tháng</a>
+            </div>
+        </div>
+
+        <!-- Bộ lọc: bật/tắt từng nhóm nguồn, lọc theo loại sự kiện (xử lý ở trình duyệt) -->
+        <div class="cal-filters">
+            @foreach (var (key, label, color) in sources)
+            {
+                <button type="button" class="time-chip active" style="--ev-color:@color" data-source-filter="@key" aria-pressed="true"><span class="dot"></span>@label</button>
+            }
+            <select data-type-filter aria-label="Lọc theo loại sự kiện">
+                <option value="all">Mọi loại sự kiện</option>
+                @foreach (var t in new[] { "Họp", "Học tập", "Công việc", "Dự án", "Sinh hoạt", "Cá nhân", "Khác" }) { <option value="@t">@t</option> }
+            </select>
+        </div>
+
+        @if (Model.View == "month")
+        {
+            <div class="month-grid">
+                @foreach (var d in new[] { "T2", "T3", "T4", "T5", "T6", "T7", "CN" }) { <div class="month-dow">@d</div> }
+                @foreach (var day in Model.Days)
+                {
+                    var list = day.AllDay.Concat(day.Events).ToList();
+                    <div class="month-cell @(day.InMonth ? "" : "out") @(day.IsToday ? "today" : "")">
+                        <div class="month-num"><a asp-controller="Time" asp-action="Calendar" asp-route-view="day" asp-route-date="@day.Iso">@day.Day</a></div>
+                        @foreach (var e in list.Take(3))
+                        {
+                            <button type="button" class="ev-pill" style="--ev-color:@e.Color" data-source="@e.Source" data-type="@e.TypeLabel" @Html.Raw(e.Attrs("eventDetailModal", "detail"))>@(e.IsAllDay ? "" : e.Start.ToString("HH:mm") + " ")@e.Title</button>
+                        }
+                        @if (list.Count > 3)
+                        {
+                            <a class="month-more" asp-controller="Time" asp-action="Calendar" asp-route-view="day" asp-route-date="@day.Iso">+@(list.Count - 3) sự kiện</a>
+                        }
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="tt-wrap">
+                <div class="tt cols-@Model.Days.Count" style="--tt-cols:@Model.Days.Count; --tt-hours:@hours">
+                    <div class="tt-col tt-hours">
+                        <div class="tt-head"></div>
+                        <div class="tt-allday"><small>Cả ngày</small></div>
+                        <div class="tt-body">@for (var h = Model.StartHour; h < Model.EndHour; h++) { <span>@h.ToString("00"):00</span> }</div>
+                    </div>
+                    @foreach (var day in Model.Days)
+                    {
+                        <div class="tt-col @(day.IsToday ? "today" : "")">
+                            <div class="tt-head"><a asp-controller="Time" asp-action="Calendar" asp-route-view="day" asp-route-date="@day.Iso">@day.Dow @day.Day</a></div>
+                            <div class="tt-allday">
+                                @foreach (var e in day.AllDay.Take(1))
+                                {
+                                    <button type="button" class="ev-pill" style="--ev-color:@e.Color" data-source="@e.Source" data-type="@e.TypeLabel" @Html.Raw(e.Attrs("eventDetailModal", "detail"))>@e.Title</button>
+                                }
+                                @if (day.AllDay.Count > 1) { <small>+@(day.AllDay.Count - 1) cả ngày</small> }
+                            </div>
+                            <div class="tt-body">
+                                @foreach (var e in day.Events)
+                                {
+                                    <button type="button" class="tt-block @(e.Status == "done" ? "done" : "")" data-source="@e.Source" data-type="@e.TypeLabel"
+                                            style="--ev-color:@e.Color; top:@F(e.TopPct)%; height:@F(e.HeightPct)%; left:calc(@e.Lane * 100% / @e.Lanes + 2px); width:calc(100% / @e.Lanes - 4px)"
+                                            @Html.Raw(e.Attrs("eventDetailModal", "detail"))>
+                                        <strong>@e.Title</strong><span>@e.TimeRange</span>
+                                    </button>
+                                }
+                                @if (day.IsToday && nowPct >= 0 && nowPct <= 100)
+                                {
+                                    <div class="tt-now" style="top:@F(nowPct)%" aria-hidden="true"></div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        @if (Model.EventCount == 0)
+        {
+            <div class="time-empty">Chưa có sự kiện nào trong khoảng thời gian này. Bấm "+ Thêm sự kiện" để bắt đầu.</div>
+        }
+    </section>
+
+    <partial name="_EventFormModal" />
+    <partial name="_EventDetailModal" />
+</div>
+
+@section Scripts {
+    <script src="~/js/time.js" asp-append-version="true"></script>
+}

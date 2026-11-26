@@ -1,0 +1,47 @@
+@model LifeHub.Models.ViewModels.ReportManagement.ReportChartCard
+@using LifeHub.BusinessLogicLayer.ReportManagement
+@* ReportLineChart / ReportBarChart / ReportDonutChart. SVG do C# vẽ từ số liệu đã tính; Toggleable: bật/tắt từng chuỗi. *@
+<section class="report-card chart-card @(Model.Wide ? "wide" : "")" id="chart-@Model.Id">
+    <div class="section-heading">
+        <div><h3>@Model.Title</h3><p>@Model.Subtitle</p></div>
+    </div>
+
+    @if (!Model.HasData)
+    {
+        <div class="report-empty">@Model.Empty</div>
+    }
+    else if (Model.Type == "donut")
+    {
+        var total = Model.Slices.Sum(s => s.Value);
+        <div class="donut-wrap">
+            <div class="donut">
+                @Html.Raw(ReportCharts.Donut(Model.Slices))
+                <div class="donut-center"><strong>@Model.CenterTop</strong><span>@Model.CenterBottom</span></div>
+            </div>
+            <ul class="legend-list">
+                @foreach (var s in Model.Slices.Where(x => x.Value > 0))
+                {
+                    <li><div><i style="background:@s.Color"></i>@s.Label</div><span>@s.ValueText, @((int)Math.Round(s.Value * 100 / total))%</span></li>
+                }
+            </ul>
+        </div>
+    }
+    else
+    {
+        <div class="chart-scroll">@Html.Raw(Model.Type == "bar" ? ReportCharts.Bar(Model.Data) : ReportCharts.Line(Model.Data))</div>
+        <div class="chart-legend">
+            @for (var i = 0; i < Model.Data.Series.Count; i++)
+            {
+                var s = Model.Data.Series[i];
+                if (Model.Toggleable)
+                {
+                    <button type="button" class="legend-btn" style="--lg-color:@s.Color" data-series-toggle="@i" data-chart="@Model.Id" aria-pressed="true"><i></i>@s.Name</button>
+                }
+                else if (Model.Data.Series.Count > 1)
+                {
+                    <span class="legend-item" style="--lg-color:@s.Color"><i></i>@s.Name</span>
+                }
+            }
+        </div>
+    }
+</section>

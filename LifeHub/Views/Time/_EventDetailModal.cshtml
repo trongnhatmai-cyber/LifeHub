@@ -1,0 +1,29 @@
+@* Modal chi tiết sự kiện. Dữ liệu do time.js điền từ data-* của nút vừa bấm.
+   Sự kiện do Quản lý thời gian tạo: có nút Chỉnh sửa. Sự kiện từ phân hệ khác: chỉ xem và có liên kết sang phân hệ đó,
+   để một lịch trình chỉ có MỘT nơi chỉnh sửa. *@
+<div class="time-modal" id="eventDetailModal" role="dialog" aria-modal="true" aria-labelledby="eventDetailTitle" hidden>
+    <div class="time-modal-box">
+        <div class="time-modal-head">
+            <h3 id="eventDetailTitle">Chi tiết sự kiện</h3>
+            <button type="button" class="time-modal-close" data-close aria-label="Đóng">&times;</button>
+        </div>
+        <div class="detail-banner" data-banner><strong data-text="evtitle"></strong></div>
+        <div class="detail-grid">
+            <div><small>PHÂN HỆ NGUỒN</small><strong data-text="sourcelabel"></strong></div>
+            <div><small>TRẠNG THÁI</small><strong data-text="statuslabel"></strong></div>
+            <div><small>NGÀY</small><strong data-text="datelabel"></strong></div>
+            <div><small>GIỜ</small><strong data-text="timerange"></strong></div>
+            <div><small>ĐỊA ĐIỂM</small><strong data-text="location"></strong></div>
+            <div><small>LẶP LẠI</small><strong data-text="recurrencelabel"></strong></div>
+            <div><small>NHẮC NHỞ</small><strong data-text="reminder"></strong></div>
+            <div><small>NGUỒN TẠO SỰ KIỆN</small><strong data-text="origin"></strong></div>
+            <div class="full"><small>MÔ TẢ</small><strong data-text="description"></strong></div>
+        </div>
+        <p class="time-note" data-if-readonly hidden>Sự kiện này do phân hệ nguồn quản lý, nên chỉ xem tại đây. Muốn chỉnh sửa, hãy mở phân hệ đó.</p>
+        <div class="time-modal-foot">
+            <button type="button" class="time-btn" data-close>Đóng</button>
+            <a class="time-btn primary" data-origin-link data-if-readonly href="#" hidden>Mở trong <span data-text="origin"></span></a>
+            <button type="button" class="time-btn primary" data-edit-detail data-if-editable hidden>Chỉnh sửa</button>
+        </div>
+    </div>
+</div>

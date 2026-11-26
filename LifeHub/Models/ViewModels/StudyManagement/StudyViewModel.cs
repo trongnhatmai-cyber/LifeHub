@@ -77,6 +77,10 @@ namespace LifeHub.Models.ViewModels.StudyManagement
         public int? DurationMinutes { get; set; }                   // [MỚI] bài thi
         public string? Location { get; set; }                       // [MỚI] phòng thi
 
+        public int? AttachmentDocId { get; set; }                   // tệp đính kèm (bảng documents)
+        public string AttachmentName { get; set; } = string.Empty;
+        public int? ContentDocId { get; set; }                      // nội dung soạn trong web (bảng documents)
+
         public bool IsExam => Kind is "midterm" or "final";         // [MỚI]
         public string KindLabel => Kind switch                      // [MỚI]
         {

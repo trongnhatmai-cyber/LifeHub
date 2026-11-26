@@ -65,7 +65,14 @@
                         var key = a.StatusKey(Model.Today);
                         var hint = Model.DueHint(a);
                         <tr>
-                            <td><strong>@a.Title</strong><small class="row-sub">@a.KindLabel@(a.IsExam && !string.IsNullOrEmpty(a.Location) ? ", " + a.Location : "")@(a.DurationMinutes.HasValue ? " · " + a.DurationMinutes + " phút" : "")</small></td>
+                            <td><strong>@a.Title</strong><small class="row-sub">@a.KindLabel@(a.IsExam && !string.IsNullOrEmpty(a.Location) ? ", " + a.Location : "")@(a.DurationMinutes.HasValue ? " · " + a.DurationMinutes + " phút" : "")</small>
+                                @if (a.AttachmentDocId.HasValue || a.ContentDocId.HasValue)
+                                {
+                                    <small class="row-sub doc-links">
+                                        @if (a.AttachmentDocId.HasValue) { <a asp-action="OpenDocument" asp-route-id="@a.AttachmentDocId" target="_blank" rel="noopener noreferrer">Tệp: @a.AttachmentName</a> }
+                                        @if (a.ContentDocId.HasValue) { <a asp-action="ViewDocument" asp-route-id="@a.ContentDocId">Xem nội dung</a> }
+                                    </small>
+                                }</td>
                             <td><span class="summary-badge">@a.CourseCode</span></td>
                             <td class="muted">@a.DueDate.ToString("dd/MM/yyyy")@(a.IsExam ? " " + a.DueDate.ToString("HH:mm") : "")@if (hint != "") { <small class="row-sub due-hint @(key == "overdue" ? "overdue" : "")">@hint</small> }</td>
                             <td>@a.WeightPercent%</td>
@@ -75,7 +82,7 @@
                                 <div class="row-actions">
                                     @if (!a.IsExam && !a.Score.HasValue)
                                     {
-                                        <form asp-action="ToggleSubmitted" method="post">
+                                        <form asp-action="ToggleSubmitted" method="post" data-simulate>
                                             <input type="hidden" name="Id" value="@a.Id" />
                                             <button type="submit" class="row-btn">@(a.IsSubmitted ? "Hoàn tác nộp" : "Đã nộp")</button>
                                         </form>
@@ -85,7 +92,8 @@
                                     <button type="button" class="row-btn" data-open="assignmentModal" data-mode="edit" data-action="@Url.Action("UpdateAssignment")" data-title="Chỉnh sửa bài tập"
                                             data-id="@a.Id" data-courseid="@a.CourseId" data-kind="@a.Kind" data-duedate="@a.DueDate.ToString("yyyy-MM-ddTHH:mm")"
                                             data-weightpercent="@a.WeightPercent" data-maxscore="@a.MaxScore.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)"
-                                            data-durationminutes="@a.DurationMinutes" data-location="@a.Location" data-assignmenttitle="@a.Title">Sửa</button>
+                                            data-durationminutes="@a.DurationMinutes" data-location="@a.Location" data-assignmenttitle="@a.Title"
+                                            data-contentid="@a.ContentDocId" data-attachmentname="@a.AttachmentName">Sửa</button>
                                     <button type="button" class="row-btn" data-open="deleteModal" data-mode="delete" data-id="@a.Id" data-name="@a.Title">Xóa</button>
                                 </div>
                             </td>
@@ -106,9 +114,10 @@
                 <button type="button" class="study-modal-close" data-close aria-label="Đóng">&times;</button>
             </div>
             <p class="study-note">Bài: <strong data-text="name"></strong></p>
-            <form asp-action="RecordScore" method="post">
+            <form asp-action="RecordScore" method="post" data-simulate>
                 <input type="hidden" name="Id" />
                 <div class="field"><label for="scoreValue">Điểm đạt được</label><input id="scoreValue" name="Score" type="number" min="0" step="0.1" required /></div>
+                <p class="study-note">Bản mô phỏng giao diện: dữ liệu chưa được lưu.</p>
                 <div class="study-modal-foot">
                     <button type="button" class="study-btn" data-close>Hủy</button>
                     <button type="submit" class="study-btn primary">Lưu điểm</button>

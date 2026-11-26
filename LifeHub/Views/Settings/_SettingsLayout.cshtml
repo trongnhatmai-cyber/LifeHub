@@ -1,0 +1,70 @@
+@* Khung chung của mọi trang Cài đặt: sidebar danh mục luôn đứng yên bên trái, chỉ nội dung bên phải thay đổi.
+   View con khai báo:  @{ Layout = "_SettingsLayout"; ViewData["SettingsActive"] = "appearance"; } *@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var current = ViewData["SettingsActive"] as string ?? "index";
+    var success = TempData["SuccessMessage"] as string;
+    var error = TempData["ErrorMessage"] as string;
+
+    // { key, nhãn, action, biểu tượng }
+    var nav = new List<string[]>
+    {
+        new[] { "index",      "Tổng quan",            "Index",         "grid" },
+        new[] { "profile",    "Tài khoản cá nhân",    "Profile",       "user" },
+        new[] { "appearance", "Giao diện",            "Appearance",    "palette" },
+        new[] { "notice",     "Thông báo",            "Notifications", "bell" },
+        new[] { "security",   "Bảo mật",              "Security",      "shield" },
+        new[] { "sharing",    "Chia sẻ & Phân quyền", "Sharing",       "share" },
+        new[] { "log",        "Nhật ký hoạt động",    "ActivityLog",   "activity" }
+    };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/system-settings.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+}
+
+<div class="settings-page" id="settingsPage">
+    <div class="settings-shell">
+
+        <!-- SIDEBAR CÀI ĐẶT (giữ nguyên vị trí ở mọi trang con) -->
+        <aside class="settings-nav" aria-label="Danh mục cài đặt">
+            <h2 class="settings-nav-title">
+                <svg class="lh-ico"><use href="#i-settings"></use></svg>
+                Cài đặt
+            </h2>
+
+            <nav>
+                @foreach (var item in nav)
+                {
+                    <a asp-controller="Settings" asp-action="@item[2]"
+                       class="settings-nav-link @(current == item[0] ? "active" : "")"
+                       aria-current="@(current == item[0] ? "page" : null)">
+                        <svg class="lh-ico"><use href="#i-@item[3]"></use></svg>
+                        <span>@item[1]</span>
+                    </a>
+                }
+            </nav>
+        </aside>
+
+        <!-- NỘI DUNG BÊN PHẢI -->
+        <section class="settings-content">
+            @if (!string.IsNullOrEmpty(success))
+            {
+                <div class="settings-flash success" role="status">@success</div>
+            }
+            @if (!string.IsNullOrEmpty(error))
+            {
+                <div class="settings-flash error" role="alert">@error</div>
+            }
+
+            @RenderBody()
+        </section>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/system-settings.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+}

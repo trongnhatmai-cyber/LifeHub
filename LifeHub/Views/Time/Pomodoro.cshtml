@@ -1,0 +1,92 @@
+@model LifeHub.Models.ViewModels.TimeManagement.TimePomodoroViewModel
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Pomodoro";
+    ViewData["ActivePage"] = "TimePomodoro";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/time.css" asp-append-version="true" />
+}
+
+<div class="time-page">
+    <header class="time-heading">
+        <div>
+            <span class="time-label">QUẢN LÝ THỜI GIAN</span>
+            <h1>Pomodoro</h1>
+            <p>Tập trung theo từng phiên, nghỉ đúng lúc để giữ nhịp làm việc.</p>
+        </div>
+    </header>
+
+    <section class="time-summary">
+        <div class="summary-card"><div class="summary-top"><span>Phiên hôm nay</span><span class="summary-badge">TODAY</span></div><h2>@Model.TodaySessions</h2><p>Phiên tập trung đã hoàn thành</p></div>
+        <div class="summary-card"><div class="summary-top"><span>Thời gian tập trung</span><span class="summary-badge">FOCUS</span></div><h2>@Model.TodayText</h2><p>Hôm nay</p></div>
+        <div class="summary-card"><div class="summary-top"><span>Tuần này</span><span class="summary-badge">WEEK</span></div><h2>@Model.WeekText</h2><p>@Model.WeekSessions phiên</p></div>
+        <div class="summary-card"><div class="summary-top"><span>Tổng số phiên</span><span class="summary-badge">TOTAL</span></div><h2>@Model.TotalSessions</h2><p>Gần đây nhất đã ghi nhận</p></div>
+    </section>
+
+    <div class="time-grid">
+        <section class="time-card">
+            <div class="pomo">
+                <div class="time-chips" style="margin:0" role="group" aria-label="Chế độ">
+                    <button type="button" class="time-chip active" data-pomo-mode="focus" aria-pressed="true">Tập trung</button>
+                    <button type="button" class="time-chip" data-pomo-mode="short" aria-pressed="false">Nghỉ ngắn</button>
+                    <button type="button" class="time-chip" data-pomo-mode="long" aria-pressed="false">Nghỉ dài</button>
+                </div>
+
+                <div class="pomo-ring">
+                    <svg viewBox="0 0 100 100" aria-hidden="true">
+                        <circle class="pomo-track" cx="50" cy="50" r="45" />
+                        <circle class="pomo-progress" id="pomoProgress" cx="50" cy="50" r="45" />
+                    </svg>
+                    <div class="pomo-center">
+                        <div class="pomo-time" id="pomoTime" role="timer" aria-live="off">25:00</div>
+                        <div class="pomo-state" id="pomoState">Sẵn sàng tập trung</div>
+                    </div>
+                </div>
+
+                <div class="pomo-actions">
+                    <button type="button" class="time-btn primary" data-pomo="start">Bắt đầu</button>
+                    <button type="button" class="time-btn" data-pomo="reset">Đặt lại</button>
+                    <button type="button" class="time-btn" data-pomo="skip">Chuyển phiên nghỉ</button>
+                </div>
+
+                <div class="field pomo-target">
+                    <label for="pomoTarget">Đang tập trung cho</label>
+                    <select id="pomoTarget">
+                        @foreach (var t in Model.Targets) { <option value="@t.Value">@t.Label</option> }
+                    </select>
+                </div>
+
+                <div class="pomo-config">
+                    <div class="field"><label for="pomoFocus">Tập trung (phút)</label><input id="pomoFocus" type="number" min="1" max="180" value="25" /></div>
+                    <div class="field"><label for="pomoShort">Nghỉ ngắn (phút)</label><input id="pomoShort" type="number" min="1" max="60" value="5" /></div>
+                    <div class="field"><label for="pomoLong">Nghỉ dài (phút)</label><input id="pomoLong" type="number" min="1" max="90" value="15" /></div>
+                </div>
+                <p class="time-note" style="margin:0">Phiên hoàn thành trong lần mở trang này: <strong id="pomoDone">0</strong>. Phiên chưa được lưu vào lịch sử vì Back-end chưa hỗ trợ ghi nhận.</p>
+            </div>
+        </section>
+
+        <section class="time-card">
+            <div class="section-heading">
+                <div><h3>Lịch sử Pomodoro</h3><p>30 phiên hoàn thành gần nhất</p></div>
+            </div>
+            @foreach (var h in Model.History)
+            {
+                <div class="history-item">
+                    <div><strong>@h.TaskOrCourseName</strong><small>@h.CompletedLabel</small></div>
+                    <span class="summary-badge">@h.DurationMinutes phút</span>
+                </div>
+            }
+            @if (!Model.History.Any())
+            {
+                <div class="time-empty">Chưa có phiên nào. Bấm "Bắt đầu" để làm phiên tập trung đầu tiên.</div>
+            }
+        </section>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/time.js" asp-append-version="true"></script>
+}

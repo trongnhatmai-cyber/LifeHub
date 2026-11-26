@@ -1,0 +1,141 @@
+@model LifeHub.Models.ViewModels.LifestyleManagement.LifePlanPageViewModel
+@using LifeHub.Models.ViewModels.LifestyleManagement
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Kế hoạch sinh hoạt";
+    ViewData["ActivePage"] = "LifestylePlan";
+    var sel = Model.Selected;
+    var todayKey = DateTime.Today.ToString("yyyy-MM-dd");
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/lifestyle.css" asp-append-version="true" />
+}
+
+<div class="life-page" data-module="plan">
+    <partial name="_LifeFlash" />
+
+    <header class="life-heading">
+        <div>
+            <span class="life-label">KẾ HOẠCH SINH HOẠT</span>
+            <h1>Kế hoạch sinh hoạt</h1>
+            <p>Xây dựng lịch sinh hoạt mẫu và định kỳ. <span class="life-sample" title="Chưa có bảng lưu kế hoạch trong CSDL, dữ liệu đang là dữ liệu mẫu">Dữ liệu mẫu</span></p>
+        </div>
+        <div class="heading-actions">
+            <button type="button" class="life-btn primary" data-open="planModal" data-mode="create" data-title="Tạo kế hoạch sinh hoạt" data-startdate="@todayKey">+ Tạo kế hoạch</button>
+        </div>
+    </header>
+
+    <section class="life-summary">
+        <div class="summary-card">
+            <div class="summary-top"><span>Tổng số kế hoạch</span><span class="summary-badge">TOTAL</span></div>
+            <h2>@Model.TotalCount.ToString("00")</h2><p>Kế hoạch đã tạo</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Đang áp dụng</span><span class="summary-badge">ACTIVE</span></div>
+            <h2>@Model.ActiveCount.ToString("00")</h2><p>Đang chạy theo lịch</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Đã tạm dừng</span><span class="summary-badge">PAUSED</span></div>
+            <h2>@Model.PausedCount.ToString("00")</h2><p>Có thể tiếp tục bất cứ lúc nào</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Hoạt động trong kế hoạch</span><span class="summary-badge">ITEMS</span></div>
+            <h2>@Model.ActivityCount.ToString("00")</h2><p>Trên tất cả kế hoạch</p>
+        </div>
+    </section>
+
+    @if (!Model.Plans.Any())
+    {
+        <section class="life-card"><div class="life-empty">Chưa có kế hoạch nào. Bấm "+ Tạo kế hoạch" để bắt đầu.</div></section>
+    }
+    else
+    {
+        <div class="life-grid plan-layout">
+            <!-- 11.2 DANH SÁCH KẾ HOẠCH -->
+            <section class="life-card" aria-labelledby="planListTitle">
+                <div class="section-heading">
+                    <div><h3 id="planListTitle">Kế hoạch của tôi</h3><p>@Model.ActiveCount đang áp dụng</p></div>
+                </div>
+                <div class="plan-list">
+                    @foreach (var p in Model.Plans)
+                    {
+                        var isSel = sel != null && sel.Id == p.Id;
+                        <a class="plan-card @(isSel ? "is-selected" : "") @(p.IsActive ? "" : "is-paused")" asp-action="Plan" asp-route-id="@p.Id" aria-current="@(isSel ? "true" : null)">
+                            <div class="plan-card-top"><strong>@p.Name</strong><span class="status @p.StatusClass">@p.StatusLabel</span></div>
+                            <div class="life-meta">@p.Activities.Count hoạt động · @p.FrequencyLabel</div>
+                            <div class="day-progress-top"><span>Tiến độ tuần</span><strong>@(p.WeekExpected == 0 ? "—" : p.WeekPercent + "%")</strong></div>
+                            <div class="bar @(p.WeekPercent == 100 ? "done" : "")"><i style="width:@(p.WeekPercent)%"></i></div>
+                        </a>
+                    }
+                </div>
+            </section>
+
+            <!-- 11.3 CHI TIẾT KẾ HOẠCH -->
+            @if (sel != null)
+            {
+                <section class="life-card plan-detail" aria-labelledby="planDetailTitle">
+                    <div class="section-heading">
+                        <div><h3 id="planDetailTitle">@sel.Name</h3><p>@(string.IsNullOrWhiteSpace(sel.Description) ? "Chưa có mô tả" : sel.Description)</p></div>
+                        <span class="status @sel.StatusClass">@sel.StatusLabel</span>
+                    </div>
+
+                    <dl class="detail-list">
+                        <div><dt>Ngày áp dụng</dt><dd>@sel.PeriodLabel</dd></div>
+                        <div><dt>Tần suất</dt><dd>@sel.FrequencyLabel</dd></div>
+                        <div><dt>Số hoạt động</dt><dd>@sel.Activities.Count</dd></div>
+                        <div><dt>Thời lượng dự kiến</dt><dd>@LifeFmt.Duration(sel.TotalMinutes) mỗi lượt</dd></div>
+                    </dl>
+
+                    <div class="day-progress">
+                        <div class="day-progress-top"><span>Tiến độ tuần này</span><strong>@(sel.WeekExpected == 0 ? "Chưa có dữ liệu" : sel.WeekDone + "/" + sel.WeekExpected + " lượt (" + sel.WeekPercent + "%)")</strong></div>
+                        <div class="bar @(sel.WeekPercent == 100 ? "done" : "")"><i style="width:@(sel.WeekPercent)%"></i></div>
+                    </div>
+
+                    <h4 class="sub-title">Danh sách hoạt động</h4>
+                    <div class="table-wrap">
+                        <table class="life-table">
+                            <thead><tr><th>Giờ</th><th>Hoạt động</th><th>Thời lượng</th><th>Ngày thực hiện</th><th>Nhắc nhở</th><th>Tuần này</th></tr></thead>
+                            <tbody>
+                                @foreach (var a in sel.Activities.OrderBy(x => x.Time))
+                                {
+                                    <tr>
+                                        <td><strong>@a.TimeLabel</strong></td>
+                                        <td>@a.Name</td>
+                                        <td>@a.DurationLabel</td>
+                                        <td class="muted">@a.DaysLabel</td>
+                                        <td class="muted">@a.ReminderLabel</td>
+                                        <td>@a.WeekLabel</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h4 class="sub-title">Lịch sử thực hiện 7 ngày</h4>
+                    <div class="hist" role="img" aria-label="Lịch sử thực hiện kế hoạch 7 ngày">
+                        @foreach (var h in sel.History)
+                        {
+                            <div class="hist-col @(h.IsToday ? "today" : "")">
+                                <strong>@(h.Total == 0 ? "—" : h.Done + "/" + h.Total)</strong>
+                                <div class="hist-track"><i style="height:@(h.Percent)%"></i></div>
+                                <small>@h.Label</small>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="card-actions">
+                        <button type="button" class="life-btn primary" data-open="applyModal" data-planid="@sel.Id" data-name="@sel.Name" data-count="@sel.Activities.Count" data-fromdate="@todayKey" @(sel.IsActive ? "" : "disabled") title="@(sel.IsActive ? "Tạo các mục lịch từ kế hoạch" : "Tiếp tục kế hoạch trước khi áp dụng vào lịch")">Áp dụng vào lịch</button>
+                        <button type="button" class="life-btn" data-open="planModal" data-mode="edit" data-title="Sửa kế hoạch" data-id="@sel.Id" data-name="@sel.Name" data-description="@sel.Description" data-startdate="@sel.StartDate.ToString("yyyy-MM-dd")" data-enddate="@(sel.EndDate?.ToString("yyyy-MM-dd"))">Sửa kế hoạch</button>
+                        <form method="post" data-simulate class="inline-form"><input type="hidden" name="Id" value="@sel.Id" /><button type="submit" class="life-btn">@(sel.IsActive ? "Tạm dừng" : "Tiếp tục")</button></form>
+                    </div>
+                </section>
+            }
+        </div>
+    }
+
+    <partial name="_LifePlanModals" />
+</div>
+
+@section Scripts {
+    <script src="~/js/lifestyle.js" asp-append-version="true"></script>
+}

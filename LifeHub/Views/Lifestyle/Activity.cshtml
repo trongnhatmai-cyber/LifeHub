@@ -1,0 +1,149 @@
+@model LifeHub.Models.ViewModels.LifestyleManagement.LifeActivityPageViewModel
+@using LifeHub.Models.ViewModels.LifestyleManagement
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Hoạt động thể chất";
+    ViewData["ActivePage"] = "LifestyleActivity";
+    var s = Model.Stats;
+    var todayKey = DateTime.Today.ToString("yyyy-MM-dd");
+    var hasAny = s.WeekMinutes > 0 || s.Bars.Any(b => b.Minutes > 0) || s.Bands.Any();
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/lifestyle.css" asp-append-version="true" />
+}
+
+<div class="life-page" data-module="activity">
+    <partial name="_LifeFlash" />
+
+    <header class="life-heading">
+        <div>
+            <span class="life-label">HOẠT ĐỘNG THỂ CHẤT</span>
+            <h1>Hoạt động thể chất</h1>
+            <p>Ghi nhận vận động và theo dõi mức độ duy trì mỗi tuần.</p>
+        </div>
+        <div class="heading-actions">
+            <button type="button" class="life-btn primary" data-open="activityModal" data-mode="create" data-title="Ghi nhận hoạt động" data-activitydate="@todayKey">+ Ghi nhận hoạt động</button>
+        </div>
+    </header>
+
+    <section class="life-summary">
+        <div class="summary-card">
+            <div class="summary-top"><span>Vận động hôm nay</span><span class="summary-badge">TODAY</span></div>
+            <h2>@(s.TodayMinutes > 0 ? LifeFmt.Duration(s.TodayMinutes) : "0p")</h2><p>@(s.TodayMinutes > 0 ? "Đã ghi nhận" : "Chưa ghi nhận")</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Vận động tuần này</span><span class="summary-badge">WEEK</span></div>
+            <h2>@(s.WeekMinutes > 0 ? LifeFmt.Duration(s.WeekMinutes) : "0p")</h2><p>Từ thứ Hai đến hôm nay</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Số buổi hoạt động</span><span class="summary-badge">SESSIONS</span></div>
+            <h2>@s.WeekSessions</h2><p>Trong tuần này</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Hoạt động gần nhất</span><span class="summary-badge">LATEST</span></div>
+            <h2 class="summary-text">@s.LatestName</h2><p>@s.LatestNote</p>
+        </div>
+    </section>
+
+    @if (hasAny)
+    {
+        <div class="life-grid">
+            <section class="life-card" aria-labelledby="actDayTitle">
+                <div class="section-heading"><div><h3 id="actDayTitle">Thời lượng vận động theo ngày</h3><p>7 ngày gần nhất</p></div></div>
+                <div class="trend" role="img" aria-label="Biểu đồ thời lượng vận động 7 ngày">
+                    @foreach (var b in s.Bars)
+                    {
+                        <div class="trend-col @(b.IsToday ? "today" : "")"><strong>@b.ValueLabel</strong><div class="trend-track"><i style="height:@(b.Percent)%"></i></div><small>@b.Label</small></div>
+                    }
+                </div>
+            </section>
+
+            <div class="life-stack">
+                <section class="life-card" aria-labelledby="actCompareTitle">
+                    <div class="section-heading"><div><h3 id="actCompareTitle">So sánh theo tuần</h3><p>Cùng số ngày đã qua của mỗi tuần</p></div></div>
+                    <div class="compare-row"><span>Tuần này</span><div class="bar"><i style="width:@(s.Compare.ThisPercent)%"></i></div><strong>@LifeFmt.Duration(s.Compare.ThisWeekMinutes)</strong></div>
+                    <div class="compare-row muted"><span>Tuần trước</span><div class="bar"><i style="width:@(s.Compare.LastPercent)%"></i></div><strong>@LifeFmt.Duration(s.Compare.LastWeekMinutes)</strong></div>
+                    <p class="compare-delta @s.Compare.DeltaTone">@s.Compare.DeltaLabel</p>
+                </section>
+
+                <section class="life-card" aria-labelledby="actBandTitle">
+                    <div class="section-heading"><div><h3 id="actBandTitle">Phân loại hoạt động</h3><p>30 ngày gần nhất</p></div></div>
+                    @if (s.Bands.Any())
+                    {
+                        <div class="band-list">
+                            @foreach (var b in s.Bands)
+                            {
+                                <div class="band"><span>@b.Label</span><div class="bar"><i style="width:@(b.Percent)%"></i></div><strong>@LifeFmt.Duration(b.Minutes)</strong></div>
+                            }
+                        </div>
+                    }
+                    else { <div class="life-empty">Chưa có hoạt động nào trong 30 ngày gần nhất.</div> }
+                </section>
+            </div>
+        </div>
+    }
+    else
+    {
+        <section class="life-card"><div class="life-empty">Chưa có hoạt động nào được ghi nhận. Bấm "+ Ghi nhận hoạt động" để bắt đầu.</div></section>
+    }
+
+    <!-- 10.3 DANH MỤC HOẠT ĐỘNG -->
+    <section class="life-card" aria-labelledby="catTitle">
+        <div class="section-heading"><div><h3 id="catTitle">Danh mục hoạt động</h3><p>Chọn danh mục khi ghi nhận để thống kê chính xác</p></div></div>
+        <div class="cat-grid">
+            @foreach (var c in LifeCategory.All)
+            {
+                <a class="cat-card @(Model.Category == c.Key ? "active" : "")" asp-action="Activity" asp-route-category="@c.Key" asp-route-range="@Model.Range">
+                    <strong>@c.Label</strong><span>@c.Example</span>
+                </a>
+            }
+        </div>
+    </section>
+
+    <section class="life-card" aria-labelledby="actListTitle">
+        <div class="section-heading"><div><h3 id="actListTitle">Hoạt động đã ghi nhận</h3><p>Bản ghi thực tế, không gồm hoạt động chỉ nằm trong kế hoạch</p></div></div>
+        <nav class="life-chips" aria-label="Lọc theo thời gian và danh mục">
+            <a class="life-chip @(Model.Range == "7" ? "active" : "")" asp-action="Activity" asp-route-range="7" asp-route-category="@Model.Category">7 ngày</a>
+            <a class="life-chip @(Model.Range == "30" ? "active" : "")" asp-action="Activity" asp-route-range="30" asp-route-category="@Model.Category">30 ngày</a>
+            <a class="life-chip @(Model.Range == "90" ? "active" : "")" asp-action="Activity" asp-route-range="90" asp-route-category="@Model.Category">90 ngày</a>
+            <a class="life-chip @(Model.Category == "all" ? "active" : "")" asp-action="Activity" asp-route-range="@Model.Range" asp-route-category="all">Tất cả danh mục</a>
+        </nav>
+        <p class="life-count">@Model.TotalInRange bản ghi trong @Model.Range ngày gần nhất@(Model.Category == "all" ? "" : " · " + LifeCategory.Label(Model.Category))</p>
+        @if (Model.Items.Any())
+        {
+            <div class="table-wrap">
+                <table class="life-table">
+                    <thead><tr><th>Ngày</th><th>Hoạt động</th><th>Danh mục</th><th>Thời lượng</th><th class="right">Thao tác</th></tr></thead>
+                    <tbody>
+                        @foreach (var i in Model.Items)
+                        {
+                            <tr>
+                                <td class="muted">@i.DateLabel</td>
+                                <td><strong>@i.Name</strong>@if (!string.IsNullOrWhiteSpace(i.Notes)) { <span class="row-sub">@i.Notes</span> }</td>
+                                <td><span class="life-tag">@i.CategoryLabel</span></td>
+                                <td>@i.DurationLabel</td>
+                                <td class="right">
+                                    <span class="row-actions">
+                                        <button type="button" class="row-btn" data-open="activityModal" data-mode="edit" data-title="Sửa hoạt động" data-id="@i.Id" data-name="@i.Name" data-category="@i.CategoryKey" data-activitydate="@i.DateKey" data-durationmin="@i.Minutes" data-notes="@i.Notes">Sửa</button>
+                                        <button type="button" class="row-btn danger" data-open="deleteModal" data-mode="delete" data-id="@i.Id" data-name="hoạt động &quot;@i.Name&quot; ngày @i.DateLabel">Xóa</button>
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="life-empty">Không có hoạt động nào khớp bộ lọc. Đổi bộ lọc hoặc bấm "+ Ghi nhận hoạt động".</div>
+        }
+    </section>
+
+    <partial name="_LifeActivityModals" model="Model.PlanOptions" />
+    <partial name="_LifeDeleteModal" />
+</div>
+
+@section Scripts {
+    <script src="~/js/lifestyle.js" asp-append-version="true"></script>
+}

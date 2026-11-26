@@ -1,0 +1,89 @@
+@using LifeHub.Models.ViewModels.LifestyleManagement
+@* Hộp thoại kế hoạch: tạo/sửa (#planModal) và áp dụng vào lịch (#applyModal). Phải là con trực tiếp của .life-page.
+   Form mô phỏng (data-simulate). Tên input trùng SavePlanInput / ApplyPlanInput.
+   Các dòng hoạt động được lifestyle.js nhân bản từ <template data-row-template>, tên dạng Activities[i].Name. *@
+
+<div class="life-modal" id="planModal" role="dialog" aria-modal="true" aria-labelledby="planModalTitle" hidden>
+    <div class="life-modal-box wide">
+        <div class="life-modal-head">
+            <h3 id="planModalTitle" data-modal-title>Tạo kế hoạch sinh hoạt</h3>
+            <button type="button" class="life-modal-close" data-close aria-label="Đóng">&times;</button>
+        </div>
+        <form method="post" data-simulate data-validate="plan" novalidate>
+            <input type="hidden" name="Id" disabled />
+            <div class="life-form-grid">
+                <div class="field full"><label for="pName">Tên kế hoạch</label><input id="pName" name="Name" maxlength="120" required placeholder="Ví dụ: Sinh hoạt buổi sáng" /></div>
+                <div class="field full"><label for="pDesc">Mô tả</label><textarea id="pDesc" name="Description" maxlength="255" placeholder="Nội dung kế hoạch"></textarea></div>
+                <div class="field"><label for="pStart">Ngày bắt đầu</label><input id="pStart" name="StartDate" type="date" required /></div>
+                <div class="field"><label for="pEnd">Ngày kết thúc</label><input id="pEnd" name="EndDate" type="date" /><small>Không bắt buộc.</small></div>
+                <div class="field full">
+                    <label for="pFreq">Tần suất</label>
+                    <select id="pFreq" name="Frequency"><option value="daily">Hằng ngày</option><option value="weekly">Hằng tuần</option><option value="custom">Tùy chỉnh</option></select>
+                </div>
+            </div>
+
+            <div class="rows-head">
+                <h4>Danh sách hoạt động</h4>
+                <button type="button" class="life-btn small" data-add-row>+ Thêm hoạt động</button>
+            </div>
+            <div class="act-edit-list" data-rows></div>
+
+            <p class="form-error" hidden></p>
+            <div class="life-modal-foot">
+                <button type="button" class="life-btn" data-close>Hủy</button>
+                <button type="submit" class="life-btn primary">Lưu kế hoạch</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<template data-row-template>
+    <div class="act-edit-row" data-row>
+        <div class="field"><label for="pa-name-__i__">Tên hoạt động</label><input id="pa-name-__i__" name="Activities[__i__].Name" maxlength="100" required placeholder="Ví dụ: Thức dậy" /></div>
+        <div class="field"><label for="pa-time-__i__">Giờ dự kiến</label><input id="pa-time-__i__" name="Activities[__i__].Time" type="time" required /></div>
+        <div class="field"><label for="pa-dur-__i__">Thời lượng (phút)</label><input id="pa-dur-__i__" name="Activities[__i__].DurationMin" type="number" min="0" max="600" value="15" /></div>
+        <div class="field">
+            <label for="pa-rem-__i__">Nhắc nhở</label>
+            <select id="pa-rem-__i__" name="Activities[__i__].ReminderMin">
+                <option value="0">Không nhắc</option><option value="5">Trước 5 phút</option><option value="10">Trước 10 phút</option>
+                <option value="15">Trước 15 phút</option><option value="30">Trước 30 phút</option><option value="60">Trước 1 giờ</option>
+            </select>
+        </div>
+        <fieldset class="day-picks full">
+            <legend>Ngày thực hiện</legend>
+            @foreach (var d in new[] { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday })
+            {
+                <label><input type="checkbox" name="Activities[__i__].Days" value="@((int)d)" checked />@LifeFmt.DayShort(d)</label>
+            }
+        </fieldset>
+        <button type="button" class="row-btn danger" data-remove-row>Xóa hoạt động</button>
+    </div>
+</template>
+
+<div class="life-modal" id="applyModal" role="dialog" aria-modal="true" aria-labelledby="applyModalTitle" hidden>
+    <div class="life-modal-box">
+        <div class="life-modal-head">
+            <h3 id="applyModalTitle">Áp dụng kế hoạch vào lịch</h3>
+            <button type="button" class="life-modal-close" data-close aria-label="Đóng">&times;</button>
+        </div>
+        <p class="life-note" style="margin:0 0 14px"><strong data-text="name"></strong> có <span data-text="count"></span> hoạt động có giờ cụ thể.</p>
+        <ul class="apply-rules">
+            <li>Tạo mục lịch tương ứng trong lịch cá nhân, gắn nguồn là Sinh hoạt cá nhân.</li>
+            <li>Áp dụng lại cùng kế hoạch và cùng kỳ sẽ không tạo bản ghi trùng.</li>
+            <li>Trạng thái hoàn thành lấy từ bản ghi thực tế ở Sinh hoạt cá nhân, lịch không có trạng thái riêng.</li>
+            <li>Muốn đổi hoạt động, sửa ở kế hoạch gốc.</li>
+        </ul>
+        <form method="post" data-simulate data-validate="apply" novalidate>
+            <input type="hidden" name="PlanId" />
+            <div class="life-form-grid">
+                <div class="field"><label for="apFrom">Từ ngày</label><input id="apFrom" name="FromDate" type="date" required /></div>
+                <div class="field"><label for="apTo">Đến ngày</label><input id="apTo" name="ToDate" type="date" required /></div>
+            </div>
+            <p class="form-error" hidden></p>
+            <div class="life-modal-foot">
+                <button type="button" class="life-btn" data-close>Hủy</button>
+                <button type="submit" class="life-btn primary">Áp dụng vào lịch</button>
+            </div>
+        </form>
+    </div>
+</div>

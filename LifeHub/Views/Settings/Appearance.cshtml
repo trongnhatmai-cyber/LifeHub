@@ -1,0 +1,74 @@
+@model LifeHub.Models.ViewModels.SystemManagement.SettingsViewModel
+@{
+    Layout = "_SettingsLayout";
+    ViewData["SettingsActive"] = "appearance";
+
+    var zones = (string[])ViewBag.Timezones;
+    var zoneLabels = new Dictionary<string, string>
+    {
+        ["Asia/Ho_Chi_Minh"] = "(UTC+07:00) Hà Nội, Bangkok, Jakarta",
+        ["Asia/Bangkok"] = "(UTC+07:00) Bangkok",
+        ["Asia/Singapore"] = "(UTC+08:00) Singapore",
+        ["Asia/Tokyo"] = "(UTC+09:00) Tokyo",
+        ["Asia/Seoul"] = "(UTC+09:00) Seoul",
+        ["Europe/London"] = "(UTC+00:00) London",
+        ["Europe/Paris"] = "(UTC+01:00) Paris",
+        ["America/New_York"] = "(UTC-05:00) New York",
+        ["America/Los_Angeles"] = "(UTC-08:00) Los Angeles",
+        ["Australia/Sydney"] = "(UTC+10:00) Sydney"
+    };
+}
+
+<header class="settings-head">
+    <div>
+        <h1>Giao diện</h1>
+        <p>Tùy chỉnh trải nghiệm LifeHub.</p>
+    </div>
+</header>
+
+<form asp-controller="Settings" asp-action="UpdateAppearance" method="post" class="settings-form" id="appearanceForm"
+      data-saved-theme="@Model.ThemeMode">
+
+    <section class="settings-card">
+        <div class="section-heading"><div><h3>Chủ đề</h3><p>Chọn giao diện sáng hoặc tối cho toàn bộ LifeHub.</p></div></div>
+
+        <div class="settings-theme-options" role="radiogroup" aria-label="Chủ đề">
+            <label class="settings-theme-option">
+                <input type="radio" name="ThemeMode" value="light" checked="@(Model.ThemeMode != "dark")" />
+                <span class="settings-theme-preview light" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="settings-theme-name"><strong>Sáng</strong><small>Nền sáng, dễ đọc ban ngày</small></span>
+            </label>
+
+            <label class="settings-theme-option">
+                <input type="radio" name="ThemeMode" value="dark" checked="@(Model.ThemeMode == "dark")" />
+                <span class="settings-theme-preview dark" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="settings-theme-name"><strong>Tối</strong><small>Nền tối, dịu mắt ban đêm</small></span>
+            </label>
+        </div>
+    </section>
+
+    <section class="settings-card">
+        <div class="settings-form-grid">
+            <div class="field">
+                <label for="Language">Ngôn ngữ</label>
+                <select id="Language" name="Language">
+                    <option value="vi" selected>Tiếng Việt</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label for="Timezone">Múi giờ</label>
+                <select id="Timezone" name="Timezone">
+                    @foreach (var z in zones)
+                    {
+                        <option value="@z" selected="@(z == Model.Timezone)">@(zoneLabels.TryGetValue(z, out var label) ? label : z)</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="settings-actions">
+            <button type="submit" class="settings-btn primary">Lưu thay đổi</button>
+        </div>
+    </section>
+</form>
