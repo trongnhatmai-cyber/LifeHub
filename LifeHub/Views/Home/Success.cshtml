@@ -1,21 +1,49 @@
-﻿<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-        .body{
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        h1{
-            color: greenyellow;
-        }
-    </style>
-</head>
-<body>
-    <h1>Success</h1>
-</body>
-</html>
+﻿@{
+    Layout = "_LandingLayout";
+    ViewData["Title"] = "Hoàn tất thành công – LifeHub";
+    ViewData["LandingPage"] = "success";
+    var isSignedIn = User.Identity?.IsAuthenticated == true;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/home-index.css" asp-append-version="true" />
+}
+
+<main class="lh-home">
+    <section class="lh-success-sec">
+        <div class="lh-success-box">
+            <div class="lh-success-icon" aria-hidden="true">✓</div>
+
+            <span class="lh-sec-kicker" style="background:#dcfce7;color:#15803d;margin-bottom:14px">
+                THAO TÁC HOÀN TẤT
+            </span>
+
+            <h1>Thực hiện thành công!</h1>
+
+            <p>
+                Yêu cầu của bạn trên hệ thống <strong>LifeHub</strong> đã được ghi nhận và xử lý hoàn tất. Bạn có thể tiếp tục quay lại không gian làm việc ngay bây giờ.
+            </p>
+
+            <div class="lh-banner-actions">
+                @if (isSignedIn)
+                {
+                    <a class="lh-hero-btn primary" asp-controller="Dashboard" asp-action="Index">
+                        Vào Bảng điều khiển <span>→</span>
+                    </a>
+                    <a class="lh-hero-btn" asp-controller="Home" asp-action="Index">
+                        Về Trang chủ
+                    </a>
+                }
+                else
+                {
+                    <a class="lh-hero-btn primary" asp-controller="Auth" asp-action="Login">
+                        Đăng nhập ngay <span>→</span>
+                    </a>
+                    <a class="lh-hero-btn" asp-controller="Home" asp-action="Index">
+                        Về Trang chủ
+                    </a>
+                }
+            </div>
+        </div>
+    </section>
+</main>

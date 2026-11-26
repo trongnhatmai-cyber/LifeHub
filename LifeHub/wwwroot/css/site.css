@@ -8,9 +8,15 @@ a{color:inherit;text-decoration:none}
 .lh-i{width:18px;height:18px;flex:none}
 /* nav */
 .lh-nav{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--lh-bg) 82%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--lh-line)}
-.lh-nav .lh-wrap{display:flex;align-items:center;height:64px;gap:32px}
-.lh-logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;letter-spacing:-.02em}
+.lh-nav .lh-wrap{display:flex;align-items:center;height:68px;gap:32px}
+.lh-logo{display:inline-flex;align-items:center;gap:10px;font-weight:800;font-size:18px;letter-spacing:-.02em;flex-shrink:0}
 .lh-logo b{width:30px;height:30px;border-radius:9px;background:var(--lh-accent);color:var(--lh-on-accent);display:grid;place-items:center;font-size:15px}
+.lh-logo-img{height:44px;width:auto;display:block;object-fit:contain;background:transparent;transition:transform .2s ease}
+.lh-logo-dark{display:none}
+:root[data-theme="dark"] .lh-logo-light,html[data-theme="dark"] .lh-logo-light{display:none}
+:root[data-theme="dark"] .lh-logo-dark,html[data-theme="dark"] .lh-logo-dark{display:block}
+.lh-logo:hover .lh-logo-img{transform:scale(1.02)}
+.lh-logo-footer{height:38px}
 .lh-links{display:flex;gap:28px;font-size:14px;font-weight:500;color:var(--lh-muted);margin-right:auto}
 .lh-links a:hover{color:var(--lh-text)}
 .lh-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:42px;padding:0 20px;border-radius:999px;font-family:inherit;font-size:14px;font-weight:600;border:1px solid var(--lh-line);background:var(--lh-surface);color:var(--lh-text);cursor:pointer;transition:transform .15s,background .15s}

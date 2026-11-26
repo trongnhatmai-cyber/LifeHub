@@ -7,6 +7,7 @@
 
     <title>Tạo tài khoản | LifeHub</title>
 
+    <link rel="icon" type="image/png" href="~/images/lifehub-icon.png" asp-append-version="true">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -23,9 +24,8 @@
     </div>
 
     <header class="auth-header">
-        <a href="/Home/Index" class="logo">
-            <span class="logo-icon">L</span>
-            LifeHub
+        <a asp-controller="Home" asp-action="Index" class="logo" aria-label="Trang chủ LifeHub">
+            <img src="~/images/lifehub-logo.png" alt="LifeHub – Plan • Focus • Achieve" class="auth-logo-img" asp-append-version="true">
         </a>
 
         <a href="/Home/Index" class="back-home">
@@ -135,9 +135,9 @@
                     <input type="checkbox" required>
                     <span>
                         Tôi đồng ý với
-                        <a href="#">Điều khoản sử dụng</a>
+                        <a asp-controller="Home" asp-action="Privacy">Điều khoản sử dụng</a>
                         và
-                        <a href="#">Chính sách bảo mật</a>
+                        <a asp-controller="Home" asp-action="Privacy">Chính sách bảo mật</a>
                         của LifeHub.
                     </span>
                 </label>

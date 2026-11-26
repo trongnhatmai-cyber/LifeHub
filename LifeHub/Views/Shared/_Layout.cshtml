@@ -144,6 +144,7 @@
         })();
     </script>
 
+    <link rel="icon" type="image/png" href="~/images/lifehub-icon.png" asp-append-version="true" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
@@ -163,9 +164,16 @@
 
             <a asp-controller="Dashboard"
                asp-action="Index"
-               class="logo">
-                <span class="logo-mark">L</span>
-                LifeHub
+               class="logo"
+               aria-label="LifeHub – Trang tổng quan">
+                <img src="~/images/lifehub-logo.png"
+                     alt="LifeHub – Plan • Focus • Achieve"
+                     class="logo-img logo-light"
+                     asp-append-version="true" />
+                <img src="~/images/lifehub-logo-dark.png"
+                     alt="LifeHub – Plan • Focus • Achieve"
+                     class="logo-img logo-dark"
+                     asp-append-version="true" />
             </a>
 
             @foreach (var g in groups)

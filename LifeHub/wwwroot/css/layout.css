@@ -211,7 +211,7 @@ body {
     align-items: center;
     gap: 10px;
 
-    padding: 4px 10px 24px;
+    padding: 2px 8px 22px;
 
     font-weight: 800;
     font-size: 17px;
@@ -220,6 +220,34 @@ body {
     color: inherit;
     text-decoration: none;
     flex-shrink: 0;
+}
+
+.app .logo-img {
+    height: 48px;
+    max-width: 200px;
+    width: auto;
+    display: block;
+    object-fit: contain;
+    background: transparent;
+    transition: transform .2s ease;
+}
+
+.app .logo-dark {
+    display: none;
+}
+
+.app .logo:hover .logo-img {
+    transform: scale(1.02);
+}
+
+:root[data-theme="dark"] .app .logo-light,
+html[data-theme="dark"] .app .logo-light {
+    display: none;
+}
+
+:root[data-theme="dark"] .app .logo-dark,
+html[data-theme="dark"] .app .logo-dark {
+    display: block;
 }
 
 .app .logo-mark {

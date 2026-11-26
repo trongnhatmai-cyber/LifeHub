@@ -509,6 +509,17 @@ CREATE TABLE [notes] (
     CONSTRAINT [FK_notes_users_user_id] FOREIGN KEY ([user_id]) REFERENCES [users] ([id]) ON DELETE NO ACTION
 );
 
+CREATE TABLE [task_categories] (
+    [id] int NOT NULL IDENTITY,
+    [user_id] int NOT NULL,
+    [name] nvarchar(100) NOT NULL,
+    [description] nvarchar(500) NULL,
+    [color] varchar(15) NOT NULL,
+    [icon] varchar(30) NOT NULL,
+    CONSTRAINT [PK_task_categories] PRIMARY KEY ([id]),
+    CONSTRAINT [FK_task_categories_users_user_id] FOREIGN KEY ([user_id]) REFERENCES [users] ([id]) ON DELETE NO ACTION
+);
+
 CREATE TABLE [tasks] (
     [id] int NOT NULL IDENTITY,
     [user_id] int NOT NULL,
@@ -517,6 +528,7 @@ CREATE TABLE [tasks] (
     [parent_task_id] int NULL,
     [goal_id] int NULL,
     [course_id] int NULL,
+    [category_id] int NULL,
     [title] nvarchar(200) NOT NULL,
     [description] nvarchar(max) NULL,
     [priority] varchar(20) NOT NULL DEFAULT 'medium',
@@ -530,6 +542,7 @@ CREATE TABLE [tasks] (
     [updated_at] datetime2 NULL,
     CONSTRAINT [PK_tasks] PRIMARY KEY ([id]),
     CONSTRAINT [FK_tasks_courses_course_id] FOREIGN KEY ([course_id]) REFERENCES [courses] ([id]) ON DELETE NO ACTION,
+    CONSTRAINT [FK_tasks_task_categories_category_id] FOREIGN KEY ([category_id]) REFERENCES [task_categories] ([id]) ON DELETE NO ACTION,
     CONSTRAINT [FK_tasks_goals_goal_id] FOREIGN KEY ([goal_id]) REFERENCES [goals] ([id]) ON DELETE NO ACTION,
     CONSTRAINT [FK_tasks_projects_project_id] FOREIGN KEY ([project_id]) REFERENCES [projects] ([id]) ON DELETE NO ACTION,
     CONSTRAINT [FK_tasks_tasks_parent_task_id] FOREIGN KEY ([parent_task_id]) REFERENCES [tasks] ([id]) ON DELETE NO ACTION,
@@ -719,6 +732,8 @@ CREATE INDEX [IX_tasks_assigned_to_status] ON [tasks] ([assigned_to], [status]);
 
 CREATE INDEX [IX_tasks_course_id] ON [tasks] ([course_id]);
 
+CREATE INDEX [IX_tasks_category_id] ON [tasks] ([category_id]);
+
 CREATE INDEX [IX_tasks_deadline] ON [tasks] ([deadline]);
 
 CREATE INDEX [IX_tasks_goal_id] ON [tasks] ([goal_id]);
@@ -728,6 +743,8 @@ CREATE INDEX [IX_tasks_parent_task_id] ON [tasks] ([parent_task_id]);
 CREATE INDEX [IX_tasks_project_id_status] ON [tasks] ([project_id], [status]);
 
 CREATE INDEX [IX_tasks_user_id] ON [tasks] ([user_id]);
+
+CREATE UNIQUE INDEX [IX_task_categories_user_id_name] ON [task_categories] ([user_id], [name]);
 
 CREATE INDEX [IX_transactions_category_id] ON [transactions] ([category_id]);
 

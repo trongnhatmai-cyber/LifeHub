@@ -19,3 +19,5 @@ appsettings.Development.json
 # SQL Server local files
 *.mdf
 *.ldf
+
+.md

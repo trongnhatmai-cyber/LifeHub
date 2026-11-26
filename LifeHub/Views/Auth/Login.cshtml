@@ -1,147 +1,226 @@
-@model LifeHub.Models.ViewModels.LoginViewModel;
+@model LifeHub.Models.ViewModels.LoginViewModel
+@{
+    Layout = null;
+}
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Đăng nhập | LifeHub</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <link rel="stylesheet" href="~/css/login.css" asp-append-version="true">
+    <link rel="icon" type="image/png" href="~/images/lifehub-icon.png" asp-append-version="true" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="~/css/login.css" asp-append-version="true" />
 </head>
 
 <body>
 
-    <div class="auth-bg">
+    <!-- Nền chuyển sắc dịu nhẹ -->
+    <div class="auth-bg" aria-hidden="true">
         <div class="bg-circle circle-one"></div>
         <div class="bg-circle circle-two"></div>
         <div class="bg-circle circle-three"></div>
     </div>
 
+    <!-- Thanh điều hướng đầu trang -->
     <header class="auth-header">
-        <a href="/Home/Index" class="logo">
-            <span class="logo-icon">L</span>
-            LifeHub
+        <a asp-controller="Home" asp-action="Index" class="logo" aria-label="Trang chủ LifeHub">
+            <img src="~/images/lifehub-logo.png" alt="LifeHub – Plan • Focus • Achieve" class="auth-logo-img" asp-append-version="true" />
         </a>
 
-        <a href="/Home/Index" class="back-home">
-            <span>←</span> Trang chủ
+        <a asp-controller="Home" asp-action="Index" class="back-home">
+            <span>←</span> Quay về trang chủ
         </a>
     </header>
 
     <main class="auth-container">
 
-        <div class="auth-card">
+        <div class="login-split-shell">
 
-            <div class="auth-top">
-                <div class="auth-symbol">
-                    <span>✦</span>
+            <!-- CỘT TRÁI: GIỚI THIỆU KHÔNG GIAN ĐA SẮC LIFEHUB -->
+            <section class="login-brand-pane" aria-label="Giới thiệu không gian LifeHub">
+                <div>
+                    <span class="login-kicker">✦ HỆ SINH THÁI 10 PHÂN HỆ</span>
+                    <h2>Mọi mảnh ghép cuộc sống, gọn trong một nơi.</h2>
+                    <p>
+                        Đăng nhập để tiếp tục theo dõi lịch học, công việc ưu tiên, dự án nhóm, dòng tiền và chuỗi thói quen đang chờ bạn hôm nay.
+                    </p>
                 </div>
 
-                <span class="auth-label">CHÀO MỪNG TRỞ LẠI</span>
+                <div>
+                    <div class="login-mod-grid">
+                        <div class="login-mod-tile t-study">
+                            <div class="login-mod-tile-head"><span>✎ HỌC TẬP</span><span>BLUE</span></div>
+                            <b>GPA &amp; Lịch học</b>
+                            <span>Tín chỉ, bài tập &amp; kỳ thi</span>
+                        </div>
+                        <div class="login-mod-tile t-task">
+                            <div class="login-mod-tile-head"><span>☑ CÔNG VIỆC</span><span>ORANGE</span></div>
+                            <b>Ưu tiên &amp; Kanban</b>
+                            <span>Kiểm soát từng deadline</span>
+                        </div>
+                        <div class="login-mod-tile t-fin">
+                            <div class="login-mod-tile-head"><span>₫ TÀI CHÍNH</span><span>ROSE</span></div>
+                            <b>Thu chi &amp; Ngân sách</b>
+                            <span>Đa ví &amp; quỹ tiết kiệm</span>
+                        </div>
+                        <div class="login-mod-tile t-habit">
+                            <div class="login-mod-tile-head"><span>↻ THÓI QUEN</span><span>INDIGO</span></div>
+                            <b>Streak &amp; Heatmap</b>
+                            <span>Nuôi dưỡng kỷ luật mỗi ngày</span>
+                        </div>
+                    </div>
 
-                <h1>Rất vui được gặp lại bạn.</h1>
-
-                <p>
-                    Đăng nhập để tiếp tục quản lý công việc,
-                    học tập và cuộc sống của bạn.
-                </p>
-
-                @if (TempData["SuccessMessage"] is string ok)
-                {
-                    <p role="status" style="color:#16a34a;font-weight:600">@ok</p>
-                }
-            </div>
-
-            <form class="auth-form" asp-controller="Auth" asp-action="Login"
-                asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
-                
-                @Html.AntiForgeryToken()
-                <div asp-validation-summary="All" class="text-danger"></div>
-
-                <div class="form-group">
-                    <label for="email">Địa chỉ email</label>
-
-                    <div class="input-wrap">
-                        <span class="input-icon">✉</span>
-                        <input asp-for="Email"
-                            type="email"
-                            id="email"
-                            placeholder="name@example.com"
-                            required
-                        >
+                    <div class="login-more-pills">
+                        <i style="color:#15803d;border-color:#bbf7d0;background:#f0fdf4">❖ Dự án nhóm</i>
+                        <i style="color:#0f766e;border-color:#99f6e4;background:#f0fdfa">◷ Pomodoro</i>
+                        <i style="color:#a16207;border-color:#fde047;background:#fefce8">◎ Mục tiêu OKR</i>
+                        <i style="color:#6d28d9;border-color:#e9d5ff;background:#faf5ff">▤ Kiến thức</i>
+                        <i style="color:#047857;border-color:#a7f3d0;background:#ecfdf5">♡ Sinh hoạt</i>
+                        <i style="color:#0369a1;border-color:#bae6fd;background:#f0f9ff">✦ Trợ lý AI</i>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <div class="label-row">
-                        <label for="password">Mật khẩu</label>
-                        <a href="#" class="forgot-link">Quên mật khẩu?</a>
+                <div class="login-trust-foot">
+                    <span>🔒</span>
+                    <span>Phiên đăng nhập an toàn · Dữ liệu cá nhân được bảo mật riêng biệt</span>
+                </div>
+            </section>
+
+            <!-- CỘT PHẢI: BIỂU MẪU ĐĂNG NHẬP CỐT LÕI -->
+            <section class="login-form-pane">
+
+                <div class="auth-top">
+                    <div class="auth-symbol" aria-hidden="true">
+                        <span>✦</span>
                     </div>
 
-                    <div class="input-wrap">
-                        <span class="input-icon">♧</span>
+                    <span class="auth-label">CHÀO MỪNG TRỞ LẠI</span>
+                    <h1>Rất vui được gặp lại bạn.</h1>
+                    <p>Nhập thông tin tài khoản để truy cập Bảng điều khiển cá nhân của bạn.</p>
 
-                        <input
-                            type="password"
-                            id="password"
-                            placeholder="Nhập mật khẩu"
-                            required
-                            asp-for="Password"
-                        >
+                    @if (TempData["SuccessMessage"] is string ok && !string.IsNullOrWhiteSpace(ok))
+                    {
+                        <div class="auth-flash success" role="status">@ok</div>
+                    }
 
-                        <button
-                            type="button"
-                            class="password-toggle"
-                            onclick="togglePassword('password', this)"
-                            aria-label="Hiện hoặc ẩn mật khẩu"
-                        >Hiện</button>
+                    @if (TempData["ErrorMessage"] is string err && !string.IsNullOrWhiteSpace(err))
+                    {
+                        <div class="auth-flash error" role="alert">@err</div>
+                    }
+                </div>
+
+                <form class="auth-form"
+                      asp-controller="Auth"
+                      asp-action="Login"
+                      asp-route-returnUrl="@ViewData["ReturnUrl"]"
+                      asp-antiforgery="false"
+                      method="post"
+                      novalidate>
+
+                    @Html.AntiForgeryToken()
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+                    <div class="form-group">
+                        <label asp-for="Email">Địa chỉ email</label>
+                        <div class="input-wrap">
+                            <span class="input-icon" aria-hidden="true">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="5" width="18" height="14" rx="3" />
+                                    <path d="M3 7l9 6 9-6" />
+                                </svg>
+                            </span>
+                            <input asp-for="Email"
+                                   type="email"
+                                   id="email"
+                                   autocomplete="email"
+                                   placeholder="name@example.com" />
+                        </div>
+                        <span asp-validation-for="Email" class="field-error"></span>
                     </div>
+
+                    <div class="form-group">
+                        <div class="label-row">
+                            <label asp-for="Password">Mật khẩu</label>
+                            <a href="#" class="forgot-link">Quên mật khẩu?</a>
+                        </div>
+
+                        <div class="input-wrap">
+                            <span class="input-icon" aria-hidden="true">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="4" y="11" width="16" height="10" rx="2.5" />
+                                    <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+                                </svg>
+                            </span>
+
+                            <input asp-for="Password"
+                                   type="password"
+                                   id="password"
+                                   autocomplete="current-password"
+                                   placeholder="Nhập mật khẩu của bạn" />
+
+                            <button type="button"
+                                    class="password-toggle"
+                                    onclick="togglePassword('password', this)"
+                                    aria-label="Hiện hoặc ẩn mật khẩu">
+                                Hiện
+                            </button>
+                        </div>
+                        <span asp-validation-for="Password" class="field-error"></span>
+                    </div>
+
+                    <div class="form-options">
+                        <label class="remember">
+                            <input type="checkbox" asp-for="RememberMe" />
+                            <span>Ghi nhớ đăng nhập trong 24 giờ</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="auth-submit">
+                        Đăng nhập vào LifeHub
+                        <span>→</span>
+                    </button>
+
+                </form>
+
+                <div class="auth-divider">
+                    <span>hoặc</span>
                 </div>
 
-                <div class="form-options">
-                    <label class="remember">
-                        <input type="checkbox" asp-for="RememberMe">
-                        <span>Ghi nhớ đăng nhập</span>
-                    </label>
-                </div>
-
-                <button type="submit" class="auth-submit">
-                    Đăng nhập
-                    <span>→</span>
+                <button type="button" class="google-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+                        <path fill="#EA4335" d="M12 10.2v3.9h5.5c-.2 1.3-1.6 3.8-5.5 3.8-3.3 0-6-2.7-6-6s2.7-6 6-6c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.8 3.4 14.6 2.5 12 2.5 6.8 2.5 2.5 6.8 2.5 12s4.3 9.5 9.5 9.5c5.5 0 9.1-3.9 9.1-9.3 0-.6-.1-1.1-.2-1.6H12z" />
+                    </svg>
+                    Tiếp tục với Google
                 </button>
 
-            </form>
+                <div class="auth-switch">
+                    Chưa có tài khoản?
+                    <a asp-controller="Auth" asp-action="Register">Tạo tài khoản mới</a>
+                </div>
 
-            <div class="auth-divider">
-                <span>hoặc</span>
-            </div>
-
-            <button type="button" class="google-btn">
-                <span class="google-icon">G</span>
-                Tiếp tục với Google
-            </button>
-
-            <div class="auth-switch">
-                Chưa có tài khoản?
-                <a href="/Auth/Register">Tạo tài khoản mới</a>
-            </div>
+            </section>
 
         </div>
 
         <div class="auth-footer">
             <span>© 2026 LifeHub</span>
-            <span>Organize your life, one place.</span>
+            <span>Quản lý trọn vẹn cuộc sống trong một không gian.</span>
         </div>
 
     </main>
 
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
     <script>
         function togglePassword(id, button) {
             const input = document.getElementById(id);
+            if (!input) return;
 
             if (input.type === "password") {
                 input.type = "text";
