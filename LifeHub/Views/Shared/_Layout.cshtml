@@ -175,6 +175,8 @@
                      asp-append-version="true" />
             </a>
 
+            <!-- Vùng menu cuộn riêng; Thông báo và Cài đặt ở dưới luôn hiện -->
+            <div class="sidebar-scroll">
             @foreach (var g in groups)
             {
                 <div class="menu-label">@g.Title</div>
@@ -288,7 +290,7 @@
                         {
                             <a asp-controller="@item[2]"
                                asp-action="Index"
-                               class="submenu-link @(isSelf ? "active" : "")"
+                               class="menu-link @(isSelf ? "active" : "")"
                                aria-current="@(isSelf ? "page" : null)">
 
                                 <span class="menu-sym"
@@ -305,7 +307,7 @@
                 </nav>
             }
 
-            <div class="sidebar-spacer"></div>
+            </div>
 
             <div class="sidebar-foot">
 

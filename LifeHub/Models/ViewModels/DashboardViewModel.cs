@@ -56,6 +56,27 @@ namespace LifeHub.Models.ViewModels
         // Khóa: productivity, tasks, goals, events, habits, notifications, finance, study, achievements
         public List<string> VisibleWidgets { get; set; } = new();
         public bool IsWidgetVisible(string key) => VisibleWidgets.Count == 0 || VisibleWidgets.Contains(key);
+
+        // ----- [MỚI] 4 thẻ "Hôm nay của bạn": tự tính từ danh sách có sẵn, riêng deadline cần Controller gán -----
+        public int TodayOpenTasksCount => TodayTasks.Count(t => !t.IsCompleted);
+        public int TodayEventsCount => UpcomingEvents.Count;
+        public int HabitsRemainingToday => Habits.Count(h => !h.IsCompletedToday);
+        public int OverdueTasksCount { get; set; }                       // quá hạn, chưa hoàn thành
+        public int DueSoonTasksCount { get; set; }                       // hạn trong 48 giờ tới
+
+        // ----- [MỚI] Weekly Snapshot (cần Controller tổng hợp theo tuần; chưa có thì View hiện trạng thái rỗng) -----
+        public int WeeklyCompletedTasks { get; set; }
+        public int WeeklyFocusMinutes { get; set; }
+        public int WeeklyGoalProgressPercent => Goals.Count > 0 ? (int)Math.Round(Goals.Average(g => g.ProgressPercent)) : 0;
+        public bool HasWeeklyData => ProductivityWeek.Count > 0 || WeeklyCompletedTasks > 0 || WeeklyFocusMinutes > 0;
+
+        // ----- [MỚI] Module Snapshots -----
+        public int ActiveCoursesCount { get; set; }
+        public int ProjectProgressPercent { get; set; }
+        public int BestHabitStreak => Habits.Count > 0 ? Habits.Max(h => h.StreakDays) : 0;
+
+        // ----- [MỚI] Recent Activity -----
+        public List<DashboardActivityItem> RecentActivities { get; set; } = new();
     }
 
     public class DashboardTaskItem
@@ -66,6 +87,22 @@ namespace LifeHub.Models.ViewModels
         public string Category { get; set; } = string.Empty;
         public string DueTime { get; set; } = string.Empty;
         public bool IsCompleted { get; set; }
+
+        // [MỚI] todo | in_progress | completed. Mặc định todo để Controller cũ vẫn chạy.
+        public string Status { get; set; } = "todo";
+        public bool IsOverdue { get; set; }
+
+        public string PriorityLabel => Priority switch
+        {
+            "urgent" => "Khẩn cấp",
+            "high" => "Cao",
+            "low" => "Thấp",
+            _ => "Trung bình"
+        };
+
+        public string StatusKey => IsCompleted ? "graded" : IsOverdue ? "overdue" : Status == "in_progress" ? "submitted" : "upcoming";
+        public string StatusLabel => IsCompleted ? "Hoàn thành" : IsOverdue ? "Quá hạn" : Status == "in_progress" ? "Đang làm" : "Chưa làm";
+        public int PriorityWeight => Priority switch { "urgent" => 0, "high" => 1, "medium" => 2, _ => 3 };
     }
 
     public class DashboardEventItem
@@ -75,6 +112,9 @@ namespace LifeHub.Models.ViewModels
         public string Time { get; set; } = string.Empty;
         public string Location { get; set; } = string.Empty;
         public string Tag { get; set; } = string.Empty;
+
+        // [MỚI] "Hôm nay", "Ngày mai", "28/11"... Rỗng thì View coi là hôm nay.
+        public string DayLabel { get; set; } = string.Empty;
     }
 
     public class DashboardGoalItem
@@ -118,5 +158,14 @@ namespace LifeHub.Models.ViewModels
         public string Icon { get; set; } = "★";
         public string Accent { get; set; } = "goal";
         public int Points { get; set; }
+    }
+
+    /// <summary>[MỚI] Một dòng hoạt động gần đây (hoàn thành việc, cập nhật mục tiêu, ghi nhận thói quen...).</summary>
+    public class DashboardActivityItem
+    {
+        public string Kind { get; set; } = "task";           // task | goal | habit | finance | project
+        public string Text { get; set; } = string.Empty;
+        public string TimeAgo { get; set; } = string.Empty;
+        public string Link { get; set; } = string.Empty;     // đường dẫn tuỳ chọn
     }
 }

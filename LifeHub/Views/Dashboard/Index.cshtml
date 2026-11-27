@@ -4,6 +4,38 @@
     Layout = "_Layout";
     ViewData["Title"] = "Tổng quan";
     ViewData["ActivePage"] = "Dashboard";
+
+    // Lời chào theo giờ máy chủ; dashboard.js sẽ đổi lại theo giờ của trình duyệt.
+    var hour = DateTime.Now.Hour;
+    var greeting = hour < 11 ? "Chào buổi sáng" : hour < 14 ? "Chào buổi trưa" : hour < 18 ? "Chào buổi chiều" : "Chào buổi tối";
+
+    // Câu nhắc nhẹ: chỉ dùng số liệu có sẵn trong ViewModel.
+    var nudge = Model.OverdueTasksCount > 0
+        ? $"Bạn có {Model.OverdueTasksCount} việc quá hạn, hãy xử lý trước nhé."
+        : Model.TodayOpenTasksCount > 0
+            ? $"Hôm nay còn {Model.TodayOpenTasksCount} việc cần xử lý, bắt đầu từ việc quan trọng nhất."
+            : "Hôm nay chưa có việc nào đang chờ, hãy dành chút thời gian lên kế hoạch.";
+
+    // Việc ưu tiên: chưa xong lên trước, rồi theo mức ưu tiên (giữ nguyên thứ tự hạn chót), tối đa 6 việc.
+    var priorityTasks = Model.TodayTasks
+        .OrderBy(t => t.IsCompleted)
+        .ThenBy(t => t.PriorityWeight)
+        .Take(6)
+        .ToList();
+
+    var deadlineTotal = Model.OverdueTasksCount + Model.DueSoonTasksCount;
+    var topGoal = Model.Goals.OrderByDescending(g => g.ProgressPercent).FirstOrDefault();
+    var habitsDone = Model.Habits.Count - Model.HabitsRemainingToday;
+
+    string FormatMinutes(int m) => m >= 60 ? $"{m / 60}g {m % 60:00}p" : $"{m}p";
+    string KindLabel(string k) => k switch
+    {
+        "goal" => "Mục tiêu",
+        "habit" => "Thói quen",
+        "finance" => "Tài chính",
+        "project" => "Dự án",
+        _ => "Công việc"
+    };
 }
 
 @section Styles {
@@ -11,180 +43,287 @@
 }
 
 <div class="dashboard-page">
-    <!-- TIÊU ĐỀ PHÂN HỆ TỔNG QUAN -->
-    <header class="dashboard-heading">
+
+    <!-- ===== 1. LỜI CHÀO VÀ THAO TÁC NHANH ===== -->
+    <header class="dash-heading">
         <div>
-            <span class="dashboard-label">MY LIFE SPACE · PERSONAL HUB</span>
-            <h1>Chào ngày mới, @Model.UserName 👋</h1>
-            <p>Một ngày tốt bắt đầu từ những ưu tiên rõ ràng. Đây là bức tranh cuộc sống của bạn hôm nay.</p>
+            <span class="dash-label">@Model.TodayDateFormatted.ToUpperInvariant()</span>
+            <h1><span data-greeting>@greeting</span>, @Model.UserName 👋</h1>
+            <p>@nudge</p>
         </div>
 
         <div class="heading-actions">
-            <a asp-controller="Time" asp-action="Index" class="dash-btn">
-                Xem lịch
-            </a>
-            <a asp-controller="Task" asp-action="Index" class="dash-btn primary">
-                + Lên kế hoạch
-            </a>
+            <a asp-controller="Time" asp-action="Calendar" class="dash-btn">Mở lịch</a>
+            <a asp-controller="Time" asp-action="Index" class="dash-btn">+ Thêm sự kiện</a>
+            <a asp-controller="Task" asp-action="Task" class="dash-btn primary">+ Công việc</a>
         </div>
     </header>
 
-    <!-- 4 THẺ CHỈ SỐ PASTEL ĐA SẮC ĐẠI DIỆN 4 PHÂN HỆ CHÍNH -->
-    <section class="dashboard-summary">
-        <!-- Thẻ 1: Công việc (Cam pastel) -->
-        <div class="dash-summary-card card-task">
+    <!-- ===== 2. HÔM NAY CỦA BẠN (4 thẻ pastel) ===== -->
+    <section class="dash-summary" aria-label="Hôm nay của bạn">
+        <a asp-controller="Task" asp-action="Task" class="summary-card card-task">
             <div class="summary-top">
-                <span>Việc cần hoàn thành</span>
-                <span class="summary-badge">CÔNG VIỆC</span>
+                <span class="summary-ico"><svg class="lh-ico"><use href="#i-check"></use></svg></span>
+                <span class="summary-badge">TASKS</span>
             </div>
-            <h2>@Model.PendingTasksCount</h2>
-            <p>Công việc đang mở hôm nay</p>
-        </div>
+            <h2>@Model.TodayOpenTasksCount.ToString("00")</h2>
+            <p>Việc đang chờ xử lý hôm nay</p>
+        </a>
 
-        <!-- Thẻ 2: Dự án (Xanh lá pastel) -->
-        <div class="dash-summary-card card-proj">
+        <a asp-controller="Time" asp-action="Calendar" class="summary-card card-time">
             <div class="summary-top">
-                <span>Dự án đang chạy</span>
-                <span class="summary-badge">DỰ ÁN</span>
+                <span class="summary-ico"><svg class="lh-ico"><use href="#i-calendar"></use></svg></span>
+                <span class="summary-badge">SCHEDULE</span>
             </div>
-            <h2>@Model.ActiveProjectsCount.ToString("00")</h2>
-            <p>Không gian đang theo dõi</p>
-        </div>
+            <h2>@Model.TodayEventsCount.ToString("00")</h2>
+            <p>Sự kiện sắp diễn ra</p>
+        </a>
 
-        <!-- Thẻ 3: Học tập (Xanh dương pastel) -->
-        <div class="dash-summary-card card-study">
+        <a asp-controller="Habit" asp-action="Index" class="summary-card card-habit">
             <div class="summary-top">
-                <span>Điểm trung bình (GPA)</span>
-                <span class="summary-badge">HỌC TẬP</span>
+                <span class="summary-ico"><svg class="lh-ico"><use href="#i-activity"></use></svg></span>
+                <span class="summary-badge">HABITS</span>
             </div>
-            <h2>@(Model.CurrentGpa?.ToString("F2") ?? "0.00")</h2>
-            <p>Học kỳ 1 · 2026-2027</p>
-        </div>
+            <h2>@Model.HabitsRemainingToday.ToString("00")</h2>
+            <p>Thói quen cần duy trì hôm nay</p>
+        </a>
 
-        <!-- Thẻ 4: Tài chính (Hồng pastel) -->
-        <div class="dash-summary-card card-finance">
+        <a asp-controller="Task" asp-action="Task" class="summary-card card-deadline">
             <div class="summary-top">
-                <span>Số dư khả dụng</span>
-                <span class="summary-badge">TÀI CHÍNH</span>
+                <span class="summary-ico"><svg class="lh-ico"><use href="#i-clock"></use></svg></span>
+                <span class="summary-badge">DEADLINE</span>
             </div>
-            <h2>@(Model.TotalBalance?.ToString("N0") ?? "0.00") ₫</h2>
-            <p>Tổng tài sản các ví</p>
-        </div>
+            <h2>@deadlineTotal.ToString("00")</h2>
+            <p>
+                @(Model.OverdueTasksCount > 0
+                    ? $"{Model.OverdueTasksCount} quá hạn · {Model.DueSoonTasksCount} sắp đến hạn"
+                    : "Sắp đến hạn trong 48 giờ tới")
+            </p>
+        </a>
     </section>
 
-    <!-- KHỐI LƯỚI NỘI DUNG CHÍNH (2 CỘT CHUẨN TỶ LỆ) -->
-    <div class="dashboard-grid">
-        <!-- CỘT TRÁI: VIỆC ƯU TIÊN & TIẾN ĐỘ MỤC TIÊU -->
-        <div style="display:flex;flex-direction:column;gap:18px;">
-            <!-- Ưu tiên hôm nay -->
-            <div class="dash-card">
-                <div class="card-header">
-                    <div>
-                        <h3>Việc ưu tiên hôm nay</h3>
-                        <p>Chọn việc quan trọng và tập trung hoàn thành</p>
-                    </div>
-                    <a asp-controller="Task" asp-action="Index" class="dash-btn" style="padding:4px 10px;font-size:12px;min-height:30px;">
-                        Tất cả →
-                    </a>
-                </div>
+    <!-- ===== 3 + 4. VIỆC ƯU TIÊN VÀ LỊCH TRÌNH SẮP TỚI ===== -->
+    <div class="dash-grid">
 
-                <div class="task-list">
-                    @foreach (var task in Model.TodayTasks)
-                    {
-                        <div class="task-item">
-                            <input type="checkbox" class="task-checkbox" @(task.IsCompleted ? "checked" : "") />
-                            <div class="task-name" style="@(task.IsCompleted ? "text-decoration:line-through;opacity:0.6;" : "")">
-                                @task.Title
-                                <div style="font-size:11px;font-weight:400;color:var(--dash-muted);">Hạn: @task.DueTime</div>
-                            </div>
-                            <span class="task-tag">@task.Priority</span>
-                        </div>
-                    }
+        <!-- 3. Việc ưu tiên hôm nay -->
+        <section class="dash-card" aria-labelledby="dashTasksTitle">
+            <div class="section-heading">
+                <div>
+                    <h3 id="dashTasksTitle">Việc ưu tiên hôm nay</h3>
+                    <p>Những nhiệm vụ cần xử lý trước</p>
                 </div>
+                <a asp-controller="Task" asp-action="Task" class="dash-btn small">Xem tất cả →</a>
             </div>
 
-            <!-- Tiến độ mục tiêu -->
-            <div class="dash-card">
-                <div class="card-header">
-                    <div>
-                        <h3>Tiến độ mục tiêu</h3>
-                        <p>Hành trình phát triển cá nhân</p>
-                    </div>
-                    <a asp-controller="Goal" asp-action="Index" class="dash-btn" style="padding:4px 10px;font-size:12px;min-height:30px;">
-                        Chi tiết ↗
-                    </a>
-                </div>
-
-                <div>
-                    @foreach (var g in Model.Goals)
+            @if (priorityTasks.Count == 0)
+            {
+                <div class="dash-empty">Chưa có công việc nào đến hạn hôm nay. Bấm "+ Công việc" để thêm việc đầu tiên.</div>
+            }
+            else
+            {
+                <div class="dash-task-list">
+                    @foreach (var t in priorityTasks)
                     {
-                        <div class="goal-item">
-                            <div class="goal-top">
-                                <span>@g.Title</span>
-                                <strong style="color:var(--card-study-accent);">@g.ProgressPercent%</strong>
-                            </div>
-                            <div class="goal-bar">
-                                <i style="width:@g.ProgressPercent%;"></i>
-                            </div>
-                        </div>
+                        <a asp-controller="Task" asp-action="Task" class="dash-task @(t.IsCompleted ? "is-done" : "")">
+                            <span class="task-ring @(t.IsCompleted ? "done" : "")" aria-hidden="true">@(t.IsCompleted ? "✓" : "")</span>
+
+                            <span class="dash-task-main">
+                                <span class="dash-task-title">@t.Title</span>
+                                <span class="dash-task-meta">
+                                    @(string.IsNullOrEmpty(t.DueTime) ? "Không đặt giờ" : "Hạn " + t.DueTime)
+                                    @if (!string.IsNullOrEmpty(t.Category))
+                                    {
+                                        <text> · @t.Category</text>
+                                    }
+                                </span>
+                            </span>
+
+                            <span class="dash-task-tags">
+                                <span class="prio prio-@t.Priority">@t.PriorityLabel</span>
+                                <span class="status st-@t.StatusKey">@t.StatusLabel</span>
+                            </span>
+                        </a>
                     }
                 </div>
-            </div>
-        </div>
+            }
+        </section>
 
-        <!-- CỘT PHẢI: LỊCH TRÌNH VÀ THÓI QUEN HÔM NAY -->
-        <div style="display:flex;flex-direction:column;gap:18px;">
-            <!-- Lịch sự kiện sắp tới -->
-            <div class="dash-card">
-                <div class="card-header">
-                    <div>
-                        <h3>Lịch trình sắp tới</h3>
-                        <p>Thời khóa biểu và sự kiện cần lưu ý</p>
-                    </div>
-                    <a asp-controller="Time" asp-action="Index" class="dash-btn" style="padding:4px 10px;font-size:12px;min-height:30px;">
-                        Lịch ↗
-                    </a>
-                </div>
-
+        <!-- 4. Lịch trình sắp tới -->
+        <section class="dash-card" aria-labelledby="dashEventsTitle">
+            <div class="section-heading">
                 <div>
+                    <h3 id="dashEventsTitle">Lịch trình sắp tới</h3>
+                    <p>Các sự kiện gần nhất</p>
+                </div>
+                <a asp-controller="Time" asp-action="Calendar" class="dash-btn small">Mở lịch →</a>
+            </div>
+
+            @if (Model.UpcomingEvents.Count == 0)
+            {
+                <div class="dash-empty">Chưa có sự kiện sắp tới. Bấm "+ Thêm sự kiện" để tạo lịch mới.</div>
+            }
+            else
+            {
+                <ol class="dash-timeline">
                     @foreach (var ev in Model.UpcomingEvents)
                     {
-                        <div class="event-item">
+                        <li class="dash-timeline-item">
                             <span class="event-time-pill">@ev.Time</span>
-                            <div style="flex:1;">
-                                <div style="font-weight:650;">@ev.Title</div>
-                                <div style="font-size:11px;color:var(--dash-muted);">@ev.Location</div>
+                            <div class="dash-timeline-body">
+                                <strong>@ev.Title</strong>
+                                <span class="dash-task-meta">
+                                    @(string.IsNullOrEmpty(ev.DayLabel) ? "Hôm nay" : ev.DayLabel)
+                                    @if (!string.IsNullOrEmpty(ev.Location))
+                                    {
+                                        <text> · @ev.Location</text>
+                                    }
+                                </span>
                             </div>
-                        </div>
+                            @if (!string.IsNullOrEmpty(ev.Tag))
+                            {
+                                <span class="dash-tag">@ev.Tag</span>
+                            }
+                        </li>
                     }
-                </div>
-            </div>
-
-            <!-- Thói quen duy trì hàng ngày -->
-            <div class="dash-card">
-                <div class="card-header">
-                    <div>
-                        <h3>Thói quen rèn luyện</h3>
-                        <p>Giữ nhịp đều đặn mỗi ngày</p>
-                    </div>
-                    <a asp-controller="Goal" asp-action="Index" class="dash-btn" style="padding:4px 10px;font-size:12px;min-height:30px;">
-                        Điểm danh
-                    </a>
-                </div>
-
-                <div>
-                    @foreach (var h in Model.Habits)
-                    {
-                        <div class="habit-row">
-                            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;flex:1;margin:0;">
-                                <input type="checkbox" class="task-checkbox" @(h.IsCompletedToday ? "checked" : "") />
-                                <span style="font-weight:600;@(h.IsCompletedToday ? "text-decoration:line-through;opacity:0.6;" : "")">@h.Title</span>
-                            </label>
-                            <span class="habit-streak">🔥 @h.StreakDays ngày</span>
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
+                </ol>
+            }
+        </section>
     </div>
+
+    <!-- ===== 5. WEEKLY SNAPSHOT ===== -->
+    <section class="dash-card dash-block" aria-labelledby="dashWeekTitle">
+        <div class="section-heading">
+            <div>
+                <h3 id="dashWeekTitle">Tuần này của bạn</h3>
+                <p>Nhìn lại nhịp làm việc trong 7 ngày</p>
+            </div>
+            <a asp-controller="Report" asp-action="Index" class="dash-btn small">Thống kê →</a>
+        </div>
+
+        @if (!Model.HasWeeklyData)
+        {
+            <div class="dash-empty">Chưa có dữ liệu tuần này. Hoàn thành công việc hoặc dùng Pomodoro để thấy xu hướng hoạt động.</div>
+        }
+        else
+        {
+            <div class="dash-week">
+                <div class="dash-week-stats">
+                    <div class="week-stat">
+                        <span>Việc đã hoàn thành</span>
+                        <strong>@Model.WeeklyCompletedTasks</strong>
+                    </div>
+                    <div class="week-stat">
+                        <span>Thời gian tập trung</span>
+                        <strong>@FormatMinutes(Model.WeeklyFocusMinutes)</strong>
+                    </div>
+                    <div class="week-stat">
+                        <span>Tiến độ mục tiêu</span>
+                        <strong>@Model.WeeklyGoalProgressPercent%</strong>
+                    </div>
+                </div>
+
+                <div class="dash-week-chart">
+                    @if (Model.ProductivityScore > 0)
+                    {
+                        <p class="week-trend">
+                            Điểm năng suất hôm nay: <strong>@Model.ProductivityScore/100</strong>
+                            @if (Model.ProductivityChange != 0)
+                            {
+                                <span class="week-delta @(Model.ProductivityChange > 0 ? "up" : "down")">@(Model.ProductivityChange > 0 ? "+" : "")@Model.ProductivityChange</span>
+                            }
+                        </p>
+                    }
+
+                    <div class="week-bars" role="img" aria-label="Biểu đồ năng suất 7 ngày">
+                        @foreach (var pt in Model.ProductivityWeek)
+                        {
+                            <div class="week-bar-col @(pt.IsToday ? "today" : "")">
+                                <div class="week-bar-track"><i style="height:@(Math.Max(pt.Value, 4))%" title="@pt.Value"></i></div>
+                                <small>@pt.Label</small>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </section>
+
+    <!-- ===== 6. MODULE SNAPSHOTS (mỗi thẻ 1 đến 2 chỉ số) ===== -->
+    <section class="dash-modules" aria-label="Tóm tắt các phân hệ">
+
+        <a asp-controller="Study" asp-action="Index" class="dash-module mod-study">
+            <span class="module-name"><svg class="lh-ico"><use href="#i-book"></use></svg>Học tập</span>
+            <strong>@Model.ActiveCoursesCount.ToString("00") <small>môn đang học</small></strong>
+            <span class="module-note">
+                @(Model.HasNextExam
+                    ? $"{Model.NextExamName} còn {Model.NextExamDays} ngày"
+                    : $"{Model.DueSoonAssignments} bài tập sắp đến hạn")
+            </span>
+        </a>
+
+        <a asp-controller="Project" asp-action="Index" class="dash-module mod-project">
+            <span class="module-name"><svg class="lh-ico"><use href="#i-briefcase"></use></svg>Dự án</span>
+            <strong>@Model.ActiveProjectsCount.ToString("00") <small>đang hoạt động</small></strong>
+            <span class="module-bar"><i style="width:@(Math.Clamp(Model.ProjectProgressPercent, 0, 100))%"></i></span>
+            <span class="module-note">Tiến độ chung @Model.ProjectProgressPercent%</span>
+        </a>
+
+        <a asp-controller="Finance" asp-action="Index" class="dash-module mod-finance">
+            <span class="module-name"><svg class="lh-ico"><use href="#i-wallet"></use></svg>Tài chính</span>
+            <strong>@((Model.TotalBalance ?? 0m).ToString("N0")) <small>₫</small></strong>
+            <span class="module-note">
+                @(Model.MonthlyBudget > 0
+                    ? $"Đã dùng {Model.BudgetUsedPercent}% ngân sách tháng"
+                    : "Chưa đặt ngân sách tháng")
+            </span>
+        </a>
+
+        <a asp-controller="Goal" asp-action="Index" class="dash-module mod-goal">
+            <span class="module-name"><svg class="lh-ico"><use href="#i-target"></use></svg>Mục tiêu</span>
+            <strong>@Model.Goals.Count.ToString("00") <small>đang thực hiện</small></strong>
+            <span class="module-note">
+                @(topGoal != null ? $"{topGoal.Title} · {topGoal.ProgressPercent}%" : "Chưa có mục tiêu nào")
+            </span>
+        </a>
+
+        <a asp-controller="Habit" asp-action="Index" class="dash-module mod-habit">
+            <span class="module-name"><svg class="lh-ico"><use href="#i-activity"></use></svg>Thói quen</span>
+            <strong>@Model.BestHabitStreak <small>ngày liên tiếp</small></strong>
+            <span class="module-note">Hôm nay @habitsDone/@Model.Habits.Count đã hoàn thành</span>
+        </a>
+    </section>
+
+    <!-- ===== 7. HOẠT ĐỘNG GẦN ĐÂY ===== -->
+    <section class="dash-card dash-block" aria-labelledby="dashActivityTitle">
+        <div class="section-heading">
+            <div>
+                <h3 id="dashActivityTitle">Hoạt động gần đây</h3>
+                <p>Những gì vừa diễn ra trong LifeHub</p>
+            </div>
+            <a asp-controller="Settings" asp-action="ActivityLog" class="dash-btn small">Nhật ký →</a>
+        </div>
+
+        @if (Model.RecentActivities.Count == 0)
+        {
+            <div class="dash-empty">Chưa có hoạt động nào. Hoàn thành một công việc hoặc ghi nhận thói quen để bắt đầu.</div>
+        }
+        else
+        {
+            <ul class="dash-activity">
+                @foreach (var a in Model.RecentActivities)
+                {
+                    <li>
+                        <span class="act-dot act-@a.Kind" aria-hidden="true"></span>
+                        <span class="act-text">@a.Text</span>
+                        <span class="dash-tag">@KindLabel(a.Kind)</span>
+                        <span class="act-time">@a.TimeAgo</span>
+                    </li>
+                }
+            </ul>
+        }
+    </section>
 </div>
+
+@section Scripts {
+    <script src="~/js/dashboard.js" asp-append-version="true"></script>
+}

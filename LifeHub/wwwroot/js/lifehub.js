@@ -67,6 +67,17 @@
             });
         }
     });
+
+    // Accordion: mở một nhóm thì tự đóng các nhóm khác để sidebar không bị dài ra.
+    var groups = document.querySelectorAll(".app .menu-group");
+    groups.forEach(function (group) {
+        group.addEventListener("toggle", function () {
+            if (!group.open) return;
+            groups.forEach(function (other) {
+                if (other !== group && other.open) other.open = false;
+            });
+        });
+    });
 })();
 
 /* =====================================================================
