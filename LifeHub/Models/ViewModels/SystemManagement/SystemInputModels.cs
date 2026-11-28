@@ -49,12 +49,13 @@ namespace LifeHub.Models.ViewModels.SystemManagement
         [Required] public string Permission { get; set; } = "view";
     }
 
-    /// <summary>Form "Giao diện" (user_settings: ThemeMode, Language, Timezone).</summary>
+    /// <summary>Form "Giao diện" (user_settings: ThemeMode, Language, Timezone, VisibleModules).</summary>
     public class UpdateAppearanceInput
     {
         [Required] public string ThemeMode { get; set; } = "light";
         [Required] public string Language { get; set; } = "vi";
         [Required] public string Timezone { get; set; } = "Asia/Ho_Chi_Minh";
+        public List<string>? VisibleModules { get; set; }
     }
 
     /// <summary>Form "Thông báo" (user_settings: NotifyEmail, NotifyPush).</summary>

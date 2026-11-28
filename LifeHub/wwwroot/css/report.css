@@ -1,4 +1,4 @@
-/* =====================================================================
+﻿/* =====================================================================
    LIFEHUB - ANALYTICS (THỐNG KÊ & BÁO CÁO)        wwwroot/css/report.css
 
    Nhân bản từ study.css theo "CÁCH TÁI SỬ DỤNG" của file mẫu:
@@ -342,7 +342,7 @@ html[data-theme="dark"] .report-page {
     border-radius: 50%;
     background: var(--report-card-strong);
     color: var(--report-accent);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     font-weight: 800;
     cursor: help;
 }
@@ -381,7 +381,7 @@ html[data-theme="dark"] .report-page {
 .report-page .report-empty {
     padding: 18px;
     text-align: center;
-    font-size: 12px;
+    font-size: var(--fs-sm);
     color: var(--report-muted);
 }
 
@@ -397,13 +397,13 @@ html[data-theme="dark"] .report-page {
 .report-page .report-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 13px;
+    font-size: var(--fs-base);
 }
 .report-page .report-table th {
     padding: 12px 10px;
     text-align: left;
     color: var(--report-muted);
-    font-size: 11px;
+    font-size: var(--fs-xs);
     font-weight: 700;
     border-bottom: 1px solid var(--report-border);
     white-space: nowrap;
@@ -417,7 +417,7 @@ html[data-theme="dark"] .report-page {
 .report-page .row-sub {
     display: block;
     margin-top: 2px;
-    font-size: 11px;
+    font-size: var(--fs-xs);
     font-weight: 400;
     color: var(--report-muted);
 }
@@ -442,7 +442,7 @@ html[data-theme="dark"] .report-page {
     border-radius: 999px;
     background: var(--report-card);
     color: var(--report-muted);
-    font-size: 12px;
+    font-size: var(--fs-sm);
     font-weight: 650;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -474,7 +474,7 @@ html[data-theme="dark"] .report-page .report-chip.active,
     display: inline-block;
     padding: 4px 10px;
     border-radius: 20px;
-    font-size: 11px;
+    font-size: var(--fs-xs);
     font-weight: 700;
     white-space: nowrap;
 }
@@ -506,7 +506,7 @@ html[data-theme="dark"] .report-page .st-upcoming,  :root[data-theme="dark"] .re
     border-radius: 12px;
     background: var(--report-card-strong);
     color: var(--report-text);
-    font-size: 13px;
+    font-size: var(--fs-base);
     font-weight: 600;
     box-shadow: 0 12px 30px rgba(0, 0, 0, .18);
 }
@@ -519,7 +519,7 @@ html[data-theme="dark"] .report-page .st-upcoming,  :root[data-theme="dark"] .re
    .row-actions + .row-btn: nút Sửa, Xóa, Nhập điểm trong cột thao tác.
    .due-hint: dòng "Còn n ngày" / "Quá hạn n ngày" (thêm .overdue để tô đỏ).
    ===================================================================== */
-.report-page .report-count { margin: 0 0 12px; color: var(--report-muted); font-size: 12px; }
+.report-page .report-count { margin: 0 0 12px; color: var(--report-muted); font-size: var(--fs-sm); }
 
 .report-page .report-toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
 .report-page .report-toolbar input,
@@ -530,7 +530,7 @@ html[data-theme="dark"] .report-page .st-upcoming,  :root[data-theme="dark"] .re
     border-radius: 12px;
     background: var(--report-card);
     color: var(--report-text);
-    font-size: 13px;
+    font-size: var(--fs-base);
 }
 .report-page .report-toolbar input { flex: 1 1 220px; min-width: 0; }
 .report-page .report-toolbar select { flex: 0 1 190px; }
@@ -545,7 +545,7 @@ html[data-theme="dark"] .report-page .st-upcoming,  :root[data-theme="dark"] .re
     border-radius: 8px;
     background: var(--report-card);
     color: var(--report-text);
-    font-size: 11px;
+    font-size: var(--fs-xs);
     font-weight: 700;
     cursor: pointer;
 }
@@ -564,7 +564,7 @@ html[data-theme="dark"] .report-page .st-upcoming,  :root[data-theme="dark"] .re
 .report-page .chart-scroll { overflow-x: auto; }
 .report-page .rc { display: block; width: 100%; min-width: 460px; height: auto; }
 .report-page .rc-grid { stroke: var(--report-border); stroke-width: 1; }
-.report-page .rc-axis { fill: var(--report-muted); font-size: 11px; }
+.report-page .rc-axis { fill: var(--report-muted); font-size: var(--fs-xs); }
 .report-page .rc-line { fill: none; stroke: var(--rc-color); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 .report-page .rc-dot { fill: var(--rc-color); }
 .report-page .rc-bar { fill: var(--rc-color); }

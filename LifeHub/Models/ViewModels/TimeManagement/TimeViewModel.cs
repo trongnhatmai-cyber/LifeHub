@@ -141,14 +141,34 @@ namespace LifeHub.Models.ViewModels.TimeManagement
         public int DurationMinutes { get; set; }
         public string CompletedLabel { get; set; } = "";
     }
+    public class PomodoroDayStat
+    {
+        public string Label { get; set; } = "";
+        public int Minutes { get; set; }
+        public int Sessions { get; set; }
+        public int HeightPercent { get; set; }
+        public bool IsToday { get; set; }
+    }
+    public class PomodoroTargetStat
+    {
+        public string Name { get; set; } = "";
+        public int Sessions { get; set; }
+        public int Minutes { get; set; }
+        public int Percent { get; set; }
+    }
     public class TimePomodoroViewModel
     {
         public List<PomodoroTarget> Targets { get; set; } = new();
         public List<PomodoroSessionHistory> History { get; set; } = new();
+        public List<PomodoroDayStat> DailyStats { get; set; } = new();
+        public List<PomodoroTargetStat> TopTargets { get; set; } = new();
         public int TodaySessions { get; set; }
         public string TodayText { get; set; } = "0p";
         public int WeekSessions { get; set; }
         public string WeekText { get; set; } = "0p";
         public int TotalSessions { get; set; }
+        public string TotalMinutesText { get; set; } = "0p";
+        public int AvgMinutesPerSession { get; set; }
+        public int FocusStreakDays { get; set; }
     }
 }

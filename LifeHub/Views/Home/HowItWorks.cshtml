@@ -1,0 +1,256 @@
+@{
+    Layout = "_LandingLayout";
+    ViewData["Title"] = "Cách hoạt động – LifeHub";
+    ViewData["LandingPage"] = "how";
+    var signedIn = User.Identity?.IsAuthenticated == true;
+}
+
+<main>
+    <!-- 1. HERO -->
+    <section class="hh" aria-labelledby="hhTitle">
+        <div class="lp-wrap">
+            <h1 id="hhTitle">A simple way to organize everything.</h1>
+            <p class="lp-lead">Bắt đầu từ những việc nhỏ, xây dựng hệ thống quản lý của riêng bạn và để các thông tin cần thiết được kết nối trong một không gian thống nhất.</p>
+            <div class="hero-cta">
+                <a class="lp-btn lp-btn-primary lp-btn-lg" href="#daily">Xem quy trình</a>
+                <a class="lp-btn lp-btn-lg" asp-controller="Home" asp-action="Features">Khám phá tính năng</a>
+            </div>
+            <ol class="loop" aria-label="Bốn bước sử dụng LifeHub">
+                <li class="loop-i"><span><svg class="ic"><use href="#lh-user" /></svg></span><h3>Bắt đầu</h3><p>Tạo tài khoản và đăng nhập</p></li>
+                <li class="loop-i"><span><svg class="ic"><use href="#lh-grid" /></svg></span><h3>Thiết lập</h3><p>Chọn phân hệ và tổ chức dữ liệu</p></li>
+                <li class="loop-i"><span><svg class="ic"><use href="#lh-check" /></svg></span><h3>Sử dụng</h3><p>Quản lý công việc mỗi ngày</p></li>
+                <li class="loop-i"><span><svg class="ic"><use href="#lh-chart" /></svg></span><h3>Đánh giá</h3><p>Nhìn lại và điều chỉnh</p></li>
+            </ol>
+        </div>
+    </section>
+
+    <!-- 2. GETTING STARTED -->
+    <section class="lp-sec lp-sec-soft" aria-labelledby="gsTitle">
+        <div class="lp-wrap">
+            <div class="lp-head is-center rv">
+                <h2 id="gsTitle">Start with three simple steps.</h2>
+                <p class="lp-lead">Đây là quy trình bạn có thể làm theo ngay khi vào LifeHub.</p>
+            </div>
+            <div class="gs">
+                <article class="gs-i rv">
+                    <div class="mk" aria-hidden="true"><div class="gs-form"><div class="gs-field">Họ và tên</div><div class="gs-field">Email</div><div class="gs-field">Mật khẩu</div><div class="gs-btn">Tạo tài khoản</div></div></div>
+                    <span class="gs-n">Bước 1</span>
+                    <h3>Tạo tài khoản</h3>
+                    <p>Đăng ký, xác thực thông tin theo quy trình hệ thống và đăng nhập vào LifeHub.</p>
+                </article>
+                <article class="gs-i rv" style="--d:.08s">
+                    <div class="mk" aria-hidden="true"><div class="dv-in" style="padding:16px;gap:6px">
+                        <div class="mk-nav is-on"><svg class="ic"><use href="#lh-check" /></svg>Công việc</div><div class="mk-nav"><svg class="ic"><use href="#lh-book" /></svg>Học tập</div><div class="mk-nav"><svg class="ic"><use href="#lh-wallet" /></svg>Tài chính</div><div class="mk-nav"><svg class="ic"><use href="#lh-target" /></svg>Mục tiêu</div></div></div>
+                    <span class="gs-n">Bước 2</span>
+                    <h3>Thiết lập không gian</h3>
+                    <p>Bắt đầu với các phân hệ bạn cần và tổ chức dữ liệu phù hợp với mục đích sử dụng.</p>
+                </article>
+                <article class="gs-i rv" style="--d:.16s">
+                    <div class="mk" aria-hidden="true"><div class="dv-in" style="padding:16px">
+                        <div class="mk-stats" style="grid-template-columns:repeat(3,1fr)"><div class="mk-stat" style="padding:8px 10px"><small>Việc</small><b style="font-size:17px">05</b></div><div class="mk-stat" style="padding:8px 10px"><small>Lịch</small><b style="font-size:17px">03</b></div><div class="mk-stat" style="padding:8px 10px"><small>Mục tiêu</small><b style="font-size:17px">02</b></div></div>
+                        <div class="mk-row"><span class="mk-cb on"></span><span>Nộp báo cáo</span></div><div class="mk-row"><span class="mk-cb"></span><span>Họp nhóm</span></div></div></div>
+                    <span class="gs-n">Bước 3</span>
+                    <h3>Quản lý mỗi ngày</h3>
+                    <p>Thêm công việc, lịch, mục tiêu và theo dõi thông tin từ Dashboard.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. BUILD YOUR WORKSPACE -->
+    <section class="lp-sec" aria-labelledby="bwTitle">
+        <div class="lp-wrap">
+            <div class="lp-head is-center rv">
+                <h2 id="bwTitle">Bring your own structure.</h2>
+                <p class="lp-lead">Bạn không cần dùng hết mọi thứ. Hãy bắt đầu từ một vài phần, rồi mở rộng khi cần.</p>
+            </div>
+            <div class="bw">
+                <div class="bw-col">
+                    <div class="bw-g rv" style="--c:#2563EB"><h3><span class="cw-ico" style="--c:#2563EB"><svg class="ic"><use href="#lh-cal" /></svg></span>Plan</h3>
+                        <ul><li>Thêm công việc.</li><li>Tạo dự án.</li><li>Thiết lập lịch.</li><li>Tạo mục tiêu.</li></ul></div>
+                    <div class="bw-g rv" style="--c:#0D9488;--d:.08s"><h3><span class="cw-ico" style="--c:#0D9488"><svg class="ic"><use href="#lh-folder" /></svg></span>Organize</h3>
+                        <ul><li>Tạo môn học và học kỳ.</li><li>Tạo ví và danh mục.</li><li>Phân loại ghi chú.</li><li>Tạo thói quen.</li></ul></div>
+                </div>
+                <div class="bw-hub rv" style="--d:.1s" aria-hidden="true">
+                    <div><img src="~/images/lifehub-icon.png" alt="" style="width:84px" /><small>Một không gian<br />cho mọi lĩnh vực</small></div>
+                </div>
+                <div class="bw-col">
+                    <div class="bw-g rv" style="--c:#7C3AED;--d:.04s"><h3><span class="cw-ico" style="--c:#7C3AED"><svg class="ic"><use href="#lh-chart" /></svg></span>Track</h3>
+                        <ul><li>Theo dõi tiến độ.</li><li>Ghi nhận giao dịch.</li><li>Ghi nhật ký sinh hoạt.</li><li>Xem báo cáo.</li></ul></div>
+                    <p class="lp-note rv" style="--d:.12s">Mỗi nhóm là một cách nhìn cho việc sử dụng, không phải một phân hệ riêng. Cùng một phân hệ có thể nằm ở nhiều nhóm.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3B. YOUR FIRST 7 DAYS -->
+    <section class="lp-sec lp-sec-soft" aria-labelledby="tlTitle">
+        <div class="lp-wrap">
+            <div class="lp-head is-center rv">
+                <span class="lp-kicker">Lộ trình làm quen</span>
+                <h2 id="tlTitle">Your first week with LifeHub.</h2>
+                <p class="lp-lead">Không cần nhập tất cả mọi thứ trong ngày đầu tiên. Hãy triển khai dần theo nhịp 4 chặng dưới đây.</p>
+            </div>
+            <div class="tl-grid">
+                <article class="tl-item rv">
+                    <span class="tl-badge">Ngày 1</span>
+                    <h3>Thiết lập lõi</h3>
+                    <p>Chọn 2–3 phân hệ quan trọng nhất với bạn (ví dụ Công việc, Thời gian, Học tập) và thêm các đầu việc của tuần này.</p>
+                </article>
+                <article class="tl-item rv" style="--d:.06s">
+                    <span class="tl-badge">Ngày 2 – 3</span>
+                    <h3>Gom lịch &amp; tập trung</h3>
+                    <p>Đưa lịch học, lịch họp và deadline vào Lịch chung. Thử bật 1–2 phiên Pomodoro để làm quen nhịp tập trung.</p>
+                </article>
+                <article class="tl-item rv" style="--d:.12s">
+                    <span class="tl-badge">Ngày 4 – 5</span>
+                    <h3>Mở rộng nhịp sống</h3>
+                    <p>Thêm 1–2 thói quen nhỏ, tạo ví chi tiêu cơ bản hoặc ghi lại thời gian ngủ để thấy bức tranh sinh hoạt hằng ngày.</p>
+                </article>
+                <article class="tl-item rv" style="--d:.18s">
+                    <span class="tl-badge">Cuối tuần</span>
+                    <h3>Đánh giá &amp; tinh chỉnh</h3>
+                    <p>Mở trang Báo cáo xem tỷ lệ hoàn thành, giờ tập trung và ẩn bớt những phân hệ bạn chưa cần dùng.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. DAILY WORKFLOW -->
+    <section class="lp-sec lp-sec-tint" id="daily" aria-labelledby="wfHead">
+        <div class="lp-wrap">
+            <div class="lp-head rv">
+                <h2 id="wfHead">A workspace that supports your everyday flow.</h2>
+                <p class="lp-lead">Từ đầu ngày đến cuối ngày, LifeHub đi cùng bạn qua năm bước. Cuộn xuống để xem giao diện thay đổi theo từng bước.</p>
+            </div>
+            <div class="wf">
+                <div class="wf-steps">
+                    <div class="wf-step" data-title="Tổng quan"><span class="wf-n">Bước 1</span><h3>Start your day</h3><p>Mở Dashboard, xem lịch, các việc đến hạn và thông tin cần chú ý.</p></div>
+                    <div class="wf-step" data-title="Công việc"><span class="wf-n">Bước 2</span><h3>Choose your priorities</h3><p>Chọn công việc cần thực hiện, xác định mức ưu tiên và thời gian.</p></div>
+                    <div class="wf-step" data-title="Pomodoro"><span class="wf-n">Bước 3</span><h3>Focus on the work</h3><p>Làm việc, học tập hoặc theo dõi tiến độ dự án; có thể ghi nhận phiên Pomodoro.</p></div>
+                    <div class="wf-step" data-title="Cập nhật"><span class="wf-n">Bước 4</span><h3>Keep everything updated</h3><p>Cập nhật trạng thái, ghi chú, giao dịch và các hoạt động cần theo dõi.</p></div>
+                    <div class="wf-step" data-title="Báo cáo"><span class="wf-n">Bước 5</span><h3>Review your progress</h3><p>Xem lại tiến độ, thói quen và dữ liệu tổng hợp để điều chỉnh kế hoạch.</p></div>
+                </div>
+                <div class="wf-stage" aria-hidden="true">
+                    <div class="mk">
+                        <div class="mk-bar"><i></i><i></i><i></i><b id="wfTitle">Tổng quan</b></div>
+                        <div class="wf-pane">
+                            <div class="mk-hi"><div><h4>Chào buổi sáng 👋</h4><small>Hôm nay bạn có 5 việc và 3 sự kiện</small></div></div>
+                            <div class="mk-stats"><div class="mk-stat"><small>Việc hôm nay</small><b>05</b></div><div class="mk-stat"><small>Sự kiện</small><b>03</b></div><div class="mk-stat"><small>Thói quen</small><b>02</b></div><div class="mk-stat"><small>Sắp đến hạn</small><b>04</b></div></div>
+                            <div class="mk-card"><h5>Lịch trình sắp tới</h5><div class="mk-row"><i class="mk-dot"></i><span>Lớp Lập trình web</span><time>09:00</time></div><div class="mk-row"><i class="mk-dot" style="--c:#7C3AED"></i><span>Họp nhóm</span><time>14:00</time></div></div>
+                        </div>
+                        <div class="wf-pane">
+                            <div class="mk-card"><h5>Chọn việc cho hôm nay</h5>
+                                <div class="mk-row"><span class="mk-cb"></span><span>Nộp báo cáo môn Cơ sở dữ liệu</span><em class="mk-tag" style="--c:#DC2626">Cao</em></div>
+                                <div class="mk-row"><span class="mk-cb"></span><span>Chuẩn bị slide thuyết trình</span><em class="mk-tag" style="--c:#D97706">Vừa</em></div>
+                                <div class="mk-row"><span class="mk-cb"></span><span>Ôn tập chương 4</span><em class="mk-tag">Thấp</em></div></div>
+                            <div class="mk-card"><h5>Thời gian dự kiến</h5><div class="mk-meter"><i style="--w:60%"></i></div><small style="color:var(--lp-muted)">3 giờ 30 phút cho 3 việc đã chọn</small></div>
+                        </div>
+                        <div class="wf-pane" style="text-align:center">
+                            <div class="mk-ring"><div><strong>17:42</strong><small>Đang tập trung</small></div></div>
+                            <div class="mk-card" style="max-width:340px;margin:0 auto"><div class="mk-row"><svg class="ic" style="color:var(--lp-p)"><use href="#lh-check" /></svg><span>Nộp báo cáo môn Cơ sở dữ liệu</span><em class="mk-tag">Phiên 2/4</em></div></div>
+                        </div>
+                        <div class="wf-pane">
+                            <div class="mk-card"><h5>Cập nhật trạng thái</h5>
+                                <div class="mk-row done"><span class="mk-cb on"></span><span>Nộp báo cáo môn Cơ sở dữ liệu</span><em class="mk-tag" style="--c:#16A34A">Xong</em></div>
+                                <div class="mk-row"><span class="mk-cb"></span><span>Chuẩn bị slide thuyết trình</span><em class="mk-tag">Đang làm</em></div></div>
+                            <div class="mk-card"><h5>Giao dịch mới</h5><div class="mk-row"><i class="mk-dot" style="--c:#DC2626"></i><span>Ăn trưa</span><time>− 45.000đ</time></div><div class="mk-row"><i class="mk-dot" style="--c:#DC2626"></i><span>Mua tài liệu</span><time>− 120.000đ</time></div></div>
+                        </div>
+                        <div class="wf-pane">
+                            <div class="mk-stats" style="grid-template-columns:repeat(3,1fr)"><div class="mk-stat"><small>Việc hoàn thành</small><b>86%</b></div><div class="mk-stat"><small>Giờ tập trung</small><b>42 h</b></div><div class="mk-stat"><small>Thói quen đạt</small><b>74%</b></div></div>
+                            <div class="mk-card"><h5>Giờ tập trung theo tuần</h5><div class="mk-bars"><i style="--h:35%"></i><i style="--h:55%"></i><i style="--h:48%"></i><i style="--h:70%"></i><i style="--h:62%"></i><i style="--h:80%"></i><i class="on" style="--h:92%"></i></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. CONNECTED DATA -->
+    <section class="lp-sec" aria-labelledby="cdTitle">
+        <div class="lp-wrap">
+            <div class="lp-head is-center rv">
+                <h2 id="cdTitle">Your information doesn't stay isolated.</h2>
+                <p class="lp-lead">Chọn một luồng để xem dữ liệu đi từ phân hệ này sang phân hệ khác.</p>
+            </div>
+            <div class="cd-tabs rv" role="tablist" aria-label="Các luồng dữ liệu liên kết">
+                <button type="button" role="tab" id="cd-t1" aria-controls="cd-p1" aria-selected="true">Học tập</button>
+                <button type="button" role="tab" id="cd-t2" aria-controls="cd-p2" aria-selected="false" tabindex="-1">Công việc</button>
+                <button type="button" role="tab" id="cd-t3" aria-controls="cd-p3" aria-selected="false" tabindex="-1">Tập trung</button>
+                <button type="button" role="tab" id="cd-t4" aria-controls="cd-p4" aria-selected="false" tabindex="-1">Tài chính</button>
+            </div>
+            <div class="cd-panel is-on" id="cd-p1" role="tabpanel" aria-labelledby="cd-t1">
+                <div class="cd-flow"><span class="cd-node"><svg class="ic"><use href="#lh-book" /></svg>Bài tập</span><span class="cd-arrow"></span><span class="cd-node"><svg class="ic"><use href="#lh-cal" /></svg>Lịch chung</span><span class="cd-arrow"></span><span class="cd-node"><svg class="ic"><use href="#lh-bell" /></svg>Nhắc nhở</span><span class="cd-arrow"></span><span class="cd-node is-end"><svg class="ic"><use href="#lh-chart" /></svg>Tiến độ môn học</span></div>
+                <p class="cd-text"><strong>Luồng học tập.</strong> Bài tập có hạn được đưa vào lịch và hỗ trợ theo dõi tiến độ môn học.</p>
+            </div>
+            <div class="cd-panel" id="cd-p2" role="tabpanel" aria-labelledby="cd-t2" hidden>
+                <div class="cd-flow"><span class="cd-node"><svg class="ic"><use href="#lh-check" /></svg>Công việc</span><span class="cd-arrow"></span><span class="cd-node"><svg class="ic"><use href="#lh-folder" /></svg>Dự án / Mục tiêu</span><span class="cd-arrow"></span><span class="cd-node is-end"><svg class="ic"><use href="#lh-chart" /></svg>Tiến độ</span></div>
+                <p class="cd-text"><strong>Luồng công việc.</strong> Một công việc có thể gắn với các đối tượng liên quan để theo dõi ở nhiều góc nhìn.</p>
+            </div>
+            <div class="cd-panel" id="cd-p3" role="tabpanel" aria-labelledby="cd-t3" hidden>
+                <div class="cd-flow"><span class="cd-node"><svg class="ic"><use href="#lh-timer" /></svg>Pomodoro</span><span class="cd-arrow"></span><span class="cd-node"><svg class="ic"><use href="#lh-check" /></svg>Công việc</span><span class="cd-arrow"></span><span class="cd-node is-end"><svg class="ic"><use href="#lh-clock" /></svg>Thống kê thời gian</span></div>
+                <p class="cd-text"><strong>Luồng tập trung.</strong> Phiên tập trung được liên kết với công việc để theo dõi thời gian đã ghi nhận.</p>
+            </div>
+            <div class="cd-panel" id="cd-p4" role="tabpanel" aria-labelledby="cd-t4" hidden>
+                <div class="cd-flow"><span class="cd-node"><svg class="ic"><use href="#lh-wallet" /></svg>Giao dịch</span><span class="cd-arrow"></span><span class="cd-node"><svg class="ic"><use href="#lh-folder" /></svg>Ví / Danh mục</span><span class="cd-arrow"></span><span class="cd-node is-end"><svg class="ic"><use href="#lh-chart" /></svg>Ngân sách</span></div>
+                <p class="cd-text"><strong>Luồng tài chính.</strong> Giao dịch cập nhật dữ liệu tài chính liên quan theo cách hệ thống tổ chức.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. CONTROL & PRIVACY -->
+    <section class="lp-sec lp-sec-soft" aria-labelledby="ctTitle">
+        <div class="lp-wrap ct">
+            <div class="rv">
+                <h2 id="ctTitle">Your workspace. Your data. Your control.</h2>
+                <ul class="lp-ticks">
+                    <li>Dữ liệu cá nhân được tổ chức theo tài khoản.</li>
+                    <li>Quyền truy cập dự án phụ thuộc vai trò được cấp.</li>
+                    <li>Chia sẻ tài liệu có thể giới hạn quyền xem hoặc sửa.</li>
+                    <li>Bạn có thể tùy chỉnh một số thiết lập cá nhân.</li>
+                </ul>
+                <p style="margin-top:22px"><a class="lp-textlink" asp-controller="Home" asp-action="Privacy">Đọc Bảo mật &amp; Điều khoản <svg class="ic"><use href="#lh-arrow" /></svg></a></p>
+            </div>
+            <div class="ct-roles rv" style="--d:.1s">
+                <table>
+                    <caption>Quyền chi tiết phụ thuộc vai trò được cấp trong từng dự án.</caption>
+                    <thead><tr><th scope="col">Vai trò</th><th scope="col">Quyền minh họa</th></tr></thead>
+                    <tbody>
+                        <tr><td>Quản lý dự án</td><td>Quản lý toàn bộ dự án và thành viên.</td></tr>
+                        <tr><td>Thành viên</td><td>Tạo và cập nhật công việc trong dự án.</td></tr>
+                        <tr><td>Người xem</td><td>Chỉ xem nội dung dự án được chia sẻ.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. FAQ & FINAL CTA -->
+    <section class="lp-sec" aria-labelledby="faqTitle">
+        <div class="lp-wrap">
+            <div class="lp-head is-center rv"><h2 id="faqTitle">Câu hỏi thường gặp</h2></div>
+            <div class="faq rv">
+                <details><summary>LifeHub dành cho ai?</summary><div class="faq-a"><p>LifeHub dành cho bất kỳ ai muốn gom việc học, công việc, dự án, tài chính và sinh hoạt cá nhân về một nơi — đặc biệt là học sinh, sinh viên và người đi làm.</p></div></details>
+                <details><summary>Tôi có cần sử dụng tất cả phân hệ không?</summary><div class="faq-a"><p>Không. Bạn có thể bắt đầu với một vài phân hệ cần thiết, chọn hiển thị những phần mình dùng và mở thêm khi có nhu cầu.</p></div></details>
+                <details><summary>Tôi có thể dùng LifeHub trên điện thoại không?</summary><div class="faq-a"><p>Có. LifeHub là ứng dụng web có giao diện thích ứng, dùng được trên máy tính, máy tính bảng và điện thoại thông qua trình duyệt. Hiện chưa có ứng dụng riêng cho điện thoại.</p></div></details>
+                <details><summary>Dữ liệu trong các phân hệ có liên kết với nhau không?</summary><div class="faq-a"><p>Có. Ví dụ bài tập có hạn xuất hiện trên lịch, phiên Pomodoro gắn với công việc, và giao dịch cập nhật dữ liệu ví, danh mục, ngân sách.</p></div></details>
+                <details><summary>Tôi có thể chia sẻ dự án với người khác không?</summary><div class="faq-a"><p>Có. Bạn có thể mời thành viên vào dự án và cấp vai trò Quản lý, Thành viên hoặc Người xem. Ghi chú và tài liệu cũng có thể chia sẻ với quyền xem hoặc sửa.</p></div></details>
+                <details><summary>Trợ lý AI đã sử dụng được chưa?</summary><div class="faq-a"><p>Chưa. Trợ lý AI nằm trong định hướng phát triển và chưa có trong phiên bản hiện tại. Khi sẵn sàng, thông tin sẽ được cập nhật tại trang Tính năng.</p></div></details>
+                <details><summary>Tôi có thể xuất dữ liệu để lưu trữ ngoài không?</summary><div class="faq-a"><p>Có. Tại các trang Báo cáo, bạn có thể xuất số liệu ra tệp CSV để mở bằng Excel hoặc Google Sheets, hoặc lưu PDF bằng chức năng in của trình duyệt.</p></div></details>
+                <details><summary>Dữ liệu cá nhân của tôi có bị người khác nhìn thấy không?</summary><div class="faq-a"><p>Không. Toàn bộ dữ liệu được tách biệt theo tài khoản của bạn. Chỉ những dự án hoặc ghi chú bạn chủ động mời mới được chia sẻ đúng theo quyền đã cấp.</p></div></details>
+            </div>
+            <div class="cta-box is-tint rv">
+                <h2>Ready to make things clearer?</h2>
+                <p>Tạo không gian của riêng bạn và bắt đầu từ một việc nhỏ hôm nay.</p>
+                @if (signedIn)
+                {
+                    <a class="lp-btn lp-btn-primary lp-btn-lg" asp-controller="Dashboard" asp-action="Index">Vào ứng dụng</a>
+                }
+                else
+                {
+                    <a class="lp-btn lp-btn-primary lp-btn-lg" asp-controller="Auth" asp-action="Register">Bắt đầu với LifeHub</a>
+                }
+            </div>
+        </div>
+    </section>
+</main>

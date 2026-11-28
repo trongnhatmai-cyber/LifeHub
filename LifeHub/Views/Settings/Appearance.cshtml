@@ -66,6 +66,29 @@
                 </select>
             </div>
         </div>
+    </section>
+
+    <section class="settings-card">
+        <div class="section-heading">
+            <div>
+                <h3>Hiển thị phân hệ</h3>
+                <p>Chỉ bật những phân hệ bạn thường dùng để thanh điều hướng bên trái luôn gọn gàng.</p>
+            </div>
+        </div>
+
+        @foreach (var mod in Model.Modules)
+        {
+            <div class="settings-switch-row">
+                <div class="settings-switch-text">
+                    <strong>@mod.Label</strong>
+                    <small>Hiển thị mục @mod.Label trên thanh điều hướng</small>
+                </div>
+                <label class="settings-switch" aria-label="Bật hoặc tắt phân hệ @mod.Label">
+                    <input type="checkbox" name="VisibleModules" value="@mod.Key" checked="@mod.Enabled" />
+                    <span aria-hidden="true"></span>
+                </label>
+            </div>
+        }
 
         <div class="settings-actions">
             <button type="submit" class="settings-btn primary">Lưu thay đổi</button>

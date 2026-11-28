@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <!-- Icon placeholders -->
+  <symbol id="icon-home" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor"/></symbol>
+  <symbol id="icon-study" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" fill="currentColor"/></symbol>
+  <symbol id="icon-task" viewBox="0 0 24 24"><path d="M6 6h12v12H6z" fill="currentColor"/></symbol>
+  <symbol id="icon-project" viewBox="0 0 24 24"><polygon points="12,2 22,22 2,22" fill="currentColor"/></symbol>
+  <symbol id="icon-time" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
+  <symbol id="icon-finance" viewBox="0 0 24 24"><path d="M4 12h16" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="icon-goal" viewBox="0 0 24 24"><path d="M12 2 L15 8 L22 9 L17 14 L18 21 L12 18 L6 21 L7 14 L2 9 L9 8 Z" fill="currentColor"/></symbol>
+  <symbol id="icon-habit" viewBox="0 0 24 24"><path d="M12 5a7 7 0 1 0 0 14a7 7 0 0 0 0-14z" fill="currentColor"/></symbol>
+  <symbol id="icon-knowledge" viewBox="0 0 24 24"><path d="M4 4h16v16H4z" fill="currentColor"/></symbol>
+  <symbol id="icon-lifestyle" viewBox="0 0 24 24"><path d="M12 2 L12 22" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="icon-report" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="12" fill="currentColor"/></symbol>
+  <symbol id="icon-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"/></symbol>
+  <symbol id="icon-logout" viewBox="0 0 24 24"><path d="M16 17l5-5-5-5" stroke="currentColor" stroke-width="2" fill="none"/><path d="M21 12H9" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
+  <symbol id="icon-notification" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor"/></symbol>
+  <symbol id="icon-theme" viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0 0 20" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
+  <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6" stroke="currentColor" stroke-width="2" fill="none"/><line x1="14" y1="14" x2="20" y2="20" stroke="currentColor" stroke-width="2"/></symbol>
+</svg>

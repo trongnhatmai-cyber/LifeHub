@@ -1,0 +1,150 @@
+@model LifeHub.Models.ViewModels.AIManagement.AIAssistantViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Trợ lý AI";
+    ViewData["ActivePage"] = "AI";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/ai.css" asp-append-version="true" />
+}
+
+<!-- === TRANG TRỢ LÝ AI (Views/AI/Index.cshtml) === -->
+<div class="ai-page" data-ask-url="@Url.Action("Ask", "AI")">
+    <form id="aiTokenForm" hidden>@Html.AntiForgeryToken()</form>
+
+    @if (TempData["AISuccess"] is string ok && !string.IsNullOrWhiteSpace(ok))
+    {
+        <div class="ai-flash success" role="status">@ok</div>
+    }
+    @if (TempData["AIError"] is string err && !string.IsNullOrWhiteSpace(err))
+    {
+        <div class="ai-flash error" role="alert">@err</div>
+    }
+
+    <!-- 1. TIÊU ĐỀ TRANG -->
+    <header class="ai-heading">
+        <div>
+            <span class="ai-label">TRỢ LÝ CÁ NHÂN</span>
+            <h1>Trợ lý AI</h1>
+            <p>Phân tích trực tiếp dữ liệu công việc, học tập, tài chính và thời gian tập trung của @Model.UserName.</p>
+        </div>
+        <a class="ai-btn" asp-controller="Time" asp-action="Pomodoro">Mở Pomodoro</a>
+    </header>
+
+    <!-- 2. BỐN THẺ TÓM TẮT DỮ LIỆU THẬT -->
+    <section class="ai-summary" aria-label="Tổng hợp nhanh">
+        <div class="summary-card">
+            <div class="summary-top"><span>Việc chưa xong</span><span class="summary-badge">TASK</span></div>
+            <h2>@Model.PendingTasks.ToString("00")</h2>
+            <p>@Model.HighPriorityTasks việc ưu tiên cao</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Deadline 7 ngày</span><span class="summary-badge">DUE</span></div>
+            <h2>@Model.UpcomingDeadlines.ToString("00")</h2>
+            <p>@Model.TodayEvents sự kiện hôm nay</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Tập trung hôm nay</span><span class="summary-badge">FOCUS</span></div>
+            <h2>@Model.FocusMinutesToday<small style="font-size:var(--fs-md);font-weight:700">p</small></h2>
+            <p>Phút Pomodoro đã hoàn thành</p>
+        </div>
+        <div class="summary-card">
+            <div class="summary-top"><span>Mục tiêu &amp; Thói quen</span><span class="summary-badge">GOAL</span></div>
+            <h2>@Model.ActiveGoals / @Model.ActiveHabits</h2>
+            <p>Mục tiêu / Thói quen đang chạy</p>
+        </div>
+    </section>
+
+    <!-- 3. KHUNG CHAT & BẢNG NHẬN ĐỊNH -->
+    <div class="ai-grid">
+        <!-- Cột trái: Hội thoại với Trợ lý AI -->
+        <section class="ai-card ai-chat-card" aria-labelledby="aiChatTitle">
+            <div class="ai-card-head">
+                <div>
+                    <h3 id="aiChatTitle">Hỏi đáp &amp; Lập kế hoạch</h3>
+                    <p>Hỏi về lịch hôm nay, deadline, tài chính hoặc gõ "Tạo việc: Tên công việc".</p>
+                </div>
+            </div>
+
+            <div class="ai-chat-log" id="aiChatLog" aria-live="polite">
+                <div class="ai-msg bot">Xin chào @Model.UserName! Tôi đã tổng hợp dữ liệu hiện tại của bạn (@Model.PendingTasks việc đang mở, @Model.UpcomingDeadlines deadline trong 7 ngày tới). Bạn muốn tôi hỗ trợ phần nào trước?</div>
+            </div>
+
+            <div class="ai-chips" aria-label="Gợi ý câu hỏi nhanh">
+                <button type="button" class="ai-chip" data-prompt="Hôm nay tôi nên làm gì?">Hôm nay nên làm gì?</button>
+                <button type="button" class="ai-chip" data-prompt="Các bài tập sắp đến hạn">Bài tập sắp đến hạn</button>
+                <button type="button" class="ai-chip" data-prompt="Tình hình chi tiêu tháng này">Chi tiêu tháng này</button>
+                <button type="button" class="ai-chip" data-prompt="Gợi ý mục tiêu và thói quen">Mục tiêu &amp; thói quen</button>
+            </div>
+
+            <form class="ai-chat-form" id="aiChatForm">
+                <input type="text" id="aiPromptInput" placeholder="Nhập câu hỏi hoặc 'Tạo việc: ...'" autocomplete="off" maxlength="300" required />
+                <button type="submit" class="ai-btn primary">Gửi</button>
+            </form>
+        </section>
+
+        <!-- Cột phải: Nhận định tự động & Tạo nhanh việc -->
+        <div class="ai-side">
+            <section class="ai-card" aria-labelledby="aiInsightTitle">
+                <div class="ai-card-head">
+                    <div>
+                        <h3 id="aiInsightTitle">Nhận định hôm nay</h3>
+                        <p>Tự động phân tích từ các phân hệ của bạn</p>
+                    </div>
+                </div>
+                <div class="ai-insight-list">
+                    @foreach (var item in Model.Insights)
+                    {
+                        <article class="ai-insight">
+                            <div class="ai-insight-top">
+                                <span class="summary-badge">@item.Badge</span>
+                            </div>
+                            <strong>@item.Title</strong>
+                            <p>@item.Detail</p>
+                            <a class="ai-link" href="@item.ActionUrl">@item.ActionLabel →</a>
+                        </article>
+                    }
+                    @if (!Model.Insights.Any())
+                    {
+                        <div class="ai-insight">
+                            <strong>Mọi thứ đang ổn định</strong>
+                            <p>Bạn chưa có cảnh báo gấp nào. Hãy giữ nhịp làm việc và học tập đều đặn.</p>
+                        </div>
+                    }
+                </div>
+            </section>
+
+            <section class="ai-card" aria-labelledby="aiPriorityTitle">
+                <div class="ai-card-head">
+                    <div>
+                        <h3 id="aiPriorityTitle">Việc ưu tiên &amp; Thêm nhanh</h3>
+                        <p>5 đầu việc gần nhất hoặc tạo mới ngay tại đây</p>
+                    </div>
+                </div>
+                <div class="ai-priority-list">
+                    @foreach (var t in Model.TopPriorities)
+                    {
+                        <div class="ai-priority-row">
+                            <div>
+                                <strong>@t.Title</strong>
+                                <small>Hạn: @t.DeadlineLabel</small>
+                            </div>
+                            <span class="summary-badge">@t.Priority.ToUpperInvariant()</span>
+                        </div>
+                    }
+                </div>
+
+                <form class="ai-quick-form" asp-controller="AI" asp-action="QuickCreateTask" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="text" name="title" placeholder="Thêm nhanh công việc mới..." maxlength="200" required />
+                    <button type="submit" class="ai-btn primary">Thêm</button>
+                </form>
+            </section>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/ai.js" asp-append-version="true"></script>
+}

@@ -45,7 +45,23 @@
     if (toggle) {
         toggle.addEventListener("click", function () {
             const current = root.getAttribute("data-theme") || "light";
-            applyTheme(current === "dark" ? "light" : "dark", true);
+            const next = current === "dark" ? "light" : "dark";
+            applyTheme(next, true);
+
+            const topbar = document.querySelector(".topbar");
+            const themeUrl = topbar && topbar.getAttribute("data-url-theme");
+            const tokenInput = document.querySelector("#lhTokenForm input[name='__RequestVerificationToken']");
+            if (themeUrl && tokenInput) {
+                const body = new URLSearchParams();
+                body.set("themeMode", next);
+                body.set("__RequestVerificationToken", tokenInput.value);
+                fetch(themeUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
+                    body: body.toString(),
+                    credentials: "same-origin"
+                }).catch(function () { /* bỏ qua lỗi mạng tạm thời */ });
+            }
         });
     }
 })();

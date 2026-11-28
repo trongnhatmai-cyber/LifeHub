@@ -4,7 +4,8 @@
 @{
     var r = Model.Range;
     var navs = new[] { ("overview", "Index", "Tổng quan hoạt động"), ("study", "Study", "Báo cáo học tập"), ("tasks", "Tasks", "Công việc & dự án"),
-                       ("finance", "Finance", "Tài chính"), ("goals", "Productivity", "Mục tiêu & thói quen"), ("lifestyle", "Lifestyle", "Sinh hoạt") };
+                       ("finance", "Finance", "Tài chính"), ("goals", "Productivity", "Mục tiêu & thói quen"), ("lifestyle", "Lifestyle", "Sinh hoạt"),
+                       ("pomodoro", "Pomodoro", "Pomodoro") };
     var chips = new[] { ("7d", "7 ngày"), ("30d", "30 ngày"), ("90d", "90 ngày"), ("12m", "12 tháng") };
     string? customFrom = r.Key == "custom" ? r.FromIso : null;
     string? customTo = r.Key == "custom" ? r.ToIso : null;

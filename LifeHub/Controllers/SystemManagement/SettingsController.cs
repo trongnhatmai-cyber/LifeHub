@@ -27,6 +27,34 @@ namespace LifeHub.Controllers
             "Europe/London", "Europe/Paris", "America/New_York", "America/Los_Angeles", "Australia/Sydney"
         };
 
+        public static readonly (string Key, string Label)[] SidebarModules =
+        {
+            ("Study", "Học tập"),
+            ("Task", "Công việc"),
+            ("Project", "Dự án"),
+            ("Time", "Lịch và thời gian"),
+            ("Finance", "Tài chính"),
+            ("Goal", "Mục tiêu"),
+            ("Habit", "Thói quen"),
+            ("Lifestyle", "Sinh hoạt cá nhân"),
+            ("AI", "Trợ lý AI"),
+            ("Report", "Thống kê & báo cáo")
+        };
+
+        public static HashSet<string> ParseVisibleModules(string? raw)
+        {
+            if (string.IsNullOrWhiteSpace(raw))
+                return SidebarModules.Select(m => m.Key).ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            if (string.Equals(raw.Trim(), "NONE", StringComparison.OrdinalIgnoreCase))
+                return new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            var valid = SidebarModules.Select(m => m.Key).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            return raw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                      .Where(valid.Contains)
+                      .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        }
+
         private readonly ApplicationDbContext _context;
         public SettingsController(ApplicationDbContext context) => _context = context;
 
@@ -143,12 +171,19 @@ namespace LifeHub.Controllers
         {
             Page("Giao diện");
             var s = await GetSettingsAsync(User.GetUserId());
+            var enabled = ParseVisibleModules(s.VisibleModules);
             ViewBag.Timezones = Timezones;
             return View(new SettingsViewModel
             {
                 ThemeMode = s.ThemeMode == "dark" ? "dark" : "light",
                 Language = s.Language,
-                Timezone = s.Timezone ?? "Asia/Ho_Chi_Minh"
+                Timezone = s.Timezone ?? "Asia/Ho_Chi_Minh",
+                Modules = SidebarModules.Select(m => new SettingToggle
+                {
+                    Key = m.Key,
+                    Label = m.Label,
+                    Enabled = enabled.Contains(m.Key)
+                }).ToList()
             });
         }
 
@@ -163,9 +198,33 @@ namespace LifeHub.Controllers
             s.ThemeMode = input.ThemeMode;
             s.Language = input.Language;
             s.Timezone = input.Timezone;
+
+            var validKeys = SidebarModules.Select(m => m.Key).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var selected = (input.VisibleModules ?? new List<string>())
+                .Where(validKeys.Contains)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            s.VisibleModules = selected.Count == 0 ? "NONE" : string.Join(",", selected);
+
             Log(userId, "update", "Thay đổi cài đặt giao diện");
             await _context.SaveChangesAsync();
             return Back(nameof(Appearance), ok: "Đã lưu cài đặt giao diện.");
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetTheme([FromForm] string themeMode)
+        {
+            if (themeMode is not ("light" or "dark"))
+                return BadRequest();
+
+            var userId = User.GetUserId();
+            var s = await GetSettingsAsync(userId);
+            if (s.ThemeMode != themeMode)
+            {
+                s.ThemeMode = themeMode;
+                await _context.SaveChangesAsync();
+            }
+            return Ok(new { themeMode = s.ThemeMode });
         }
 
         // ---------------------------------------------------------------- 4. Thông báo

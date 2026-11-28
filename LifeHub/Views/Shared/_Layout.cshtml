@@ -1,5 +1,9 @@
 @using System.Globalization
 @using System.Security.Claims
+@using LifeHub.Controllers
+@using LifeHub.Extensions
+@using Microsoft.EntityFrameworkCore
+@inject LifeHub.DataAccessLayer.ApplicationDbContext LayoutDb
 @{
     var active = ViewData["ActivePage"] as string;
 
@@ -17,31 +21,45 @@
     var userEmail = User.FindFirst(ClaimTypes.Email)?.Value ?? string.Empty;
     var today = DateTime.Now.ToString("dddd, dd/MM/yyyy", new CultureInfo("vi-VN"));
 
+    var savedTheme = "light";
+    HashSet<string> visibleModules = SettingsController.ParseVisibleModules(null);
+    if (User.Identity?.IsAuthenticated == true)
+    {
+        var uid = User.GetUserId();
+        var userSetting = LayoutDb.UserSettings.AsNoTracking()
+            .FirstOrDefault(x => x.UserId == uid);
+        if (userSetting != null)
+        {
+            savedTheme = userSetting.ThemeMode == "dark" ? "dark" : "light";
+            visibleModules = SettingsController.ParseVisibleModules(userSetting.VisibleModules);
+        }
+    }
+
     // CẤU TRÚC MENU CHA
-    // { ActivePage, Label, Controller, Color, Icon }
+    // { ActivePage, Label, Controller, Color, IconId (trong _IconSprite) }
     var groups = new List<(string Title, List<string[]> Items)>
     {
         ("Tổng quan", new List<string[]> {
-            new[] { "Dashboard", "Tổng quan", "Dashboard", "study", "◧" }
+            new[] { "Dashboard", "Tổng quan", "Dashboard", "study", "i-grid" }
         }),
 
         ("Học tập và công việc", new List<string[]> {
-            new[] { "Study", "Học tập", "Study", "study", "✎" },
-            new[] { "Task", "Công việc", "Task", "task", "☑" },
-            new[] { "Project", "Dự án", "Project", "project", "❖" },
-            new[] { "Time", "Lịch và thời gian", "Time", "time", "◷" }
+            new[] { "Study", "Học tập", "Study", "study", "i-book" },
+            new[] { "Task", "Công việc", "Task", "task", "i-check-square" },
+            new[] { "Project", "Dự án", "Project", "project", "i-folder" },
+            new[] { "Time", "Lịch và thời gian", "Time", "time", "i-calendar" }
         }),
 
         ("Quản lý cá nhân", new List<string[]> {
-            new[] { "Finance", "Tài chính", "Finance", "finance", "₫" },
-            new[] { "Goal", "Mục tiêu", "Goal", "goal", "◎" },
-            new[] { "Habit", "Thói quen", "Habit", "habit", "↻" },
-            new[] { "Lifestyle", "Sinh hoạt cá nhân", "Lifestyle", "lifestyle", "♡" }
+            new[] { "Finance", "Tài chính", "Finance", "finance", "i-wallet" },
+            new[] { "Goal", "Mục tiêu", "Goal", "goal", "i-target" },
+            new[] { "Habit", "Thói quen", "Habit", "habit", "i-flame" },
+            new[] { "Lifestyle", "Sinh hoạt cá nhân", "Lifestyle", "lifestyle", "i-heart" }
         }),
 
         ("Tiện ích", new List<string[]> {
-            new[] { "AI", "Trợ lý AI", "AI", "ai", "✦" },
-            new[] { "Report", "Thống kê & báo cáo", "Report", "report", "▤" }
+            new[] { "AI", "Trợ lý AI", "AI", "ai", "i-sparkle" },
+            new[] { "Report", "Thống kê & báo cáo", "Report", "report", "i-chart" }
         })
     };
 
@@ -73,7 +91,8 @@
         ["Time"] = new List<string[]> {
             new[] { "TimeOverview", "Tổng quan thời gian" },
             new[] { "Calendar", "Lịch cá nhân" },
-            new[] { "CombinedCalendar", "Lịch tổng hợp" }
+            new[] { "CombinedCalendar", "Lịch tổng hợp" },
+            new[] { "TimePomodoro", "Pomodoro" }
         },
 
         ["Finance"] = new List<string[]> {
@@ -116,7 +135,7 @@
 }
 
 <!DOCTYPE html>
-<html lang="vi" data-theme="light">
+<html lang="vi" data-theme="@savedTheme">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -125,19 +144,11 @@
 
     <script>
         (function () {
+            var serverTheme = "@savedTheme";
             try {
-                var t = localStorage.getItem("lifehub_theme");
-
-                if (!t && window.matchMedia &&
-                    matchMedia("(prefers-color-scheme: dark)").matches) {
-                    t = "dark";
-                }
-
-                document.documentElement.dataset.theme =
-                    t === "dark" ? "dark" : "light";
-            } catch (e) {
-                document.documentElement.dataset.theme = "light";
-            }
+                localStorage.setItem("lifehub_theme", serverTheme);
+            } catch (e) { /* bỏ qua */ }
+            document.documentElement.dataset.theme = serverTheme;
         })();
     </script>
 
@@ -179,11 +190,16 @@
             <div class="sidebar-scroll">
             @foreach (var g in groups)
             {
+                var visibleItems = g.Items
+                    .Where(item => item[0] == "Dashboard" || visibleModules.Contains(item[0]))
+                    .ToList();
+                if (visibleItems.Count == 0) continue;
+
                 <div class="menu-label">@g.Title</div>
 
                 <nav class="menu" aria-label="@g.Title">
 
-                    @foreach (var item in g.Items)
+                    @foreach (var item in visibleItems)
                     {
                         var kids = children.TryGetValue(item[0], out var childList)
                             ? childList
@@ -209,7 +225,7 @@
                                         <span class="menu-sym"
                                               style="color:var(--pastel-@(item[3])-accent)"
                                               aria-hidden="true">
-                                            @item[4]
+                                            <svg class="lh-ico"><use href="#@item[4]"></use></svg>
                                         </span>
 
                                         <span class="menu-text">@item[1]</span>
@@ -245,6 +261,7 @@
                                             // PHÂN HỆ TIME
                                             "Calendar" => "Calendar",
                                             "CombinedCalendar" => "CombinedCalendar",
+                                            "TimePomodoro" => "Pomodoro",
 
                                             // PHÂN HỆ GOAL
                                             "GoalList" => "GoalList",
@@ -296,7 +313,7 @@
                                 <span class="menu-sym"
                                       style="color:var(--pastel-@(item[3])-accent)"
                                       aria-hidden="true">
-                                    @item[4]
+                                    <svg class="lh-ico"><use href="#@item[4]"></use></svg>
                                 </span>
 
                                 <span class="menu-text">@item[1]</span>
@@ -347,7 +364,8 @@
                     data-url-recent="@Url.Action("Recent", "Notification")"
                     data-url-markread="@Url.Action("MarkRead", "Notification")"
                     data-url-markall="@Url.Action("MarkAllRead", "Notification")"
-                    data-url-search="@Url.Action("Query", "Search")">
+                    data-url-search="@Url.Action("Query", "Search")"
+                    data-url-theme="@Url.Action("SetTheme", "Settings")">
 
                 <!-- TÌM KIẾM TOÀN HỆ THỐNG -->
                 <button type="button"

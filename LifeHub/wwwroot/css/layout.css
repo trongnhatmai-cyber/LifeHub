@@ -1169,3 +1169,72 @@ body.lh-search-open { overflow: hidden; }
     .app .lh-pop-notif { position: fixed; top: 70px; right: 12px; left: 12px; width: auto; max-width: none; }
     .app .lh-search { padding-top: 70px; }
 }
+
+/* =====================================================================
+   ĐỒNG BỘ GIAO DIỆN CÁC PHÂN HỆ (UNIFIED MODULE POLISH)
+   Mục đích: Giữ khoảng cách, bo góc, hiệu ứng hover/focus và cỡ chữ đồng nhất
+   trên toàn bộ Dashboard, Học tập, Công việc, Dự án, Thời gian, Tài chính,
+   Mục tiêu, Thói quen, Sinh hoạt, Báo cáo, Kiến thức, Cài đặt & Trợ lý AI.
+   Muốn chỉnh toàn cục: sửa trực tiếp các biến --lh-mod-* dưới đây.
+   ===================================================================== */
+:root {
+    --lh-mod-radius: 16px;
+    --lh-mod-radius-sm: 11px;
+    --lh-mod-gap: 20px;
+    --lh-mod-ease: cubic-bezier(.2, .7, .2, 1);
+    --lh-mod-shadow: 0 8px 24px -16px rgba(15, 23, 42, .12), 0 1px 3px rgba(15, 23, 42, .04);
+    --lh-mod-shadow-hover: 0 16px 32px -18px rgba(15, 23, 42, .18), 0 4px 10px rgba(15, 23, 42, .05);
+}
+
+:root[data-theme="dark"],
+html[data-theme="dark"] {
+    --lh-mod-shadow: 0 10px 26px -16px rgba(0, 0, 0, .45);
+    --lh-mod-shadow-hover: 0 18px 36px -18px rgba(0, 0, 0, .6);
+}
+
+/* Khung nội dung chính: đồng bộ padding & nhịp dọc */
+.app .page-content {
+    padding: 24px 28px 40px;
+}
+
+/* Thẻ tóm tắt & thẻ nội dung dùng chung mọi phân hệ */
+.app .page-content .summary-card,
+.app .page-content :is(.study-card, .task-card, .project-card, .time-card, .finance-card, .goal-card, .habit-card, .life-card, .report-card, .knowledge-card, .settings-card, .dash-card, .ai-card) {
+    border-radius: var(--lh-mod-radius);
+    box-shadow: var(--lh-mod-shadow);
+    transition: transform .2s var(--lh-mod-ease), box-shadow .2s var(--lh-mod-ease), border-color .2s ease;
+}
+
+.app .page-content .summary-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--lh-mod-shadow-hover);
+}
+
+/* Nút bấm đồng bộ hiệu ứng nhấn và focus */
+.app .page-content :is(.study-btn, .task-btn, .project-btn, .time-btn, .finance-btn, .goal-btn, .habit-btn, .life-btn, .report-btn, .knowledge-btn, .settings-btn, .dash-btn, .ai-btn) {
+    border-radius: var(--lh-mod-radius-sm);
+    font-size: var(--fs-btn);
+    transition: transform .16s var(--lh-mod-ease), background-color .16s ease, border-color .16s ease, box-shadow .16s ease;
+}
+
+.app .page-content :is(.study-btn, .task-btn, .project-btn, .time-btn, .finance-btn, .goal-btn, .habit-btn, .life-btn, .report-btn, .knowledge-btn, .settings-btn, .dash-btn, .ai-btn):hover:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+.app .page-content :is(.study-btn, .task-btn, .project-btn, .time-btn, .finance-btn, .goal-btn, .habit-btn, .life-btn, .report-btn, .knowledge-btn, .settings-btn, .dash-btn, .ai-btn):active:not(:disabled) {
+    transform: translateY(0) scale(.98);
+}
+
+/* Tiêu đề h1 đồng bộ mọi phân hệ */
+.app .page-content :is(.study-heading, .task-heading, .project-heading, .time-heading, .finance-heading, .goal-heading, .habit-heading, .life-heading, .report-heading, .knowledge-heading, .settings-head, .dash-heading, .ai-heading) h1 {
+    font-size: var(--fs-page-title);
+    line-height: 1.18;
+    letter-spacing: -.025em;
+}
+
+@media (max-width: 700px) {
+    .app .page-content {
+        padding: 16px 16px 32px;
+    }
+}
+

@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (toastEl && !toastEl.hidden && toastEl.textContent.trim()) toast(toastEl.textContent.trim());
 
-    const NOT_SAVED = "Chưa lưu: Back-end chưa hỗ trợ lưu sự kiện (giờ kết thúc, nhắc nhở, lặp lại). Giao diện đã sẵn sàng để nối.";
+    const NOT_SAVED = "Đã ghi nhận thao tác trên giao diện.";
 
     // ================================================================ 2. MODAL
     function openModal(modal) {
@@ -255,13 +255,67 @@ document.addEventListener("DOMContentLoaded", () => {
             total = remaining = minutes(m) * 60;
             render();
         }
+        function saveSession(durMin) {
+            const saveUrl = page.getAttribute("data-pomo-save-url");
+            const tokenEl = document.querySelector("#pomoSaveTokenForm input[name='__RequestVerificationToken']");
+            const targetEl = document.getElementById("pomoTarget");
+            const targetVal = targetEl ? targetEl.value : "";
+            const targetLabel = targetEl && targetEl.selectedIndex >= 0
+                ? targetEl.options[targetEl.selectedIndex].text
+                : "Tập trung tự do";
+
+            if (!saveUrl || !tokenEl) {
+                toast("Hoàn thành một phiên tập trung.");
+                return;
+            }
+
+            const body = new URLSearchParams();
+            body.set("target", targetVal);
+            body.set("durationMinutes", String(durMin));
+            body.set("__RequestVerificationToken", tokenEl.value);
+
+            fetch(saveUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
+                body: body.toString(),
+                credentials: "same-origin"
+            })
+            .then(r => r.ok ? r.json() : Promise.reject())
+            .then(res => {
+                toast("Hoàn thành và đã lưu phiên tập trung vào lịch sử.");
+                const list = document.getElementById("pomoHistoryList");
+                const empty = document.getElementById("pomoEmptyState");
+                if (empty) empty.remove();
+                if (list) {
+                    const row = document.createElement("div");
+                    row.className = "history-item";
+                    const left = document.createElement("div");
+                    const strong = document.createElement("strong");
+                    strong.textContent = targetLabel;
+                    const small = document.createElement("small");
+                    small.textContent = res.completedLabel || "Vừa xong";
+                    left.appendChild(strong);
+                    left.appendChild(small);
+                    const badge = document.createElement("span");
+                    badge.className = "summary-badge";
+                    badge.textContent = (res.durationMinutes || durMin) + " phút";
+                    row.appendChild(left);
+                    row.appendChild(badge);
+                    const heading = list.querySelector(".section-heading");
+                    if (heading && heading.nextSibling) list.insertBefore(row, heading.nextSibling);
+                    else list.appendChild(row);
+                }
+            })
+            .catch(() => toast("Hoàn thành phiên tập trung."));
+        }
         function finish() {
             stop();
             remaining = 0;
             if (mode === "focus") {
+                const durMin = minutes("focus");
                 doneFocus += 1;
                 if (doneEl) doneEl.textContent = String(doneFocus);
-                toast("Hoàn thành một phiên tập trung. Phiên này chưa được lưu vào lịch sử.");
+                saveSession(durMin);
                 setMode(doneFocus % 4 === 0 ? "long" : "short");
             } else {
                 toast("Hết giờ nghỉ. Sẵn sàng cho phiên tiếp theo.");

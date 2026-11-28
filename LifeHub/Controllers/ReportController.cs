@@ -36,6 +36,7 @@ public class ReportController : Controller
     [HttpGet] public async Task<IActionResult> Finance(string? range, string? from, string? to, bool? compare) => View("Finance", await BuildAsync("finance", range, from, to, compare));
     [HttpGet] public async Task<IActionResult> Productivity(string? range, string? from, string? to, bool? compare, string? goalStatus, string? goalType) => View("Productivity", await BuildAsync("goals", range, from, to, compare, goalStatus, goalType));
     [HttpGet] public async Task<IActionResult> Lifestyle(string? range, string? from, string? to, bool? compare) => View("Lifestyle", await BuildAsync("lifestyle", range, from, to, compare));
+    [HttpGet] public async Task<IActionResult> Pomodoro(string? range, string? from, string? to, bool? compare) => View("Pomodoro", await BuildAsync("pomodoro", range, from, to, compare));
 
     /// <summary>Xuất các KPI và nhận xét của một báo cáo ra CSV (mở được bằng Excel). In / lưu PDF dùng chức năng in của trình duyệt.</summary>
     [HttpGet]
@@ -70,6 +71,7 @@ public class ReportController : Controller
             "finance" => await FinanceAsync(uid, r),
             "goals" => await GoalsHabitsAsync(uid, r, goalStatus, goalType),
             "lifestyle" => await LifestyleAsync(uid, r),
+            "pomodoro" => await PomodoroAsync(uid, r),
             _ => await OverviewAsync(uid, r)
         };
         vm.Range = r;
@@ -535,6 +537,150 @@ public class ReportController : Controller
         if (vm.Insights.Count == 0) vm.Insights.Add("Chưa đủ dữ liệu để đưa ra nhận xét. Hãy ghi nhận sinh hoạt thêm vài ngày.");
         vm.Notes.Add("Báo cáo chỉ tổng hợp những gì bạn đã ghi nhận, không tạo chỉ số sức khỏe tổng hợp, không chẩn đoán và không đánh giá cơ thể.");
         vm.Notes.Add("Mục tiêu sinh hoạt cá nhân chưa có trong dữ liệu nên chưa so sánh thực tế với mục tiêu.");
+        return vm;
+    }
+
+    // ================================================================== 7. POMODORO
+    private async Task<ReportBaseViewModel> PomodoroAsync(int uid, ReportRange r)
+    {
+        var vm = Base("pomodoro", "Pomodoro", "Thống kê Pomodoro", "Tổng hợp thời gian tập trung, số phiên hoàn thành và phân bổ theo công việc, môn học.", CTime);
+
+        var cur = await _context.PomodoroSessions.AsNoTracking()
+            .Where(p => p.UserId == uid && p.IsCompleted && p.StartedAt >= r.FromDt && p.StartedAt < r.ToExclusive)
+            .OrderByDescending(p => p.StartedAt).ToListAsync();
+
+        var prv = r.Compare
+            ? await _context.PomodoroSessions.AsNoTracking()
+                .Where(p => p.UserId == uid && p.IsCompleted && p.StartedAt >= r.PrevFromDt && p.StartedAt < r.PrevToExclusive)
+                .ToListAsync()
+            : new List<LifeHub.Models.TimeManagement.PomodoroSession>();
+
+        var curMins = cur.Sum(p => p.DurationMinutes);
+        var prvMins = prv.Sum(p => p.DurationMinutes);
+        var avgMins = cur.Count > 0 ? (int)Math.Round(curMins / (double)cur.Count) : 0;
+        var activeDays = cur.Select(p => DateOnly.FromDateTime(p.StartedAt)).Distinct().Count();
+
+        var kTime = new ReportKpi { Badge = "FOCUS", Title = "Tổng thời gian tập trung", Value = cur.Count > 0 ? Hours(curMins) : "--", Unit = cur.Count > 0 ? "giờ" : "", Note = cur.Count > 0 ? $"{curMins} phút trong kỳ" : r.NoteText, Tooltip = "Tổng DurationMinutes của các phiên Pomodoro đã hoàn thành trong kỳ." };
+        Delta(kTime, curMins, prvMins, r);
+        vm.Kpis.Add(kTime);
+
+        var kSess = new ReportKpi { Badge = "SESSIONS", Title = "Số phiên hoàn thành", Value = cur.Count > 0 ? cur.Count.ToString() : "--", Unit = cur.Count > 0 ? "phiên" : "", Note = r.NoteText, Tooltip = "Tổng số phiên Pomodoro có IsCompleted = true trong kỳ." };
+        Delta(kSess, cur.Count, prv.Count, r);
+        vm.Kpis.Add(kSess);
+
+        vm.Kpis.Add(new ReportKpi { Badge = "AVG", Title = "Trung bình mỗi phiên", Value = cur.Count > 0 ? avgMins.ToString() : "--", Unit = cur.Count > 0 ? "phút" : "", Note = cur.Count > 0 ? "Thời lượng tập trung bình quân" : r.NoteText });
+        vm.Kpis.Add(new ReportKpi { Badge = "DAYS", Title = "Số ngày có tập trung", Value = cur.Count > 0 ? activeDays.ToString() : "--", Unit = cur.Count > 0 ? $"/ {r.Days} ngày" : "", Note = r.NoteText });
+
+        var buckets = r.Buckets();
+        vm.Charts.Add(new ReportChartCard
+        {
+            Id = "pomo-mins",
+            Title = "Thời gian tập trung theo thời gian",
+            Subtitle = $"Tổng số phút Pomodoro theo {r.BucketUnit}",
+            Type = "bar",
+            Empty = "Chưa có phiên Pomodoro nào trong kỳ.",
+            Data = new ChartData
+            {
+                Title = "Phút tập trung",
+                Kind = "int",
+                Labels = buckets.Select(b => b.Label).ToList(),
+                Series = { new ChartSeries { Name = "Phút tập trung", Color = CTime, Values = buckets.Select(b => (double?)cur.Where(x => DateOnly.FromDateTime(x.StartedAt) >= b.Start && DateOnly.FromDateTime(x.StartedAt) <= b.End).Sum(x => x.DurationMinutes)).ToList() } }
+            }
+        });
+
+        vm.Charts.Add(new ReportChartCard
+        {
+            Id = "pomo-count",
+            Title = "Số phiên hoàn thành",
+            Subtitle = $"Số phiên theo {r.BucketUnit}",
+            Type = "line",
+            Empty = "Chưa có phiên Pomodoro nào trong kỳ.",
+            Data = new ChartData
+            {
+                Title = "Số phiên",
+                Kind = "int",
+                Labels = buckets.Select(b => b.Label).ToList(),
+                Series = { new ChartSeries { Name = "Số phiên", Color = CStudy, Values = buckets.Select(b => (double?)cur.Count(x => DateOnly.FromDateTime(x.StartedAt) >= b.Start && DateOnly.FromDateTime(x.StartedAt) <= b.End)).ToList() } }
+            }
+        });
+
+        var taskMins = cur.Where(p => p.TaskId.HasValue).Sum(p => p.DurationMinutes);
+        var courseMins = cur.Where(p => !p.TaskId.HasValue && p.CourseId.HasValue).Sum(p => p.DurationMinutes);
+        var freeMins = cur.Where(p => !p.TaskId.HasValue && !p.CourseId.HasValue).Sum(p => p.DurationMinutes);
+        var slices = new List<DonutSlice>
+        {
+            new() { Label = "Công việc", Color = CTask, Value = taskMins, ValueText = $"{taskMins} phút" },
+            new() { Label = "Môn học", Color = CStudy, Value = courseMins, ValueText = $"{courseMins} phút" },
+            new() { Label = "Tập trung tự do", Color = CTime, Value = freeMins, ValueText = $"{freeMins} phút" }
+        };
+        vm.Charts.Add(new ReportChartCard
+        {
+            Id = "pomo-dist",
+            Title = "Phân bổ theo đối tượng",
+            Subtitle = "Tỷ trọng thời gian tập trung giữa công việc, môn học và tự do",
+            Type = "donut",
+            Slices = slices,
+            CenterTop = Hours(curMins),
+            CenterBottom = "giờ",
+            Empty = "Chưa có dữ liệu phân bổ trong kỳ."
+        });
+
+        var taskIds = cur.Where(p => p.TaskId.HasValue).Select(p => p.TaskId!.Value).Distinct().ToList();
+        var courseIds = cur.Where(p => p.CourseId.HasValue).Select(p => p.CourseId!.Value).Distinct().ToList();
+        var taskNames = taskIds.Any()
+            ? await _context.Tasks.AsNoTracking().Where(t => taskIds.Contains(t.Id)).ToDictionaryAsync(t => t.Id, t => t.Title)
+            : new Dictionary<int, string>();
+        var courseNames = courseIds.Any()
+            ? await _context.Courses.AsNoTracking().Where(c => courseIds.Contains(c.Id)).ToDictionaryAsync(c => c.Id, c => c.CourseName)
+            : new Dictionary<int, string>();
+
+        string TargetLabel(LifeHub.Models.TimeManagement.PomodoroSession p) =>
+            p.TaskId.HasValue ? (taskNames.TryGetValue(p.TaskId.Value, out var tn) ? tn : "Công việc")
+            : p.CourseId.HasValue ? (courseNames.TryGetValue(p.CourseId.Value, out var cn) ? cn : "Môn học")
+            : "Tập trung tự do";
+
+        string TargetKind(LifeHub.Models.TimeManagement.PomodoroSession p) =>
+            p.TaskId.HasValue ? "Công việc" : p.CourseId.HasValue ? "Môn học" : "Tự do";
+
+        var tableRows = cur
+            .GroupBy(p => new { Name = TargetLabel(p), Kind = TargetKind(p) })
+            .Select(g => new { g.Key.Name, g.Key.Kind, Sessions = g.Count(), Minutes = g.Sum(x => x.DurationMinutes) })
+            .OrderByDescending(x => x.Minutes)
+            .Take(10)
+            .Select(x =>
+            {
+                var pct = curMins > 0 ? Math.Round(x.Minutes * 100.0 / curMins) : 0;
+                return new ReportRow
+                {
+                    Cells =
+                    {
+                        ReportCell.T(x.Name),
+                        ReportCell.T(x.Kind),
+                        ReportCell.T(x.Sessions.ToString()),
+                        ReportCell.T($"{x.Minutes} phút"),
+                        ReportCell.T($"{pct}%")
+                    }
+                };
+            }).ToList();
+
+        vm.Tables.Add(new ReportTable
+        {
+            Title = "Chi tiết theo mục tiêu tập trung",
+            Subtitle = "Top 10 công việc / môn học có thời gian Pomodoro cao nhất trong kỳ",
+            Headers = { "MỤC TIÊU", "PHÂN LOẠI", "SỐ PHIÊN", "TỔNG THỜI GIAN", "TỶ TRỌNG" },
+            RightColumns = { 2, 3, 4 },
+            Rows = tableRows,
+            Empty = "Chưa có phiên Pomodoro nào được ghi nhận trong kỳ."
+        });
+
+        if (cur.Count > 0)
+            vm.Insights.Add($"Bạn đã hoàn thành {cur.Count} phiên Pomodoro với tổng cộng {curMins} phút ({Hours(curMins)} giờ) trong {activeDays} ngày.");
+        if (r.Compare && prv.Count > 0 && curMins != prvMins)
+            vm.Insights.Add($"Tổng thời gian tập trung {(curMins > prvMins ? "tăng" : "giảm")} {Math.Abs(curMins - prvMins)} phút so với kỳ trước.");
+        if (vm.Insights.Count == 0)
+            vm.Insights.Add("Chưa có phiên Pomodoro nào trong kỳ. Mở mục Pomodoro trong Lịch và thời gian để bắt đầu.");
+
+        vm.Notes.Add("Số liệu tính từ các phiên Pomodoro có trạng thái hoàn thành (IsCompleted = true) trong khoảng thời gian đã chọn.");
         return vm;
     }
 

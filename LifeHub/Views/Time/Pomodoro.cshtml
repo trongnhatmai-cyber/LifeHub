@@ -10,7 +10,9 @@
     <link rel="stylesheet" href="~/css/time.css" asp-append-version="true" />
 }
 
-<div class="time-page">
+<!-- === TRANG POMODORO (Views/Time/Pomodoro.cshtml) === -->
+<div class="time-page" data-pomo-save-url="@Url.Action("SavePomodoro", "Time")">
+    <form id="pomoSaveTokenForm" hidden>@Html.AntiForgeryToken()</form>
     <header class="time-heading">
         <div>
             <span class="time-label">QUẢN LÝ THỜI GIAN</span>
@@ -64,11 +66,11 @@
                     <div class="field"><label for="pomoShort">Nghỉ ngắn (phút)</label><input id="pomoShort" type="number" min="1" max="60" value="5" /></div>
                     <div class="field"><label for="pomoLong">Nghỉ dài (phút)</label><input id="pomoLong" type="number" min="1" max="90" value="15" /></div>
                 </div>
-                <p class="time-note" style="margin:0">Phiên hoàn thành trong lần mở trang này: <strong id="pomoDone">0</strong>. Phiên chưa được lưu vào lịch sử vì Back-end chưa hỗ trợ ghi nhận.</p>
+                <p class="time-note" style="margin:0">Phiên hoàn thành trong lần mở trang này: <strong id="pomoDone">0</strong>. Mỗi phiên tập trung hoàn thành sẽ tự động được lưu vào lịch sử.</p>
             </div>
         </section>
 
-        <section class="time-card">
+        <section class="time-card" id="pomoHistoryList">
             <div class="section-heading">
                 <div><h3>Lịch sử Pomodoro</h3><p>30 phiên hoàn thành gần nhất</p></div>
             </div>
@@ -81,10 +83,73 @@
             }
             @if (!Model.History.Any())
             {
-                <div class="time-empty">Chưa có phiên nào. Bấm "Bắt đầu" để làm phiên tập trung đầu tiên.</div>
+                <div class="time-empty" id="pomoEmptyState">Chưa có phiên nào. Bấm "Bắt đầu" để làm phiên tập trung đầu tiên.</div>
             }
         </section>
     </div>
+
+    <!-- === THỐNG KÊ POMODORO (Biểu đồ 7 ngày & Phân bổ mục tiêu) === -->
+    <section class="pomo-stats-grid" aria-label="Thống kê tập trung Pomodoro">
+        <div class="time-card">
+            <div class="section-heading">
+                <div><h3>Thống kê 7 ngày gần nhất</h3><p>Tổng thời gian tập trung theo từng ngày</p></div>
+            </div>
+
+            <div class="pomo-kpi-strip">
+                <div class="pomo-kpi-pill">
+                    <small>Tổng tích lũy</small>
+                    <strong>@Model.TotalMinutesText</strong>
+                </div>
+                <div class="pomo-kpi-pill">
+                    <small>Trung bình / phiên</small>
+                    <strong>@Model.AvgMinutesPerSession phút</strong>
+                </div>
+                <div class="pomo-kpi-pill">
+                    <small>Chuỗi ngày tập trung</small>
+                    <strong>@Model.FocusStreakDays ngày</strong>
+                </div>
+            </div>
+
+            <div class="pomo-chart" aria-label="Biểu đồ phút tập trung 7 ngày qua">
+                @foreach (var d in Model.DailyStats)
+                {
+                    <div class="pomo-bar-col @(d.IsToday ? "is-today" : "")" title="@d.Label: @d.Minutes phút (@d.Sessions phiên)">
+                        <span class="pomo-bar-val">@(d.Minutes > 0 ? d.Minutes + "p" : "0")</span>
+                        <div class="pomo-bar-track">
+                            <div class="pomo-bar-fill" style="height:@(d.HeightPercent)%"></div>
+                        </div>
+                        <span class="pomo-bar-lbl">@d.Label</span>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="time-card">
+            <div class="section-heading">
+                <div><h3>Phân bổ theo mục tiêu</h3><p>Top công việc &amp; môn học tập trung nhiều nhất</p></div>
+            </div>
+
+            @if (Model.TopTargets.Any())
+            {
+                <div class="pomo-target-list">
+                    @foreach (var item in Model.TopTargets)
+                    {
+                        <div>
+                            <div class="pomo-target-head">
+                                <strong>@item.Name</strong>
+                                <span>@item.Minutes phút · @item.Sessions phiên (@item.Percent%)</span>
+                            </div>
+                            <div class="pomo-meter"><i style="width:@(item.Percent)%"></i></div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="time-empty">Chưa có dữ liệu thống kê theo mục tiêu. Hoàn thành phiên Pomodoro đầu tiên để xem phân bổ.</div>
+            }
+        </div>
+    </section>
 </div>
 
 @section Scripts {

@@ -1,4 +1,4 @@
-/* =====================================================================
+﻿/* =====================================================================
    LIFEHUB - TIME MANAGEMENT (QUẢN LÝ THỜI GIAN)        wwwroot/css/time.css
 
    Nhân bản từ study.css theo "CÁCH TÁI SỬ DỤNG" của file mẫu:
@@ -354,7 +354,7 @@ html[data-theme="dark"] .time-page {
 .time-page .time-empty {
     padding: 18px;
     text-align: center;
-    font-size: 12px;
+    font-size: var(--fs-sm);
     color: var(--time-muted);
 }
 
@@ -370,13 +370,13 @@ html[data-theme="dark"] .time-page {
 .time-page .time-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 13px;
+    font-size: var(--fs-base);
 }
 .time-page .time-table th {
     padding: 12px 10px;
     text-align: left;
     color: var(--time-muted);
-    font-size: 11px;
+    font-size: var(--fs-xs);
     font-weight: 700;
     border-bottom: 1px solid var(--time-border);
     white-space: nowrap;
@@ -390,7 +390,7 @@ html[data-theme="dark"] .time-page {
 .time-page .row-sub {
     display: block;
     margin-top: 2px;
-    font-size: 11px;
+    font-size: var(--fs-xs);
     font-weight: 400;
     color: var(--time-muted);
 }
@@ -415,7 +415,7 @@ html[data-theme="dark"] .time-page {
     border-radius: 999px;
     background: var(--time-card);
     color: var(--time-muted);
-    font-size: 12px;
+    font-size: var(--fs-sm);
     font-weight: 650;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -447,7 +447,7 @@ html[data-theme="dark"] .time-page .time-chip.active,
     display: inline-block;
     padding: 4px 10px;
     border-radius: 20px;
-    font-size: 11px;
+    font-size: var(--fs-xs);
     font-weight: 700;
     white-space: nowrap;
 }
@@ -517,7 +517,7 @@ body.time-modal-open { overflow: hidden; }
     border-radius: 10px;
     background: var(--time-card);
     color: var(--time-muted);
-    font-size: 20px;
+    font-size: var(--fs-2xl);
     line-height: 1;
     cursor: pointer;
 }
@@ -570,7 +570,7 @@ body.time-modal-open { overflow: hidden; }
 }
 .time-page .time-note {
     margin: 14px 0 0;
-    font-size: 11px;
+    font-size: var(--fs-xs);
     color: var(--time-muted);
 }
 /* Lỗi kiểm tra form (JS hoặc server gán). Phần tử có thuộc tính hidden khi không có lỗi. */
@@ -580,7 +580,7 @@ body.time-modal-open { overflow: hidden; }
     border-radius: 9px;
     background: rgba(220, 38, 38, .12);
     color: #dc2626;
-    font-size: 12px;
+    font-size: var(--fs-sm);
     font-weight: 600;
 }
 
@@ -596,7 +596,7 @@ body.time-modal-open { overflow: hidden; }
 .time-page .field.invalid input,
 .time-page .field.invalid select,
 .time-page .field.invalid textarea { border-color: #dc2626; }
-.time-page .field small { display: block; margin-top: 4px; font-size: 11px; color: var(--time-muted); }
+.time-page .field small { display: block; margin-top: 4px; font-size: var(--fs-xs); color: var(--time-muted); }
 
 
 /* =====================================================================
@@ -615,7 +615,7 @@ body.time-modal-open { overflow: hidden; }
     border-radius: 12px;
     background: var(--time-card-strong);
     color: var(--time-text);
-    font-size: 13px;
+    font-size: var(--fs-base);
     font-weight: 600;
     box-shadow: 0 12px 30px rgba(0, 0, 0, .18);
 }
@@ -628,7 +628,7 @@ body.time-modal-open { overflow: hidden; }
    .row-actions + .row-btn: nút Sửa, Xóa, Nhập điểm trong cột thao tác.
    .due-hint: dòng "Còn n ngày" / "Quá hạn n ngày" (thêm .overdue để tô đỏ).
    ===================================================================== */
-.time-page .time-count { margin: 0 0 12px; color: var(--time-muted); font-size: 12px; }
+.time-page .time-count { margin: 0 0 12px; color: var(--time-muted); font-size: var(--fs-sm); }
 
 .time-page .time-toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
 .time-page .time-toolbar input,
@@ -639,7 +639,7 @@ body.time-modal-open { overflow: hidden; }
     border-radius: 12px;
     background: var(--time-card);
     color: var(--time-text);
-    font-size: 13px;
+    font-size: var(--fs-base);
 }
 .time-page .time-toolbar input { flex: 1 1 220px; min-width: 0; }
 .time-page .time-toolbar select { flex: 0 1 190px; }
@@ -659,7 +659,7 @@ body.time-modal-open { overflow: hidden; }
     border-radius: 8px;
     background: var(--time-card);
     color: var(--time-text);
-    font-size: 11px;
+    font-size: var(--fs-xs);
     font-weight: 700;
     cursor: pointer;
 }
@@ -779,6 +779,27 @@ body.time-modal-open { overflow: hidden; }
 .time-page .history-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; margin-bottom: 8px; border: 1px solid var(--time-border); border-radius: 10px; background: var(--time-card); font-size: var(--fs-card-text); }
 .time-page .history-item small { display: block; color: var(--time-muted); font-size: var(--fs-meta); }
 
+/* Thống kê Pomodoro: biểu đồ 7 ngày & phân bổ mục tiêu */
+.time-page .pomo-stats-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.time-page .pomo-kpi-strip { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+.time-page .pomo-kpi-pill { flex: 1 1 130px; padding: 10px 12px; border-radius: 12px; background: var(--time-card); border: 1px solid var(--time-border); }
+.time-page .pomo-kpi-pill small { display: block; color: var(--time-muted); font-size: var(--fs-xs); font-weight: 600; }
+.time-page .pomo-kpi-pill strong { font-size: var(--fs-xl); font-weight: 800; color: var(--time-text); }
+.time-page .pomo-chart { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; align-items: end; height: 180px; padding-top: 16px; }
+.time-page .pomo-bar-col { display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; }
+.time-page .pomo-bar-val { font-size: var(--fs-2xs); font-weight: 700; color: var(--time-muted); white-space: nowrap; }
+.time-page .pomo-bar-track { width: 100%; max-width: 34px; flex: 1; display: flex; align-items: flex-end; background: var(--time-card); border-radius: 8px; overflow: hidden; }
+.time-page .pomo-bar-fill { width: 100%; border-radius: 8px; background: color-mix(in srgb, var(--time-accent) 45%, transparent); transition: height .4s ease; }
+.time-page .pomo-bar-col.is-today .pomo-bar-fill { background: var(--time-accent); }
+.time-page .pomo-bar-col.is-today .pomo-bar-lbl { color: var(--time-accent); font-weight: 800; }
+.time-page .pomo-bar-lbl { font-size: var(--fs-xs); color: var(--time-muted); font-weight: 600; }
+.time-page .pomo-target-list { display: grid; gap: 12px; }
+.time-page .pomo-target-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; font-size: var(--fs-card-text); }
+.time-page .pomo-target-head strong { color: var(--time-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.time-page .pomo-target-head span { color: var(--time-muted); font-size: var(--fs-xs); font-weight: 700; white-space: nowrap; }
+.time-page .pomo-meter { height: 8px; border-radius: 999px; background: var(--time-card); overflow: hidden; }
+.time-page .pomo-meter i { display: block; height: 100%; border-radius: 999px; background: var(--time-accent); }
+
 
 /* =====================================================================
    21. RESPONSIVE
@@ -786,7 +807,8 @@ body.time-modal-open { overflow: hidden; }
    ===================================================================== */
 @media (max-width: 1024px) {
     .time-page .time-summary { grid-template-columns: repeat(2, 1fr); }
-    .time-page .time-grid { grid-template-columns: 1fr; }
+    .time-page .time-grid,
+    .time-page .pomo-stats-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 640px) {

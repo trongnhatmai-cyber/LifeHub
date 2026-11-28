@@ -1,0 +1,427 @@
+/* =====================================================================
+   LIFEHUB - TRỢ LÝ AI (AI ASSISTANT)              wwwroot/css/ai.css
+
+   Đồng bộ hoàn toàn với hệ thống giao diện LifeHub:
+     - Cỡ chữ: dùng biến var(--fs-...) trong layout.css
+     - Màu chủ đạo: --pastel-ai / --pastel-ai-accent (#0284c7)
+     - Nền / viền / chữ: kế thừa --lh-page, --lh-sidebar-bg, --lh-line, --lh-text, --lh-muted
+     - Tự động hỗ trợ chế độ Sáng / Tối qua :root[data-theme="dark"]
+
+   MỤC LỤC TÌM NHANH:
+     1. Biến màu phân hệ AI (--ai-*)
+     2. Nền tảng & Tiêu đề trang (.ai-page, .ai-heading)
+     3. Lưới 4 thẻ tóm tắt (.ai-summary, .summary-card)
+     4. Bố cục 2 cột Chat & Gợi ý (.ai-grid, .ai-card)
+     5. Khung hội thoại AI (.ai-chat-*)
+     6. Chip gợi ý nhanh (.ai-chips)
+     7. Danh sách nhận định & ưu tiên (.ai-insight, .ai-priority)
+     8. Responsive
+   ===================================================================== */
+
+/* 1. BIẾN MÀU PHÂN HỆ AI */
+.ai-page {
+    --ai-bg: var(--lh-page, #ffffff);
+    --ai-surface: var(--lh-sidebar-bg, #f8fafc);
+    --ai-soft: var(--lh-sidebar-soft, #f1f5f9);
+    --ai-border: var(--lh-line, #e2e8f0);
+    --ai-text: var(--lh-text, #1e293b);
+    --ai-muted: var(--lh-muted, #64748b);
+    --ai-accent: var(--pastel-ai-accent, #0284c7);
+    --ai-tint: var(--pastel-ai, #f0f9ff);
+    --ai-on-accent: #ffffff;
+    width: 100%;
+    min-width: 0;
+    color: var(--ai-text);
+}
+
+:root[data-theme="dark"] .ai-page,
+html[data-theme="dark"] .ai-page {
+    --ai-tint: rgba(56, 189, 248, .12);
+    --ai-on-accent: #082f49;
+}
+
+/* 2. NỀN TẢNG & TIÊU ĐỀ TRANG */
+.ai-page *,
+.ai-page *::before,
+.ai-page *::after {
+    box-sizing: border-box;
+}
+
+.ai-page h1,
+.ai-page h2,
+.ai-page h3,
+.ai-page p {
+    margin-top: 0;
+}
+
+.ai-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+}
+
+.ai-label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: var(--fs-eyebrow);
+    font-weight: 800;
+    letter-spacing: .08em;
+    color: var(--ai-accent);
+}
+
+.ai-heading h1 {
+    margin-bottom: 6px;
+    font-size: var(--fs-page-title);
+    font-weight: 800;
+    color: var(--ai-text);
+}
+
+.ai-heading p {
+    margin-bottom: 0;
+    font-size: var(--fs-page-sub);
+    color: var(--ai-muted);
+}
+
+.ai-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 16px;
+    border: 1px solid var(--ai-border);
+    border-radius: 11px;
+    background: var(--ai-bg);
+    color: var(--ai-text);
+    font: inherit;
+    font-size: var(--fs-btn);
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.ai-btn:hover {
+    border-color: var(--ai-accent);
+}
+
+.ai-btn.primary {
+    border-color: var(--ai-accent);
+    background: var(--ai-accent);
+    color: var(--ai-on-accent);
+}
+
+.ai-flash {
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: var(--fs-base);
+    font-weight: 600;
+}
+
+.ai-flash.success {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #166534;
+}
+
+.ai-flash.error {
+    background: #fff1f2;
+    border: 1px solid #fecdd3;
+    color: #9f1239;
+}
+
+/* 3. LƯỚI 4 THẺ TÓM TẮT */
+.ai-summary {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+.ai-page .summary-card {
+    background: var(--ai-surface);
+    border: 1px solid var(--ai-border);
+    padding: 18px 20px;
+}
+
+.ai-page .summary-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: var(--fs-stat-label);
+    font-weight: 650;
+    color: var(--ai-muted);
+}
+
+.ai-page .summary-badge {
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: var(--ai-tint);
+    color: var(--ai-accent);
+    font-size: var(--fs-stat-badge);
+    font-weight: 800;
+}
+
+.ai-page .summary-card h2 {
+    margin-bottom: 4px;
+    font-size: var(--fs-stat-value);
+    font-weight: 800;
+    letter-spacing: -.03em;
+    color: var(--ai-text);
+}
+
+.ai-page .summary-card p {
+    margin-bottom: 0;
+    font-size: var(--fs-stat-note);
+    color: var(--ai-muted);
+}
+
+/* 4. BỐ CỤC 2 CỘT CHAT & GỢI Ý */
+.ai-grid {
+    display: grid;
+    grid-template-columns: 1.35fr .95fr;
+    gap: 20px;
+    align-items: start;
+}
+
+.ai-side {
+    display: grid;
+    gap: 20px;
+}
+
+.ai-card {
+    background: var(--ai-surface);
+    border: 1px solid var(--ai-border);
+    padding: 20px;
+}
+
+.ai-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.ai-card-head h3 {
+    margin-bottom: 2px;
+    font-size: var(--fs-panel-title);
+    font-weight: 700;
+    color: var(--ai-text);
+}
+
+.ai-card-head p {
+    margin-bottom: 0;
+    font-size: var(--fs-panel-sub);
+    color: var(--ai-muted);
+}
+
+/* 5. KHUNG HỘI THOẠI AI */
+.ai-chat-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 520px;
+}
+
+.ai-chat-log {
+    flex: 1;
+    min-height: 300px;
+    max-height: 440px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px;
+    border-radius: 12px;
+    background: var(--ai-bg);
+    border: 1px solid var(--ai-border);
+    margin-bottom: 12px;
+}
+
+.ai-msg {
+    max-width: 86%;
+    padding: 12px 15px;
+    border-radius: 14px;
+    font-size: var(--fs-md);
+    line-height: 1.6;
+    white-space: pre-line;
+}
+
+.ai-msg.bot {
+    align-self: flex-start;
+    background: var(--ai-surface);
+    border: 1px solid var(--ai-border);
+    color: var(--ai-text);
+}
+
+.ai-msg.user {
+    align-self: flex-end;
+    background: var(--ai-accent);
+    color: var(--ai-on-accent);
+}
+
+.ai-msg.typing {
+    opacity: .75;
+    font-style: italic;
+}
+
+/* 6. CHIP GỢI Ý NHANH */
+.ai-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.ai-chip {
+    padding: 6px 12px;
+    border: 1px solid var(--ai-border);
+    border-radius: 999px;
+    background: var(--ai-bg);
+    color: var(--ai-text);
+    font: inherit;
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color .15s ease, background-color .15s ease;
+}
+
+.ai-chip:hover {
+    border-color: var(--ai-accent);
+    background: var(--ai-tint);
+    color: var(--ai-accent);
+}
+
+.ai-chat-form {
+    display: flex;
+    gap: 10px;
+}
+
+.ai-chat-form input {
+    flex: 1;
+    min-width: 0;
+    height: 42px;
+    padding: 0 14px;
+    border: 1px solid var(--ai-border);
+    border-radius: 11px;
+    background: var(--ai-bg);
+    color: var(--ai-text);
+    font: inherit;
+    font-size: var(--fs-field-input);
+}
+
+.ai-chat-form input:focus {
+    outline: 2px solid var(--ai-accent);
+    outline-offset: 1px;
+}
+
+/* 7. DANH SÁCH NHẬN ĐỊNH & ƯU TIÊN */
+.ai-insight-list,
+.ai-priority-list {
+    display: grid;
+    gap: 10px;
+}
+
+.ai-insight {
+    padding: 13px 14px;
+    border-radius: 12px;
+    background: var(--ai-bg);
+    border: 1px solid var(--ai-border);
+}
+
+.ai-insight-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.ai-insight strong {
+    display: block;
+    font-size: var(--fs-card-title);
+    color: var(--ai-text);
+    margin-bottom: 4px;
+}
+
+.ai-insight p {
+    margin-bottom: 8px;
+    font-size: var(--fs-card-text);
+    color: var(--ai-muted);
+}
+
+.ai-link {
+    font-size: var(--fs-sm);
+    font-weight: 700;
+    color: var(--ai-accent);
+    text-decoration: none;
+}
+
+.ai-link:hover {
+    text-decoration: underline;
+}
+
+.ai-priority-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 11px;
+    background: var(--ai-bg);
+    border: 1px solid var(--ai-border);
+}
+
+.ai-priority-row strong {
+    display: block;
+    font-size: var(--fs-card-title);
+    color: var(--ai-text);
+}
+
+.ai-priority-row small {
+    font-size: var(--fs-meta);
+    color: var(--ai-muted);
+}
+
+.ai-quick-form {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.ai-quick-form input {
+    flex: 1;
+    min-width: 0;
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid var(--ai-border);
+    border-radius: 10px;
+    background: var(--ai-bg);
+    color: var(--ai-text);
+    font: inherit;
+    font-size: var(--fs-base);
+}
+
+/* 8. RESPONSIVE */
+@media (max-width: 1080px) {
+    .ai-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .ai-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .ai-summary {
+        grid-template-columns: 1fr;
+    }
+    .ai-chat-form {
+        flex-direction: column;
+    }
+}

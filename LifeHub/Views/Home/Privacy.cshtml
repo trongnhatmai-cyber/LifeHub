@@ -2,138 +2,163 @@
     Layout = "_LandingLayout";
     ViewData["Title"] = "Bảo mật & Điều khoản – LifeHub";
     ViewData["LandingPage"] = "privacy";
-    var isSignedIn = User.Identity?.IsAuthenticated == true;
+    var signedIn = User.Identity?.IsAuthenticated == true;
 }
 
-@section Styles {
-    <link rel="stylesheet" href="~/css/home-index.css" asp-append-version="true" />
-}
-
-<main class="lh-home">
-
-    <!-- BANNER CHÍNH SÁCH BẢO MẬT & ĐIỀU KHOẢN -->
-    <section class="lh-banner">
-        <div class="lh-wrap">
-            <div class="lh-banner-top" style="margin-bottom:8px">
-                <div class="lh-eyebrow-pill">
-                    <b>✦ AN TOÀN &amp; MINH BẠCH</b>
-                    Cam kết bảo vệ quyền riêng tư và dữ liệu người dùng
-                </div>
-
-                <h1 class="lh-banner-title">
-                    Không gian riêng tư của bạn,<br />
-                    <span class="lh-grad-text">được bảo vệ ở mức cao nhất.</span>
-                </h1>
-
-                <p class="lh-banner-intro">
-                    Tại <strong>LifeHub</strong>, lịch học, bảng điểm, kế hoạch tài chính hay nhật ký sinh hoạt đều là những thông tin cá nhân đáng trân trọng. Chúng tôi xây dựng hệ thống dựa trên nguyên tắc minh bạch, bảo mật nhiều lớp và tôn trọng tuyệt đối quyền làm chủ dữ liệu của bạn.
-                </p>
-            </div>
+<main>
+    <!-- 1. PRIVACY HERO -->
+    <section class="pr-hero" aria-labelledby="prTitle">
+        <div class="lp-wrap">
+            <span class="lp-kicker">An toàn &amp; minh bạch</span>
+            <h1 id="prTitle">Your personal space, kept private by design.</h1>
+            <p class="lp-lead">Tại LifeHub, lịch học, bảng điểm, kế hoạch tài chính hay nhật ký sinh hoạt đều là dữ liệu cá nhân của riêng bạn. Hệ thống được thiết kế để tách biệt dữ liệu theo tài khoản và trao toàn quyền kiểm soát cho bạn.</p>
+            <nav class="pr-nav" aria-label="Điều hướng nhanh nội dung">
+                <a href="#pillars">Nguyên tắc bảo mật</a>
+                <a href="#data-collected">Dữ liệu lưu trữ</a>
+                <a href="#data-purpose">Mục đích sử dụng</a>
+                <a href="#account-safety">Bảo vệ tài khoản</a>
+                <a href="#terms">Điều khoản sử dụng</a>
+            </nav>
         </div>
     </section>
 
-    <!-- 4 TRỤ CỘT BẢO MẬT ĐA SẮC -->
-    <section style="padding-bottom:36px">
-        <div class="lh-wrap">
-            <div class="lh-persona-grid">
-                <div class="lh-persona-card">
-                    <div class="lh-persona-emo" style="background:#eff6ff;color:#2563eb">🔒</div>
+    <!-- 2. 4 SECURITY PILLARS -->
+    <section class="lp-sec lp-sec-soft" id="pillars" aria-labelledby="pilTitle">
+        <div class="lp-wrap">
+            <div class="lp-head is-center rv">
+                <span class="lp-kicker">Bốn trụ cột bảo vệ</span>
+                <h2 id="pilTitle">Built around privacy and clarity.</h2>
+                <p class="lp-lead">Mọi thao tác từ đăng nhập, lưu trữ đến chia sẻ dự án đều tuân theo nguyên tắc tối giản và rõ ràng.</p>
+            </div>
+            <div class="ut">
+                <article class="ut-i rv" style="--c:#2563EB">
+                    <span class="cw-ico" style="--c:#2563EB"><svg class="ic"><use href="#lh-lock" /></svg></span>
                     <h3>Mã hóa &amp; Xác thực</h3>
-                    <p>Mật khẩu luôn được mã hóa an toàn; phiên đăng nhập được bảo vệ nhiều lớp giúp ngăn chặn truy cập trái phép.</p>
-                </div>
-                <div class="lh-persona-card">
-                    <div class="lh-persona-emo" style="background:#f0fdf4;color:#16a34a">🛡️</div>
-                    <h3>Tách biệt tuyệt đối</h3>
-                    <p>Dữ liệu cá nhân ở cả 10 phân hệ được cô lập hoàn toàn theo tài khoản của bạn; không hiển thị công khai dưới mọi hình thức.</p>
-                </div>
-                <div class="lh-persona-card">
-                    <div class="lh-persona-emo" style="background:#faf5ff;color:#7c3aed">🤝</div>
-                    <h3>Chia sẻ có kiểm soát</h3>
-                    <p>Chỉ những dự án hoặc tài liệu bạn chủ động mời thành viên mới được phép truy cập đúng theo vai trò đã cấp.</p>
-                </div>
-                <div class="lh-persona-card">
-                    <div class="lh-persona-emo" style="background:#fff0f3;color:#e11d48">📦</div>
-                    <h3>Toàn quyền sở hữu</h3>
-                    <p>Bạn có toàn quyền chỉnh sửa, xuất báo cáo hoặc xóa vĩnh viễn bất kỳ bản ghi nào trong không gian của mình.</p>
-                </div>
+                    <p>Mật khẩu được băm và bảo vệ ở tầng lưu trữ; mọi phiên đăng nhập đều qua cơ chế xác thực của hệ thống.</p>
+                </article>
+                <article class="ut-i rv" style="--c:#16A34A;--d:.06s">
+                    <span class="cw-ico" style="--c:#16A34A"><svg class="ic"><use href="#lh-shield" /></svg></span>
+                    <h3>Tách biệt theo tài khoản</h3>
+                    <p>Dữ liệu ở cả 10 phân hệ được gắn chặt với tài khoản sở hữu, không hiển thị công khai khi chưa chia sẻ.</p>
+                </article>
+                <article class="ut-i rv" style="--c:#7C3AED;--d:.12s">
+                    <span class="cw-ico" style="--c:#7C3AED"><svg class="ic"><use href="#lh-share" /></svg></span>
+                    <h3>Chia sẻ có phân quyền</h3>
+                    <p>Chỉ những dự án hoặc ghi chú bạn chủ động mời mới có thể truy cập theo đúng vai trò Quản lý, Thành viên hoặc Người xem.</p>
+                </article>
+                <article class="ut-i rv" style="--c:#0D9488;--d:.18s">
+                    <span class="cw-ico" style="--c:#0D9488"><svg class="ic"><use href="#lh-download" /></svg></span>
+                    <h3>Toàn quyền kiểm soát</h3>
+                    <p>Bạn có thể chỉnh sửa, xuất số liệu báo cáo ra CSV hoặc xóa các bản ghi trong không gian của mình bất cứ lúc nào.</p>
+                </article>
             </div>
         </div>
     </section>
 
-    <!-- CHI TIẾT CHÍNH SÁCH & ĐIỀU KHOẢN -->
-    <section class="lh-sync-sec">
-        <div class="lh-wrap">
-            <div class="lh-policy-grid">
+    <!-- 3. DETAILED POLICY & TERMS -->
+    <section class="lp-sec" aria-labelledby="detTitle">
+        <div class="lp-wrap">
+            <div class="lp-head rv">
+                <span class="lp-kicker">Chi tiết chính sách</span>
+                <h2 id="detTitle">Transparent rules for how LifeHub works.</h2>
+                <p class="lp-lead">Dưới đây là những quy định cụ thể về dữ liệu được lưu trữ, cách hệ thống xử lý và trách nhiệm khi sử dụng.</p>
+            </div>
 
-                <article class="lh-policy-card">
-                    <h3><span style="color:#2563eb">01.</span> Thông tin chúng tôi lưu trữ</h3>
-                    <p>LifeHub chỉ thu thập và lưu trữ những dữ liệu cần thiết trực tiếp phục vụ cho các phân hệ bạn sử dụng:</p>
-                    <ul>
-                        <li>Thông tin định danh tài khoản: Họ tên, địa chỉ Email và mật khẩu đã mã hóa.</li>
-                        <li>Dữ liệu nghiệp vụ do chính bạn tạo: Môn học, công việc, dự án, lịch hẹn, giao dịch tài chính, mục tiêu, thói quen, ghi chú và sinh hoạt.</li>
-                        <li>Tùy chọn giao diện (chế độ Sáng / Tối) và trạng thái thông báo nhắc hẹn.</li>
+            <div class="pr-grid">
+                <article class="pr-card rv" id="data-collected" style="--c:#2563EB">
+                    <span class="pr-num">01 · DỮ LIỆU LƯU TRỮ</span>
+                    <h3>Thông tin chúng tôi lưu trữ</h3>
+                    <p>LifeHub chỉ thu thập và lưu trữ những dữ liệu cần thiết để vận hành các phân hệ bạn trực tiếp sử dụng:</p>
+                    <ul class="lp-ticks">
+                        <li>Thông tin tài khoản: Họ tên, địa chỉ email và mật khẩu đã mã hóa.</li>
+                        <li>Dữ liệu nghiệp vụ do bạn tạo: Môn học, công việc, dự án, lịch hẹn, giao dịch tài chính, mục tiêu, thói quen, ghi chú và nhật ký sinh hoạt.</li>
+                        <li>Tùy chọn cá nhân: Giao diện Sáng/Tối, phân hệ hiển thị và cài đặt nhắc nhở.</li>
                     </ul>
                 </article>
 
-                <article class="lh-policy-card">
-                    <h3><span style="color:#16a34a">02.</span> Mục đích sử dụng dữ liệu</h3>
-                    <p>Mọi thông tin bạn nhập vào hệ thống chỉ được xử lý tự động nhằm mang lại trải nghiệm quản lý tốt nhất cho bạn:</p>
-                    <ul>
-                        <li>Đồng bộ lịch trình, tính toán điểm GPA, hạn mức ngân sách và chuỗi thói quen.</li>
-                        <li>Tổng hợp biểu đồ thống kê năng suất trên Bảng điều khiển cá nhân.</li>
-                        <li>Tuyệt đối không bán, trao đổi hoặc chia sẻ dữ liệu cá nhân cho bên thứ ba vì mục đích quảng cáo.</li>
+                <article class="pr-card rv" id="data-purpose" style="--c:#16A34A;--d:.06s">
+                    <span class="pr-num">02 · MỤC ĐÍCH SỬ DỤNG</span>
+                    <h3>Dữ liệu được dùng để làm gì</h3>
+                    <p>Mọi thông tin bạn nhập vào chỉ phục vụ trải nghiệm quản lý cá nhân và cộng tác trong không gian của bạn:</p>
+                    <ul class="lp-ticks">
+                        <li>Đồng bộ lịch trình, tính toán tiến độ học tập, hạn mức ngân sách và chuỗi thói quen.</li>
+                        <li>Tổng hợp biểu đồ thống kê năng suất trên Dashboard và các trang Báo cáo.</li>
+                        <li>Không bán, trao đổi hoặc chia sẻ dữ liệu cá nhân cho bên thứ ba vì mục đích quảng cáo.</li>
                     </ul>
                 </article>
 
-                <article class="lh-policy-card">
-                    <h3><span style="color:#ea580c">03.</span> Bảo vệ tài khoản &amp; Phiên làm việc</h3>
-                    <p>Chúng tôi duy trì các lớp bảo vệ tự động để bạn yên tâm sử dụng mỗi ngày:</p>
-                    <ul>
-                        <li>Xác minh an toàn trên mọi thao tác thêm mới, cập nhật hoặc xóa thông tin.</li>
-                        <li>Tự động phát hiện và ngăn chặn các lượt thử đăng nhập bất thường liên tiếp.</li>
-                        <li>Tự động kết thúc phiên làm việc khi hết thời hạn ghi nhớ đăng nhập.</li>
+                <article class="pr-card rv" id="account-safety" style="--c:#D97706">
+                    <span class="pr-num">03 · AN TOÀN PHIÊN LÀM VIỆC</span>
+                    <h3>Bảo vệ tài khoản &amp; phiên đăng nhập</h3>
+                    <p>Hệ thống áp dụng các lớp kiểm tra tự động để bảo vệ tài khoản trong suốt quá trình sử dụng:</p>
+                    <ul class="lp-ticks">
+                        <li>Xác thực chống giả mạo yêu cầu (Anti-Forgery) trên các biểu mẫu thêm, sửa, xóa.</li>
+                        <li>Giới hạn và kiểm tra các lượt đăng nhập bất thường liên tiếp.</li>
+                        <li>Tự động kết thúc phiên làm việc khi hết thời hạn ghi nhớ hoặc khi bạn đăng xuất.</li>
                     </ul>
                 </article>
 
-                <article class="lh-policy-card">
-                    <h3><span style="color:#7c3aed">04.</span> Điều khoản sử dụng lành mạnh</h3>
-                    <p>Khi đồng hành cùng cộng đồng người dùng LifeHub, bạn cam kết:</p>
-                    <ul>
-                        <li>Cung cấp địa chỉ email hợp lệ và tự bảo quản thông tin đăng nhập cá nhân.</li>
-                        <li>Không tải lên các tệp đính kèm chứa mã độc hoặc nội dung vi phạm pháp luật trong không gian dự án chung.</li>
-                        <li>Tôn trọng quyền riêng tư và vai trò phân quyền của các thành viên cùng cộng tác trong dự án nhóm.</li>
+                <article class="pr-card rv" id="terms" style="--c:#7C3AED;--d:.06s">
+                    <span class="pr-num">04 · ĐIỀU KHOẢN SỬ DỤNG</span>
+                    <h3>Quy tắc sử dụng lành mạnh</h3>
+                    <p>Khi tạo tài khoản và sử dụng LifeHub, bạn đồng ý tuân thủ các nguyên tắc cơ bản sau:</p>
+                    <ul class="lp-ticks">
+                        <li>Cung cấp địa chỉ email hợp lệ và tự bảo quản mật khẩu đăng nhập cá nhân.</li>
+                        <li>Không tải lên tệp đính kèm chứa mã độc hoặc nội dung vi phạm pháp luật trong dự án chung.</li>
+                        <li>Tôn trọng quyền riêng tư và phân quyền của các thành viên khác khi cộng tác.</li>
                     </ul>
                 </article>
-
             </div>
         </div>
     </section>
 
-    <!-- CTA CUỐI TRANG -->
-    <section>
-        <div class="lh-wrap">
-            <div class="lh-final-cta">
-                <h2>An tâm sắp xếp trọn vẹn cuộc sống cùng LifeHub</h2>
-                <p>Không gian cá nhân minh bạch, an toàn và luôn sẵn sàng đồng hành cùng bạn mỗi ngày.</p>
-                <div class="lh-banner-actions">
-                    @if (isSignedIn)
-                    {
-                        <a class="lh-hero-btn primary" asp-controller="Dashboard" asp-action="Index">
-                            Quay lại Bảng điều khiển <span>→</span>
-                        </a>
-                    }
-                    else
-                    {
-                        <a class="lh-hero-btn primary" asp-controller="Auth" asp-action="Register">
-                            Tạo tài khoản ngay <span>→</span>
-                        </a>
-                        <a class="lh-hero-btn" asp-controller="Home" asp-action="Index">
-                            Về Trang chủ
-                        </a>
-                    }
-                </div>
+    <!-- 4. DATA OWNERSHIP & ROLES SUMMARY -->
+    <section class="lp-sec lp-sec-tint" aria-labelledby="ownTitle">
+        <div class="lp-wrap ct">
+            <div class="rv">
+                <span class="lp-kicker">Quyền của người dùng</span>
+                <h2 id="ownTitle">Your data remains yours.</h2>
+                <ul class="lp-ticks">
+                    <li>Chỉnh sửa thông tin hồ sơ và tùy chọn hiển thị bất kỳ lúc nào.</li>
+                    <li>Xuất dữ liệu báo cáo ra tệp CSV để lưu trữ hoặc mở bằng Excel.</li>
+                    <li>Thu hồi quyền chia sẻ dự án hoặc ghi chú ngay khi không còn nhu cầu cộng tác.</li>
+                    <li>Ghi nhận sinh hoạt cá nhân chỉ dùng để tự quan sát, không thay thế tư vấn y tế.</li>
+                </ul>
+            </div>
+            <div class="ct-roles rv" style="--d:.1s">
+                <table>
+                    <caption>Tóm tắt phạm vi truy cập dữ liệu trong LifeHub.</caption>
+                    <thead>
+                        <tr><th scope="col">Phạm vi</th><th scope="col">Ai có thể xem</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Dữ liệu cá nhân</td><td>Chỉ tài khoản của bạn sau khi đăng nhập.</td></tr>
+                        <tr><td>Dự án nhóm</td><td>Thành viên được mời theo đúng vai trò được cấp.</td></tr>
+                        <tr><td>Ghi chú chia sẻ</td><td>Người nhận liên kết theo quyền xem hoặc sửa.</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </section>
 
+    <!-- 5. FINAL CTA -->
+    <section class="cta" aria-labelledby="prCtaTitle">
+        <div class="lp-wrap">
+            <div class="cta-box is-tint rv">
+                <h2 id="prCtaTitle">An tâm sắp xếp mọi kế hoạch cùng LifeHub.</h2>
+                <p>Không gian cá nhân minh bạch, rõ ràng và luôn sẵn sàng đồng hành cùng bạn mỗi ngày.</p>
+                @if (signedIn)
+                {
+                    <a class="lp-btn lp-btn-primary lp-btn-lg" asp-controller="Dashboard" asp-action="Index">Quay lại ứng dụng</a>
+                }
+                else
+                {
+                    <div class="hero-cta">
+                        <a class="lp-btn lp-btn-primary lp-btn-lg" asp-controller="Auth" asp-action="Register">Tạo tài khoản ngay</a>
+                        <a class="lp-btn lp-btn-lg" asp-controller="Home" asp-action="Index">Về trang chủ</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
 </main>

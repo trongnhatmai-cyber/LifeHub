@@ -216,6 +216,51 @@ namespace LifeHub.Controllers
 
             var todayList = done.Where(p => p.CompletedAt!.Value.Date == today).ToList();
             var weekList = done.Where(p => p.CompletedAt!.Value.Date >= ws).ToList();
+            var totalMins = done.Sum(p => p.DurationMinutes);
+            var avgMins = done.Count > 0 ? (int)Math.Round(totalMins / (double)done.Count) : 0;
+
+            // Tính chuỗi ngày tập trung liên tiếp tính đến hôm nay (hoặc hôm qua nếu hôm nay chưa có)
+            var activeDates = done.Select(p => p.CompletedAt!.Value.Date).ToHashSet();
+            var streak = 0;
+            var cursor = activeDates.Contains(today) ? today : today.AddDays(-1);
+            while (activeDates.Contains(cursor))
+            {
+                streak++;
+                cursor = cursor.AddDays(-1);
+            }
+
+            // Thống kê 7 ngày gần nhất
+            var dayBuckets = Enumerable.Range(0, 7).Select(i => today.AddDays(i - 6)).ToList();
+            var maxDayMins = Math.Max(1, dayBuckets.Max(d => done.Where(p => p.CompletedAt!.Value.Date == d).Sum(p => p.DurationMinutes)));
+            var dailyStats = dayBuckets.Select(d =>
+            {
+                var items = done.Where(p => p.CompletedAt!.Value.Date == d).ToList();
+                var mins = items.Sum(p => p.DurationMinutes);
+                return new PomodoroDayStat
+                {
+                    Label = d == today ? "Hôm nay" : d.ToString("dd/MM", CultureInfo.InvariantCulture),
+                    Minutes = mins,
+                    Sessions = items.Count,
+                    HeightPercent = mins == 0 ? 4 : Math.Max(10, (int)Math.Round(mins * 100.0 / maxDayMins)),
+                    IsToday = d == today
+                };
+            }).ToList();
+
+            // Phân bổ theo mục tiêu tập trung (Top 5)
+            var targetGroups = done
+                .GroupBy(p => NameOf(p))
+                .Select(g => new { Name = g.Key, Sessions = g.Count(), Minutes = g.Sum(x => x.DurationMinutes) })
+                .OrderByDescending(g => g.Minutes)
+                .Take(5)
+                .ToList();
+            var topTargets = targetGroups.Select(g => new PomodoroTargetStat
+            {
+                Name = g.Name,
+                Sessions = g.Sessions,
+                Minutes = g.Minutes,
+                Percent = totalMins > 0 ? (int)Math.Round(g.Minutes * 100.0 / totalMins) : 0
+            }).ToList();
+
             return View(new TimePomodoroViewModel
             {
                 Targets = targets,
@@ -224,9 +269,65 @@ namespace LifeHub.Controllers
                     Id = p.Id, TaskOrCourseName = NameOf(p), DurationMinutes = p.DurationMinutes,
                     CompletedLabel = p.CompletedAt!.Value.ToString("dd/MM HH:mm", CultureInfo.InvariantCulture)
                 }).ToList(),
+                DailyStats = dailyStats,
+                TopTargets = topTargets,
                 TodaySessions = todayList.Count, TodayText = Minutes(todayList.Sum(p => p.DurationMinutes)),
                 WeekSessions = weekList.Count, WeekText = Minutes(weekList.Sum(p => p.DurationMinutes)),
-                TotalSessions = done.Count
+                TotalSessions = done.Count,
+                TotalMinutesText = Minutes(totalMins),
+                AvgMinutesPerSession = avgMins,
+                FocusStreakDays = streak
+            });
+        }
+
+        // POST /Time/SavePomodoro - Lưu phiên Pomodoro vừa hoàn thành vào CSDL
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> SavePomodoro([FromForm] string? target, [FromForm] int durationMinutes)
+        {
+            if (durationMinutes < 1 || durationMinutes > 180)
+                return BadRequest(new { ok = false, message = "Thời lượng phiên không hợp lệ." });
+
+            var uid = User.GetUserId();
+            int? taskId = null;
+            int? courseId = null;
+
+            if (!string.IsNullOrWhiteSpace(target))
+            {
+                if (target.StartsWith("task:", StringComparison.OrdinalIgnoreCase) &&
+                    int.TryParse(target.AsSpan(5), out var tid))
+                {
+                    var ownsTask = await _context.Tasks.AsNoTracking().AnyAsync(t => t.Id == tid && t.UserId == uid);
+                    if (ownsTask) taskId = tid;
+                }
+                else if (target.StartsWith("course:", StringComparison.OrdinalIgnoreCase) &&
+                    int.TryParse(target.AsSpan(7), out var cid))
+                {
+                    var ownsCourse = await _context.Courses.AsNoTracking().AnyAsync(c => c.Id == cid && c.UserId == uid);
+                    if (ownsCourse) courseId = cid;
+                }
+            }
+
+            var now = DateTime.Now;
+            var session = new PomodoroSession
+            {
+                UserId = uid,
+                TaskId = taskId,
+                CourseId = courseId,
+                DurationMinutes = durationMinutes,
+                StartedAt = now.AddMinutes(-durationMinutes),
+                CompletedAt = now,
+                IsCompleted = true
+            };
+
+            _context.PomodoroSessions.Add(session);
+            await _context.SaveChangesAsync();
+
+            return Json(new
+            {
+                ok = true,
+                id = session.Id,
+                durationMinutes = session.DurationMinutes,
+                completedLabel = now.ToString("dd/MM HH:mm", CultureInfo.InvariantCulture)
             });
         }
 

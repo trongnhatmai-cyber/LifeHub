@@ -1,751 +1,387 @@
 @{
     Layout = "_LandingLayout";
-    ViewData["Title"] = "LifeHub – Mọi khía cạnh cuộc sống, kết nối trong một nền tảng";
+    ViewData["Title"] = "LifeHub – Make space for everything that matters";
     ViewData["LandingPage"] = "home";
+    var signedIn = User.Identity?.IsAuthenticated == true;
+
+    // Danh sách phân hệ dùng cho sidebar minh họa
+    var mods = new (string Key, string Name, string Icon)[] {
+        ("study", "Học tập", "lh-book"), ("task", "Công việc", "lh-check"), ("project", "Dự án", "lh-folder"),
+        ("time", "Thời gian", "lh-cal"), ("finance", "Tài chính", "lh-wallet"), ("goal", "Mục tiêu", "lh-target"),
+        ("habit", "Thói quen", "lh-flame"), ("knowledge", "Kiến thức", "lh-note"), ("life", "Sinh hoạt", "lh-heart"),
+        ("report", "Báo cáo", "lh-chart")
+    };
 }
 
-@section Styles {
-    <link rel="stylesheet" href="~/css/home-intro.css" asp-append-version="true" />
-}
-
-<main class="lhi-page">
-
-    <!-- =====================================================================
-         SECTION 1 — HERO: GIỚI THIỆU LIFEHUB
-         ===================================================================== -->
-    <section class="lhi-hero" aria-labelledby="heroTitle">
-        <div class="lhi-wrap">
-
-            <div class="lhi-hero-copy">
-                <span class="lhi-hero-badge">YOUR PERSONAL LIFE HUB</span>
-
-                <h1 class="lhi-hero-title" id="heroTitle">
-                    Mọi khía cạnh cuộc sống, kết nối trong một nền tảng.
-                </h1>
-
-                <p class="lhi-hero-desc">
-                    LifeHub là nền tảng quản lý và phát triển cá nhân all-in-one, giúp tổ chức học tập, công việc, dự án, thời gian, tài chính, mục tiêu, thói quen và các hoạt động cá nhân.
-                </p>
-
-                <div class="lhi-actions">
-                    <a class="lhi-btn lhi-btn-primary" asp-controller="Auth" asp-action="Register">
-                        Bắt đầu ngay
-                        <span aria-hidden="true">→</span>
-                    </a>
-                    <a class="lhi-btn" asp-controller="Home" asp-action="Features">
-                        Khám phá tính năng
-                    </a>
-                </div>
+<main>
+    <!-- 1. HERO -->
+    <section class="hero" aria-labelledby="heroTitle">
+        <div class="lp-wrap">
+            <span class="lp-kicker">Không gian quản lý cuộc sống cá nhân</span>
+            <h1 id="heroTitle"><span class="ln">Make space for</span> <span class="ln">everything that matters.</span></h1>
+            <p class="lp-lead">LifeHub kết nối học tập, công việc, dự án và cuộc sống cá nhân trong một không gian thống nhất — để bạn dễ dàng sắp xếp, theo dõi và tiến về phía trước.</p>
+            <div class="hero-cta">
+                @if (signedIn)
+                {
+                    <a class="lp-btn lp-btn-primary lp-btn-lg" asp-controller="Dashboard" asp-action="Index">Vào ứng dụng</a>
+                }
+                else
+                {
+                    <a class="lp-btn lp-btn-primary lp-btn-lg" asp-controller="Auth" asp-action="Register">Bắt đầu miễn phí</a>
+                }
+                <a class="lp-btn lp-btn-lg" asp-controller="Home" asp-action="HowItWorks">Khám phá cách hoạt động</a>
             </div>
+            <p class="hero-line">Một không gian · Nhiều lĩnh vực · Một tầm nhìn tổng thể</p>
+        </div>
 
-            <!-- Mockup minh họa giao diện Dashboard tổng quan LifeHub -->
-            <div class="lhi-mockup-frame" role="img" aria-label="Minh họa giao diện Dashboard tổng quan của ứng dụng LifeHub">
-                <div class="lhi-mockup-window">
-                    <div class="lhi-mockup-bar">
-                        <div class="lhi-mockup-dots" aria-hidden="true">
-                            <span></span><span></span><span></span>
-                        </div>
-                        <span class="lhi-mockup-caption">Giao diện minh họa · Bảng điều khiển tổng quan LifeHub</span>
-                        <span class="lhi-mockup-caption">Sáng / Tối</span>
+        <div class="lp-wrap hero-stage" aria-hidden="true">
+            <div class="mk">
+                <div class="mk-bar"><i></i><i></i><i></i><b>LifeHub · Tổng quan</b></div>
+                <div class="mk-app">
+                    <div class="mk-side">
+                        <div class="mk-brand"><i>L</i>LifeHub</div>
+                        <div class="mk-nav is-on"><svg class="ic"><use href="#lh-grid" /></svg>Tổng quan</div>
+                        @foreach (var m in mods)
+                        {
+                            <div class="mk-nav"><svg class="ic"><use href="#@m.Icon" /></svg>@m.Name</div>
+                        }
                     </div>
-
-                    <div class="lhi-mockup-body">
-                        <aside class="lhi-mockup-side" aria-hidden="true">
-                            <div class="lhi-mockup-brand">
-                                <img src="~/images/lifehub-logo.png" alt="" class="lh-logo-light" asp-append-version="true" />
+                    <div class="mk-main">
+                        <div class="mk-hi"><div><h4>Chào buổi sáng, Minh Anh 👋</h4><small>Hôm nay bạn có vài việc cần chú ý</small></div><span class="mk-tag">Hôm nay</span></div>
+                        <div class="mk-stats">
+                            <div class="mk-stat"><small>Việc hôm nay</small><b>05</b></div>
+                            <div class="mk-stat"><small>Sự kiện</small><b>03</b></div>
+                            <div class="mk-stat"><small>Thói quen còn lại</small><b>02</b></div>
+                            <div class="mk-stat"><small>Sắp đến hạn</small><b>04</b></div>
+                        </div>
+                        <div class="mk-grid">
+                            <div class="mk-card"><h5>Việc ưu tiên hôm nay</h5>
+                                <div class="mk-row"><span class="mk-cb on"></span><span>Nộp báo cáo môn Cơ sở dữ liệu</span><em class="mk-tag" style="--c:#DC2626">Cao</em></div>
+                                <div class="mk-row"><span class="mk-cb"></span><span>Họp nhóm đồ án</span><em class="mk-tag" style="--c:#D97706">Vừa</em></div>
+                                <div class="mk-row"><span class="mk-cb"></span><span>Ôn tập chương 4</span><em class="mk-tag">Thấp</em></div>
+                                <div class="mk-row"><span class="mk-cb"></span><span>Ghi chi tiêu trong ngày</span><em class="mk-tag">Thấp</em></div>
                             </div>
-
-                            <div class="lhi-mockup-nav-lbl">Tổng quan</div>
-                            <div class="lhi-mockup-nav-item is-active"><i style="color:var(--p-study-acc)">◧</i> Tổng quan</div>
-
-                            <div class="lhi-mockup-nav-lbl">Học tập &amp; công việc</div>
-                            <div class="lhi-mockup-nav-item"><i style="color:var(--p-study-acc)">✎</i> Học tập</div>
-                            <div class="lhi-mockup-nav-item"><i style="color:var(--p-task-acc)">☑</i> Công việc</div>
-                            <div class="lhi-mockup-nav-item"><i style="color:var(--p-project-acc)">❖</i> Dự án</div>
-                            <div class="lhi-mockup-nav-item"><i style="color:var(--p-time-acc)">◷</i> Thời gian</div>
-
-                            <div class="lhi-mockup-nav-lbl">Quản lý cá nhân</div>
-                            <div class="lhi-mockup-nav-item"><i style="color:var(--p-finance-acc)">₫</i> Tài chính</div>
-                            <div class="lhi-mockup-nav-item"><i style="color:var(--p-goal-acc)">◎</i> Mục tiêu</div>
-                            <div class="lhi-mockup-nav-item"><i style="color:var(--p-habit-acc)">↻</i> Thói quen</div>
-                        </aside>
-
-                        <div class="lhi-mockup-main" aria-hidden="true">
-                            <div class="lhi-mockup-top">
-                                <div>
-                                    <small>MY LIFE SPACE · PERSONAL HUB</small>
-                                    <strong>Chào ngày mới, Minh</strong>
-                                </div>
-                                <span class="lhi-mockup-pill">Bức tranh trong ngày</span>
+                            <div class="mk-card"><h5>Lịch trình sắp tới</h5>
+                                <div class="mk-row"><i class="mk-dot"></i><span>Lớp Lập trình web</span><time>09:00</time></div>
+                                <div class="mk-row"><i class="mk-dot" style="--c:#7C3AED"></i><span>Họp nhóm</span><time>14:00</time></div>
+                                <div class="mk-row"><i class="mk-dot" style="--c:#0D9488"></i><span>Tập thể dục</span><time>18:00</time></div>
                             </div>
-
-                            <div class="lhi-mockup-kpis">
-                                <div class="lhi-mk-kpi k-task">
-                                    <span>CÔNG VIỆC</span>
-                                    <b>Nhiệm vụ ưu tiên</b>
-                                    <small>Theo dõi việc cần làm</small>
-                                </div>
-                                <div class="lhi-mk-kpi k-proj">
-                                    <span>DỰ ÁN</span>
-                                    <b>Không gian nhóm</b>
-                                    <small>Cột mốc &amp; tiến độ</small>
-                                </div>
-                                <div class="lhi-mk-kpi k-study">
-                                    <span>HỌC TẬP</span>
-                                    <b>Môn học &amp; GPA</b>
-                                    <small>Lịch học trong kỳ</small>
-                                </div>
-                                <div class="lhi-mk-kpi k-fin">
-                                    <span>TÀI CHÍNH</span>
-                                    <b>Ví &amp; ngân sách</b>
-                                    <small>Kiểm soát thu chi</small>
-                                </div>
-                            </div>
-
-                            <div class="lhi-mockup-panels">
-                                <div class="lhi-mk-panel">
-                                    <h3>Ưu tiên hôm nay</h3>
-                                    <div class="lhi-mk-row"><span>Hoàn thiện bài tập môn học</span><em>Học tập</em></div>
-                                    <div class="lhi-mk-row"><span>Rà soát tiến độ dự án nhóm</span><em>Dự án</em></div>
-                                    <div class="lhi-mk-row"><span>Cập nhật kế hoạch tuần</span><em>Cá nhân</em></div>
-                                </div>
-
-                                <div class="lhi-mk-panel">
-                                    <h3>Lịch trình sắp tới</h3>
-                                    <div class="lhi-mk-row"><span>Lịch học buổi sáng</span><em>08:00</em></div>
-                                    <div class="lhi-mk-row"><span>Họp trao đổi nhóm</span><em>14:00</em></div>
-                                    <div class="lhi-mk-row"><span>Phiên tập trung Pomodoro</span><em>20:00</em></div>
-                                </div>
-
-                                <div class="lhi-mk-panel">
-                                    <h3>Mục tiêu &amp; thói quen</h3>
-                                    <div class="lhi-mk-row"><span>Đọc tài liệu chuyên môn</span><em>Hằng ngày</em></div>
-                                    <div class="lhi-mk-row"><span>Rèn luyện ngoại ngữ</span><em>Đang theo dõi</em></div>
-                                    <div class="lhi-mk-row"><span>Vận động buổi chiều</span><em>Hằng ngày</em></div>
-                                </div>
+                            <div class="mk-card"><h5>Tuần này của bạn</h5>
+                                <div class="mk-bars"><i style="--h:40%"></i><i style="--h:65%"></i><i style="--h:50%"></i><i class="on" style="--h:85%"></i><i style="--h:30%"></i><i style="--h:20%"></i><i style="--h:45%"></i></div>
+                                <div class="mk-axis"><span>T2</span><span>T3</span><span>T4</span><span>T5</span><span>T6</span><span>T7</span><span>CN</span></div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
     </section>
 
-    <section class="lhi-sec" aria-labelledby="audienceTitle">
-        <div class="lhi-wrap">
-
-            <div class="lhi-sec-head">
-                <h2 id="audienceTitle">LifeHub dành cho ai?</h2>
-                <p>
-                    Dù bạn đang đi học, đi làm hay cùng nhóm làm dự án, mỗi phân hệ đều có thể dùng riêng hoặc kết hợp với nhau.
-                </p>
+    <!-- 2. PRODUCT PREVIEW -->
+    <section class="lp-sec" aria-labelledby="pvTitle">
+        <div class="lp-wrap pv">
+            <div class="rv">
+                <span class="lp-kicker">Trang tổng quan</span>
+                <h2 id="pvTitle">A clearer view of your day.</h2>
+                <p class="lp-lead" style="margin-top:16px">Tất cả những điều cần quan tâm được đưa về một trang tổng quan, giúp bạn nhanh chóng nhận ra việc cần làm và tiến độ hiện tại.</p>
+                <ul class="pv-list">
+                    <li><svg class="ic"><use href="#lh-check" /></svg><span>Việc cần ưu tiên và các deadline sắp đến hạn.</span></li>
+                    <li><svg class="ic"><use href="#lh-cal" /></svg><span>Lịch trình trong ngày, gom từ lịch học và sự kiện cá nhân.</span></li>
+                    <li><svg class="ic"><use href="#lh-target" /></svg><span>Tóm tắt dự án, mục tiêu và thói quen đang theo dõi.</span></li>
+                    <li><svg class="ic"><use href="#lh-chart" /></svg><span>Biểu đồ tiến độ của cả tuần trong một cái nhìn.</span></li>
+                </ul>
             </div>
-
-            <ul class="lhi-aud">
-                <li class="lhi-aud-row">
-                    <div class="lhi-aud-who">
-                        Sinh viên
-                        <small>Học và làm bài tập ở cùng một nơi</small>
-                    </div>
-                    <div class="lhi-aud-body">
-                        <p>Theo dõi môn học, lịch học và kết quả trong kỳ, rồi đưa hạn nộp bài tập vào danh sách công việc để không bỏ sót.</p>
-                        <div class="lhi-chips">
-                            <span class="lhi-chip c-study">Học tập</span>
-                            <span class="lhi-chip c-task">Công việc</span>
-                            <span class="lhi-chip c-time">Thời gian</span>
-                        </div>
-                    </div>
-                </li>
-
-                <li class="lhi-aud-row">
-                    <div class="lhi-aud-who">
-                        Người đi làm
-                        <small>Việc cá nhân và việc cơ quan không lẫn vào nhau</small>
-                    </div>
-                    <div class="lhi-aud-body">
-                        <p>Sắp xếp nhiệm vụ theo mức ưu tiên, dành riêng khung giờ tập trung và theo dõi thu chi mỗi tháng.</p>
-                        <div class="lhi-chips">
-                            <span class="lhi-chip c-task">Công việc</span>
-                            <span class="lhi-chip c-time">Thời gian</span>
-                            <span class="lhi-chip c-finance">Tài chính</span>
-                        </div>
-                    </div>
-                </li>
-
-                <li class="lhi-aud-row">
-                    <div class="lhi-aud-who">
-                        Nhóm dự án
-                        <small>Cả nhóm cùng nhìn một tiến độ</small>
-                    </div>
-                    <div class="lhi-aud-body">
-                        <p>Mời thành viên, phân quyền vai trò, theo dõi cột mốc và trao đổi ngay trên từng nhiệm vụ.</p>
-                        <div class="lhi-chips">
-                            <span class="lhi-chip c-project">Dự án</span>
-                            <span class="lhi-chip c-task">Công việc</span>
-                            <span class="lhi-chip c-report">Thống kê &amp; báo cáo</span>
-                        </div>
-                    </div>
-                </li>
-            </ul>
-
+            <div class="pv-stack rv" style="--d:.1s" aria-hidden="true">
+                <div class="mk-card pv-a"><h5>Dự án đang chạy</h5>
+                    <div class="mk-row"><span>Đồ án tốt nghiệp</span><b style="color:var(--lp-h)">72%</b></div>
+                    <div class="mk-meter"><i style="--w:72%"></i></div>
+                    <div class="mk-row" style="margin-top:10px"><span>Website CLB</span><b style="color:var(--lp-h)">40%</b></div>
+                    <div class="mk-meter"><i style="--w:40%;--c:#0D9488"></i></div>
+                </div>
+                <div class="mk-card pv-b"><h5>Lịch hôm nay</h5>
+                    <div class="mk-row"><i class="mk-dot"></i><span>Lớp Lập trình web</span><time>09:00</time></div>
+                    <div class="mk-row"><i class="mk-dot" style="--c:#7C3AED"></i><span>Họp nhóm</span><time>14:00</time></div>
+                    <div class="mk-row"><i class="mk-dot" style="--c:#DC2626"></i><span>Hạn nộp bài tập</span><time>23:59</time></div>
+                </div>
+                <div class="mk-card pv-c"><h5>Tuần này của bạn</h5>
+                    <div class="mk-bars" style="height:74px"><i style="--h:40%"></i><i style="--h:65%"></i><i style="--h:50%"></i><i class="on" style="--h:90%"></i><i style="--h:35%"></i><i style="--h:25%"></i><i style="--h:50%"></i></div>
+                    <div class="mk-axis"><span>T2</span><span>T3</span><span>T4</span><span>T5</span><span>T6</span><span>T7</span><span>CN</span></div>
+                </div>
+            </div>
         </div>
     </section>
 
-    <!-- =====================================================================
-         SECTION 2 — 10 PHÂN HỆ CỦA LIFEHUB
-         ===================================================================== -->
-    <section class="lhi-sec" id="lh-phan-he" aria-labelledby="modulesTitle">
-        <div class="lhi-wrap">
-
-            <div class="lhi-sec-head">
-                <span class="lhi-eyebrow">10 PHÂN HỆ QUẢN LÝ</span>
-                <h2 id="modulesTitle">Một không gian cho toàn bộ cuộc sống</h2>
-                <p>
-                    10 phân hệ được tổ chức trong cùng một hệ thống, giúp bạn quản lý nhiều khía cạnh cuộc sống một cách thống nhất.
-                </p>
+    <!-- 3. PROBLEM & SOLUTION -->
+    <section class="lp-sec lp-sec-soft" aria-labelledby="psTitle">
+        <div class="lp-wrap">
+            <div class="lp-head is-center rv">
+                <h2 id="psTitle">Less scattered. More in control.</h2>
+                <p class="lp-lead">Khi mọi thứ nằm ở nhiều nơi, bạn phải nhớ thay cho công cụ. LifeHub gom chúng về một chỗ để bạn nhìn thấy toàn cảnh.</p>
             </div>
+            <div class="ps rv">
+                <div class="ps-col">
+                    <h3>Khi dùng nhiều công cụ rời rạc</h3>
+                    <div class="ps-item">Lịch học và deadline nằm riêng</div>
+                    <div class="ps-item">Việc cá nhân và việc dự án khó theo dõi cùng nhau</div>
+                    <div class="ps-item">Ghi chú khó tìm lại</div>
+                    <div class="ps-item">Mục tiêu khó theo dõi lâu dài</div>
+                </div>
+                <div class="ps-mid" aria-hidden="true">
+                    <span class="ps-mid-h"></span>
+                    @for (var i = 0; i < 4; i++) { <span><svg class="ic"><use href="#lh-arrow" /></svg></span> }
+                </div>
+                <div class="ps-col is-after">
+                    <h3>Khi quản lý trong LifeHub</h3>
+                    <div class="ps-item"><svg class="ic"><use href="#lh-check" /></svg>Lịch được tổ chức trong một nơi</div>
+                    <div class="ps-item"><svg class="ic"><use href="#lh-check" /></svg>Có thể nhìn tổng quan công việc</div>
+                    <div class="ps-item"><svg class="ic"><use href="#lh-check" /></svg>Kiến thức và tài liệu được phân loại</div>
+                    <div class="ps-item"><svg class="ic"><use href="#lh-check" /></svg>Có tiến độ và phần đánh giá</div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-            <div class="lhi-mod-grid">
-                <article class="lhi-mod-card m-study">
-                    <div class="lhi-mod-ic"><svg class="lh-i"><use href="#lh-book" /></svg></div>
+    <!-- 4. CONNECTED WORKSPACE -->
+    <section class="lp-sec" aria-labelledby="cwTitle">
+        <div class="lp-wrap">
+            <div class="lp-head is-center rv">
+                <h2 id="cwTitle">Everything you manage, connected in one workspace.</h2>
+                <p class="lp-lead">10 phân hệ cùng nằm trong một hệ thống. Bạn chỉ dùng những phần cần thiết, phần còn lại luôn sẵn sàng khi cần.</p>
+            </div>
+            <div class="cw-top">
+                <article class="cw-big rv" style="--c:#2563EB">
+                    <span class="cw-ico"><svg class="ic"><use href="#lh-book" /></svg></span>
                     <h3>Học tập</h3>
-                    <p>Quản lý môn học, lịch học, bài tập và kết quả học tập.</p>
-                    <a class="lhi-mod-link" asp-controller="Home" asp-action="Features" asp-fragment="lh-f-study">
-                        Tìm hiểu thêm <span aria-hidden="true">→</span>
-                    </a>
+                    <p>Môn học, thời khóa biểu, bài tập, lịch thi và điểm số trong từng học kỳ.</p>
+                    <div class="mk-tags"><span class="mk-tag">Thời khóa biểu</span><span class="mk-tag">Bài tập</span><span class="mk-tag">Điểm số</span></div>
                 </article>
-
-                <article class="lhi-mod-card m-task">
-                    <div class="lhi-mod-ic"><svg class="lh-i"><use href="#lh-check" /></svg></div>
+                <article class="cw-big rv" style="--c:#0D9488;--d:.08s">
+                    <span class="cw-ico"><svg class="ic"><use href="#lh-check" /></svg></span>
                     <h3>Công việc</h3>
-                    <p>Tổ chức nhiệm vụ, deadline và mức độ ưu tiên.</p>
-                    <a class="lhi-mod-link" asp-controller="Home" asp-action="Features" asp-fragment="lh-f-tasks">
-                        Tìm hiểu thêm <span aria-hidden="true">→</span>
-                    </a>
+                    <p>Việc cần làm, deadline và mức ưu tiên — chia nhỏ thành việc con và checklist.</p>
+                    <div class="mk-tags"><span class="mk-tag">Deadline</span><span class="mk-tag">Ưu tiên</span><span class="mk-tag">Checklist</span></div>
                 </article>
-
-                <article class="lhi-mod-card m-project">
-                    <div class="lhi-mod-ic"><svg class="lh-i"><use href="#lh-folder" /></svg></div>
+                <article class="cw-big rv" style="--c:#7C3AED;--d:.16s">
+                    <span class="cw-ico"><svg class="ic"><use href="#lh-folder" /></svg></span>
                     <h3>Dự án</h3>
-                    <p>Quản lý dự án, tiến độ, thành viên và các cột mốc.</p>
-                    <a class="lhi-mod-link" asp-controller="Home" asp-action="Features" asp-fragment="lh-f-projects">
-                        Tìm hiểu thêm <span aria-hidden="true">→</span>
-                    </a>
-                </article>
-
-                <article class="lhi-mod-card m-time">
-                    <div class="lhi-mod-ic"><svg class="lh-i"><use href="#lh-cal" /></svg></div>
-                    <h3>Thời gian</h3>
-                    <p>Quản lý lịch trình, sự kiện và thời gian tập trung.</p>
-                    <a class="lhi-mod-link" asp-controller="Home" asp-action="Features" asp-fragment="lh-f-time">
-                        Tìm hiểu thêm <span aria-hidden="true">→</span>
-                    </a>
-                </article>
-
-                <article class="lhi-mod-card m-finance">
-                    <div class="lhi-mod-ic"><svg class="lh-i"><use href="#lh-wallet" /></svg></div>
-                    <h3>Tài chính</h3>
-                    <p>Theo dõi ví tiền, thu chi, ngân sách và mục tiêu tiết kiệm.</p>
-                    <a class="lhi-mod-link" asp-controller="Home" asp-action="Features" asp-fragment="lh-f-money">
-                        Tìm hiểu thêm <span aria-hidden="true">→</span>
-                    </a>
-                </article>
-
-                <article class="lhi-mod-card m-goal">
-                    <div class="lhi-mod-ic"><svg class="lh-i"><use href="#lh-target" /></svg></div>
-                    <h3>Mục tiêu</h3>
-                    <p>Xây dựng mục tiêu và theo dõi kết quả cần đạt.</p>
-                    <a class="lhi-mod-link" asp-controller="Home" asp-action="Features" asp-fragment="lh-f-goals">
-                        Tìm hiểu thêm <span aria-hidden="true">→</span>
-                    </a>
-                </article>
-
-                <article class="lhi-mod-card m-habit">
-                    <div class="lhi-mod-ic"><svg class="lh-i"><use href="#lh-flame" /></svg></div>
-                    <h3>Thói quen</h3>
-                    <p>Theo dõi và duy trì các thói quen cá nhân.</p>
-                    <a class="lhi-mod-link" asp-controller="Home" asp-action="Features" asp-fragment="lh-f-habits">
-                        Tìm hiểu thêm <span aria-hidden="true">→</span>
-                    </a>
-                </article>
-
-                <article class="lhi-mod-card m-knowledge">
-                    <div class="lhi-mod-ic"><svg class="lh-i"><use href="#lh-note" /></svg></div>
-                    <h3>Kiến thức &amp; tài liệu</h3>
-                    <p>Lưu trữ, tổ chức ghi chú và tài liệu.</p>
-                    <a class="lhi-mod-link" asp-controller="Home" asp-action="Features" asp-fragment="lh-f-notes">
-                        Tìm hiểu thêm <span aria-hidden="true">→</span>
-                    </a>
-                </article>
-
-                <article class="lhi-mod-card m-lifestyle">
-                    <div class="lhi-mod-ic"><svg class="lh-i"><use href="#lh-moon" /></svg></div>
-                    <h3>Sinh hoạt cá nhân</h3>
-                    <p>Ghi nhận các hoạt động và xu hướng sinh hoạt.</p>
-                    <a class="lhi-mod-link" asp-controller="Home" asp-action="Features" asp-fragment="lh-f-life">
-                        Tìm hiểu thêm <span aria-hidden="true">→</span>
-                    </a>
-                </article>
-
-                <article class="lhi-mod-card m-report">
-                    <div class="lhi-mod-ic"><svg class="lh-i"><use href="#lh-chart" /></svg></div>
-                    <h3>Thống kê &amp; báo cáo</h3>
-                    <p>Tổng hợp dữ liệu và theo dõi tiến trình.</p>
-                    <a class="lhi-mod-link" asp-controller="Home" asp-action="Features" asp-fragment="lh-f-ai">
-                        Tìm hiểu thêm <span aria-hidden="true">→</span>
-                    </a>
+                    <p>Thành viên, phân công và tiến độ của các dự án làm việc nhóm.</p>
+                    <div class="mk-tags"><span class="mk-tag">Kanban</span><span class="mk-tag">Phân công</span><span class="mk-tag">Tiến độ</span></div>
                 </article>
             </div>
-
+            <div class="cw-rest rv">
+                <div class="cw-item" style="--c:#D97706"><span class="cw-ico"><svg class="ic"><use href="#lh-cal" /></svg></span><div><h3>Thời gian</h3><p>Lịch chung, nhắc nhở và Pomodoro.</p></div></div>
+                <div class="cw-item" style="--c:#16A34A"><span class="cw-ico"><svg class="ic"><use href="#lh-wallet" /></svg></span><div><h3>Tài chính</h3><p>Ví, thu chi và ngân sách.</p></div></div>
+                <div class="cw-item" style="--c:#DC2626"><span class="cw-ico"><svg class="ic"><use href="#lh-target" /></svg></span><div><h3>Mục tiêu</h3><p>Kết quả chính và tiến độ.</p></div></div>
+                <div class="cw-item" style="--c:#EA580C"><span class="cw-ico"><svg class="ic"><use href="#lh-flame" /></svg></span><div><h3>Thói quen</h3><p>Theo dõi và duy trì thói quen.</p></div></div>
+                <div class="cw-item" style="--c:#2563EB"><span class="cw-ico"><svg class="ic"><use href="#lh-note" /></svg></span><div><h3>Kiến thức &amp; tài liệu</h3><p>Ghi chú, thư mục, tài liệu.</p></div></div>
+                <div class="cw-item" style="--c:#DB2777"><span class="cw-ico"><svg class="ic"><use href="#lh-heart" /></svg></span><div><h3>Sinh hoạt cá nhân</h3><p>Giấc ngủ, vận động, tâm trạng.</p></div></div>
+                <div class="cw-item" style="--c:#0891B2"><span class="cw-ico"><svg class="ic"><use href="#lh-chart" /></svg></span><div><h3>Thống kê &amp; báo cáo</h3><p>Nhìn lại dữ liệu và xu hướng từ các lĩnh vực khác nhau.</p></div></div>
+            </div>
+            <div class="cw-more"><a class="lp-textlink" asp-controller="Home" asp-action="Features">Khám phá tất cả tính năng <svg class="ic"><use href="#lh-arrow" /></svg></a></div>
         </div>
     </section>
 
-    <!-- =====================================================================
-         SECTION 3 — TIỆN ÍCH DÙNG CHUNG
-         ===================================================================== -->
-    <section class="lhi-sec lhi-sec-alt" aria-labelledby="utilitiesTitle">
-        <div class="lhi-wrap">
-
-            <div class="lhi-sec-head">
-                <span class="lhi-eyebrow">TIỆN ÍCH HỆ THỐNG</span>
-                <h2 id="utilitiesTitle">Không chỉ có các phân hệ</h2>
-                <p>
-                    Những tiện ích chung giúp bạn thao tác thuận tiện và kết nối trải nghiệm trên toàn hệ thống.
-                </p>
+    <!-- 4B. BUILT FOR DIFFERENT RHYTHMS (PERSONAS) -->
+    <section class="lp-sec lp-sec-soft" aria-labelledby="perTitle">
+        <div class="lp-wrap">
+            <div class="lp-head is-center rv">
+                <span class="lp-kicker">Phù hợp nhiều nhu cầu</span>
+                <h2 id="perTitle">Designed for how you actually live and work.</h2>
+                <p class="lp-lead">Dù bạn đang quản lý kỳ học bận rộn, cân bằng công việc văn phòng hay điều phối một nhóm nhỏ, LifeHub đều có sẵn cấu trúc phù hợp.</p>
             </div>
-
-            <div class="lhi-util-grid">
-                <article class="lhi-util-card">
-                    <div class="lhi-util-top">
-                        <div class="lhi-util-ic"><svg class="lh-i"><use href="#lh-grid" /></svg></div>
-                    </div>
-                    <h3>Dashboard tổng quan</h3>
-                    <p>Tập hợp những thông tin quan trọng từ các phân hệ về chung một trang mở đầu.</p>
-                </article>
-
-                <article class="lhi-util-card">
-                    <div class="lhi-util-top">
-                        <div class="lhi-util-ic"><svg class="lh-i"><use href="#lh-bell" /></svg></div>
-                    </div>
-                    <h3>Thông báo</h3>
-                    <p>Cập nhật các hoạt động dự án, lời mời tham gia và những thông tin cần chú ý.</p>
-                </article>
-
-                <article class="lhi-util-card">
-                    <div class="lhi-util-top">
-                        <div class="lhi-util-ic"><svg class="lh-i"><use href="#lh-sun" /></svg></div>
-                    </div>
-                    <h3>Giao diện sáng/tối</h3>
-                    <p>Thay đổi chế độ hiển thị sáng hoặc tối linh hoạt theo sở thích sử dụng.</p>
-                </article>
-
-                <article class="lhi-util-card">
-                    <div class="lhi-util-top">
-                        <div class="lhi-util-ic"><svg class="lh-i"><use href="#lh-share" /></svg></div>
-                    </div>
-                    <h3>Chia sẻ và cộng tác</h3>
-                    <p>Mời thành viên tham gia dự án, phân quyền vai trò và trao đổi trên từng nhiệm vụ.</p>
-                </article>
-
-                <article class="lhi-util-card">
-                    <div class="lhi-util-top">
-                        <div class="lhi-util-ic"><svg class="lh-i"><use href="#lh-cal" /></svg></div>
-                        <span class="lhi-badge-soon">Sắp có</span>
-                    </div>
-                    <h3>Lịch tổng hợp</h3>
-                    <p>Hướng tới quan sát đồng nhất lịch học, công việc và sự kiện cá nhân trên một lịch.</p>
-                </article>
-
-                <article class="lhi-util-card">
-                    <div class="lhi-util-top">
-                        <div class="lhi-util-ic"><svg class="lh-i"><use href="#lh-search" /></svg></div>
-                        <span class="lhi-badge-soon">Sắp có</span>
-                    </div>
-                    <h3>Tìm kiếm toàn hệ thống</h3>
-                    <p>Hỗ trợ tra cứu nhanh công việc, môn học, dự án và tài liệu từ một ô tìm kiếm chung.</p>
-                </article>
-
-                <article class="lhi-util-card">
-                    <div class="lhi-util-top">
-                        <div class="lhi-util-ic"><svg class="lh-i"><use href="#lh-bell" /></svg></div>
-                        <span class="lhi-badge-soon">Sắp có</span>
-                    </div>
-                    <h3>Nhắc nhở</h3>
-                    <p>Hỗ trợ ghi nhớ lịch trình, hạn hoàn thành và các cột mốc quan trọng đúng thời điểm.</p>
-                </article>
-
-                <article class="lhi-util-card">
-                    <div class="lhi-util-top">
-                        <div class="lhi-util-ic"><svg class="lh-i"><use href="#lh-award" /></svg></div>
-                        <span class="lhi-badge-soon">Sắp có</span>
-                    </div>
-                    <h3>Huy hiệu và điểm thưởng</h3>
-                    <p>Ghi nhận nỗ lực duy trì chuỗi thói quen và hoàn thành các cột mốc cá nhân.</p>
-                </article>
-
-                <article class="lhi-util-card">
-                    <div class="lhi-util-top">
-                        <div class="lhi-util-ic"><svg class="lh-i"><use href="#lh-download" /></svg></div>
-                        <span class="lhi-badge-soon">Sắp có</span>
-                    </div>
-                    <h3>Xuất dữ liệu/báo cáo</h3>
-                    <p>Hỗ trợ trích xuất báo cáo tổng hợp để lưu trữ hoặc chia sẻ khi cần thiết.</p>
-                </article>
-
-                <article class="lhi-util-card">
-                    <div class="lhi-util-top">
-                        <div class="lhi-util-ic">
-                            <svg class="lh-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M12 3l2.2 5.8L20 11l-5.8 2.2L12 19l-2.2-5.8L4 11l5.8-2.2z" />
-                            </svg>
-                        </div>
-                        <span class="lhi-badge-soon">Sắp có</span>
-                    </div>
-                    <h3>Trợ lý AI</h3>
-                    <p>Hỗ trợ hội thoại tra cứu dữ liệu cá nhân và gợi ý sắp xếp kế hoạch mỗi ngày.</p>
-                </article>
-            </div>
-
-        </div>
-    </section>
-
-    <!-- =====================================================================
-         SECTION 4 — CÀI ĐẶT VÀ CÁ NHÂN HÓA
-         ===================================================================== -->
-    <section class="lhi-sec" aria-labelledby="personalizeTitle">
-        <div class="lhi-wrap">
-
-            <div class="lhi-pref-split">
-                <div class="lhi-pref-copy">
-                    <span class="lhi-eyebrow">CÁ NHÂN HÓA TRẢI NGHIỆM</span>
-                    <h2 id="personalizeTitle">Không gian của riêng bạn</h2>
-                    <p>
-                        Tùy chỉnh LifeHub để phù hợp với cách bạn quản lý và tổ chức cuộc sống, kết hợp giữa các tùy chọn sẵn có và trung tâm cài đặt đang tiếp tục hoàn thiện.
-                    </p>
-
-                    <ul class="lhi-pref-list">
-                        <li class="lhi-pref-item">
-                            <div class="lhi-pref-ic"><svg class="lh-i"><use href="#lh-sun" /></svg></div>
-                            <div>
-                                <div class="lhi-pref-title">
-                                    Giao diện sáng/tối
-                                    <span class="lhi-badge-ready">Đã sẵn sàng</span>
-                                </div>
-                                <p>Chuyển đổi trực tiếp trên thanh công cụ ứng dụng và ghi nhớ chế độ hiển thị yêu thích trên trình duyệt.</p>
-                            </div>
-                        </li>
-
-                        <li class="lhi-pref-item">
-                            <div class="lhi-pref-ic"><svg class="lh-i"><use href="#lh-shield" /></svg></div>
-                            <div>
-                                <div class="lhi-pref-title">
-                                    Bảo mật tài khoản
-                                    <span class="lhi-badge-ready">Đã sẵn sàng</span>
-                                </div>
-                                <p>Đăng nhập xác thực mật khẩu mã hóa, tùy chọn ghi nhớ phiên làm việc và bảo vệ quyền riêng tư theo tài khoản.</p>
-                            </div>
-                        </li>
-
-                        <li class="lhi-pref-item">
-                            <div class="lhi-pref-ic"><svg class="lh-i"><use href="#lh-user" /></svg></div>
-                            <div>
-                                <div class="lhi-pref-title">
-                                    Thông tin tài khoản &amp; hồ sơ cá nhân
-                                    <span class="lhi-badge-soon">Sắp có</span>
-                                </div>
-                                <p>Định hướng quản lý tập trung thông tin cá nhân, số điện thoại liên hệ và cập nhật mật khẩu.</p>
-                            </div>
-                        </li>
-
-                        <li class="lhi-pref-item">
-                            <div class="lhi-pref-ic"><svg class="lh-i"><use href="#lh-bell" /></svg></div>
-                            <div>
-                                <div class="lhi-pref-title">
-                                    Tùy chọn thông báo, nhắc nhở &amp; trải nghiệm
-                                    <span class="lhi-badge-soon">Sắp có</span>
-                                </div>
-                                <p>Định hướng tùy chỉnh kênh nhận thông báo, thời lượng chu kỳ Pomodoro và ẩn/hiện phân hệ theo nhu cầu.</p>
-                            </div>
-                        </li>
+            <div class="per-grid">
+                <article class="per-card rv" style="--c:#2563EB">
+                    <span class="cw-ico" style="--c:#2563EB"><svg class="ic"><use href="#lh-book" /></svg></span>
+                    <h3>Sinh viên &amp; Học tập</h3>
+                    <p>Gom thời khóa biểu, bài tập, lịch thi và điểm số theo từng học kỳ để không bỏ sót deadline.</p>
+                    <ul class="lp-ticks">
+                        <li>Theo dõi tiến độ từng môn học và học kỳ.</li>
+                        <li>Ghi nhận phiên Pomodoro khi ôn thi.</li>
+                        <li>Lưu trữ ghi chú môn học theo thư mục.</li>
                     </ul>
-                </div>
-
-                <!-- Mockup minh họa không gian tùy chỉnh -->
-                <div class="lhi-settings-mock" role="img" aria-label="Minh họa không gian cài đặt và cá nhân hóa trong LifeHub">
-                    <div class="lhi-sm-window" aria-hidden="true">
-                        <div class="lhi-sm-head">
-                            <div>
-                                <strong>Tùy chỉnh không gian cá nhân</strong>
-                                <span>Minh họa giao diện cài đặt &amp; định hướng cá nhân hóa</span>
-                            </div>
-                            <span class="lhi-badge-soon">Đang phát triển</span>
-                        </div>
-
-                        <div class="lhi-sm-group">
-                            <span class="lhi-sm-label">Chế độ giao diện (Đang hoạt động trên thanh công cụ)</span>
-                            <div class="lhi-sm-themes">
-                                <div class="lhi-sm-theme-box is-selected">
-                                    <span>☀ Giao diện Sáng</span>
-                                    <i class="lhi-sm-swatch" style="background:#ffffff"></i>
-                                </div>
-                                <div class="lhi-sm-theme-box">
-                                    <span>☾ Giao diện Tối</span>
-                                    <i class="lhi-sm-swatch" style="background:#181d27"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="lhi-sm-group">
-                            <span class="lhi-sm-label">Định hướng tùy chọn thông báo &amp; tập trung</span>
-                            <div class="lhi-sm-row">
-                                <div>
-                                    <b>Thông báo hoạt động dự án &amp; hệ thống</b>
-                                    <small>Hiển thị cập nhật mới trong trung tâm thông báo</small>
-                                </div>
-                                <i class="lhi-sm-switch"></i>
-                            </div>
-                            <div class="lhi-sm-row">
-                                <div>
-                                    <b>Chu kỳ tập trung Pomodoro</b>
-                                    <small>25 phút tập trung · 5 phút nghỉ ngắn</small>
-                                </div>
-                                <span class="lhi-mockup-pill">Mặc định</span>
-                            </div>
-                        </div>
-
-                        <div class="lhi-sm-group">
-                            <span class="lhi-sm-label">Định hướng phân hệ hiển thị</span>
-                            <div class="lhi-sm-chips">
-                                <span>✎ Học tập</span>
-                                <span>☑ Công việc</span>
-                                <span>❖ Dự án</span>
-                                <span>◷ Thời gian</span>
-                                <span>₫ Tài chính</span>
-                                <span>◎ Mục tiêu</span>
-                                <span>↻ Thói quen</span>
-                            </div>
-                        </div>
+                    <div class="per-tags">
+                        <span class="mk-tag">Học tập</span>
+                        <span class="mk-tag">Thời gian</span>
+                        <span class="mk-tag">Kiến thức</span>
                     </div>
-                </div>
-            </div>
-
-        </div>
-    </section>
-
-    <!-- =====================================================================
-         SECTION 5 — HỆ SINH THÁI KẾT NỐI
-         ===================================================================== -->
-    <section class="lhi-sec lhi-sec-alt" aria-labelledby="ecosystemTitle">
-        <div class="lhi-wrap">
-
-            <div class="lhi-sec-head">
-                <span class="lhi-eyebrow">TRIẾT LÝ HỆ SINH THÁI</span>
-                <h2 id="ecosystemTitle">Mọi thứ không hoạt động riêng lẻ</h2>
-                <p>
-                    LifeHub hướng đến việc kết nối các khía cạnh trong cuộc sống, giúp bạn đi từ mục tiêu đến kế hoạch, hành động và đánh giá.
-                </p>
-            </div>
-
-            <div class="lhi-flow-canvas" role="region" aria-label="Sơ đồ luồng kết nối từ Mục tiêu đến Đánh giá và điều chỉnh">
-                <div class="lhi-flow-stack">
-
-                    <!-- Bước 1: Mục tiêu -->
-                    <div class="lhi-flow-node" style="--fn-bg:var(--p-goal-bg);--fn-border:var(--p-goal-border);--fn-acc:var(--p-goal-acc)">
-                        <div class="lhi-flow-ic"><svg class="lh-i"><use href="#lh-target" /></svg></div>
-                        <div>
-                            <small>Định hướng</small>
-                            <strong>Mục tiêu</strong>
-                            <span>Xác định đích đến và các kết quả mong muốn đạt được</span>
-                        </div>
-                    </div>
-
-                    <div class="lhi-flow-conn" aria-hidden="true">
-                        <i></i>
-                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4" /></svg>
-                    </div>
-
-                    <!-- Bước 2: Công việc + Thói quen -->
-                    <div class="lhi-flow-pair">
-                        <div class="lhi-flow-node" style="--fn-bg:var(--p-task-bg);--fn-border:var(--p-task-border);--fn-acc:var(--p-task-acc)">
-                            <div class="lhi-flow-ic"><svg class="lh-i"><use href="#lh-check" /></svg></div>
-                            <div>
-                                <small>Hành động cụ thể</small>
-                                <strong>Công việc</strong>
-                                <span>Chia nhỏ thành các nhiệm vụ có ưu tiên</span>
-                            </div>
-                        </div>
-
-                        <div class="lhi-flow-plus" aria-hidden="true">+</div>
-
-                        <div class="lhi-flow-node" style="--fn-bg:var(--p-habit-bg);--fn-border:var(--p-habit-border);--fn-acc:var(--p-habit-acc)">
-                            <div class="lhi-flow-ic"><svg class="lh-i"><use href="#lh-flame" /></svg></div>
-                            <div>
-                                <small>Duy trì đều đặn</small>
-                                <strong>Thói quen</strong>
-                                <span>Rèn luyện nhịp kỷ luật lặp lại mỗi ngày</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="lhi-flow-conn" aria-hidden="true">
-                        <i></i>
-                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4" /></svg>
-                    </div>
-
-                    <!-- Bước 3: Thời gian / Lịch trình -->
-                    <div class="lhi-flow-node" style="--fn-bg:var(--p-time-bg);--fn-border:var(--p-time-border);--fn-acc:var(--p-time-acc)">
-                        <div class="lhi-flow-ic"><svg class="lh-i"><use href="#lh-cal" /></svg></div>
-                        <div>
-                            <small>Tổ chức thực hiện</small>
-                            <strong>Thời gian / Lịch trình</strong>
-                            <span>Đưa vào lịch trình trong ngày và dành phiên tập trung hoàn thành</span>
-                        </div>
-                    </div>
-
-                    <div class="lhi-flow-conn" aria-hidden="true">
-                        <i></i>
-                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4" /></svg>
-                    </div>
-
-                    <!-- Bước 4: Thống kê & Báo cáo -->
-                    <div class="lhi-flow-node" style="--fn-bg:var(--p-report-bg);--fn-border:var(--p-report-border);--fn-acc:var(--p-report-acc)">
-                        <div class="lhi-flow-ic"><svg class="lh-i"><use href="#lh-chart" /></svg></div>
-                        <div>
-                            <small>Đo lường tiến trình</small>
-                            <strong>Thống kê &amp; Báo cáo</strong>
-                            <span>Tổng hợp dữ liệu hoạt động để nhìn rõ kết quả thực tế</span>
-                        </div>
-                    </div>
-
-                    <div class="lhi-flow-conn" aria-hidden="true">
-                        <i></i>
-                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4" /></svg>
-                    </div>
-
-                    <!-- Bước 5: Đánh giá và điều chỉnh -->
-                    <div class="lhi-flow-node" style="--fn-bg:var(--p-project-bg);--fn-border:var(--p-project-border);--fn-acc:var(--p-project-acc)">
-                        <div class="lhi-flow-ic"><svg class="lh-i"><use href="#lh-award" /></svg></div>
-                        <div>
-                            <small>Cải tiến liên tục</small>
-                            <strong>Đánh giá và điều chỉnh</strong>
-                            <span>Nhìn lại chặng đường đã qua để hoàn thiện kế hoạch tiếp theo</span>
-                        </div>
-                    </div>
-
-                </div>
-
-                <p class="lhi-flow-note">
-                    Chu trình khép kín định hướng cách LifeHub đồng hành cùng sự phát triển bền vững của mỗi cá nhân.
-                </p>
-            </div>
-
-        </div>
-    </section>
-
-    <!-- =====================================================================
-         SECTION 6 — GIÁ TRỊ CỐT LÕI
-         ===================================================================== -->
-    <section class="lhi-sec" aria-labelledby="valuesTitle">
-        <div class="lhi-wrap">
-
-            <div class="lhi-sec-head">
-                <span class="lhi-eyebrow">GIÁ TRỊ CỐT LÕI</span>
-                <h2 id="valuesTitle">Được xây dựng để đồng hành cùng bạn</h2>
-            </div>
-
-            <div class="lhi-val-grid">
-                <article class="lhi-val-card">
-                    <div class="lhi-val-ic" style="background:var(--p-study-bg);color:var(--p-study-acc)">
-                        <svg class="lh-i"><use href="#lh-grid" /></svg>
-                    </div>
-                    <span class="lhi-val-en">Unified</span>
-                    <h3>Thống nhất</h3>
-                    <p>Các khía cạnh cuộc sống được tổ chức gọn gàng trong một nền tảng duy nhất.</p>
                 </article>
-
-                <article class="lhi-val-card">
-                    <div class="lhi-val-ic" style="background:var(--p-time-bg);color:var(--p-time-acc)">
-                        <svg class="lh-i"><use href="#lh-share" /></svg>
+                <article class="per-card rv" style="--c:#0D9488;--d:.08s">
+                    <span class="cw-ico" style="--c:#0D9488"><svg class="ic"><use href="#lh-target" /></svg></span>
+                    <h3>Người đi làm &amp; Cá nhân</h3>
+                    <p>Giữ nhịp công việc hằng ngày, kiểm soát chi tiêu và duy trì thói quen sinh hoạt đều đặn.</p>
+                    <ul class="lp-ticks">
+                        <li>Sắp xếp việc ưu tiên và mục tiêu theo quý.</li>
+                        <li>Theo dõi thu chi, nhiều ví và ngân sách tháng.</li>
+                        <li>Ghi nhận giấc ngủ, vận động và tâm trạng.</li>
+                    </ul>
+                    <div class="per-tags">
+                        <span class="mk-tag" style="--c:#0D9488">Công việc</span>
+                        <span class="mk-tag" style="--c:#16A34A">Tài chính</span>
+                        <span class="mk-tag" style="--c:#DB2777">Sinh hoạt</span>
                     </div>
-                    <span class="lhi-val-en">Connected</span>
-                    <h3>Kết nối</h3>
-                    <p>Các phân hệ có khả năng liên kết hợp lý để tạo nên mạch trải nghiệm liền mạch.</p>
                 </article>
-
-                <article class="lhi-val-card">
-                    <div class="lhi-val-ic" style="background:var(--p-task-bg);color:var(--p-task-acc)">
-                        <svg class="lh-i"><use href="#lh-check" /></svg>
+                <article class="per-card rv" style="--c:#7C3AED;--d:.16s">
+                    <span class="cw-ico" style="--c:#7C3AED"><svg class="ic"><use href="#lh-kanban" /></svg></span>
+                    <h3>Nhóm dự án &amp; Đồ án</h3>
+                    <p>Phối hợp rõ ràng trên cùng một bảng Kanban, phân công thành viên và theo dõi cột mốc.</p>
+                    <ul class="lp-ticks">
+                        <li>Phân quyền Quản lý, Thành viên và Người xem.</li>
+                        <li>Chia sẻ tài liệu, ghi chú theo quyền xem/sửa.</li>
+                        <li>Xem nhật ký hoạt động và báo cáo tiến độ.</li>
+                    </ul>
+                    <div class="per-tags">
+                        <span class="mk-tag" style="--c:#7C3AED">Dự án</span>
+                        <span class="mk-tag">Chia sẻ</span>
+                        <span class="mk-tag" style="--c:#0891B2">Báo cáo</span>
                     </div>
-                    <span class="lhi-val-en">Actionable</span>
-                    <h3>Hướng đến hành động</h3>
-                    <p>Giúp người dùng theo dõi tiến trình rõ ràng và biết bước tiếp theo cần thực hiện.</p>
-                </article>
-
-                <article class="lhi-val-card">
-                    <div class="lhi-val-ic" style="background:var(--p-knowledge-bg);color:var(--p-knowledge-acc)">
-                        <svg class="lh-i"><use href="#lh-user" /></svg>
-                    </div>
-                    <span class="lhi-val-en">Personalized</span>
-                    <h3>Cá nhân hóa</h3>
-                    <p>Trải nghiệm có thể thích ứng linh hoạt với nhu cầu và nhịp sinh hoạt cá nhân.</p>
                 </article>
             </div>
-
         </div>
     </section>
 
-    <section class="lhi-sec lhi-sec-alt" aria-labelledby="stepsTitle">
-        <div class="lhi-wrap">
-
-            <div class="lhi-sec-head">
-                <h2 id="stepsTitle">Bắt đầu trong 3 bước</h2>
-                <p>Bắt đầu với một phân hệ rồi mở rộng dần theo nhu cầu của bạn.</p>
+    <!-- 5. ONE SYSTEM, MANY CONNECTIONS (khu vực nền tối duy nhất của trang) -->
+    <section class="lp-sec lp-sec-dark" aria-labelledby="cnTitle">
+        <div class="lp-wrap">
+            <div class="lp-head rv">
+                <h2 id="cnTitle">Your information works better together.</h2>
+                <p class="lp-lead" style="color:#94a3b8">Dữ liệu ở một phân hệ không nằm yên một chỗ. Chúng được nối với nhau để bạn không phải nhập lại và luôn nhìn thấy bức tranh đầy đủ.</p>
             </div>
-
-            <ol class="lhi-steps">
-                <li class="lhi-step">
-                    <h3>Tạo tài khoản</h3>
-                    <p>Đăng ký miễn phí chỉ với vài thông tin cơ bản.</p>
-                </li>
-                <li class="lhi-step">
-                    <h3>Chọn nơi bắt đầu</h3>
-                    <p>Mở phân hệ bạn cần nhất, ví dụ Công việc hoặc Học tập, rồi nhập dữ liệu đầu tiên.</p>
-                </li>
-                <li class="lhi-step">
-                    <h3>Xem lại mỗi tuần</h3>
-                    <p>Dùng Dashboard và báo cáo để đánh giá tiến trình và điều chỉnh kế hoạch.</p>
-                </li>
-            </ol>
-
-        </div>
-    </section>
-
-    <!-- =====================================================================
-         SECTION 7 — CTA CUỐI TRANG
-         ===================================================================== -->
-    <section class="lhi-sec" style="padding-top:8px" aria-labelledby="ctaTitle">
-        <div class="lhi-wrap">
-
-            <div class="lhi-cta-box">
-                <h2 id="ctaTitle">Bắt đầu tổ chức cuộc sống theo cách của bạn.</h2>
-                <p>
-                    Khởi tạo không gian cá nhân trên LifeHub để sắp xếp học tập, công việc, tài chính và mục tiêu mỗi ngày một cách rõ ràng hơn.
-                </p>
-
-                <div class="lhi-actions">
-                    <a class="lhi-btn lhi-btn-primary" asp-controller="Auth" asp-action="Register">
-                        Tạo tài khoản miễn phí
-                        <span aria-hidden="true">→</span>
-                    </a>
-                    <a class="lhi-btn" asp-controller="Home" asp-action="Features">
-                        Khám phá tất cả tính năng
-                    </a>
+            <div class="cn">
+                <div class="cn-row rv">
+                    <div><h3>Học tập</h3><small>Bài tập có hạn được đưa vào lịch.</small></div>
+                    <div class="cn-chain">
+                        <span class="cn-node"><svg class="ic"><use href="#lh-book" /></svg>Bài tập &amp; deadline</span><span class="cn-link"><em>hiện trên</em></span>
+                        <span class="cn-node"><svg class="ic"><use href="#lh-cal" /></svg>Lịch chung</span><span class="cn-link"><em>kèm</em></span>
+                        <span class="cn-node is-end"><svg class="ic"><use href="#lh-bell" /></svg>Nhắc nhở</span>
+                    </div>
+                </div>
+                <div class="cn-row rv" style="--d:.06s">
+                    <div><h3>Công việc</h3><small>Một việc có thể gắn với nhiều đối tượng.</small></div>
+                    <div class="cn-chain">
+                        <span class="cn-node"><svg class="ic"><use href="#lh-check" /></svg>Công việc</span><span class="cn-link"><em>thuộc về</em></span>
+                        <div class="cn-node-multi"><span class="cn-node is-end">Môn học</span><span class="cn-node is-end">Dự án</span><span class="cn-node is-end">Mục tiêu</span></div>
+                    </div>
+                </div>
+                <div class="cn-row rv" style="--d:.12s">
+                    <div><h3>Tập trung</h3><small>Mỗi phiên Pomodoro gắn với việc đang làm.</small></div>
+                    <div class="cn-chain">
+                        <span class="cn-node"><svg class="ic"><use href="#lh-timer" /></svg>Phiên Pomodoro</span><span class="cn-link"><em>gắn với</em></span>
+                        <span class="cn-node"><svg class="ic"><use href="#lh-check" /></svg>Công việc</span><span class="cn-link"><em>tính vào</em></span>
+                        <span class="cn-node is-end"><svg class="ic"><use href="#lh-clock" /></svg>Thời gian tập trung</span>
+                    </div>
+                </div>
+                <div class="cn-row rv" style="--d:.18s">
+                    <div><h3>Tài chính</h3><small>Giao dịch cập nhật dữ liệu tài chính liên quan.</small></div>
+                    <div class="cn-chain">
+                        <span class="cn-node"><svg class="ic"><use href="#lh-wallet" /></svg>Giao dịch</span><span class="cn-link"><em>ghi vào</em></span>
+                        <span class="cn-node"><svg class="ic"><use href="#lh-folder" /></svg>Ví / Danh mục</span><span class="cn-link"><em>so với</em></span>
+                        <span class="cn-node is-end"><svg class="ic"><use href="#lh-chart" /></svg>Ngân sách</span>
+                    </div>
                 </div>
             </div>
-
+            <div class="cw-more" style="text-align:left"><a class="lp-textlink" style="color:#93c5fd" asp-controller="Home" asp-action="HowItWorks">Xem cách dữ liệu được liên kết <svg class="ic"><use href="#lh-arrow" /></svg></a></div>
         </div>
     </section>
-    
-    <script src="~/js/home-intro-extra.js" asp-append-version="true" defer></script>
+
+    <!-- 6. BUILT AROUND YOUR LIFE -->
+    <section class="lp-sec lp-sec-tint" aria-labelledby="pzTitle">
+        <div class="lp-wrap pz">
+            <div class="rv">
+                <span class="lp-kicker">Cá nhân hóa</span>
+                <h2 id="pzTitle">Make LifeHub work your way.</h2>
+                <ul class="lp-ticks">
+                    <li>Chỉ hiển thị những phân hệ bạn thường dùng.</li>
+                    <li>Tùy chỉnh cách tổ chức dữ liệu của riêng bạn.</li>
+                    <li>Chọn giao diện sáng hoặc tối.</li>
+                    <li>Theo dõi những thông tin quan trọng ngay trên Dashboard.</li>
+                </ul>
+            </div>
+            <div class="pz-demo rv" style="--d:.1s">
+                <div class="pz-panel">
+                    <h4>Phân hệ hiển thị</h4>
+                    <p>Thử bật hoặc tắt để xem thanh bên thay đổi.</p>
+                    @foreach (var m in mods.Take(7))
+                    {
+                        <label class="pz-opt"><span>@m.Name</span>
+                            <input type="checkbox" data-mod="@m.Key" checked /><span class="pz-sw" aria-hidden="true"></span></label>
+                    }
+                </div>
+                <div class="pz-view">
+                    <div class="mk-side" aria-hidden="true">
+                        @foreach (var m in mods.Take(7))
+                        {
+                            <div class="mk-nav @(m.Key == "task" ? "is-on" : "")" data-mod="@m.Key"><svg class="ic"><use href="#@m.Icon" /></svg>@m.Name</div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. DESIGNED FOR EVERYDAY USE -->
+    <section class="lp-sec" aria-labelledby="edTitle">
+        <div class="lp-wrap ed">
+            <div class="rv">
+                <h2 id="edTitle" style="margin-bottom:36px">A workspace that fits your routine.</h2>
+                <div class="ed-pts">
+                    <div class="ed-pt"><span class="cw-ico"><svg class="ic"><use href="#lh-grid" /></svg></span><div><h3>Easy to navigate</h3><p>Điều hướng rõ ràng, các chức năng được nhóm hợp lý theo từng lĩnh vực.</p></div></div>
+                    <div class="ed-pt"><span class="cw-ico"><svg class="ic"><use href="#lh-bell" /></svg></span><div><h3>Stay informed</h3><p>Thông báo và nhắc nhở hỗ trợ bạn theo dõi công việc và các mốc quan trọng.</p></div></div>
+                    <div class="ed-pt"><span class="cw-ico"><svg class="ic"><use href="#lh-search" /></svg></span><div><h3>Work across screens</h3><p>Bố cục tương thích máy tính, máy tính bảng và điện thoại — chỉ cần mở trình duyệt.</p></div></div>
+                </div>
+            </div>
+            <div class="dv rv" style="--d:.1s" aria-hidden="true">
+                <div class="dv-d"><div class="mk-bar"><i></i><i></i><i></i></div>
+                    <div class="dv-in"><div class="dv-line b"></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"><div class="dv-blk"></div><div class="dv-blk"></div><div class="dv-blk"></div></div>
+                        <div class="mk-row"><span class="mk-cb on"></span><span>Nộp báo cáo</span></div><div class="mk-row"><span class="mk-cb"></span><span>Họp nhóm đồ án</span></div></div></div>
+                <div class="dv-t"><div class="dv-in"><div class="dv-line b"></div><div class="dv-blk"></div><div class="mk-row"><span class="mk-cb on"></span><span>Ôn tập</span></div><div class="mk-row"><span class="mk-cb"></span><span>Đi chợ</span></div></div></div>
+                <div class="dv-p"><div class="dv-in" style="padding:10px"><div class="dv-line b"></div><div class="dv-blk" style="height:34px"></div><div class="dv-line"></div><div class="dv-line"></div></div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7B. WHY LIFEHUB (HIGHLIGHTS) -->
+    <section class="lp-sec lp-sec-soft" aria-labelledby="hlTitle">
+        <div class="lp-wrap">
+            <div class="lp-head is-center rv">
+                <span class="lp-kicker">Triết lý thiết kế</span>
+                <h2 id="hlTitle">Built to stay calm, fast, and dependable.</h2>
+                <p class="lp-lead">LifeHub không cố gắng nhồi nhét hiệu ứng phức tạp. Mọi thành phần đều hướng đến việc giúp bạn nhìn rõ việc cần làm và bắt tay vào làm ngay.</p>
+            </div>
+            <div class="hl-grid">
+                <article class="hl-card rv">
+                    <div class="hl-num">10+</div>
+                    <h3>Phân hệ trong một tài khoản</h3>
+                    <p>Từ học tập, công việc, dự án đến tài chính và sinh hoạt — bạn chỉ bật những phân hệ mình thực sự dùng, giữ giao diện luôn gọn gàng.</p>
+                </article>
+                <article class="hl-card rv" style="--d:.08s">
+                    <div class="hl-num">01</div>
+                    <h3>Nguồn dữ liệu thống nhất</h3>
+                    <p>Deadline bài tập tự hiện trên lịch, phiên Pomodoro cộng vào giờ tập trung, giao dịch cập nhật ngân sách — không cần nhập lặp lại.</p>
+                </article>
+                <article class="hl-card rv" style="--d:.16s">
+                    <div class="hl-num">100%</div>
+                    <h3>Riêng tư &amp; chủ động</h3>
+                    <p>Mỗi tài khoản có không gian dữ liệu độc lập, phân quyền rõ ràng khi cộng tác và hỗ trợ xuất báo cáo CSV bất cứ lúc nào.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- 8. FINAL CTA -->
+    <section class="cta" aria-labelledby="ctaTitle">
+        <div class="lp-wrap">
+            <div class="cta-box is-tint rv">
+                <h2 id="ctaTitle">Start building a more organized life.</h2>
+                <p>Đưa những kế hoạch, công việc và mục tiêu của bạn về cùng một không gian.</p>
+                @if (signedIn)
+                {
+                    <a class="lp-btn lp-btn-primary lp-btn-lg" asp-controller="Dashboard" asp-action="Index">Vào ứng dụng</a>
+                }
+                else
+                {
+                    <a class="lp-btn lp-btn-primary lp-btn-lg" asp-controller="Auth" asp-action="Register">Bắt đầu với LifeHub</a>
+                }
+            </div>
+        </div>
+    </section>
 </main>

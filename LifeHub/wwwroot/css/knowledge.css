@@ -1,4 +1,4 @@
-/* =====================================================================
+﻿/* =====================================================================
    LIFEHUB - KNOWLEDGE MANAGEMENT (KIẾN THỨC & TÀI LIỆU)
    Tone Tím Lavender pastel - Đồng bộ 100% Vibe chuẩn với Finance, Study & Task
    ===================================================================== */
@@ -53,7 +53,7 @@ html[data-theme="dark"] .knowledge-page {
     display: inline-block;
     margin-bottom: 8px;
     color: var(--know-accent);
-    font-size: 11px;
+    font-size: var(--fs-xs);
     font-weight: 800;
     letter-spacing: 1.5px;
 }
@@ -67,7 +67,7 @@ html[data-theme="dark"] .knowledge-page {
 .knowledge-page .knowledge-heading p {
     margin-bottom: 0;
     color: var(--know-muted);
-    font-size: 13px;
+    font-size: var(--fs-base);
     line-height: 1.6;
 }
 .knowledge-page .heading-actions {
@@ -87,7 +87,7 @@ html[data-theme="dark"] .knowledge-page {
     border-radius: 12px;
     background: var(--know-card);
     color: var(--know-text);
-    font-size: 13px;
+    font-size: var(--fs-base);
     font-weight: 650;
     cursor: pointer;
     text-decoration: none;
@@ -141,7 +141,7 @@ html[data-theme="dark"] .knowledge-page {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 12px;
+    font-size: var(--fs-sm);
     font-weight: 600;
     color: var(--know-muted);
 }
@@ -167,7 +167,7 @@ html[data-theme="dark"] .knowledge-page {
 .knowledge-page .summary-card p {
     margin: 0;
     color: var(--know-muted);
-    font-size: 11px;
+    font-size: var(--fs-xs);
 }
 
 /* LƯỚI CARD GHI CHÚ */
@@ -194,13 +194,13 @@ html[data-theme="dark"] .knowledge-page {
 }
 .knowledge-page .note-card-box h3 {
     margin: 0 0 6px;
-    font-size: 15px;
+    font-size: var(--fs-lg);
     font-weight: 750;
     color: var(--know-text);
 }
 .knowledge-page .note-card-box p {
     margin: 0 0 14px;
-    font-size: 12px;
+    font-size: var(--fs-sm);
     color: var(--know-muted);
     line-height: 1.5;
 }
@@ -215,7 +215,7 @@ html[data-theme="dark"] .knowledge-page {
     background: var(--know-card);
     border: 1px solid var(--know-border);
     margin-bottom: 8px;
-    font-size: 13px;
+    font-size: var(--fs-base);
 }
 
 /* Responsive */
